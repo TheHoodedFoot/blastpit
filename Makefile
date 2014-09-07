@@ -260,11 +260,10 @@ alltargetscheck:
 		echo wscli | $(FIGLET)
 		make wscli_portable_x86
 
-		# Temporarily removed due to arm64 Tracy failure
-		# make clean
-		# make $(BUILD_DIR)
-		# echo profile | $(FIGLET)
-		# make profile
+		make clean
+		make $(BUILD_DIR)
+		echo profile | $(FIGLET)
+		make profile
 
 # Prevent intermediate files being deleted and rebuilt every time
 # .SECONDARY: 	$(LIBBLASTPIT_OBJS) $(TEST_OBJS)
