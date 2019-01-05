@@ -37,6 +37,6 @@
 [submodule "sub/swig_qt"]
 	path = sub/swig_qt
 	url = https://github.com/feddischson/swig_qt.git
-[submodule "sub/hello-sip-pyqt5"]
-	path = sub/hello-sip-pyqt5
-	url = https://github.com/zanton/hello-sip-pyqt5.git
+;[submodule "sub/hello-sip-pyqt5"]
+;	path = sub/hello-sip-pyqt5
+;	url = https://github.com/zanton/hello-sip-pyqt5.git
