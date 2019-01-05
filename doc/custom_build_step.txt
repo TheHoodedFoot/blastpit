@@ -1,0 +1,7 @@
+Qt Creator -> Projects -> Build & Run -> Build Settings
+
+Add Build Step
+
+	Command:	cmd
+	Arguments:	/c copy lmos-tray\release\lmos-tray.exe \\ROFIN-PC\Blastpit
+	Working dir:	%{buildDir}

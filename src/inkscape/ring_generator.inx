@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <_name>Ring Generator</_name>
+  <id>org.inkscape.laser.ringgenerator</id>
+  <dependency type="executable" location="extensions">ring_generator.py</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <param name="name" type="notebook">
+    <page name="geometry" gui-text="Ring Geometry">
+      <param name="diameter" type="float" precision="2" min="10" max="70" gui-text="Ring Diameter:">20
+		</param>
+      <param name="width" type="float" precision="2" min="0" max="120" gui-text="Ring Width:">6
+		</param>
+      <param name="holder" type="optiongroup" gui-text="Ring Holder:">
+        <option value="flush">Flush with shield</option>
+        <option value="centreoffset">Centre offset from shield</option>
+        <option value="topoffset">Top offset from shield</option>
+      </param>
+      <param name="offset" type="float" precision="2" min="0" max="120" gui-text="Offset distance">4.0
+		</param>
+    </page>
+    <page name="parameters" gui-text="Parameters">
+      <param name="sagitta" type="float" precision="2" min="0" max="3" gui-text="Focal range (mm)">1.0
+		</param>
+      <param name="overlap" type="float" precision="2" min="0" max="120" gui-text="Shadow overlap (mm)">2.0
+		</param>
+      <param name="face" type="float" precision="2" min="0" max="120" gui-text="Ring holder face offset (mm)">76.0
+		</param>
+    </page>
+  </param>
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Laser"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command reldir="extensions" interpreter="python">ring_generator.py</command>
+  </script>
+</inkscape-extension>

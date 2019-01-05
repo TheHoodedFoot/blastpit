@@ -1,0 +1,9 @@
+/usr/include/qt5/QtCore
+/usr/include/qt5/QtGui
+/usr/include/qt5/QtNetwork
+/usr/include/qt5/QtTest
+/usr/include/qt5/QtWidgets
+sub/nanosvg/src
+sub/pugixml/src
+/usr/include/mosquitto.h
+/usr/include/mosquittopp.h

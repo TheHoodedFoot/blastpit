@@ -1,0 +1,25 @@
+all:	client server
+
+client:	client.cpp
+	g++ -std=c++11 -fPIC \
+		-I ../../libblastpit \
+		-I /usr/include/qt5/QtCore \
+		-I /usr/include/qt5/ \
+		-I /usr/include/qt5/QtNetwork \
+		client.cpp \
+		-lQt5Core -lQt5Network \
+		-o client \
+		-Wl,-rpath /home/thf/usr/src/blastpit/build/libblastpit \
+		/home/thf/usr/src/blastpit/build/libblastpit/libblastpit.so.1
+
+server:	server.cpp
+	g++ -std=c++11 -fPIC \
+		-I ../../libblastpit \
+		-I /usr/include/qt5/QtCore \
+		-I /usr/include/qt5/ \
+		-I /usr/include/qt5/QtNetwork \
+		server.cpp \
+		-lQt5Core -lQt5Network \
+		-o server \
+		-Wl,-rpath /home/thf/usr/src/blastpit/build/libblastpit \
+		/home/thf/usr/src/blastpit/build/libblastpit/libblastpit.so.1

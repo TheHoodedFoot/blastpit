@@ -1,0 +1,62 @@
+ID: 999, Command: 26, Size: 0
+5: (TermMachine) Calling lmos.TermMachine()
+ID: 999, Command: 26, Size: 0
+5: (TermMachine) Calling lmos.TermMachine()
+ID: 999, Command: 30, Size: 0
+5: (ClearQPSets) Clearing QP Sets
+5: (ClearQPSets) Deleting bp_000000
+ID: 999, Command: 0, Size: 111
+5: (AddQPSet) Name: bp_000000, Current: 30, Speed: 500, Frequency: 60000
+ID: 2, Command: 4, Size: 1139
+5: (LoadXML) Loading xml
+ID: 999, Command: 7, Size: 96
+ID: 997, Command: 5, Size: 0
+5: (InitMachine) bplInitMachine: Calling InitMachine()...
+ID: 999, Command: 22, Size: 71
+5: (StartPosHelp) object: path12
+(Event) SpeedChanged(int)
+(Event) SpeedChanged(int)
+ID: 999, Command: 30, Size: 0
+5: (ClearQPSets) Clearing QP Sets
+5: (ClearQPSets) Deleting bp_000000
+ID: 999, Command: 0, Size: 111
+5: (AddQPSet) Name: bp_000000, Current: 30, Speed: 500, Frequency: 60000
+ID: 2, Command: 4, Size: 1139
+5: (LoadXML) Loading xml
+ID: 999, Command: 7, Size: 96
+ID: 997, Command: 5, Size: 0
+5: (InitMachine) bplInitMachine: Calling InitMachine()...
+ID: 998, Command: 24, Size: 0
+5: (StopMarking) Calling lmos.StopMarking()
+ID: 3, Command: 21, Size: 0
+5: (StartMarking) Calling lmos.StartMarking()
+(Event) MessageMap(QString&)
+(MessageMap) Stop alarm raised
+(Event) ALARM(int,QString,QString,int)
+(Alarm) 13, Stop alarm raised, , 0
+(Event) ImageBegin()
+5: (imagebegin) imagebegin signal issued
+(Event) SubStateChanged(eLaserSubStateConstants)
+(Event) MOBeginName(QString&)
+5: (mOBeginName) signal issued
+5: (mOBeginName) param1: gpath12
+(Event) SpeedChanged(int)
+(Event) LaserPowerChanged(double,QString&)
+(Event) SubStateChanged(eLaserSubStateConstants)
+(Event) FrequencyChanged(int)
+5: (frequencyChanged) signal issued
+5: (frequencyChanged) param1: 60000
+(Event) MOEndName(QString&)
+5: (mOEndName) signal issued
+5: (mOEndName) param1: gpath12
+(Event) MOBeginName(QString&)
+5: (mOBeginName) signal issued
+5: (mOBeginName) param1: path12
+(Event) MOEndName(QString&)
+5: (mOEndName) signal issued
+5: (mOEndName) param1: path12
+(Event) ImageEnd()
+5: (imageend) imageend2 signal issued
+(Event) ImageEnd2(double,ImageResultConstants)
+5: (imageEnd2) signal issued
+5: (imageEnd2) param1: 6.36909 param2: 0

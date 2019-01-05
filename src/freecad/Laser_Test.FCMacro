@@ -1,0 +1,31 @@
+import lasergen
+import blastpy
+
+# Our main blastpy object
+xml = blastpy.BpXML()
+
+# A custom layer
+ly = xml.addLayer("mylayer", 220, 160, 100)
+
+# A sample polyline
+pline = blastpy.BpPolyline("pline01", 50, 50, "Dry Run", "Two_Pass")
+pline.setLayer("mylayer")
+pline.line(([50, 70], [70,70], [70,50]))
+pline.close()
+xml.addPolyline(pline)
+
+# Add selected items
+sel = FreeCADGui.Selection.getSelection()
+if sel is not None:
+    xml = lasergen.process(xml, sel, "Cleaning", "Two_Pass")
+
+# Connect to server and upload
+bp = blastpy.Blastpit("10.47.1.239", 1030)
+bp.init(1)
+bp.upload(2, xml.xml())
+bp.layerSetVisible(3, "mylayer", 0)
+bp.setPosValues(3, "GalvoGroupShadow101", 70, 0, 0)
+bp.setDimension(4, "GalvoGroupShadow101", 5, 120)
+# bp.saveVLM(5, "C:\\Users\\Rofin\\Desktop\\test_save_blastpit.VLM")
+
+#bp.finish(6)

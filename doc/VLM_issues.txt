@@ -1,0 +1,36 @@
+UI Issues
+---------
+
+Multiple LP mode can cause the console to lock (all controls greyed out)
+easy gui has no undo or save warning
+Poor optimisation of graphics when hatched
+Accessing properties of multiple items with large paths can cause lockup
+
+
+General Issues
+--------------
+
+Fonts with overlapping letters are not merged and are overmarked.
+No ability to calibrate or compensate for rings that are not perfectly circular.
+No elliptical bangles.
+Can only do inside rings with easy gui as calculation of vector not explained well enough in manual. No wizards to calculate axial vector for tilted cylinder.
+
+
+Shadows
+-------
+
+Does not calculate shadows to miss gaps or prevent under/over marking
+Shadow calculation is poor (non-existent in EasyGui). Flipping back and forth between shadow and drawing view changes zoom.
+No ability to break rings into circular sections at different heights for marking the inside of wide rings that lose focus.
+
+
+LMOS Problems
+-------------
+
+Imported groups have bounding box issue
+Cannot create geometries directly in LMOS - forced to use import
+Cannot create or import shadows
+Import is missing features:
+	local lp sets or local hatch patterns
+	full LP parameters
+

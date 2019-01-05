@@ -1,0 +1,42 @@
+[submodule "sub/libsvgtiny"]
+	path = sub/libsvgtiny
+	url = git://git.netsurf-browser.org/libsvgtiny.git
+[submodule "sub/SVGnest"]
+	path = sub/SVGnest
+	url = git://github.com/Jack000/SVGnest.git
+[submodule "sub/pugixml"]
+	path = sub/pugixml
+	url = git://github.com/zeux/pugixml.git
+[submodule "sub/simplify-cpp"]
+	path = sub/simplify-cpp
+	url = git://github.com/FishingCactus/simplify-cpp.git
+[submodule "sub/nanosvg"]
+	path = sub/nanosvg
+	url = git://github.com/memononen/nanosvg.git
+[submodule "sub/simplify.py"]
+	path = sub/simplify.py
+	url = git://github.com/omarestrella/simplify.py.git
+; [submodule "sub/python-svg"]
+; 	path = sub/svg
+; 	url = git://github.com/cjlano/svg.git
+[submodule "sub/svg.path"]
+	path = sub/svg.path
+	url = git://github.com/regebro/svg.path.git
+[submodule "sub/CRCpp"]
+	path = sub/CRCpp
+	url = https://github.com/d-bahr/CRCpp.git
+[submodule "sub/svg"]
+	path = sub/svg
+	url = https://github.com/cjlano/svg.git
+; [submodule "python-qrcode"]
+; 	path = python-qrcode
+; 	url = https://github.com/lincolnloop/python-qrcode
+[submodule "sub/python-qrcode"]
+	path = sub/python-qrcode
+	url = https://github.com/lincolnloop/python-qrcode
+[submodule "sub/swig_qt"]
+	path = sub/swig_qt
+	url = https://github.com/feddischson/swig_qt.git
+[submodule "sub/hello-sip-pyqt5"]
+	path = sub/hello-sip-pyqt5
+	url = https://github.com/zanton/hello-sip-pyqt5.git

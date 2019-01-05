@@ -1,0 +1,455 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Legrand Orange Book
+% LaTeX Template
+% Version 2.1 (14/11/15)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Mathias Legrand (legrand.mathias@gmail.com) with modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+% Compiling this template:
+% This template uses biber for its bibliography and makeindex for its index.
+% When you first open the template, compile it from the command line with the 
+% commands below to make sure your LaTeX distribution is configured correctly:
+%
+% 1) pdflatex main
+% 2) makeindex main.idx -s StyleInd.ist
+% 3) biber main
+% 4) pdflatex main x 2
+%
+% After this, when you wish to update the bibliography/index use the appropriate
+% command above and make sure to compile with pdflatex several times 
+% afterwards to propagate your changes to the document.
+%
+% This template also uses a number of packages which may need to be
+% updated to the newest versions for the template to compile. It is strongly
+% recommended you update your LaTeX distribution if you have any
+% compilation errors.
+%
+% Important note:
+% Chapter heading images should have a 2:1 width:height ratio,
+% e.g. 920px width and 460px height.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt,fleqn]{book} % Default font size and left-justified equations
+
+%----------------------------------------------------------------------------------------
+
+\input{imports/structure} % Insert the commands.tex file which contains the majority of the structure behind the template
+\input{imports/code_snippets}
+
+\usepackage{draftwatermark}
+\SetWatermarkText{Draft}
+\SetWatermarkScale{0.8}
+\SetWatermarkColor[rgb]{0.9,0.9,0.9}
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\begingroup
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+\coordinate [below=12cm] (midpoint) at (current page.north);
+\node at (current page.north west)
+{\begin{tikzpicture}[remember picture,overlay]
+\node[anchor=north west,inner sep=0pt] at (0,0) {\includegraphics[width=\paperwidth]{background}}; % Background image
+\draw[anchor=north] (midpoint) node [fill=ocre!30!white,fill opacity=0.6,text opacity=1,inner sep=1cm]{\Huge\centering\bfseries\sffamily\parbox[c][][t]{\paperwidth}{\centering The Blastpit Manual\\[15pt] % Book title
+%{\Large Network control of laser marking}\\[20pt] % Subtitle
+{\huge R.F. Bevan \& Company Limited}}}; % Author name
+\end{tikzpicture}};
+\end{tikzpicture}
+\vfill
+\endgroup
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+~\vfill
+\thispagestyle{empty}
+
+\noindent Copyright \copyright\ 2016 R.F. Bevan \& Company Limited\\ % Copyright notice
+
+%\noindent \textsc{Published by Publisher}\\ % Publisher
+
+%\noindent \textsc{book-website.com}\\ % URL
+
+\noindent This manual is based on the Legrand Orange Book LaTeX template, originally created by Mathias Legrand (legrand.mathias@gmail.com) with modifications by Vel (vel@latextemplates.com)\\
+
+\noindent Licensed under the Creative Commons Attribution-NonCommercial 3.0 Unported License (the ``License''). You may not use this file except in compliance with the License. You may obtain a copy of the License at \url{http://creativecommons.org/licenses/by-nc/3.0}. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \textsc{``as is'' basis, without warranties or conditions of any kind}, either express or implied. See the License for the specific language governing permissions and limitations under the License.\\ % License information
+
+%\noindent \textit{First printing, March 2013} % Printing/edition date
+
+\newpage
+
+This manual is being used for "Documentation Driven Development", and as such
+is an expectation of how the finished software should behave. It may therefore
+contain references to features that are not yet incorporated into the main
+software package, and may never actually be developed.
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+\chapterimage{chapter_head_1.pdf} % Table of contents heading image
+
+\pagestyle{empty} % No headers
+
+\tableofcontents % Print the table of contents itself
+
+\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+%----------------------------------------------------------------------------------------
+%	PART
+%----------------------------------------------------------------------------------------
+
+\part{Introduction}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 1
+%----------------------------------------------------------------------------------------
+
+\chapterimage{chapter_head_2.pdf} % Chapter heading image
+
+\chapter{Introduction}
+
+\section{What is blastpit?}\index{Blastpit (about)}
+
+Blastpit is a free software package that provides network control of the Rofin
+EasyJewel laser system, and allows for integration into other CAD or
+illustration software. You can write programs in the popular Python language
+that can control most aspects of the laser system, making it easy to automate
+repetitive tasks.
+
+\section{Features}\index{Features}
+
+\begin{itemize}
+        \item Network control of the laser functions
+        \item Fully scriptable from the Python language
+        \item 3d mouse and controller support
+        \item Plugins for Inkscape, a vector graphics editor, and FreeCAD, a powerful CAD package
+        %\item Utility functions to help cleanup drawings and prevent problems such as incorrect hatching
+        %\item Incorporates image recognition for verification and error prevention
+        %\item Improved bitmap support
+        %\item Support for GNU Octave, a powerful numerical language with extensive geometry libraries
+        \item Non-proprietary and free of digital restrictions
+\end{itemize}
+
+\section{Why use it?}
+
+Blastpit aims to be a seamless interface between your chosen design software
+and the laser hardware. If everything works as planned, you really shouldn't 
+notice blastpit at all.
+
+\section{An Example}
+
+Here is an example of a Python script that marks a circle:
+
+\insertcode{"code_snippets/circle.py"}{Simple Python program.} % The first argument is the script location/filename and the second is a caption for the listing
+
+%
+
+\part{Installation}
+
+\chapter{Installation}
+
+\section{Getting the software}
+
+\section{Installing Blastpit}
+
+\subsection{Installing the Inkscape plugin}\index{Inkscape, installing}\index{Plugin, Inkscape}
+
+\subsection{Installing the FreeCAD workbench}
+
+\section{Compiling it yourself}\index{Compiling}
+
+%
+
+\part{Using Blastpit}
+
+\chapter{Using Blastpit}
+
+\section{Using Blastpit with Inkscape}\index{Inkscape, using}
+
+\section{Using Blastpit with FreeCAD}
+
+\section{Using a 3d controller for real-time adjustment}
+
+\section{Writing Python programs}\index{Python}
+
+\section{Using GNU Octave}\index{Octave}\index{GNU Octave}
+
+%
+
+\part{Additional Features}
+
+\chapter{Calibration}
+
+When using the rotary axis to mark a continuous pattern, it may be necessary to digitise the item being engraved in order to avoid seams at the boundaries between rotations. By marking calibration lines during a dry run, it is possible to compensate for variations in the item diameter or axial parallelism.
+
+
+\section{Performing a Calibrating Dry Run}\index{calibration, rotary axis}
+
+
+%------------------------------------------------
+
+%\section{Lists}\index{Lists}
+%
+%Lists are useful to present information in a concise and/or ordered way\footnote{Footnote example...}.
+%
+%\subsection{Numbered List}\index{Lists!Numbered List}
+%
+%\begin{enumerate}
+%\item The first item
+%\item The second item
+%\item The third item
+%\end{enumerate}
+%
+%\subsection{Bullet Points}\index{Lists!Bullet Points}
+%
+%\begin{itemize}
+%\item The first item
+%\item The second item
+%\item The third item
+%\end{itemize}
+%
+%\subsection{Descriptions and Definitions}\index{Lists!Descriptions and Definitions}
+%
+%\begin{description}
+%\item[Name] Description
+%\item[Word] Definition
+%\item[Comment] Elaboration
+%\end{description}
+%
+%%----------------------------------------------------------------------------------------
+%%	CHAPTER 2
+%%----------------------------------------------------------------------------------------
+%
+%\chapter{In-text Elements}
+%
+%\section{Theorems}\index{Theorems}
+%
+%This is an example of theorems.
+%
+%\subsection{Several equations}\index{Theorems!Several Equations}
+%This is a theorem consisting of several equations.
+%
+%\begin{theorem}[Name of the theorem]
+%In $E=\mathbb{R}^n$ all norms are equivalent. It has the properties:
+%\begin{align}
+%& \big| ||\mathbf{x}|| - ||\mathbf{y}|| \big|\leq || \mathbf{x}- \mathbf{y}||\\
+%&  ||\sum_{i=1}^n\mathbf{x}_i||\leq \sum_{i=1}^n||\mathbf{x}_i||\quad\text{where $n$ is a finite integer}
+%\end{align}
+%\end{theorem}
+%
+%\subsection{Single Line}\index{Theorems!Single Line}
+%This is a theorem consisting of just one line.
+%
+%\begin{theorem}
+%A set $\mathcal{D}(G)$ in dense in $L^2(G)$, $|\cdot|_0$. 
+%\end{theorem}
+%
+%%------------------------------------------------
+%
+%\section{Definitions}\index{Definitions}
+%
+%This is an example of a definition. A definition could be mathematical or it could define a concept.
+%
+%\begin{definition}[Definition name]
+%Given a vector space $E$, a norm on $E$ is an application, denoted $||\cdot||$, $E$ in $\mathbb{R}^+=[0,+\infty[$ such that:
+%\begin{align}
+%& ||\mathbf{x}||=0\ \Rightarrow\ \mathbf{x}=\mathbf{0}\\
+%& ||\lambda \mathbf{x}||=|\lambda|\cdot ||\mathbf{x}||\\
+%& ||\mathbf{x}+\mathbf{y}||\leq ||\mathbf{x}||+||\mathbf{y}||
+%\end{align}
+%\end{definition}
+%
+%%------------------------------------------------
+%
+%\section{Notations}\index{Notations}
+%
+%\begin{notation}
+%Given an open subset $G$ of $\mathbb{R}^n$, the set of functions $\varphi$ are:
+%\begin{enumerate}
+%\item Bounded support $G$;
+%\item Infinitely differentiable;
+%\end{enumerate}
+%a vector space is denoted by $\mathcal{D}(G)$. 
+%\end{notation}
+%
+%%------------------------------------------------
+%
+%\section{Remarks}\index{Remarks}
+%
+%This is an example of a remark.
+%
+%\begin{remark}
+%The concepts presented here are now in conventional employment in mathematics. Vector spaces are taken over the field $\mathbb{K}=\mathbb{R}$, however, established properties are easily extended to $\mathbb{K}=\mathbb{C}$.
+%\end{remark}
+%
+%%------------------------------------------------
+%
+%\section{Corollaries}\index{Corollaries}
+%
+%This is an example of a corollary.
+%
+%\begin{corollary}[Corollary name]
+%The concepts presented here are now in conventional employment in mathematics. Vector spaces are taken over the field $\mathbb{K}=\mathbb{R}$, however, established properties are easily extended to $\mathbb{K}=\mathbb{C}$.
+%\end{corollary}
+%
+%%------------------------------------------------
+%
+%\section{Propositions}\index{Propositions}
+%
+%This is an example of propositions.
+%
+%\subsection{Several equations}\index{Propositions!Several Equations}
+%
+%\begin{proposition}[Proposition name]
+%It has the properties:
+%\begin{align}
+%& \big| ||\mathbf{x}|| - ||\mathbf{y}|| \big|\leq || \mathbf{x}- \mathbf{y}||\\
+%&  ||\sum_{i=1}^n\mathbf{x}_i||\leq \sum_{i=1}^n||\mathbf{x}_i||\quad\text{where $n$ is a finite integer}
+%\end{align}
+%\end{proposition}
+%
+%\subsection{Single Line}\index{Propositions!Single Line}
+%
+%\begin{proposition} 
+%Let $f,g\in L^2(G)$; if $\forall \varphi\in\mathcal{D}(G)$, $(f,\varphi)_0=(g,\varphi)_0$ then $f = g$. 
+%\end{proposition}
+%
+%%------------------------------------------------
+%
+%\section{Examples}\index{Examples}
+%
+%This is an example of examples.
+%
+%\subsection{Equation and Text}\index{Examples!Equation and Text}
+%
+%\begin{example}
+%Let $G=\{x\in\mathbb{R}^2:|x|<3\}$ and denoted by: $x^0=(1,1)$; consider the function:
+%\begin{equation}
+%f(x)=\left\{\begin{aligned} & \mathrm{e}^{|x|} & & \text{si $|x-x^0|\leq 1/2$}\\
+%& 0 & & \text{si $|x-x^0|> 1/2$}\end{aligned}\right.
+%\end{equation}
+%The function $f$ has bounded support, we can take $A=\{x\in\mathbb{R}^2:|x-x^0|\leq 1/2+\epsilon\}$ for all $\epsilon\in\intoo{0}{5/2-\sqrt{2}}$.
+%\end{example}
+%
+%\subsection{Paragraph of Text}\index{Examples!Paragraph of Text}
+%
+%\begin{example}[Example name]
+%\lipsum[2]
+%\end{example}
+%
+%%------------------------------------------------
+%
+%\section{Exercises}\index{Exercises}
+%
+%This is an example of an exercise.
+%
+%\begin{exercise}
+%This is a good place to ask a question to test learning progress or further cement ideas into students' minds.
+%\end{exercise}
+%
+%%------------------------------------------------
+%
+%\section{Problems}\index{Problems}
+%
+%\begin{problem}
+%What is the average airspeed velocity of an unladen swallow?
+%\end{problem}
+%
+%%------------------------------------------------
+%
+%\section{Vocabulary}\index{Vocabulary}
+%
+%Define a word to improve a students' vocabulary.
+%
+%\begin{vocabulary}[Word]
+%Definition of word.
+%\end{vocabulary}
+%
+%%----------------------------------------------------------------------------------------
+%%	PART
+%%----------------------------------------------------------------------------------------
+%
+%\part{Part Two}
+%
+%%----------------------------------------------------------------------------------------
+%%	CHAPTER 3
+%%----------------------------------------------------------------------------------------
+%
+%\chapterimage{chapter_head_1.pdf} % Chapter heading image
+%
+%\chapter{Presenting Information}
+%
+%\section{Table}\index{Table}
+%
+%\begin{table}[h]
+%\centering
+%\begin{tabular}{l l l}
+%\toprule
+%\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
+%\midrule
+%Treatment 1 & 0.0003262 & 0.562 \\
+%Treatment 2 & 0.0015681 & 0.910 \\
+%Treatment 3 & 0.0009271 & 0.296 \\
+%\bottomrule
+%\end{tabular}
+%\caption{Table caption}
+%\end{table}
+%
+%%------------------------------------------------
+%
+%\section{Figure}\index{Figure}
+%
+%\begin{figure}[h]
+%\centering\includegraphics[scale=0.5]{placeholder}
+%\caption{Figure caption}
+%\end{figure}
+%
+%%----------------------------------------------------------------------------------------
+%%	BIBLIOGRAPHY
+%%----------------------------------------------------------------------------------------
+%
+%%\chapter*{Bibliography}
+%%\addcontentsline{toc}{chapter}{\textcolor{ocre}{Bibliography}}
+%%\section*{Books}
+%%\addcontentsline{toc}{section}{Books}
+%%\printbibliography[heading=bibempty,type=book]
+%%\section*{Articles}
+%%\addcontentsline{toc}{section}{Articles}
+%%\printbibliography[heading=bibempty,type=article]
+%
+%%----------------------------------------------------------------------------------------
+%%	INDEX
+%%----------------------------------------------------------------------------------------
+
+\cleardoublepage
+\phantomsection
+\setlength{\columnsep}{0.75cm}
+\addcontentsline{toc}{chapter}{\textcolor{ocre}{Index}}
+\printindex
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
