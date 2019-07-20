@@ -1,0 +1,46 @@
+#!/bin/sh
+YEAR=`date +%Y`
+MONTH=`date +%B`
+ROOT=${HOME}/Pictures/Microscope
+DIR=${ROOT}/${YEAR}/${MONTH}_${YEAR}
+if [ ! -d "${DIR}/thumbs" ]; then
+        echo "Creating directory ${DIR}/thumbs"
+        mkdir -p "${DIR}/thumbs"
+	rm -f ${HOME}/Snaps
+	ln -s ${DIR} ${HOME}/Snaps
+fi
+echo "Entering directory ${DIR}"
+cd "${DIR}"
+/usr/bin/luvcview -r
+
+# Covert pnm to jpg
+mogrify -format jpg *.pnm
+for file in *.pnm
+do
+        cp ${file%.pnm}.jpg "${DIR}/thumbs/"
+        mogrify -format jpg -resize 160x120 -quality 30 thumbs/*.jpg
+done
+
+# Delete successful converted files
+for file in *.pnm
+do
+        echo "Checking $file..."
+        if [ -f "${file}" ]; then
+                body=${file%.pnm}
+                echo "body = $body"
+                echo "Checking if ${body}.jpg exists..."
+                if [ -f "${body}.jpg" ]; then
+                        echo "Removing ${body}.pnm"
+                        rm -v ${body}.pnm
+                fi
+        fi
+done
+
+# Don't start geeqie if libreoffice calc is running
+
+if [ ! $(pgrep localc) ]; then
+	if [ -f "/usr/bin/geeqie" ]; then
+		killall geeqie
+		geeqie "${DIR}"
+	fi
+fi

@@ -1,9 +1,12 @@
 TEMPLATE = subdirs
-SUBDIRS = libblastpit lmos-tray
+#SUBDIRS = libbp
+SUBDIRS = libbp lmos-tray
 CONFIG += ordered
 
+lmos-tray.depends = libbp
+testchamber.depends = libbp
+bpgui.depends = libbp
+
 !win32 {
-	SUBDIRS += testchamber blastpitgui
-	blastpitgui.depends = libblastpit
-	testchamber.depends = libblastpit
+        SUBDIRS += bpgui
 }

@@ -16,9 +16,9 @@
 [submodule "sub/simplify.py"]
 	path = sub/simplify.py
 	url = git://github.com/omarestrella/simplify.py.git
-; [submodule "sub/python-svg"]
-; 	path = sub/svg
-; 	url = git://github.com/cjlano/svg.git
+[submodule "sub/python-svg"]
+	path = sub/svg
+	url = git://github.com/cjlano/svg.git
 [submodule "sub/svg.path"]
 	path = sub/svg.path
 	url = git://github.com/regebro/svg.path.git
@@ -28,15 +28,36 @@
 [submodule "sub/svg"]
 	path = sub/svg
 	url = https://github.com/cjlano/svg.git
-; [submodule "python-qrcode"]
-; 	path = python-qrcode
-; 	url = https://github.com/lincolnloop/python-qrcode
+[submodule "python-qrcode"]
+	path = python-qrcode
+	url = https://github.com/lincolnloop/python-qrcode
 [submodule "sub/python-qrcode"]
 	path = sub/python-qrcode
 	url = https://github.com/lincolnloop/python-qrcode
 [submodule "sub/swig_qt"]
 	path = sub/swig_qt
 	url = https://github.com/feddischson/swig_qt.git
-;[submodule "sub/hello-sip-pyqt5"]
-;	path = sub/hello-sip-pyqt5
-;	url = https://github.com/zanton/hello-sip-pyqt5.git
+[submodule "sub/hello-sip-pyqt5"]
+	path = sub/hello-sip-pyqt5
+	url = https://github.com/zanton/hello-sip-pyqt5.git
+[submodule "sub/paho_mqtt_c"]
+	path = sub/paho_mqtt_c
+	url = https://github.com/eclipse/paho.mqtt.c.git
+[submodule "sub/CException"]
+	path = sub/CException
+	url = https://github.com/ThrowTheSwitch/CException
+[submodule "sub/Unity"]
+	path = sub/Unity
+	url = https://github.com/ThrowTheSwitch/Unity.git
+[submodule "sub/tinyspline"]
+	path = tinyspline
+	url = https://github.com/msteinbeck/tinyspline.git
+[submodule "sub/sds"]
+	path = sub/sds
+	url = https://github.com/antirez/sds.git
+[submodule "sub/apriltag"]
+	path = sub/apriltag
+	url = https://github.com/AprilRobotics/apriltag.git
+[submodule "sub/apriltag-generation"]
+	path = sub/apriltag-generation
+	url = https://github.com/AprilRobotics/apriltag-generation.git

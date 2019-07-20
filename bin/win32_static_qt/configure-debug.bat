@@ -1,10 +1,11 @@
 @echo off
 
 set BUILDTYPE=debug
-set STATICFLAG=
-set VERSION=5.7.0
+REM set BUILDTYPE=release
+REM set STATICFLAG=-static
+set VERSION=5.12.3
 
-set QTDIR=C:\Qt\qt-everywhere-opensource-src-%VERSION%
+set QTDIR=C:\Qt\Qt%VERSION%\%VERSION%\Src
 set INSTALLDIR=C:\Qt\Qt-%VERSION%-%BUILDTYPE%
 set BUILDDIR=C:\Qt\build
 
@@ -12,7 +13,12 @@ set PATH=%PATH%;%INSTALLDIR%\qmake
 set PATH=%PATH%;%SystemRoot%\System32
 set PATH=%PATH%;%QTDIR%\qtbase
 set PATH=%PATH%;%INSTALLDIR%\qtbase\bin
-set QMAKESPEC=win32-g++
+echo set QMAKESPEC=win32-g++
+
+echo set QMAKESPEC=
+echo set XQMAKESPEC=
+echo set QMAKEPATH=
+echo set QMAKEFEATURES=
 
 rmdir /Q /S %BUILDDIR%
 mkdir %BUILDDIR%
@@ -23,21 +29,32 @@ cd %BUILDDIR%
  -skip qt3d^
  -skip qtandroidextras^
  -skip qtcanvas3d^
+ -skip qtcharts^
  -skip qtconnectivity^
+ -skip qtdatavis3d^
  -skip qtdoc^
+ -skip qtgamepad^
  -skip qtgraphicaleffects^
  -skip qtlocation^
  -skip qtmacextras^
  -skip qtmultimedia^
- -skip qtquickcontrols^
+ -skip qtnetworkauth^
+ -skip qtpurchasing^
  -skip qtquickcontrols2^
+ -skip qtquickcontrols^
+ -skip qtremoteobjects^
  -skip qtscript^
+ -skip qtscxml^
  -skip qtsensors^
  -skip qtserialbus^
  -skip qtserialport^
+ -skip qtspeech^
+ -skip qtsvg^
  -skip qttranslations^
+ -skip qtvirtualkeyboard^
  -skip qtwayland^
  -skip qtwebchannel^
+ -skip qtwinextras^
  -skip qtwebengine^
  -skip qtwebsockets^
  -skip qtwebview^

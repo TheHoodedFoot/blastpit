@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Inkscape extension for blaspit
 #
@@ -23,6 +23,7 @@
 
 import socket
 import math
+import time
 import re
 import csv
 from StringIO import StringIO
@@ -33,23 +34,28 @@ import os
 from subprocess import Popen, PIPE
 from shutil import copy2
 
-# Needed until blastpy is installed system-wide
+# Needed until bpy is installed system-wide
 import sys
 from os.path import expanduser
-sys.path.append(expanduser("~") + "/usr/src/blastpit/src/blastpy")
-
+sys.path.append(expanduser("~") + "/usr/src/blastpit/src/libbp")
 import blastpy
 
+
 # Laser constants
-SAGITTA = 1.0  # Focal range
+SAGITTA = 0.5  # Focal range
 ROTARY_Z_LEVEL = 77.0  # Height from table to centre of rotation
-ROTARY_OVERLAP = 2.0  # Shadow overlap
+ROTARY_OVERLAP = 0.0  # Shadow overlap
 
 
 # Math functions
 
 # https://en.wikipedia.org/wiki/Sagitta_(geometry)
 # https://en.wikipedia.org/wiki/Circular_segment
+
+
+# Global layer array
+layers = []
+
 
 def chordLength(radius, sagitta):
     return 2 * math.sqrt(2 * radius * sagitta - sagitta * sagitta)
@@ -77,6 +83,11 @@ def addColourLayer(xml, colour, height=120):
         green,
         blue)
 
+    nb = ["bp_" + colour, round(height, 2)]
+    # print >> sys.stderr, nb
+
+    layers.append(nb)
+
 
 class Laser(inkex.Effect):
     def __init__(self):
@@ -94,6 +105,7 @@ class Laser(inkex.Effect):
             ["p", "port", "int", "1030", "The server port"],
             ["q", "frequency", "int", "44000", "Start frequency"],
             ["r", "rotary", "inkbool", "False", "Enable rotary axis"],
+            ["v", "override", "inkbool", "False", "Override the 20 degree limit"],
             ["s", "server", "string", "localhost", "The server address"],
             ["t", "tabs", "string", "", ""],
             ["w", "width", "float", "6.0", "Ring width"],
@@ -113,7 +125,7 @@ class Laser(inkex.Effect):
     def setupServer(self):
         # Connect to server
         try:
-            bp = blastpy.Blastpit(self.options.server, self.options.port)
+            bp = blastpy.bp_connectToServer(self.blast, self.options.server, "INKSCAPE", 1000)
         except socket.gaierror:
             return None
 
@@ -128,62 +140,13 @@ class Laser(inkex.Effect):
 
     def effect(self):
 
-        bp = self.setupServer()
-        if bp is None:
-            print >> sys.stderr, "Could not connect to server"
-            return
+        self.blast = blastpy.t_Blastpit()
+
+        # If this is rotary, compile a list of shadows from the shadow layers,
 
         file = self.args[-1]
         tempfile = os.path.splitext(file)[0] + "-multicut.svg"
         copy2(file, tempfile)
-
-        ###
-        # Use Regex to get the layer names and laser parameters
-        ###
-
-        if self.options.flatten == 1:
-
-            commandstring = "inkscape "
-
-            if len(self.selected) > 0:
-                p = Popen(
-                    'inkscape --query-all ' +
-                    file,
-                    shell=True,
-                    stdout=PIPE,
-                    stderr=PIPE)
-                err = p.stderr
-                f = p.communicate()[0]
-                lines = csv.reader(f.split(os.linesep))
-                err.close()
-
-                documentobjects = []
-                for line in lines:
-                    if len(line) > 0:
-                        documentobjects.append(line[0])
-                documentobjects.reverse()
-
-                selecteditems = self.selected
-
-                if len(selecteditems) > 0:
-                    for o in selecteditems:
-                        commandstring = commandstring + "--select=" + o + " "
-            else:
-                commandstring = commandstring + "--verb=EditSelectAll "
-
-            commandstring += "--verb=ObjectToPath --verb=EditUnlinkClone " + \
-                "--verb=EditInvert --verb=EditDelete " + \
-                "--verb=FileSave --verb=FileQuit "
-            commandstring += tempfile
-            # print >> sys.stderr, commandstring
-            p = Popen(
-                commandstring,
-                shell=True,
-                stdout=PIPE,
-                stderr=PIPE)
-            err = p.stderr
-            f = p.communicate()[0]
-            err.close()
 
         # Pipe the file through svg.c
         p = Popen(
@@ -206,19 +169,19 @@ class Laser(inkex.Effect):
         # Calculate the segment size based on including the overlap each end.
         # This makes the segments smaller, but prevents the overlap falling
         # outside of the focal range.
-        SEGMENTS = int(math.ceil((math.pi * self.options.diameter) /
-                                 (chordArcLength(RADIUS, SAGITTA) -
-                                  2 * ROTARY_OVERLAP)))
+        SEGMENTS = int(math.ceil((math.pi * self.options.diameter)
+                                 / (chordArcLength(RADIUS, SAGITTA) -
+                                    2 * ROTARY_OVERLAP)))
 
         SECTOR = 360.0 / SEGMENTS  # Needed in degrees for lmos
         SECTOR_WIDTH = (math.pi * self.options.diameter) / SEGMENTS
-        RINGWIDTH = self.options.width
+        # RINGWIDTH = self.options.width
         FOCAL_ADJUSTMENT = 0
 
         id = "error"
         geo = None
         group = None
-        layers = []
+        collayers = []
         lastx = None
         lasty = None
         freq = self.options.frequency
@@ -231,7 +194,7 @@ class Laser(inkex.Effect):
                 convex = False
                 print >> sys.stderr, "Jig angle: " + \
                     str(xml.axialAngle(self.options.diameter / 2,
-                                       self.options.width))
+                                       self.options.width, self.options.override))
             else:
                 convex = True
             xml.setCylinder(
@@ -242,10 +205,15 @@ class Laser(inkex.Effect):
 
         for line in fh:
             if line.startswith("id:"):
+                if line.startswith("id: shadow"):
+                    ignore = 1
+                    continue
+                else:
+                    ignore = 0
                 line = line[:-1]  # Remove newline
                 colour = line[-6:]
-                if colour not in layers:
-                    layers.append(colour)
+                if colour not in collayers:
+                    collayers.append(colour)
                     if self.options.rotary is True:
                         if self.options.ring_type == "concave":
                             rotaryLayerHeight = 77 - \
@@ -255,18 +223,18 @@ class Laser(inkex.Effect):
                                 RADIUS + FOCAL_ADJUSTMENT
                         if rotaryLayerHeight < 45:
                             rotaryLayerHeight = 120
-                        print >> sys.stderr, "Layer height: " + \
-                            str(rotaryLayerHeight)
+                        # print >> sys.stderr, "Layer height: " + \
+                        #     str(rotaryLayerHeight)
                         addColourLayer(xml, colour, rotaryLayerHeight)
                     else:
                         addColourLayer(xml, colour, self.options.height)
                     # print >> sys.stderr, "Adding Qp set bp_" + colour
-                    bp.addQpSet(
-                        999,
-                        "bp_" + colour,
-                        self.options.current,
-                        self.options.speed,
-                        freq)
+                    if self.options.mode != "view":
+                        xml.addQpSet(
+                            "bp_" + colour,
+                            self.options.current,
+                            self.options.speed,
+                            freq)
                     freq += self.options.freqstep
                 regx = re.compile(r"^id: (.+), fill:.*$")
                 m = regx.match(line)
@@ -274,9 +242,13 @@ class Laser(inkex.Effect):
                     id = m.group(1)
                 else:
                     id = line
+                # group = xml.addGroup(
+                #     "g" + id, "bp_" + colour, "bp_" + colour, "Standard")
                 group = xml.addGroup(
-                    "g" + id, "bp_" + colour, "bp_" + colour, "Standard")
+                    "g" + id, "bp_" + colour, "bp_" + colour, "bp_0_01")
             else:
+                if ignore == 1:
+                    continue
                 f = StringIO(line)
                 reader = csv.reader(f, delimiter=',')
                 nodes = []
@@ -321,6 +293,8 @@ class Laser(inkex.Effect):
                     if geo_start[0] == lastx and geo_start[1] == lasty:
                         geo.close()
                         xml.addPolylineG(geo, group)
+                    else:
+                        xml.addPolyline(geo)
                     geo = None
                     group = None
 
@@ -334,22 +308,58 @@ class Laser(inkex.Effect):
             bp.startMarking(3)
 
         if self.options.mode == "save":
-            bp.upload(2, xml.xml())
-            bp.layerSetLaserable(999, "RofinStandard", 0)
-            bp.saveVLM(
-                3, "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM")
+            blast = blastpy.t_Blastpit()
+            if blastpy.bp_connectToServer( blast, self.options.server, "inkscape", 3000) != 0:
+                print >> sys.stderr, "Can't connect"
+                sys.exit()
+            blastpy.bp_sendCommandAndWait(blast, 11, "lmos", blastpy.BpCommand.kClearQpSets, 2000)
+            xml.setCommand(blastpy.BpCommand.kAddQpSet, 12)
+            retval = blastpy.bp_sendMessageAndWait(blast, 12, "lmos", xml.xml(), 30000)
+            xml.setCommand(blastpy.BpCommand.kImportXML, 13)
+            retval = blastpy.bp_sendMessageAndWait(blast, 13, "lmos", xml.xml(), 30000)
+            if retval == -1:
+                print >> sys.stderr, "Can't send"
+                sys.exit()
+            # print >> sys.stderr, xml.xml()
+
+            blastpy.bp_sendMessageAndWait(blast, 14, "lmos", "<command id=\"14\" layer=\"RofinStandard\" laserable=\"0\">" + str(blastpy.BpCommand.kLayerSetLaserable) + "</command>", 2000)
+            blastpy.bp_sendMessageAndWait(blast, 15, "lmos", "<command id=\"15\" layer=\"RofinStandard\" height=\"120\">" + str(blastpy.BpCommand.kLayerSetHeight) + "</command>", 2000)
+            blastpy.bp_sendMessageAndWait(blast, 16, "lmos", "<command id=\"15\" layer=\"RofinBackground\" height=\"120\">" + str(blastpy.BpCommand.kLayerSetHeight) + "</command>", 2000)
+            # bp.layerSetLaserable(995, "RofinStandard", 0)
+            # bp.layerSetHeight(996, "RofinStandard", 120)
+            # bp.layerSetHeight(997, "RofinBackground", 120)
+            id = 17
+            for layer in layers:
+                blastpy.bp_sendMessageAndWait(blast, id, "lmos", "<command id=\"" + str(id) + "\" layer=\"" + str(layer[0]) + "\" exportable=\"1\">" + str(blastpy.BpCommand.kLayerSetExportable) + "</command>", 2000)
+                id = id + 1
+                blastpy.bp_sendMessageAndWait(blast, id, "lmos", "<command id=\"" + str(id) + "\" layer=\"" + str(layer[0]) + "\" height=\"" + str(layer[1]) + "\">" + str(blastpy.BpCommand.kLayerSetHeight) + "</command>", 2000)
+                id = id + 1
+            #     bp.layerSetHeight(999, layer[0], layer[1])
+            blastpy.bp_sendMessageAndWait(blast, 14, "lmos", "<command id=\"14\" filename=\"C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM\">" + str(blastpy.BpCommand.kSaveVLM) + "</command>", 2000)
+            # bp.saveVLM(
+            #     3, "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM")
+            # print >> sys.stderr, layers
+            blastpy.bp_disconnectFromServer(blast)
 
         if self.options.mode == "position":
-            bp.init(997)
-            bp.upload(2, xml.xml())
-            if len(self.selected) > 0:
-                for id, node in self.selected.iteritems():
-                    print >> sys.stderr, id, node
-                    bp.startPosHelp(999, id)
-                    # bp.startPosHelp(999, "g" + id)
-                    break
+            blast = blastpy.t_Blastpit()
+            if blastpy.bp_connectToServer( blast, self.options.server, "inkscape", 1000) != 0:
+                print >> sys.stderr, "Can't connect"
+                sys.exit()
+
+        if self.options.mode == "view":
+            blast = blastpy.t_Blastpit()
+            if blastpy.bp_connectToServer( blast, self.options.server, "inkscape", 1000) != 0:
+                print >> sys.stderr, "Can't connect"
             else:
-                bp.startPosHelp(999, "Root100")
+                xml.setCommand(6, 12)
+                # blastpy.bp_sendCommand(blast, "lmos", 4)
+                if blastpy.bp_sendMessage(blast, "lmos", xml.xml()) != 0:
+                    print >> sys.stderr, "Can't send"
+                # blastpy.bp_waitForAck(blast, 123)
+                time.sleep(1)
+                blastpy.bp_disconnectFromServer(blast)
+                # print >> sys.stderr, "finished"
 
 
 if __name__ == '__main__':

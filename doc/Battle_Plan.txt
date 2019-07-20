@@ -1,6 +1,0 @@
-Get camera working on linux
-use positioning laser to scan
-determine height and position
-auto transfer into inkscape
-
-need to simulate (blender?) tol text to get height looking good before lasering

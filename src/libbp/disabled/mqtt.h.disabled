@@ -1,0 +1,17 @@
+#ifndef MQTT_H
+#define MQTT_H
+
+typedef struct {
+	const char *server;
+	const char *clientId;
+	const char *topic;
+} Mqtt;
+
+Mqtt *Mqtt_new(void);
+void *connectToMqttServer(Mqtt *mqtt, const char *);
+void *subscribe(Mqtt *mqtt, const char *);
+void *sendMessage(Mqtt *mqtt, const char *, const char *);
+void *getMessageWithTimeout(Mqtt *mqtt, const char *);
+void *isMessageWaiting(Mqtt *mqtt);
+
+#endif /* end of include guard: MQTT_H */

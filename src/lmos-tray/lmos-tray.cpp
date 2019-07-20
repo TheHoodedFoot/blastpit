@@ -61,14 +61,14 @@
  *
  ****************************************************************************/
 
-#include "lmos-tray.h"
+#include "lmos-tray.hpp"
 #include "ui_lmos-tray.h"
 
 #include <QMenu>
 #include <QMessageBox>
 #include <QtGui>
 #include <sstream>
-#include "../libblastpit/network.h"
+#include "../libbp/network.hpp"
 #include "parser.h"
 
 LmosTray::LmosTray(QWidget *parent)
@@ -147,9 +147,9 @@ LmosTray::closeEvent(QCloseEvent *event)
 	}
 }
 void
-LmosTray::setTrayBalloon(QString title, QString text)
+LmosTray::setTrayBalloon(QString text)
 {
-	trayIcon->showMessage(title, text);
+	trayIcon->showMessage("Lmos", text);
 }
 void
 LmosTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -169,29 +169,14 @@ LmosTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
 void
 LmosTray::listen()
 {
-	// TODO: Fix this so that only one listen thread can exist.
-
-	QThread *thread = new QThread;
-	Parser *parser = new Parser(nullptr, LISTEN_PORT);
-
-	parser->moveToThread(thread);
-
-	connect(parser, SIGNAL(finished()), thread, SLOT(quit()));
+	Parser *parser = new Parser(nullptr);
 	connect(parser, SIGNAL(finished()), qApp, SLOT(quit()));
-
 	connect(parser, SIGNAL(sendlog(QString)), this, SLOT(log(QString)));
+	connect(parser, SIGNAL(settray(QString)), this,
+		SLOT(setTrayBalloon(QString)));
 
-	thread->start();
-	setTrayBalloon("Lmos",
-		       "Server listening on " + Network::getLocalIP());
-	return;
+	setTrayBalloon("Server listening on " + Network::getLocalIP());
 }
-
-// void
-// LmosTray::test()
-//{
-//	emit bptest();
-//}
 
 void
 LmosTray::clearLog()

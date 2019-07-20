@@ -6,7 +6,11 @@
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <param name="name" type="notebook">
     <page name="geometry" gui-text="Ring Geometry">
-      <param name="diameter" type="float" precision="2" min="10" max="70" gui-text="Ring Diameter:">20
+      <param name="ring_type" type="optiongroup" gui-text="Ring Geometry:">
+        <option value="convex">Convex (Outside)</option>
+        <option value="concave">Concave (Inside)</option>
+      </param>
+      <param name="diameter" type="float" precision="2" min="5" max="80" gui-text="Ring Diameter:">20
 		</param>
       <param name="width" type="float" precision="2" min="0" max="120" gui-text="Ring Width:">6
 		</param>
@@ -17,6 +21,7 @@
       </param>
       <param name="offset" type="float" precision="2" min="0" max="120" gui-text="Offset distance">4.0
 		</param>
+      <param name="override" type="boolean" gui-text="Override 20° limit?">False</param>
     </page>
     <page name="parameters" gui-text="Parameters">
       <param name="sagitta" type="float" precision="2" min="0" max="3" gui-text="Focal range (mm)">1.0
@@ -24,6 +29,8 @@
       <param name="overlap" type="float" precision="2" min="0" max="120" gui-text="Shadow overlap (mm)">2.0
 		</param>
       <param name="face" type="float" precision="2" min="0" max="120" gui-text="Ring holder face offset (mm)">76.0
+		</param>
+      <param name="axisheight" type="float" precision="2" min="0" max="120" gui-text="Height of rotary axis (mm)">77.0
 		</param>
     </page>
   </param>

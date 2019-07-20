@@ -129,8 +129,8 @@ for segment in range(1, SEGMENTS + 1):
 
 # Connect to server
 # bp = blastpy.Blastpit( "10.47.1.90", 1030 )
-# bp = blastpy.Blastpit( "10.47.1.239", 1030 )
-bp = blastpy.Blastpit( "10.53.69.163", 1030 )
+bp = blastpy.Blastpit( "SEVEN", 1030 )
+# bp = blastpy.Blastpit( "10.53.69.163", 1030 )
 # bp.init(id)
 # id = id + 1
 

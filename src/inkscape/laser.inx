@@ -12,6 +12,7 @@
         <_item value="engraveclean">Engrave and clean</_item>
         <_item value="clean">Cleaning only</_item>
         <_item value="cancel">Cancel positioning laser</_item>
+        <_item value="view">View XML</_item>
       </param>
       <param name="flatten" type="boolean" gui-text="Flatten text and clones?">False</param>
       <param name="height" type="float" precision="2" min="0" max="120" gui-text="Layer height:">0
@@ -29,7 +30,7 @@
         <option value="convex">Convex (Outside)</option>
         <option value="concave">Concave (Inside)</option>
       </param>
-      <param name="diameter" type="float" precision="2" min="10" max="70" gui-text="Ring Diameter:">20
+      <param name="diameter" type="float" precision="2" min="5" max="80" gui-text="Ring Diameter:">20
 </param>
       <param name="width" type="float" precision="2" min="0" max="120" gui-text="Ring Width:">6
 </param>
@@ -38,6 +39,7 @@
         <option value="offset">Offset from shield</option>
       </param>
       <param name="offset" type="float" precision="2" min="0" max="120" gui-text="Offset distance">4.0</param>
+      <param name="override" type="boolean" gui-text="Override 20° limit?">False</param>
     </page>
     <page name="settings" gui-text="Preferences">
       <param name="server" type="string" gui-text="Server:">localhost</param>

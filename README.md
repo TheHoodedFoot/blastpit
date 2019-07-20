@@ -21,6 +21,8 @@
 
 ### Obtaining the code
 
+The latest stable build can be obtained at https://git.47or.com/thf/Blastpit/archive/master.zip
+
 The development git repository can be found at http://git.47or.com/thf/Blastpit.git
 
 ### Prerequisites for building

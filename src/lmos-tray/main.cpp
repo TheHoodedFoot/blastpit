@@ -65,7 +65,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QtGui>
-#include "lmos-tray.h"
+#include "lmos-tray.hpp"
 
 int
 main(int argc, char *argv[])

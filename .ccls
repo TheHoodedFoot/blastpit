@@ -1,0 +1,2 @@
+clang
+%h %hpp --include=Global.h

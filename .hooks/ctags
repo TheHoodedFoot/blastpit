@@ -12,6 +12,8 @@ trap "rm -f ${EXTRA_TAGS_FILE}.$$" EXIT
 GIT_ROOT=`git rev-parse --show-toplevel`
 EXTRA_DIRS_FILE=${GIT_ROOT}/.ctags_extra_dirs
 
+CURRENT_DIR=${GIT_ROOT}
+
 if [ -f ${EXTRA_DIRS_FILE} ]; then
 	EXTRA_DIRS=("${(@f)$(cat ${EXTRA_DIRS_FILE})}")
 	[ ${DEBUG} ] && echo -e "\nExtra dirs file found\n"

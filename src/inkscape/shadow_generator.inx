@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <_name>Shadow Generator</_name>
+  <id>org.inkscape.laser.shadowgenerator</id>
+  <dependency type="executable" location="extensions">shadow_generator.py</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <param name="diameter" type="float" precision="2" min="10" max="70" gui-text="Ring Diameter:">20
+</param>
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Laser"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command reldir="extensions" interpreter="python">shadow_generator.py</command>
+  </script>
+</inkscape-extension>

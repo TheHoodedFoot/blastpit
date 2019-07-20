@@ -1,6 +1,10 @@
 # User defines
-DEFINES = SPACENAV
+# DEFINES = SPACENAV
 CPPFLAGS += ($(addprefix -D, $(DEFINES)))
+
+# Project settings
+PROJECT_ROOT=$(shell git rev-parse --show-toplevel)
+GIT_HOOKS=${PROJECT_ROOT}/$(shell git config --get core.hooksPath)
 
 # Common settings
 # CC = ccache gcc
@@ -9,7 +13,7 @@ CC = ccache clang
 CXX = ccache clang++
 
 CXXFLAGS = -fPIC -std=c++11 -Wall -Wextra
-CXXFLAGS += -I src/libblastpit -I sub/pugixml/src -I sub/nanosvg/src -I ../../sub/CRCpp/inc
+CXXFLAGS += -I src/libbp -I sub/pugixml/src -I sub/nanosvg/src -I ../../sub/CRCpp/inc
 CXXFLAGS += -g -O0
 CXXFLAGS += -Wpedantic 
 
@@ -20,12 +24,12 @@ CXXFLAGS += -Werror
 # CXXFLAGS += -fmax-errors=10 
 
 QMAKE_CXXFLAGS = ${CXXFLAGS}
-QMAKE_CXXFLAGS_DEBUG = -O0
+# QMAKE_CXXFLAGS_DEBUG = -O0
 QMAKE_CONFIG = debug
 
 LDFLAGS = -shared
 
-PROCESSOR_OPTS = -j$(shell nproc) -l$(shell nproc)
+# PROCESSOR_OPTS = -j$(shell nproc) -l$(shell nproc)
 
 GRAPHDIR = doc
 
@@ -55,22 +59,52 @@ OCTAVE_LIBS = -loctave -loctinterp
 
 # Package-specific settings
 
-BLASTPIT_LIB = $(BUILDDIR)/libblastpit/libblastpit.a
-BLASTPIT_SRCS = src/libblastpit/blastpit.cpp # source files
-BLASTPIT_OBJS = $(BLASTPIT_SRCS:.cpp=.o)
+BLASTPIT_LIB = $(BUILDDIR)/libbp/libbp.so
+# BLASTPIT_SRCS = src/libbp/blastpit.c # source files
+# BLASTPIT_OBJS = $(BLASTPIT_SRCS:.cpp=.o)
 
-BPCMD_SRCS = ${BUILDDIR}/libblastpit/_blastpit.so
-BPCMD_OUTPUT = ${BUILDDIR}/testchamber/blastpytest.py
+BPCMD_SRCS = ${BUILDDIR}/libbp/_blastpit.so
+# BPCMD_OUTPUT = ${BUILDDIR}/testchamber/blastpytest.py
+BPCMD_OUTPUT = $(BLASTPIT_LIB)
 
-SVGCMD_SRCS:=sub/pugixml/src/pugixml.cpp src/libblastpit/svg.cpp src/libblastpit/svgcmd.cpp #$(wildcard *.cpp)
-SVGCMD_OUTPUT=$(BUILDDIR)/libblastpit/svgcmd
+SVGCMD_SRCS:=sub/pugixml/src/pugixml.cpp src/libbp/svg.cpp src/libbp/svgcmd.cpp #$(wildcard *.cpp)
+SVGCMD_OUTPUT=$(BUILDDIR)/libbp/svgcmd
 
-OCTAVECMD_SRCS:=src/libblastpit/octavecmd.cpp
-OCTAVECMD_OUTPUT=$(BUILDDIR)/libblastpit/octavecmd
+OCTAVECMD_SRCS:=src/libbp/octavecmd.cpp
+OCTAVECMD_OUTPUT=$(BUILDDIR)/libbp/octavecmd
 
-FORMAT_FILES = src/{libblastpit,blastpitgui}/*.{h,cpp} src/testchamber/*/*.{h,cpp} src/lmos-tray/{lmos,lmos-tray,parser}.{h,cpp} src/lmos-tray/main.cpp
-FORMAT_FILES_PYTHON = src/blastpy/blastpy.py src/inkscape/*.py src/testchamber/blastpy/blastpytest.py # bin/*.py src/freecad/*.py src/freecad/Blastpit/*.py 
+FORMAT_FILES = src/libbp/*.{h,c,cpp}
+FORMATEXTRA_FILES = src/lmos-tray/{lmos,lmos-tray,parser}.{hpp,cpp}
+# FORMAT_FILES += src/bpgui/*.{h,c,cpp} src/testchamber/*/*.{h,cpp} src/lmos-tray/{lmos,lmos-tray,parser}.{h,cpp} src/lmos-tray/main.cpp
+
+FORMAT_FILES_PYTHON = src/blastpy/blastpy.py src/libbp/t_*.py src/inkscape/*.py src/testchamber/bpy/test.py # bin/*.py src/freecad/*.py src/freecad/Blastpit/*.py 
 FORMAT_FILES_XML = src/inkscape/*.inx
+
+
+# Tup
+ifneq ("$(wildcard .tup)","")
+TUP_CONDITIONAL := tuptest
+else
+TUP_CONDITIONAL := tupbear
+endif
+
+.PHONY:	tup_conditional tuptest
+tup_conditional:
+	make $(TUP_CONDITIONAL)
+tuptest:
+	make -C src/libbp
+tupbear:
+	make clean
+	${GIT_HOOKS}/ctags >/dev/null 2>&1 &
+	tup init
+	tup generate res/ebuild/tup-make.sh
+	bear tup
+	make tuptest
+standalone:
+	make clean
+	tup init
+	tup generate res/ebuild/tup-make.sh
+
 
 # Common build instructions
 #
@@ -80,30 +114,32 @@ FORMAT_FILES_XML = src/inkscape/*.inx
 
 # We use bear to build the json if missing, otherwise build as normal (test)
 ifneq ("$(wildcard compile_commands.json)","")
-BEAR := test
+CONDITIONAL := test
 else
-BEAR := bear
+CONDITIONAL := bear
 endif
 
 conditional:
-	make $(BEAR)
+	make $(CONDITIONAL)
 
 test:	$(BPCMD_OUTPUT) #all
-	@echo -e "\nRunning Blastpit tests...\n"
-	@$(BUILDDIR)/testchamber/blastpit_test/blastpit_test -platform offscreen
-	@echo
-	@$(BUILDDIR)/testchamber/network_test/network_test -platform offscreen	
-	@echo
-	@$(BUILDDIR)/testchamber/parser_test/parser_test -platform offscreen
-	@echo -e "\nRunning Python tests...\n"
-	@src/testchamber/blastpy/blastpytest.py
-	@# echo "Running SVG tests..."
-	@# $(SVGCMD_OUTPUT) -t 
-	@# echo "Running Octave tests..."
-	@# $(OCTAVECMD_OUTPUT) 
+	tup init
+	make tuptest
+	# @echo -e "\nRunning Blastpit tests...\n"
+	# @$(BUILDDIR)/testchamber/blastpit_test/blastpit_test -platform offscreen
+	# @echo
+	# @$(BUILDDIR)/testchamber/network_test/network_test -platform offscreen	
+	# @echo
+	# @$(BUILDDIR)/testchamber/parser_test/parser_test -platform offscreen
+	@# @echo -e "\nRunning Python tests...\n"
+	@# @src/testchamber/blastpy/blastpytest.py
+	@# @echo "Running SVG tests..."
+	@# @$(SVGCMD_OUTPUT) -t 
+	@# @echo "Running Octave tests..."
+	@# @$(OCTAVECMD_OUTPUT) 
 
-all:	$(SVGCMD_OUTPUT) $(BPCMD_OUTPUT) $(OCTAVECMD_OUTPUT)
-
+all:	$(BPCMD_OUTPUT) #$(OCTAVECMD_OUTPUT) $(SVGCMD_OUTPUT) 
+ 
 doc:	doxygen tex
 
 %.o:	%.cpp
@@ -127,16 +163,31 @@ clean:
 	rm -f doc/manual/*.{aux,idx,log,ptc,toc,ilg,ind}
 	rm -f doc/tex/*.{aux,idx,log,ptc,toc,ilg,ind}
 	rm -f doc/tex/faq.{faq,out,pdf} doc/manual/manual.pdf doc/tex/snip.pdf
-	rm -rf *.o $(BUILDDIR) *.so *~ *.pdf doc/html doc/man
-	rm -rf build*
+	rm -rf $(BUILDDIR)
 	rm -f doc/man/man3/_home*
 	rm -f compile_commands.json
+	rm -f .git/tags .git/tagsextra
+	find src -type f \( -name \*.o -o -name \*.so -o -name \*.so.* -o -name \*.stash -name \*.tup \) -delete -print
+	find src/libbp -type f -name _x -delete -print
+	rm -f src/libbp/lblastpit src/libbp/*_wrap*
+	rm -rf .tup
+	make -C src/libbp clean
+
+
+tags:
+	rm -f .git/tags .git/tagsextra
+	.hooks/ctags
 
 format:
+	clang-format -style=file -i $(FORMAT_FILES) || /bin/true
+
+formatextra:
+	clang-format -style=file -i $(FORMATEXTRA_FILES) || /bin/true
+
+formatpython:
 	/bin/sh -c 'for file in $(FORMAT_FILES_XML); do xmllint --format --nsclean --output $$file $$file; done'
-	clang-format -style=file -i $(FORMAT_FILES)
-	autopep8 --aggressive --aggressive -i $(FORMAT_FILES_PYTHON)
-	flake8 --ignore=E402 --max-complexity=10 --show-source $(FORMAT_FILES_PYTHON)
+	autopep8 --ignore=E402 --aggressive --aggressive -i $(FORMAT_FILES_PYTHON)
+	# flake8 --ignore=E402 --max-complexity=10 --show-source $(FORMAT_FILES_PYTHON)
 
 doxygen:
 	@/bin/sh -c 'cd doc; doxygen; xdg-open html/index.html'
@@ -177,27 +228,27 @@ bear:
 blastpit:	${BUILDDIR}/Makefile
 		$(MAKE) -C ${BUILDDIR} $(PROCESSOR_OPTS)
 
-$(BLASTPIT_LIB):	blastpit
-
 ${BUILDDIR}/Makefile:
 	mkdir -p $(BUILDDIR)
 	/bin/sh -c 'cd $(BUILDDIR); qmake -qt=$(QT_VERSION) QMAKE_CXX="${CXX}" QMAKE_CXXFLAGS="${QMAKE_CXXFLAGS}" QMAKE_CXXFLAGS_DEBUG+="${QMAKE_CXXFLAGS_DEBUG}" CONFIG+="${QMAKE_CONFIG}" $(PWD)/src/blastpit.pro'
 
-$(BPCMD_OUTPUT): $(BPCMD_SRCS) $(BUILDDIR)/libblastpit/_blastpit.so #$(BUILDDIR)/libblastpit/blastpit.py
-	mkdir -p $(BUILDDIR)/testchamber
-	cp src/testchamber/blastpy/blastpytest.py ${BUILDDIR}/testchamber/
-	ln -fs ../libblastpit/_blastpit.so $(BUILDDIR)/testchamber/
-	ln -fs ../libblastpit/blastpit.py $(BUILDDIR)/testchamber/
+# $(BPCMD_OUTPUT): #$(BPCMD_SRCS)
+	# mkdir -p $(BUILDDIR)/testchamber
+	# cp src/testchamber/bpy/test.py ${BUILDDIR}/testchamber/
+	# cp $(BUILDDIR)/libbp/_blastpit.so $(BUILDDIR)/testchamber/
+	# echo cp src/libbp/blastpit.py $(BUILDDIR)/testchamber/
 
-$(BPCMD_SRCS): $(BLASTPIT_LIB) src/libblastpit/blastpit.i $(BUILDDIR)/libblastpit/blastpit.o $(BUILDDIR)/libblastpit/layer.o $(BUILDDIR)/libblastpit/path.o $(BUILDDIR)/libblastpit/text.o $(BUILDDIR)/libblastpit/pugixml.o
-	swig -python -c++ -o $(BUILDDIR)/libblastpit/blastpit_wrap.cxx src/libblastpit/blastpit.i 
-	${CXX} ${QMAKE_CXXFLAGS} -fPIC -c $(BUILDDIR)/libblastpit/blastpit_wrap.cxx -Isrc/libblastpit $(shell python-config --includes) -I/usr/include/qt5 -I/usr/include/qt5/QtCore -I/usr/include/qt5/QtNetwork -o $(BUILDDIR)/libblastpit/blastpit_wrap.o
-	${CXX} ${QMAKE_CXXFLAGS} -shared $(BUILDDIR)/libblastpit/blastpit_wrap.o $(BUILDDIR)/libblastpit/blastpit.o $(BUILDDIR)/libblastpit/layer.o $(BUILDDIR)/libblastpit/path.o $(BUILDDIR)/libblastpit/text.o $(BUILDDIR)/libblastpit/pugixml.o -o $(BUILDDIR)/libblastpit/_blastpit.so
+# $(BPCMD_SRCS): src/libbp/blastpit.i #$(BUILDDIR)/libbp/blastpit.o #$(BUILDDIR)/libbp/pugixml.o
+# 	swig -python -o $(BUILDDIR)/libbp/blastpit_wrap.cxx src/libbp/blastpit.i 
+# 	${CXX} ${QMAKE_CXXFLAGS} -fPIC -c $(BUILDDIR)/libbp/blastpit_wrap.cxx -Isrc/libbp $(shell python-config --includes) -I/usr/include/qt5 -I/usr/include/qt5/QtCore -I/usr/include/qt5/QtNetwork -o $(BUILDDIR)/libbp/blastpit_wrap.o
+# 	${CXX} ${QMAKE_CXXFLAGS} -shared $(BUILDDIR)/libbp/blastpit_wrap.o $(BUILDDIR)/libbp/pugixml.o -o $(BUILDDIR)/libbp/_blastpit.so #$(BUILDDIR)/libbp/blastpit.o 
 
-$(BUILDDIR)/blastpit/%.o:	src/libblastpit/%.cpp
+#$(BUILDDIR)/libbp/blastpit.o:	blastpit
+
+$(BUILDDIR)/libbp/%.o:	src/libbp/%.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
-$(BUILDDIR)/blastpit/pugixml.o:	sub/pugixml/src/pugixml.cpp
+$(BUILDDIR)/libbp/pugixml.o:	sub/pugixml/src/pugixml.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 bpicons:
@@ -220,7 +271,7 @@ $(OCTAVECMD_OUTPUT): $(OCTAVECMD_SRCS)
 #######
 
 $(SVGCMD_OUTPUT): $(SVGCMD_SRCS) $(BLASTPIT_LIB)
-	$(CXX) $(SVGCMD_SRCS) $(IGNORE_ERROR_CXXFLAGS) -L$(BUILDDIR)/libblastpit -o $@ -lcppunit -lblastpit
+	$(CXX) $(SVGCMD_SRCS) $(IGNORE_ERROR_CXXFLAGS) -L$(BUILDDIR)/libbp -o $@ -lcppunit -lbp
 
 
 ############
@@ -230,6 +281,11 @@ $(SVGCMD_OUTPUT): $(SVGCMD_SRCS) $(BLASTPIT_LIB)
 dummy:
 	/bin/true
 
+tup:
+	# Tup variants (for separate build directories) don't work with bear
+	make clean
+	tup init
+	bear tup
 
 
 #$(BLASTPIT_LIB): blastpit #$(BLASTPIT_OBJS)

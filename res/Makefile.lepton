@@ -1,0 +1,76 @@
+# Project constants
+PROJECT_DIR = $(shell git rev-parse --show-toplevel)
+PROJECT_NAME = $(shell basename $(PROJECT_DIR) )
+
+# Project directories
+BUILD_DIR = $(PROJECT_DIR)/build
+
+# Source files
+C_SOURCES = $(PROJECT_DIR)/src
+
+ifneq ("$(wildcard $(C_SOURCES)/*.c)","")
+	FORMAT_FILES += $(wildcard $(C_SOURCES)/*.c)
+endif
+ifneq ("$(wildcard $(C_SOURCES)/*.h)","")
+	FORMAT_FILES += $(wildcard $(C_SOURCES)/*.h)
+endif
+
+
+#######################
+#  Compilation Rules  #
+#######################
+
+# Make compilation database if it does not exist
+ifneq ("$(wildcard compile_commands.json)","")
+	MAKE_TARGET := all
+else
+	MAKE_TARGET := bear
+endif
+
+target:
+	make $(MAKE_TARGET)
+
+all:
+	tup
+	src/lepton
+
+test:	all
+
+analyse:
+	scan-build \
+		-V \
+		-enable-checker alpha.security.ArrayBoundV2 \
+		-enable-checker alpha.clone.CloneChecker \
+		-enable-checker alpha.core.BoolAssignment \
+		-enable-checker alpha.core.Conversion \
+		-enable-checker alpha.core.IdenticalExpr \
+		-enable-checker alpha.core.TestAfterDivZero \
+		-enable-checker alpha.cplusplus.IteratorRange \
+		-enable-checker alpha.deadcode.UnreachableCode \
+		-enable-checker alpha.security.MallocOverflow \
+		-enable-checker alpha.unix.cstring.NotNullTerminated \
+		-enable-checker alpha.unix.cstring.OutOfBounds \
+		clang src/lepton_capture.c
+
+bear:
+	tup init
+	bear tup
+
+clean:
+	rm -rf \
+		$(C_SOURCES)/*.o \
+		$(C_SOURCES)/$(PROJECT_NAME) \
+		$(PROJECT_DIR)/.tup \
+		$(PROJECT_DIR)/build/ \
+		compile_commands.json
+
+generate:
+	make clean
+	tup init
+	tup generate build.sh
+
+
+# Extra rules
+format:
+	clang-format -style=file -i $(FORMAT_FILES)
+

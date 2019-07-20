@@ -1,5 +1,5 @@
-#include "lmos.h"
-#include "common.h"
+#include "lmos.hpp"
+#include "blastpit.h"
 
 #include <QDir>
 #include <QMetaMethod>
@@ -49,25 +49,42 @@ Lmos::~Lmos()
 #endif
 }
 
-void
+QPixmap
+Lmos::GrabWindow()
+{
+#if defined(Q_OS_WIN32)
+	return lmos_actx.grab();
+#else
+	QPixmap* ptr_pixmap = new QPixmap(256, 256);
+	ptr_pixmap->fill("#777777");
+	QPixmap pixmap = *ptr_pixmap;
+	delete ptr_pixmap;
+	return pixmap;
+#endif
+}
+
+bool
 Lmos::InitMachine()
 {
-	emit log(kDebug, __func__,
-		 "bplInitMachine: Calling InitMachine()...");
 #if defined(Q_OS_WIN32)
 	try {
-		emit retval(__func__, lmos_actx.InitMachine());
+		return lmos_actx.InitMachine();
 	} catch (...) {
 		emit log(
 			"bplInitMachine: An exception occurred initialising "
 			"the laser.");
 	}
 #endif
+	return false;
 }
 
 void
 Lmos::SaveVLM(const QString& filename)
 {
+#ifdef QT_DEBUG
+	emit log(kDebug, __func__, "Debug mode: not saving " + filename);
+	return;
+#endif
 	emit log(kDebug, __func__, "Saving vlm as " + filename);
 	if (filename.length() > 0) {
 #if defined(Q_OS_WIN32)
@@ -86,23 +103,26 @@ Lmos::LoadVLM(const QString& filename)
 #endif
 }
 
-void
+bool
 Lmos::LoadXML(const QString& xml)
 {
-	emit log(kDebug, __func__, "Loading xml");
 #if defined(Q_OS_WIN32)
-	lmos_actx.LoadXML(xml);
-	// lmos_actx.ShowWholeDrawing();
+	bool result = lmos_actx.LoadXML(xml);
 	lmos_actx.ShowMarkingArea();
+	return result;
 #else
-	/* (void)xml; */
-	emit log(kDebug, __func__, xml);
+	(void)xml;
+	return false;
 #endif
 }
 
 void
 Lmos::ClearQPSets()
 {
+#ifdef QT_DEBUG
+	emit log(kDebug, __func__, "Debug mode: not Clearing QP Sets");
+	return;
+#endif
 	emit log(kDebug, __func__, "Clearing QP Sets");
 #if defined(Q_OS_WIN32)
 	QVariant qpNames = lmos_actx.GetGlobalQPSetNames();
@@ -115,9 +135,10 @@ Lmos::ClearQPSets()
 				 "Deleting " + qpNamesList[i]);
 			lmos_actx.RemoveGlobalQPSet(qpNamesList[i]);
 		}
-		lmos_actx.SaveGlobalQPSets();
+		// lmos_actx.SaveGlobalQPSets();
 	}
 #endif
+	emit log(kDebug, __func__, "Finished clearing QP Sets");
 }
 void
 Lmos::ImportXML(QTemporaryFile* XMLFile)
@@ -133,10 +154,19 @@ Lmos::ImportXML(QTemporaryFile* XMLFile)
 #if defined(Q_OS_WIN32)
 	lmos_actx.ActivateZoomWindow(false);
 	lmos_actx.ImportXMLFile2(winXML);
-	// lmos_actx.ShowMarkingArea();
-	lmos_actx.ShowWholeDrawing();
+	lmos_actx.ShowMarkingArea();
+	// lmos_actx.ShowWholeDrawing();
 #endif
 	QFile::remove(winXML);
+}
+
+void
+Lmos::ShowMarkingArea()
+{
+#if defined(Q_OS_WIN32)
+	lmos_actx.ActivateZoomWindow(false);
+	lmos_actx.ShowMarkingArea();
+#endif
 }
 
 void
@@ -158,22 +188,24 @@ Lmos::TermMachine()
 #endif
 }
 
-void
+bool
 Lmos::StartMarking()
 {
 	// startMarking: Begin the marking operation
 	emit log(kDebug, __func__, "Calling lmos.StartMarking()");
 #if defined(Q_OS_WIN32)
 	if (lmos_actx.LoadJob()) {
-		emit retval(__func__, lmos_actx.StartMarking());
+		return lmos_actx.StartMarking();
 	} else {
 		emit log(kDebug, __func__, "lmos.LoadJob() failed");
 	}
 #else
-	this->sigImageEnd2(
-		999,
-		0); /* When testing in linux, always return 0 (success) */
+	// this->sigImageEnd2(
+	// 999,
+	// 0); /* When testing in linux, always return 0 (success) */
+	return true;
 #endif
+	return false;
 }
 
 void
@@ -237,7 +269,6 @@ Lmos::AddQPSet(const QString& name, const double current, const int speed,
 			 ", Frequency: " + QString::number(frequency));
 #if defined(Q_OS_WIN32)
 	lmos_actx.AddGlobalQPSet(name, current, speed, frequency);
-	lmos_actx.SaveGlobalQPSets();
 #else
 	(void)name;
 	(void)frequency;
@@ -247,8 +278,18 @@ Lmos::AddQPSet(const QString& name, const double current, const int speed,
 }
 
 void
+Lmos::SaveQPSets()
+{
+#if defined(Q_OS_WIN32)
+	lmos_actx.SaveGlobalQPSets();
+#endif
+}
+
+void
 Lmos::LayerSetHeightZAxis(const QString& layer, const float height)
 {
+	/* emit log(kDebug, __func__, "Debug mode: layer set height z axis");
+	 */
 #if defined(Q_OS_WIN32)
 	LMOSACTXLib::Layers moLayers(lmos_actx.Layers());
 	try {
@@ -257,15 +298,17 @@ Lmos::LayerSetHeightZAxis(const QString& layer, const float height)
 		// QString::number(moLayers.Count());
 		LMOSACTXLib::ILayer* mylayer = moLayers.Item(layer);
 		if (mylayer) {
-			qDebug() << __func__
-				 << "Layer " + layer + " height is now " +
-					    QString::number(
-						    mylayer->HeightZAxis());
+			/* qDebug() << __func__ */
+			/* 	 << "Layer " + layer + " height is now " + */
+			/* 		    QString::number( */
+			/* 			    mylayer->HeightZAxis());
+			 */
 			mylayer->SetHeightZAxis(height);
-			qDebug() << __func__
-				 << "Layer " + layer + " height set to " +
-					    QString::number(
-						    mylayer->HeightZAxis());
+			/* qDebug() << __func__ */
+			/* 	 << "Layer " + layer + " height set to " + */
+			/* 		    QString::number( */
+			/* 			    mylayer->HeightZAxis());
+			 */
 		} else {
 			qDebug() << __func__ << "Null layer pointer!";
 			return;
@@ -302,6 +345,8 @@ Lmos::LayerSetLaserable(const QString& layer, const bool is_laserable)
 #else
 	(void)layer;
 	(void)is_laserable;
+	qInfo() << "Setting layer " << layer
+		<< " laserable: " << is_laserable;
 #endif
 }
 
@@ -595,7 +640,7 @@ Lmos::ZoomWindow(int x1, int y1, int x2, int y2)
 	// lmos_actx.ShowZoomWindow(50, 50, 70, 70);
 	lmos_actx.ActivateZoomWindow(true);
 	lmos_actx.ShowZoomWindow(x1, y1, x2, y2);
-	lmos_actx.ActivateZoomWindow(false);
+	// lmos_actx.ActivateZoomWindow(false);
 	// lmos_actx.ShowMarkingAreaZoom();
 	// lmos_actx.RedrawLayout();
 #endif

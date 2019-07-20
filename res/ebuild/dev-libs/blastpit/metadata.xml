@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<use>
+		<flag name="devel">Use <pkg>dev-util/tup</pkg> build system instead of included Makefile</flag>
+		<flag name="test">Use <pkg>dev-util/unity</pkg> for unit testing</flag>
+		<flag name="qt">Build the Qt gui application</flag>
+	</use>
+</pkgmetadata>

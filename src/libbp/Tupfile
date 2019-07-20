@@ -1,0 +1,72 @@
+# Project specific variables
+PROJECT = blastpit
+ROOT    = ../..
+BINARY  = bp
+LIBVER  = 1
+SONAME = lib$(BINARY).so.$(LIBVER)
+LIBRARY  = $(SONAME)
+
+# Compiler
+# CC      = afl-clang
+# CXX	= afl-clang++
+CC      = clang
+CXX	= clang++
+
+# Compiler flags
+CFLAGS += -Wall -Wpedantic -Wextra
+CFLAGS += -Werror 
+CFLAGS += -O0 -ggdb3
+# CFLAGS += -O3
+
+# Conditional debug variant
+ifeq (@(DEBUG),y)
+CFLAGS += -O0 -ggdb3
+endif
+
+# Unit test code (unity)
+UNITY_FIXTURE_DIR = ../../sub/Unity/extras/fixture/src
+UNITY_DIR = ../../sub/Unity/src
+UNITY_OBJS = unity.o unity_fixture.o
+UNITY_DEFS = -DUNITY_OUTPUT_COLOR
+
+# Includes
+INCFLAGS = -I. -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR)
+
+# Python inclues for SWIG
+# The config used here determines which version of python
+# the library will import into
+PYTHON_INCS = `python2.7-config --includes`
+# PYTHON_INCS = `python-config --includes`
+
+# Libraries
+LIBS  = -lpaho-mqtt3a -lm
+# Hard code library path during development
+LIBS += -Wl,-rpath=. -Wl,-rpath=src/libbp $(LIBRARY)
+
+# Blastpy
+BLASTPY_FILES = blastpit.o mqtt.o message.o linkedlist.o new.o
+BLASTPY_LIBS = -lpaho-mqtt3a
+
+# libbp
+: foreach [^t_]*.c |> $(CC) $(CFLAGS) -c -fPIC %f -o %o |> %B.o
+: [^t_]*.o |> $(CC) %f -shared -Wl,-soname=$(SONAME) -o %o |> $(LIBRARY)
+
+# libbp unit tests
+: $(UNITY_FIXTURE_DIR)/unity_fixture.c |> $(CC) $(CFLAGS) $(INCFLAGS) -c %f -o %o |> %B.o
+: $(UNITY_DIR)/unity.c |> $(CC) $(UNITY_DEFS) $(CFLAGS) $(INCFLAGS) -c %f -o %o |> %B.o
+: foreach t_*.c |> $(CC) $(CFLAGS) $(INCFLAGS) -c %f -o %o |> %B.o
+: foreach t_*.o | $(LIBRARY) $(UNITY_OBJS) |> $(CC) $(UNITY_OBJS) %f -o %o $(LIBS) |> %B_x
+
+# SWIG python module
+: foreach *.i |> swig -python %f |> %B_wrap.c %B.py
+: foreach *_wrap.c |> $(CC) -c -fPIC %f $(PYTHON_INCS) |> %B.o
+
+: blastpy_wrap.o | $(BLASTPY_FILES) |> $(CC) -shared $(BLASTPY_FILES) %f -o _blastpy.so $(BLASTPY_LIBS) |> _blastpy.so
+
+# Run tests
+# : foreach t_*_x |> sh -c ./%f |>
+
+# Conditional tests
+ifeq (@(RUN_TESTS),y)
+: $(BINARY) |> pwd |>
+endif

@@ -1,2 +1,2 @@
 gdb -tui -q -x .breakpoints -x .gdbinit
-build/testchamber/parser_test/parser_test
+src/libbp/t_blastpit_x

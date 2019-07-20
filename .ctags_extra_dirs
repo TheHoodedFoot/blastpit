@@ -1,9 +1,15 @@
+/usr/include/MQTTAsync.h
+/usr/include/MQTTClient.h
+/usr/include/MQTTClientPersistence.h
+/usr/include/MQTTProperties.h
+/usr/include/MQTTReasonCodes.h
+/usr/include/MQTTSubscribeOpts.h
 /usr/include/qt5/QtCore
 /usr/include/qt5/QtGui
 /usr/include/qt5/QtNetwork
 /usr/include/qt5/QtTest
 /usr/include/qt5/QtWidgets
+/usr/include/unistd.h
+sub/Unity/src
 sub/nanosvg/src
 sub/pugixml/src
-/usr/include/mosquitto.h
-/usr/include/mosquittopp.h

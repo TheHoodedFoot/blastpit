@@ -1,38 +1,64 @@
-#include "parser.h"
+#include "parser.hpp"
 #include <QTime>
 #include <QtCore>
-#include "network.h"
+/* #include "network.hpp" */
 #include "pugixml.hpp"
+#include "t_common.h"
+
+#include <unistd.h>
+#include <sstream>
 
 Parser::Parser(QObject *parent) : QObject(parent)
 {
-	QObject::connect(&network, SIGNAL(receivedPacket()), this,
-			 SLOT(getPacket()));
 	QObject::connect(&lmos, SIGNAL(log(QString)), this,
 			 SLOT(log(QString)));
 	QObject::connect(&lmos, SIGNAL(log(int, const char *, QString)), this,
 			 SLOT(log(int, const char *, QString)));
-	network.listenTcp(LISTEN_PORT);
+	QObject::connect(&lmos, SIGNAL(ack(QString)), this,
+			 SLOT(ack(QString)));
+
+	blast = bp_new();
+	bp_connectToServer(blast, SERVER, "lmos", 1000);
+	usleep(200000);
+	bp_subscribe(blast, "lmos", 1000);
+
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+	timer->start(200);
 }
 
-Parser::Parser(QObject *parent, int port) : QObject(parent)
+Parser::~Parser()
 {
-	QObject::connect(&network, SIGNAL(receivedPacket()), this,
-			 SLOT(getPacket()));
-	QObject::connect(&lmos, SIGNAL(log(QString)), this,
-			 SLOT(log(QString)));
-	QObject::connect(&lmos, SIGNAL(log(int, const char *, QString)), this,
-			 SLOT(log(int, const char *, QString)));
+	timer->stop();
+	bp_unsubscribe(blast, "lmos", 1000);
+	bp_disconnectFromServer(blast);
+	bp_delete(blast);
+}
 
-	// TODO: Just a test for the signal/slot. Delete this
-	// when we create proper signal replies.
-	QObject::connect(&lmos, SIGNAL(sigMouseDown()), this, SLOT(test()));
-	QObject::connect(&lmos, SIGNAL(sendEvent(QString)), this,
-			 SLOT(receiveEvent(QString)));
-	QObject::connect(&lmos, SIGNAL(sigImageEnd2(double, int)), this,
-			 SLOT(imageEnd2(double, int)));
+void
+Parser::update()
+{ /* Examine the mqtt message stack */
 
-	network.listenTcp(port);
+	if (bp_getMessageCount(blast)) {
+		t_bp_message msg = bp_getNewestMessage(blast);
+		pugi::xml_document xml;
+		xml.load_buffer(msg.data, msg.length);
+
+		int command =
+			QString(xml.child("command").child_value()).toInt();
+		// qInfo() << "Parser::update() Command string: " << command;
+		/* emit sendlog(command); */
+		if (command) {
+			parseCommand(QString(xml.child("command")
+						     .attribute("id")
+						     .value())
+					     .toInt(),
+				     command, xml);
+		} else {
+			// qInfo() << "Couldn't parse xml (shown below).";
+			// qInfo() << QString(msg.data);
+		}
+	}
 }
 
 void
@@ -51,117 +77,33 @@ Parser::log(int level, const char *function, QString entry)
 }
 
 void
-Parser::retval(const char *function, int value)
-{
-	QString logFunc = QString(function);
-	emit sendlog("(" + logFunc +
-		     ") : Return value: " + QString::number(value));
-}
+Parser::ack(QString message)
+{ /* Send a network acknowledgment */
 
-int
-Parser::getPacket()
-{  // Get a packet from the network buffer and parse it
-
-	int validPackets = 0;
-
-	/* qDebug() << "getPacket(): Network packets waiting = " + */
-	/* 		    QString::number(network.packetsWaiting()); */
-
-	// Skip any packets whose parent has not completed yet, and
-	// fail any packets whose parent has failed.
-	for (int i = 0; i < network.packetsWaiting(); i++) {
-		uint32_t parentId = network.getParent(i);
-		if (parentId) {
-			switch (logGetResult(parentId)) {
-				case kSuccess:
-					// Parent completed successfully so
-					// continue parsing /*
-					break;
-				case kNoEntry:
-				case kRunning:
-					// Parent not completed,
-					// so skip
-					continue;
-				case kFail:
-				default:
-					// Parent failed, so fail too
-					uint32_t id, command;
-					network.getPacketHeader(
-						i, id, command, parentId);
-					logWrite(id, command, kFail);
-					continue;
-			}
-		}
-
-		QByteArray packet;
-		network.getPacket(i, packet);
-
-		const char *pkt = packet.constData();
-		struct BpPacket *header = (struct BpPacket *)pkt;
-
-		/* qDebug() << "getPacket(): Parsing packet: id: " + */
-		/* 		    QString::number(header->id) + */
-		/* 		    ", command: " + */
-		/* 		    QString::number(header->command); */
-
-		parseCommand(header->id, header->command,
-			     packet.right(packet.size() -
-					  sizeof(struct BpPacket)));
-
-		validPackets++;
-	}
-
-	// Now we are safe to drop any packets in the buffer that have a
-	// failed log entry. We do it in reverse order so the index is not
-	// affected by previous removals.
-	for (int j = network.packetsWaiting(); j > 0; j--) {
-		uint32_t id, command, parentId;
-		if (network.getPacketHeader(j, id, command, parentId)) {
-			if (logGetResult(id) == kFail) network.dropPacket(j);
-		}
-	}
-
-	return validPackets;
-}
-
-QString
-Parser::getXml(QByteArray &data, const char *attr)
-{
-	pugi::xml_document xml;
-	xml.load_buffer(data.constData(), data.size());
-	return xml.child("Blastpit").attribute(attr).value();
-}
-
-int
-Parser::getXmlInt(QByteArray &data, const char *attr)
-{
-	return QString(getXml(data, attr)).toInt();
-}
-
-float
-Parser::getXmlFloat(QByteArray &data, const char *attr)
-{
-	return QString(getXml(data, attr)).toFloat();
-}
-
-double
-Parser::getXmlDouble(QByteArray &data, const char *attr)
-{
-	return QString(getXml(data, attr)).toDouble();
-}
-
-bool
-Parser::getXmlBool(QByteArray &data, const char *attr)
-{
-	return QString(getXml(data, attr)).toInt();
+	bp_sendMessage(blast, "broadcast", message.toStdString().c_str());
 }
 
 void
-Parser::parseCommand(int id, int command, QByteArray data)
+Parser::ackReturn(int id, int retval)
+{ /* Send a network acknowledgment */
+
+	QString message = QString::number(id) + "," + QString::number(retval);
+	bp_sendMessage(blast, "broadcast", message.toStdString().c_str());
+}
+
+void
+Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 {
-	emit log("ID: " + QString::number(id) +
-		 ", Command: " + QString::number(command) +
-		 ", Size: " + QString::number(data.size()));
+	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") " +
+	    "ID: " + QString::number(id) +
+	    ", Command: " + QString::number(command));
+
+	std::stringstream out;
+	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");
+	pugi::xml_node cmd = xml.child("command");
+	QPixmap pixmap;
+	QByteArray bArray;
+	QBuffer buffer(&bArray);
 
 	switch (command) {
 		case kInitMachine:
@@ -172,147 +114,177 @@ Parser::parseCommand(int id, int command, QByteArray data)
 			break;
 		case kClearQpSets:
 			lmos.ClearQPSets();
+			lmos.SaveQPSets();
 			break;
 		case kImportXML:
-			lmos.LoadXML(getXml(data, "drawing"));
+			/* xml.child("DRAWING").remove_child("COMMAND"); */
+			xml.child("command").child("DRAWING").print(
+				out, "", pugi::format_raw);
+			/* xml.save(out); */
+			/* qInfo() << "Drawing string: " */
+			/* 	<< QString::fromStdString(out.str()); */
+			ackReturn(id, lmos.LoadXML(QString::fromStdString(
+					      out.str())));
 			break;
 		case kStopPosHelp:
 			lmos.StopPosHelp();
+			ackReturn(id, 0);
 			break;
 		case kStartMarking:
-			logWrite(id, command, kRunning);
 			lmos.StartMarking();
+			ackReturn(id, 0);
 			break;
 		case kStopMarking:
-			network.flushPacketQueue();
 			lmos.StopMarking();
+			ackReturn(id, 0);
 			break;
 		case kSelfTest:
 			lmos.Test();
 			break;
 		case kStartPosHelp:
-			lmos.StartPosHelp(getXml(data, "object"));
+			lmos.StartPosHelp(cmd.attribute("object").value());
+			ackReturn(id, 0);
 			break;
 		case kExit:
 			emit finished();
+			ackReturn(id, 0);
 			break;
 		case kReference:
 			lmos.Reference();
+			ackReturn(id, 0);
 			break;
 		case kSetMOLayer:
-			lmos.SetMOLayer(getXml(data, "object"),
-					getXml(data, "layer"));
+			lmos.StartPosHelp(cmd.attribute("object").value());
+			ackReturn(id, 0);
 			break;
-		case kLayerSetHeightZAxis:
-			lmos.SetMOLayer(getXml(data, "layer"),
-					getXml(data, "height"));
+		case kLayerSetHeight:
+			lmos.LayerSetHeightZAxis(
+				cmd.attribute("layer").value(),
+				QString(cmd.attribute("height").value())
+					.toFloat());
+			ackReturn(id, 0);
 			break;
 		case kLayerSetLaserable:
-			lmos.LayerSetLaserable(getXml(data, "layer"),
-					       getXmlBool(data, "laserable"));
+			lmos.LayerSetLaserable(
+				cmd.attribute("layer").value(),
+				QString(cmd.attribute("laserable").value())
+					.toInt());
+			ackReturn(id, 0);
 			break;
 		case kLayerSetVisible:
-			lmos.LayerSetLaserable(getXml(data, "layer"),
-					       getXmlBool(data, "visible"));
+			lmos.LayerSetVisible(
+				cmd.attribute("layer").value(),
+				QString(cmd.attribute("visible").value())
+					.toInt());
+			ackReturn(id, 0);
 			break;
 		case kLayerSetExportable:
-			lmos.LayerSetLaserable(
-				getXml(data, "layer"),
-				getXmlBool(data, "exportable"));
+			lmos.LayerSetExportable(
+				cmd.attribute("layer").value(),
+				QString(cmd.attribute("exportable").value())
+					.toInt());
+			ackReturn(id, 0);
 			break;
 		case kCancelJob:
-			network.flushPacketQueue();
 			lmos.CancelJob();
+			ackReturn(id, 0);
 			break;
 		case kSetDimension:
-			lmos.SetDimension(getXml(data, "object"),
-					  getXmlDouble(data, "x"),
-					  getXmlDouble(data, "y"));
+			lmos.SetDimension(cmd.attribute("object").value(),
+					  QString(cmd.attribute("x").value())
+						  .toDouble(),
+					  QString(cmd.attribute("y").value())
+						  .toDouble());
+			ackReturn(id, 0);
 			break;
 		case kSetPosValues:
-			lmos.SetPosValues(getXml(data, "object"),
-					  getXmlDouble(data, "x"),
-					  getXmlDouble(data, "y"),
-					  getXmlDouble(data, "r"));
+			lmos.SetPosValues(cmd.attribute("object").value(),
+					  QString(cmd.attribute("x").value())
+						  .toDouble(),
+					  QString(cmd.attribute("y").value())
+						  .toDouble(),
+					  QString(cmd.attribute("r").value())
+						  .toDouble());
+			ackReturn(id, 0);
 			break;
 		case kZoomWindow:
-			lmos.ZoomWindow(getXmlDouble(data, "x1"),
-					getXmlDouble(data, "y1"),
-					getXmlDouble(data, "x2"),
-					getXmlDouble(data, "y2"));
+			lmos.ZoomWindow(
+				QString(cmd.attribute("x1").value()).toInt(),
+				QString(cmd.attribute("y1").value()).toInt(),
+				QString(cmd.attribute("x2").value()).toInt(),
+				QString(cmd.attribute("y2").value()).toInt());
+			break;
+		case kShowMarkingArea:
+			lmos.ShowMarkingArea();
 			break;
 		case kAddQpSet:
-			lmos.AddQPSet(getXml(data, "name"),
-				      getXmlDouble(data, "current"),
-				      getXmlDouble(data, "speed"),
-				      getXmlDouble(data, "frequency"));
+			/* qInfo() << "Parsing qpsets"; */
+			for (pugi::xml_node qpset =
+				     xml.child("command").child("qpset");
+			     qpset; qpset = qpset.next_sibling("qpset")) {
+				lmos.AddQPSet(
+					qpset.attribute("name").value(),
+					QString(qpset.attribute("current")
+							.value())
+						.toDouble(),
+					QString(qpset.attribute("speed")
+							.value())
+						.toInt(),
+					QString(qpset.attribute("frequency")
+							.value())
+						.toInt());
+			}
+			/* qInfo() << "Finished parsing qpsets"; */
+			lmos.SaveQPSets();
+			ackReturn(id, 0);
 			break;
-		case kWriteIOBit:
-			lmos.WriteIOBit(getXml(data, "bitfunction"),
-					getXmlBool(data, "value"));
-			break;
-		case kReadByte:
-			lmos.ReadByte(getXmlInt(data, "port"),
-				      getXmlInt(data, "mask"));
-			break;
-		case kReadIOBit:
-			lmos.ReadIOBit(getXml(data, "bitfunction"));
-			break;
+		/* case kWriteIOBit: */
+		/* 	lmos.WriteIOBit(getXml(xml, "bitfunction"), */
+		/* 			getXmlBool(xml, "value")); */
+		/* 	break; */
+		/* case kReadByte: */
+		/* 	lmos.ReadByte(getXmlInt(xml, "port"), */
+		/* 		      getXmlInt(xml, "mask")); */
+		/* 	break; */
+		/* case kReadIOBit: */
+		/* 	lmos.ReadIOBit(getXml(xml, "bitfunction")); */
+		/* 	break; */
 		case kSaveVLM:
-			lmos.SaveVLM(getXml(data, "filename"));
+			lmos.SaveVLM(cmd.attribute("filename").value());
+			ackReturn(id, 0);
+			emit settray(
+				"Saving as " +
+				QString(cmd.attribute("filename").value()));
 			break;
 		case kLoadVLM:
-			lmos.LoadVLM(getXml(data, "filename"));
+			lmos.LoadVLM(
+				QString(cmd.attribute("filename").value()));
 			break;
 		case kMoveZ:
-			lmos.MoveZ(getXmlFloat(data, "height"));
+			lmos.MoveZ(QString(cmd.attribute("height").value())
+					   .toFloat());
+			ackReturn(id, 0);
 			break;
 		case kMoveW:
-			lmos.MoveW(getXmlFloat(data, "rotation"));
+			lmos.MoveW(QString(cmd.attribute("rotation").value())
+					   .toDouble());
+			break;
+		case kGetPng:
+			pixmap = lmos.GrabWindow();
+			buffer.open(QIODevice::WriteOnly);
+			pixmap.save(&buffer, "PNG");
+			bArray = bArray.toBase64();
+			ack(QString::number(id) + "," + bArray);
 			break;
 		case kNoCommand: /* Dummy command for unit tests */
-			logWrite(id, command, kSuccess);
+		case 99:	 /* Dummy command for unit tests */
+			ackReturn(id, 9);
 			break;
 
 		default:
 			// We should not get here
 			qDebug() << "Unknown command " << command
 				 << " in parseCommand()";
-			logWrite(id, command, kSuccess);
-	}
-}
-
-void
-Parser::test()
-{
-	asm("nop");
-}
-
-void
-Parser::imageEnd2(double time, int result)
-{  // Marking has completed
-
-	log(QString(__func__) + ": Time " + QString::number(time));
-
-	// Since there is no connection between this signal and the id of the
-	// packet that began the marking, we must look through the log and
-	// determine it.
-	uint32_t id = getLastCommandOfType(kStartMarking);
-	if (id) {
-		// result is of type ImageResultConstants, for which
-		// zero means success
-		if (result == 0) {
-			logEdit(id, kSuccess);
-		} else {
-			logEdit(id, kFail);
-		}
-
-		getPacket();
-	} else {
-		// Something went wrong, because there should be a log entry
-		// that started this.
-		qDebug() << __func__ << " error";
-		throw "Log entry error";
 	}
 }
 
@@ -321,78 +293,4 @@ Parser::receiveEvent(QString event)
 {  // Signal has been received from Lmos
 
 	qDebug() << "myEvent: " << event;
-}
-
-void
-Parser::logWrite(uint32_t id, uint32_t command, uint32_t result)
-{  // Add an entry to the log
-
-	struct BpLogEntry entry;
-	entry.id = id;
-	entry.command = command;
-	entry.result = result;
-	logfile.push_back(entry);
-}
-
-uint32_t
-Parser::logGetResult(uint32_t id)
-{  // Get result from log, if it exists
-
-	// We iterate backwards because it is more likely
-	// that what we want is near the end
-	for (auto it = logfile.rbegin(); it != logfile.rend(); it++) {
-		if ((*it).id == id) return (*it).result;
-	}
-
-	return kNoEntry;
-}
-
-bool
-Parser::logEdit(uint32_t id, uint32_t result)
-{ /* Edit a log entry result */
-
-	for (auto it = logfile.rbegin(); it != logfile.rend(); it++) {
-		if ((*it).id == id) {
-			(*it).result = result;
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void
-Parser::listLog()
-{  // Dump the log for viewing
-
-	for (auto it = logfile.begin(); it != logfile.end(); it++) {
-		qDebug() << "Parser log: id: " + QString::number((*it).id) +
-				    ", command: " +
-				    QString::number((*it).command) +
-				    ", result: " +
-				    QString::number((*it).result);
-	}
-}
-
-void
-Parser::clearLog()
-{  // Clear the log (useful when testing)
-
-	logfile.clear();
-}
-
-uint32_t
-Parser::getLastCommandOfType(uint32_t command)
-{  // Search the log for the last command of a type
-
-	for (auto it = logfile.rbegin(); it != logfile.rend(); it++) {
-		/* qDebug() << "getLastCommandOfType: id: " +
-		 * QString::number((*it).id) + ", command: " +
-		 * QString::number((*it).command) + */
-		/* 		    ", result: " + */
-		/* 		    QString::number((*it).result); */
-		if ((*it).command == command) return (*it).id;
-	}
-
-	return false;
 }

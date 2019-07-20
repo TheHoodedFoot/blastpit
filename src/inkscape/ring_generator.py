@@ -56,6 +56,25 @@ def chordArcLength(radius, sagitta):
     return math.asin(c / hc) * hc
 
 
+def getHeightAtAngle(height, angle):
+    return math.sin(math.radians(90 - angle)) * height
+
+
+def axialAngle(radius, width, overrideMin=False):
+    # Find tilt (in degrees so we can round it next)
+    tilt = math.degrees(math.atan(float(width) / float(radius * 2)))
+
+    # Round up to nearest 5 degrees
+    if int(round(tilt)) != tilt:
+        tilt = int(round(tilt / 5) * 5)
+
+    # The angle must be at least 20 degrees to avoid the mounts
+    if tilt < 20 and overrideMin is False:
+        tilt = 20
+
+    return tilt
+
+
 class ring_generator(inkex.Effect):
     def __init__(self):
         # Call the base class constructor.
@@ -71,6 +90,8 @@ class ring_generator(inkex.Effect):
             ["s", "sagitta", "float", "1.0", "Focal range"],
             ["v", "overlap", "float", "2.0", "Shadow overlap"],
             ["f", "face", "float", "76.0", "Ring holder face offset"],
+            ["x", "axisheight", "float", "77.0", "Height of rotary axis"],
+            ["r", "override", "inkbool", "False", "Override the 20 degree limit"],
         ]
         for arg in options:
             self.OptionParser.add_option(
@@ -91,7 +112,7 @@ class ring_generator(inkex.Effect):
         (w, h) = width_height
         (x, y) = x_y
         colours = colorsys.hls_to_rgb(
-            hue, 0.95, 1.0)
+            hue, 0.80, 1.0)
         colstr = "#" + format(int(colours[0] * 255),
                               '02x') + format(int(colours[1] * 255),
                                               '02x') + format(int(colours[2] * 255),
@@ -130,9 +151,11 @@ class ring_generator(inkex.Effect):
         r_id = 1
 
         RADIUS = self.options.diameter / 2
-        SEGMENTS = int(math.ceil((math.pi * self.options.diameter) /
+        SEGMENTS = int(math.ceil((math.pi *
+                                  self.options.diameter) /
                                  (chordArcLength(RADIUS, self.options.sagitta) -
-                                  2 * self.options.overlap)))
+                                  2 *
+                                  self.options.overlap)))
         SECTOR_WIDTH = (math.pi * self.options.diameter) / SEGMENTS
 
         # Resize the document to the area of the ring
@@ -180,14 +203,28 @@ class ring_generator(inkex.Effect):
                                  y_offset),
                                 hue,
                                 parent,
-                                "shadow" + str(int(i)).zfill(2))
+                                "shadow" + str(int(hue * (SEGMENTS + 1))).zfill(2))
+
+        layerHeight = 10
+        axisAngle = 0
+        # Calculate height
+        if self.options.ring_type == "convex":
+            layerHeight = self.options.axisheight + self.options.diameter / 2
+        else:
+            axisAngle = axialAngle(
+                self.options.diameter / 2,
+                self.options.width,
+                self.options.override)
+            layerHeight = self.options.axisheight - \
+                getHeightAtAngle(self.options.diameter / 2, axisAngle)
 
         # Create text element
         text = inkex.etree.Element(inkex.addNS('text', 'svg'))
         text.text = u'Ø' + str(round(self.options.diameter, 2)) + \
             ' x ' + str(round(self.options.width, 2)) + \
-            ' Sectors ' + str(round(360.0 / SEGMENTS)) + u'°' \
-            ' (todo - add layer height here)'
+            ' Sectors ' + str(round(360.0 / SEGMENTS, 2)) + u'°' \
+            ' Height ' + str((round(layerHeight, 1))) + \
+            ' Angle ' + str(int(axisAngle)) + u'°'
 
         # Set text position to center of document.
         width = self.unittouu(root.attrib['width'])

@@ -4,7 +4,7 @@ RED="\e[31m"
 GREEN="\e[32m"
 WHITE="\e[39m"
 
-#FILES_PATTERN='*commit'
+FILES_PATTERN='*.{c,h}'
 #FILES_PATTERN='\.(js|coffee)(\..+)?$'
 FORBIDDEN='-e arse'
 
@@ -35,18 +35,27 @@ fi
 
 # Stash
 STASH_NAME="pre-commit-$(date +%F_%T)"
-#git stash save --keep-index --include-untracked $STASH_NAME
+# git stash save --keep-index --include-untracked $STASH_NAME
+
+make clean
 
 # Tidy
-make format
+make format formatextra
 
 # Run tests
-make test
+make -j$(nproc) test
 TEST_RESULT=$?
-
-#unstash
 
 if [[ ${TEST_RESULT} -ne 0 ]]
 then
+	# unstash
 	exit 1
+else
+	# TODO: add any files changed by make format
+	git stash drop || /bin/true
 fi
+
+# Create the standalone build script for ebuilds without tup
+make clean
+make standalone
+git add res/ebuild/tup-make.sh

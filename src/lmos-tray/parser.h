@@ -2,14 +2,14 @@
 #define PARSER_H
 
 #include <QObject>
-#include "lmos.h"
-#include "network.h"
+#include "lmos.hpp"
+#include "network.hpp"
 
 class Parser : public QObject {
 	Q_OBJECT
       public:
 	explicit Parser(QObject *parent = nullptr);
-	Parser(QObject *parent = nullptr, int = LISTEN_PORT);
+	Parser(QObject *parent, int);
 	void parseCommand(int);
 	void listLog();
 

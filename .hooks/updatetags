@@ -1,2 +1,3 @@
 #!/bin/sh
-.hooks/ctags
+echo "Updating tags in background..."
+.hooks/ctags > /dev/null &
