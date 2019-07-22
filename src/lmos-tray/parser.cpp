@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include <QSettings>
 #include <QTime>
 #include <QtCore>
 /* #include "network.hpp" */
@@ -17,8 +18,13 @@ Parser::Parser(QObject *parent) : QObject(parent)
 	QObject::connect(&lmos, SIGNAL(ack(QString)), this,
 			 SLOT(ack(QString)));
 
+	QSettings traySettings("Rfbevanco", "lmos-tray");
+	QString mqttsvr = traySettings.value("mqttServer").toString();
+	QByteArray ba = mqttsvr.toLocal8Bit();
+	const char *c_str2 = ba.data();
+
 	blast = bp_new();
-	bp_connectToServer(blast, SERVER, "lmos", 1000);
+	bp_connectToServer(blast, c_str2, "lmos", 1000);
 	usleep(200000);
 	bp_subscribe(blast, "lmos", 1000);
 
@@ -238,10 +244,13 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			lmos.SaveQPSets();
 			ackReturn(id, 0);
 			break;
-		/* case kWriteIOBit: */
-		/* 	lmos.WriteIOBit(getXml(xml, "bitfunction"), */
-		/* 			getXmlBool(xml, "value")); */
-		/* 	break; */
+		case kWriteIOBit:
+			lmos.WriteIOBit(
+				cmd.attribute("bitfunction").value(),
+				QString(cmd.attribute("value").value())
+					.toInt());
+			ackReturn(id, 0);
+			break;
 		/* case kReadByte: */
 		/* 	lmos.ReadByte(getXmlInt(xml, "port"), */
 		/* 		      getXmlInt(xml, "mask")); */

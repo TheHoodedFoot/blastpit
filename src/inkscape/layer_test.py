@@ -43,3 +43,27 @@ class Layertest(inkex.Effect):
 
 effect = Layertest()
 effect.affect()
+
+
+
+# From some found code:
+def getLayers(self,root,result):
+    for child in root:
+        if child.tag[-1] == 'g':
+            result.append(child)
+        self.getLayers(child, result)
+return result
+
+root = tree.getroot()
+layers = self.getLayers(root,[])
+
+for currentLayer in layers:
+    attributeValue = currentLayer.get(self.attributeName)
+    if attributeValue is None:
+        setValue = self.visibleLayer
+    elif combination in attributeValue.split(self.delimiter):
+        setValue = self.visibleLayer
+    else:
+        setValue = self.hiddenLayer
+
+currentLayer.set('style',setValue)

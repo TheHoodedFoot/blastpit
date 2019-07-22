@@ -35,8 +35,8 @@ INCFLAGS = -I. -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR)
 # Python inclues for SWIG
 # The config used here determines which version of python
 # the library will import into
-PYTHON_INCS = `python2.7-config --includes`
-# PYTHON_INCS = `python-config --includes`
+# PYTHON_INCS = `python2.7-config --includes`
+PYTHON_INCS = `python-config --includes`
 
 # Libraries
 LIBS  = -lpaho-mqtt3a -lm

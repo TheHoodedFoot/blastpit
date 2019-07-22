@@ -1,16 +1,15 @@
-SOURCES:=webcam_capture.cpp
-OUTPUT=cap
+SOURCES:=capture.cpp
 
 CXX      = ccache g++
 CXXFLAGS = -Wall -ggdb3 -O0
 
-all: $(SOURCES) $(OUTPUT)
-	rm -f webcam_output.jpeg
-	./$(OUTPUT)
-	feh webcam_output.jpeg
+all: veho eakins
 
-$(OUTPUT): $(SOURCES)
-	$(CXX) -std=c++11 $(CXXFLAGS) -o $@ $^ $(shell pkg-config opencv --libs)
+veho: $(SOURCES)
+	$(CXX) -DCAPTURE_DEVICE=2 -DCAPTURE_X_RESOLUTION=640 -DCAPTURE_Y_RESOLUTION=480 -DCAMERA_NAME=\"$@\" -std=c++11 $(CXXFLAGS) -o $@ $^ $(shell pkg-config opencv --libs)
+
+eakins: $(SOURCES)
+	$(CXX) -DCAPTURE_DEVICE=0 -DCAPTURE_X_RESOLUTION=1920 -DCAPTURE_Y_RESOLUTION=1080 -DCAMERA_NAME=\"$@\" -std=c++11 $(CXXFLAGS) -o $@ $^ $(shell pkg-config opencv --libs)
 
 clean:
 	rm -f $(OUTPUT) *.png *.jp?g

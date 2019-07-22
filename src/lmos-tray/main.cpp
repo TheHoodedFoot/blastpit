@@ -84,7 +84,7 @@ main(int argc, char *argv[])
 
 	LmosTray w;
 
-	QApplication::setQuitOnLastWindowClosed(false);
+	QApplication::setQuitOnLastWindowClosed(true);
 
 	return a.exec();
 }

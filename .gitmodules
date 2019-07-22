@@ -31,15 +31,9 @@
 [submodule "python-qrcode"]
 	path = python-qrcode
 	url = https://github.com/lincolnloop/python-qrcode
-[submodule "sub/python-qrcode"]
-	path = sub/python-qrcode
-	url = https://github.com/lincolnloop/python-qrcode
 [submodule "sub/swig_qt"]
 	path = sub/swig_qt
 	url = https://github.com/feddischson/swig_qt.git
-[submodule "sub/hello-sip-pyqt5"]
-	path = sub/hello-sip-pyqt5
-	url = https://github.com/zanton/hello-sip-pyqt5.git
 [submodule "sub/paho_mqtt_c"]
 	path = sub/paho_mqtt_c
 	url = https://github.com/eclipse/paho.mqtt.c.git
@@ -61,3 +55,6 @@
 [submodule "sub/apriltag-generation"]
 	path = sub/apriltag-generation
 	url = https://github.com/AprilRobotics/apriltag-generation.git
+[submodule "sub/apriltags"]
+	path = sub/apriltags
+	url = https://bitbucket.org/kaess/apriltags.git

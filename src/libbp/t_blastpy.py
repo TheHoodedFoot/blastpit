@@ -1,21 +1,21 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import os.path
 if not os.path.isfile(os.path.expanduser("~")
-                      + "/usr/src/blastpit/src/libbp/_blastpy.so"):
+                      + "/projects/blastpit/src/libbp/_blastpy.so"):
     print("The blastpit library is not available.")
     exit(1)
 
 import sys
 sys.path.append(os.path.expanduser("~")
-                + "/usr/src/blastpit/src/libbp")
+                + "/projects/blastpit/src/libbp")
 
 import blastpy as bp
 import unittest
 import socket
 import time
 
-SERVER = "tcp://hilly:1883"
+SERVER = "tcp://rfbevan.co.uk:1883"
 MQTT_ID = socket.gethostname()
 TIMEOUT = 2000
 

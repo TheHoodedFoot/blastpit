@@ -52,6 +52,7 @@ class LmosTray : public QMainWindow {
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
 	// void test();
 	void clearLog();
+	void showSettings();
 
       private:
 	void createActions();
@@ -63,6 +64,7 @@ class LmosTray : public QMainWindow {
 	QAction *restoreAction;
 	QAction *quitAction;
 	QAction *clearLogAction;
+	QAction *settingsAction;
 
 	QSystemTrayIcon *trayIcon;
 	QMenu *trayIconMenu;

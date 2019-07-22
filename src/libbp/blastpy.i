@@ -127,7 +127,7 @@ class BpXML:
         self.command.set("id", str(id))
         self.command.text = str(command)
 
-    def axialAngle(self, radius, width, overrideMin=False):
+    def axialAngle(self, radius, width, overrideMin="false"):
         # Find tilt (in degrees so we can round it next)
         tilt = math.degrees(math.atan(float(width) / float(radius * 2)))
 
@@ -136,7 +136,7 @@ class BpXML:
             tilt = int(round(tilt / 5) * 5)
 
         # The angle must be at least 20 degrees to avoid the mounts
-        if tilt < 20 and overrideMin is False:
+        if int(tilt) < 20 and overrideMin == "false":
             tilt = 20
 
         return tilt

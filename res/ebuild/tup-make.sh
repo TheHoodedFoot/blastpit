@@ -18,5 +18,5 @@ clang unity.o unity_fixture.o t_linkedlist.o -o t_linkedlist_x -lpaho-mqtt3a -lm
 clang unity.o unity_fixture.o t_message.o -o t_message_x -lpaho-mqtt3a -lm -Wl,-rpath=. -Wl,-rpath=src/libbp libbp.so.1
 clang unity.o unity_fixture.o t_mqtt.o -o t_mqtt_x -lpaho-mqtt3a -lm -Wl,-rpath=. -Wl,-rpath=src/libbp libbp.so.1
 swig -python blastpy.i
-clang -c -fPIC blastpy_wrap.c `python2.7-config --includes`
+clang -c -fPIC blastpy_wrap.c `python-config --includes`
 clang -shared blastpit.o mqtt.o message.o linkedlist.o new.o blastpy_wrap.o -o _blastpy.so -lpaho-mqtt3a

@@ -19,7 +19,8 @@ INCLUDEPATH += $$PWD/../../sub/pugixml/src
 INCLUDEPATH += ../libbp
 
 SOURCES +=	lmos-tray.cpp \
-		main.cpp
+		main.cpp \
+    traysettings.cpp
 
 SOURCES +=	lmos.cpp \
 		parser.cpp 
@@ -27,12 +28,14 @@ SOURCES +=	lmos.cpp \
 HEADERS  += 	../libbp/blastpit.h \
         	lmos-tray.hpp \ 
     ../libbp/network.hpp \
-    parser.hpp
+    parser.hpp \
+    traysettings.h
 
 HEADERS += lmos.hpp
 
 FORMS    += \
-    lmos-tray.ui
+    lmos-tray.ui \
+    traysettings.ui
 
 RC_FILE = lmos-tray.rc
 

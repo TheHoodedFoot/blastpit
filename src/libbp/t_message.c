@@ -30,10 +30,10 @@ TEST(MessageGroup, AllocateMemoryTest)
 	t_Message* message = new (Message, 10, "0123456789");
 	TEST_ASSERT_NOT_NULL(message);
 
-	delete (message);
+	/* TEST_ASSERT_NULL(getMessageData(message)); */
+	TEST_ASSERT_EQUAL(10, getMessageSize(message));
 
-	TEST_ASSERT_NULL(getMessageData(message));
-	TEST_ASSERT_EQUAL(0, getMessageSize(message));
+	delete (message);
 }
 
 TEST(MessageGroup, SizeTest)

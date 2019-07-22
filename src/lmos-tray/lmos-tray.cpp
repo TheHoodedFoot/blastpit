@@ -70,6 +70,7 @@
 #include <sstream>
 #include "../libbp/network.hpp"
 #include "parser.h"
+#include "traysettings.h"
 
 LmosTray::LmosTray(QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
@@ -112,6 +113,10 @@ LmosTray::createActions()
 	quitAction = new QAction(tr("&Quit"), this);
 	connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
+	settingsAction = new QAction(tr("&Settings"), this);
+	connect(settingsAction, SIGNAL(triggered()), this,
+		SLOT(showSettings()));
+
 	clearLogAction = new QAction(tr("&Clear log"), this);
 	connect(clearLogAction, SIGNAL(triggered()), this, SLOT(clearLog()));
 }
@@ -125,11 +130,22 @@ LmosTray::initTray()
 	trayIconMenu->addAction(minimizeAction);
 	trayIconMenu->addAction(restoreAction);
 	trayIconMenu->addSeparator();
+	trayIconMenu->addAction(settingsAction);
 	trayIconMenu->addAction(quitAction);
 
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setContextMenu(trayIconMenu);
 }
+
+void
+LmosTray::showSettings()
+{
+	/* Show the settings window */
+	traysettings *ts = new traysettings;
+	ts->setAttribute(Qt::WA_DeleteOnClose);
+	ts->show();
+}
+
 void
 LmosTray::setIcon()
 {

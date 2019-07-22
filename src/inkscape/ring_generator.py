@@ -6,6 +6,9 @@ import math
 import colorsys
 import simplestyle
 import inkex
+
+from lxml import etree
+
 '''
 Copyright (C) 2009 Richard Querin, screencasters@heathenx.org
 Copyright (C) 2009 heathenx, screencasters@heathenx.org
@@ -43,16 +46,16 @@ sys.path.append('/usr/share/inkscape/extensions')
 # https://en.wikipedia.org/wiki/Circular_segment
 
 def chordLength(radius, sagitta):
-    return 2 * math.sqrt(2 * radius * sagitta - sagitta * sagitta)
+    return 2 * math.sqrt(2 * float(radius) * float(sagitta) - float(sagitta) * float(sagitta))
 
 
 def chordAngle(radius, sagitta):
-    return 2 * math.asin(chordLength(radius, sagitta) / (2 * radius))
+    return 2 * math.asin(chordLength(float(radius), float(sagitta)) / (2 * float(radius)))
 
 
 def chordArcLength(radius, sagitta):
-    c = chordLength(radius, sagitta)
-    hc = sagitta + ((c * c) / (4 * sagitta))
+    c = chordLength(float(radius), float(sagitta))
+    hc = float(sagitta) + ((c * c) / (4 * float(sagitta)))
     return math.asin(c / hc) * hc
 
 
@@ -69,9 +72,10 @@ def axialAngle(radius, width, overrideMin=False):
         tilt = int(round(tilt / 5) * 5)
 
     # The angle must be at least 20 degrees to avoid the mounts
-    if tilt < 20 and overrideMin is False:
+    if int(tilt) < 20 and overrideMin == "false":
         tilt = 20
 
+    #print( tilt, radius, width, overrideMin, file=sys.stderr)
     return tilt
 
 
@@ -81,27 +85,30 @@ class ring_generator(inkex.Effect):
         inkex.Effect.__init__(self)
 
         options = [
-            ["a", "name", "string", "", "Unknown"],
-            ["d", "diameter", "float", "0", "Ring diameter"],
-            ["l", "holder", "string", "", "Ring holder type"],
-            ["o", "offset", "float", "0", "Ring holder offset"],
-            ["t", "ring_type", "string", "", "Concave or convex ring type"],
-            ["w", "width", "float", "6.0", "Ring width"],
-            ["s", "sagitta", "float", "1.0", "Focal range"],
-            ["v", "overlap", "float", "2.0", "Shadow overlap"],
-            ["f", "face", "float", "76.0", "Ring holder face offset"],
-            ["x", "axisheight", "float", "77.0", "Height of rotary axis"],
-            ["r", "override", "inkbool", "False", "Override the 20 degree limit"],
+            ["a", "name", "", "Unknown"],
+            ["d", "diameter", "0", "Ring diameter"],
+            ["l", "holder", "", "Ring holder type"],
+            ["o", "offset", "0", "Ring holder offset"],
+            ["t", "ring_type", "", "Concave or convex ring type"],
+            ["w", "width", "6.0", "Ring width"],
+            ["s", "sagitta", "1.0", "Focal range"],
+            ["v", "overlap", "2.0", "Shadow overlap"],
+            ["f", "face", "76.0", "Ring holder face offset"],
+            ["x", "axisheight", "77.0", "Height of rotary axis"],
+            ["r", "override", "False", "Override the 20 degree limit"],
         ]
+
         for arg in options:
-            self.OptionParser.add_option(
-                "-" + arg[0],
-                "--" + arg[1],
-                action="store",
-                dest=arg[1],
-                type=arg[2],
-                default=arg[3],
-                help=arg[4])
+            self.arg_parser.add_argument("-" + arg[0], "--" + arg[1], default=arg[2], help=arg[3])
+        # for arg in options:
+        #     self.OptionParser.add_option(
+        #         "-" + arg[0],
+        #         "--" + arg[1],
+        #         action="store",
+        #         dest=arg[1],
+        #         type=arg[2],
+        #         default=arg[3],
+        #         help=arg[4])
 
     def draw_rectangle(
             self, width_height, x_y,
@@ -133,7 +140,7 @@ class ring_generator(inkex.Effect):
                  }
 
         attribs = {
-            'style': simplestyle.formatStyle(style),
+            'style': str(inkex.Style(style)),
             'height': str(h),
             'width': str(w),
             'x': str(x),
@@ -142,7 +149,7 @@ class ring_generator(inkex.Effect):
             inkex.addNS('label', 'inkscape'): 'shadow'
         }
 
-        inkex.etree.SubElement(parent, inkex.addNS('rect', 'svg'), attribs)
+        etree.SubElement(parent, inkex.addNS('rect', 'svg'), attribs)
 
     def effect(self):
 
@@ -150,23 +157,39 @@ class ring_generator(inkex.Effect):
 
         r_id = 1
 
-        RADIUS = self.options.diameter / 2
+        RADIUS = float(self.options.diameter) / 2
         SEGMENTS = int(math.ceil((math.pi *
-                                  self.options.diameter) /
+                                  float(self.options.diameter)) /
                                  (chordArcLength(RADIUS, self.options.sagitta) -
                                   2 *
-                                  self.options.overlap)))
-        SECTOR_WIDTH = (math.pi * self.options.diameter) / SEGMENTS
+                                  float(self.options.overlap))))
+        SECTOR_WIDTH = (math.pi * float(self.options.diameter)) / SEGMENTS
 
         # Resize the document to the area of the ring
-        r_width = str(math.pi * self.options.diameter)
+        r_width = str(math.pi * float(self.options.diameter))
         root.attrib['width'] = r_width + 'mm'
         root.attrib['height'] = '120mm'
         root.attrib['viewBox'] = '0 0 ' + \
             r_width + ' 120'
 
+        # Delete any existing data labels
+        for group in self.document.getroot():
+            if '{http://www.inkscape.org/namespaces/inkscape}label' in group.attrib.keys():
+                if "Shadow Layer" in group.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
+                    root = self.document.getroot()
+                    root.remove(group)
+                    break
+            for child in group:
+                if '{http://www.inkscape.org/namespaces/inkscape}label' in child.attrib.keys():
+                    if "flatdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
+                        group.remove(child)
+                        break
+                    if "ringdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
+                        group.remove(child)
+                        break
+
         # Create layer element (or use self.current_layer)
-        layer = inkex.etree.SubElement(root, 'g')
+        layer = etree.SubElement(root, 'g')
         layer.set(inkex.addNS('groupmode', 'inkscape'), 'layer')
         # layer_id = layer.get('id')
         layer.set(inkex.addNS('label', 'inkscape'), 'Shadow Layer')
@@ -179,26 +202,26 @@ class ring_generator(inkex.Effect):
         grp_name = 'Shadows'
         grp_attribs = {inkex.addNS('label', 'inkscape'): grp_name,
                        'transform': grp_transform}
-        grp = inkex.etree.SubElement(
+        grp = etree.SubElement(
             layer,
             'g',
             grp_attribs)  # the group to put everything in
 
         # Create coloured sectors
-        y_offset = self.options.face
+        y_offset = float(self.options.face)
         if self.options.holder == "topoffset":
-            y_offset -= self.options.offset
+            y_offset -= float(self.options.offset)
         elif self.options.holder == "centreoffset":
-            y_offset -= self.options.offset - self.options.width / 2
+            y_offset -= float(self.options.offset) - float(self.options.width) / 2
         y_offset = 120 - y_offset
 
         parent = grp  # or parent = self.current_layer
         for hue in numpy.arange(0, 1, 1.0 / SEGMENTS):
             i = (hue / (1.0 / SEGMENTS))
-            sec_start = (SECTOR_WIDTH * i) - self.options.overlap / 2
-            sec_width = SECTOR_WIDTH + self.options.overlap
+            sec_start = (SECTOR_WIDTH * i) - float(self.options.overlap) / 2
+            sec_width = SECTOR_WIDTH + float(self.options.overlap)
             self.draw_rectangle((sec_width,
-                                 self.options.width),
+                                 float(self.options.width)),
                                 (sec_start,
                                  y_offset),
                                 hue,
@@ -209,26 +232,27 @@ class ring_generator(inkex.Effect):
         axisAngle = 0
         # Calculate height
         if self.options.ring_type == "convex":
-            layerHeight = self.options.axisheight + self.options.diameter / 2
+            layerHeight = float(self.options.axisheight) + float(self.options.diameter) / 2
         else:
             axisAngle = axialAngle(
-                self.options.diameter / 2,
-                self.options.width,
+                float(self.options.diameter) / 2,
+                float(self.options.width),
                 self.options.override)
-            layerHeight = self.options.axisheight - \
-                getHeightAtAngle(self.options.diameter / 2, axisAngle)
+            layerHeight = float(self.options.axisheight) - \
+                getHeightAtAngle(float(self.options.diameter) / 2, axisAngle)
 
         # Create text element
-        text = inkex.etree.Element(inkex.addNS('text', 'svg'))
-        text.text = u'Ø' + str(round(self.options.diameter, 2)) + \
-            ' x ' + str(round(self.options.width, 2)) + \
-            ' Sectors ' + str(round(360.0 / SEGMENTS, 2)) + u'°' \
-            ' Height ' + str((round(layerHeight, 1))) + \
-            ' Angle ' + str(int(axisAngle)) + u'°'
+        text = etree.Element(inkex.addNS('text', 'svg'))
+        text.set(inkex.addNS('label', 'inkscape'), 'ringdata')
+        text.text = '{ "diameter": "' + str(round(float(self.options.diameter), 2)) + '",' + \
+                '"width": "' + str(round(float(self.options.width), 2)) + '",' + \
+                '"sectors": "' + str(round(360.0 / SEGMENTS, 2)) + '",' + \
+                '"height": "' + str((round(layerHeight, 1))) + '",' + \
+                '"angle": "' + str(int(axisAngle)) + '" }'
 
         # Set text position to center of document.
-        width = self.unittouu(root.attrib['width'])
-        height = self.unittouu(root.attrib['height'])
+        width = self.svg.unittouu(root.attrib['width'])
+        height = self.svg.unittouu(root.attrib['height'])
         text.set('x', str(width / 2))
         text.set('y', str(height / 2))
 
@@ -236,13 +260,21 @@ class ring_generator(inkex.Effect):
         style = {'text-align': 'center',
                  'text-anchor': 'middle',
                  'font-family': 'Droid Sans',
-                 'font-size': '3',
+                 'font-size': '1',
                  }
-        text.set('style', simplestyle.formatStyle(style))
+        text.set('style', str(inkex.Style(style)))
 
         # Connect elements together.
         layer.append(text)
 
+        for child in root:
+            if '{http://www.inkscape.org/namespaces/inkscape}label' in child.attrib.keys():
+                if "Shadow Layer" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
+                    shadowlayer = child
+                    root.remove(child)
+                    root.insert(3, shadowlayer)
+                    break
+
 
 effect = ring_generator()
-effect.affect()
+effect.run()
