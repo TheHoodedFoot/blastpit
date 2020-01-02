@@ -82,12 +82,64 @@ TEST(MqttGroup, LinkedListTest)
 
 TEST(MqttGroup, RandomAccessTest)
 {
-	/* What are the requirements to test 'x'? */
-	/* 	What does the object do? */
-	/* 	How does it interact with the data or hardware it controls? */
-	/* 	How can we make it testable? */
+	t_Mqtt *net = new (Mqtt, SERVER, CLIENTID);
+	TEST_ASSERT_EQUAL(0, getCount(net->messageFifo));
 
-	TEST_IGNORE();
+	/* Empty list should return NULL */
+	TEST_ASSERT_NULL(getMessageAt(net, 0));
+
+	t_Message *message = new (Message, 5, "Zero");
+	pushMessage(net, message);
+	message = new (Message, 6, "One");
+	pushMessage(net, message);
+	message = new (Message, 7, "Two");
+	pushMessage(net, message);
+
+	/* Index larger than list size should return NULL */
+	TEST_ASSERT_NULL(getMessageAt(net, 3));
+
+	/* Valid data should exist for all indexes */
+	message = getMessageAt(net, 0);
+	TEST_ASSERT_EQUAL_STRING("Zero", message->data);
+	message = getMessageAt(net, 1);
+	TEST_ASSERT_EQUAL_STRING("One", message->data);
+	message = getMessageAt(net, 2);
+	TEST_ASSERT_EQUAL_STRING("Two", message->data);
+
+	/* Returned message should be same each time retreived,
+	 * despite additions to the list */
+
+
+	for (int i = 0; i < 100; i++) {
+		pushMessage(net, message);
+		message = getMessageAt(net, 0);
+		TEST_ASSERT_EQUAL_STRING("Zero", message->data);
+	}
+}
+
+TEST(MqttGroup, DeleteMessageTest)
+{
+	t_Mqtt *net = new (Mqtt, SERVER, CLIENTID);
+
+	t_Message *message = new (Message, 5, "Zero");
+	pushMessage(net, message);
+	message = new (Message, 6, "One");
+	pushMessage(net, message);
+	message = new (Message, 7, "Two");
+	pushMessage(net, message);
+
+	TEST_ASSERT_EQUAL(true, deleteMessageAt(net, 1));
+
+	/* Valid data should exist for all indexes */
+	message = getMessageAt(net, 0);
+	TEST_ASSERT_NOT_NULL(message);
+	TEST_ASSERT_EQUAL_STRING("Zero", message->data);
+	TEST_ASSERT_NOT_NULL(message);
+	message = getMessageAt(net, 1);
+	TEST_ASSERT_NOT_NULL(message);
+	TEST_ASSERT_EQUAL_STRING("Two", message->data);
+	message = getMessageAt(net, 2);
+	TEST_ASSERT_NULL(message);
 }
 
 TEST_GROUP_RUNNER(MqttGroup)
@@ -95,6 +147,7 @@ TEST_GROUP_RUNNER(MqttGroup)
 	RUN_TEST_CASE(MqttGroup, sendReceiveMessage);
 	RUN_TEST_CASE(MqttGroup, LinkedListTest);
 	RUN_TEST_CASE(MqttGroup, RandomAccessTest);
+	RUN_TEST_CASE(MqttGroup, DeleteMessageTest);
 }
 
 static void

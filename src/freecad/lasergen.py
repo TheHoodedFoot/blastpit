@@ -1,3 +1,4 @@
+import blastpy
 import sys
 # import time
 
@@ -9,7 +10,6 @@ import colorsys
 
 from os.path import expanduser
 sys.path.append(expanduser("~") + "/usr/src/blastpit/src/blastpy")
-import blastpy
 
 
 class LaserGeo:
@@ -212,7 +212,7 @@ def join(geos):
                     del geos[index]
                     break
                 elif geo[2] == polygon[-1][2] and \
-                    geo[3] == polygon[-1][3] and \
+                        geo[3] == polygon[-1][3] and \
                         geo[6] == polygon[-1][6]:
                     flip = [
                         geo[2],

@@ -26,10 +26,14 @@ class Laser(inkex.Effect):
         # Call the base class constructor.
         inkex.Effect.__init__(self)
 
-        self.OptionParser.add_option("-l", "--lparam",
-                                     action="store", type="string",
-                                     dest="lparam", default="dryrun",
-                                     help="The laser parameter")
+        self.OptionParser.add_option(
+            "-l",
+            "--lparam",
+            action="store",
+            type="string",
+            dest="lparam",
+            default="dryrun",
+            help="The laser parameter")
 
     def effect(self):
         """
@@ -81,5 +85,5 @@ effect.affect()
 # To output a live Inkscape session, group together the items to be exported,
 # save the file and use:
 # inkscape --without-gui --export-text-to-path --export-plain-svg=<outfile>
-#    --file=<infile> --export-id=<groupid> --export-id-only
+#	 --file=<infile> --export-id=<groupid> --export-id-only
 # with <groupid> being the id of the group we created

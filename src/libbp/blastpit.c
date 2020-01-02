@@ -144,43 +144,38 @@ bp_sendMessageAndWait(t_Blastpit* self, int id, const char* topic,
 		      const char* message, int timeout)
 {
 	if (bp_sendMessage(self, topic, message) == -1) return -1;
-	return bp_waitForReply(self, id, timeout);
-}
-
-int
-bp_waitForReply(t_Blastpit* self, int id, int timeout)
-{
-	for (int i = 0; i < timeout; i++) {
-		if (bp_getMessageCount(self)) {
-			t_bp_message msg = bp_getNewestMessage(self);
-			char num[3];
-			int offset = snprintf(num, 3, "%d", id) + 1;
-			if ((strstr(msg.data, num))) {
-				int retval;
-				sscanf(msg.data + offset, "%d", &retval);
-				return retval;
-			}
-		}
-		usleep(1000);
-	}
-	return -1;
+	return bp_waitForString(self, id, timeout) == NULL;
 }
 
 char*
 bp_waitForString(t_Blastpit* self, int id, int timeout)
-{
+{ /* Return the message data as a string, or NULL */
+
 	for (int i = 0; i < timeout; i++) {
 		if (bp_getMessageCount(self)) {
-			t_bp_message msg = bp_getNewestMessage(self);
-			char num[3];
-			int offset = snprintf(num, 3, "%d", id) + 1;
-			if ((strstr(msg.data, num))) {
-				return msg.data + offset;
+			/* Test every message with getMessageAt() */
+			for (int j = 0; j < bp_getMessageCount(self); j++) {
+				t_bp_message msg = {.length = 0,
+						    .data = NULL};
+				t_Message* message =
+					getMessageAt(self->net, j);
+
+				if (message) {
+					msg.data = message->data;
+					msg.length = message->size;
+				}
+
+				char num[3];
+				snprintf(num, 3, "%d", id);
+				if ((strstr(msg.data, num))) {
+					return msg.data;
+				}
 			}
 		}
 		usleep(1000);
 	}
-	return "arse";
+
+	return NULL;
 }
 
 int
@@ -198,7 +193,7 @@ bp_sendCommandAndWait(t_Blastpit* self, int id, const char* topic,
 		      int command, int timeout)
 {
 	if (bp_sendCommand(self, id, topic, command) == -1) return 6661;
-	return bp_waitForReply(self, id, timeout);
+	return bp_waitForString(self, id, timeout) == NULL;
 }
 
 int

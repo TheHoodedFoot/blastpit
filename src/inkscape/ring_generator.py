@@ -36,9 +36,9 @@ sys.path.append('/usr/share/inkscape/extensions')
 
 
 # Laser constants
-# SAGITTA = 2.0  # Focal range
-# ROTARY_Z_LEVEL = 77.0  # Height from table to centre of rotation
-# ROTARY_OVERLAP = 2.0  # Shadow overlap
+# SAGITTA = 2.0	 # Focal range
+# ROTARY_Z_LEVEL = 77.0	 # Height from table to centre of rotation
+# ROTARY_OVERLAP = 2.0	# Shadow overlap
 
 
 # Math functions
@@ -46,11 +46,13 @@ sys.path.append('/usr/share/inkscape/extensions')
 # https://en.wikipedia.org/wiki/Circular_segment
 
 def chordLength(radius, sagitta):
-    return 2 * math.sqrt(2 * float(radius) * float(sagitta) - float(sagitta) * float(sagitta))
+    return 2 * math.sqrt(2 * float(radius) * float(sagitta) -
+                         float(sagitta) * float(sagitta))
 
 
 def chordAngle(radius, sagitta):
-    return 2 * math.asin(chordLength(float(radius), float(sagitta)) / (2 * float(radius)))
+    return 2 * math.asin(chordLength(float(radius),
+                                     float(sagitta)) / (2 * float(radius)))
 
 
 def chordArcLength(radius, sagitta):
@@ -99,16 +101,17 @@ class ring_generator(inkex.Effect):
         ]
 
         for arg in options:
-            self.arg_parser.add_argument("-" + arg[0], "--" + arg[1], default=arg[2], help=arg[3])
+            self.arg_parser.add_argument(
+                "-" + arg[0], "--" + arg[1], default=arg[2], help=arg[3])
         # for arg in options:
-        #     self.OptionParser.add_option(
-        #         "-" + arg[0],
-        #         "--" + arg[1],
-        #         action="store",
-        #         dest=arg[1],
-        #         type=arg[2],
-        #         default=arg[3],
-        #         help=arg[4])
+        #	  self.OptionParser.add_option(
+        #		  "-" + arg[0],
+        #		  "--" + arg[1],
+        #		  action="store",
+        #		  dest=arg[1],
+        #		  type=arg[2],
+        #		  default=arg[3],
+        #		  help=arg[4])
 
     def draw_rectangle(
             self, width_height, x_y,
@@ -127,11 +130,11 @@ class ring_generator(inkex.Effect):
 
         # print >> sys.stderr, colstr
         # xml.addLayer(
-        #     str("%.1f" % i),
-        #     colours[0] * 255,
-        #     colours[1] * 255,
-        #     colours[2] * 255,
-        #     i)
+        #	  str("%.1f" % i),
+        #	  colours[0] * 255,
+        #	  colours[1] * 255,
+        #	  colours[2] * 255,
+        #	  i)
 
         style = {'stroke': 'none',
                  'stroke-width': '1',
@@ -195,7 +198,7 @@ class ring_generator(inkex.Effect):
         layer.set(inkex.addNS('label', 'inkscape'), 'Shadow Layer')
 
         # Create group
-        # centre = self.view_center  # Put in in the centre of the current view
+        # centre = self.view_center	 # Put in in the centre of the current view
         # grp_transform = 'translate' + str(centre)
         grp_transform = ''
 
@@ -212,7 +215,8 @@ class ring_generator(inkex.Effect):
         if self.options.holder == "topoffset":
             y_offset -= float(self.options.offset)
         elif self.options.holder == "centreoffset":
-            y_offset -= float(self.options.offset) - float(self.options.width) / 2
+            y_offset -= float(self.options.offset) - \
+                float(self.options.width) / 2
         y_offset = 120 - y_offset
 
         parent = grp  # or parent = self.current_layer
@@ -232,7 +236,8 @@ class ring_generator(inkex.Effect):
         axisAngle = 0
         # Calculate height
         if self.options.ring_type == "convex":
-            layerHeight = float(self.options.axisheight) + float(self.options.diameter) / 2
+            layerHeight = float(self.options.axisheight) + \
+                float(self.options.diameter) / 2
         else:
             axisAngle = axialAngle(
                 float(self.options.diameter) / 2,
@@ -244,11 +249,11 @@ class ring_generator(inkex.Effect):
         # Create text element
         text = etree.Element(inkex.addNS('text', 'svg'))
         text.set(inkex.addNS('label', 'inkscape'), 'ringdata')
-        text.text = '{ "diameter": "' + str(round(float(self.options.diameter), 2)) + '",' + \
-                '"width": "' + str(round(float(self.options.width), 2)) + '",' + \
-                '"sectors": "' + str(round(360.0 / SEGMENTS, 2)) + '",' + \
-                '"height": "' + str((round(layerHeight, 1))) + '",' + \
-                '"angle": "' + str(int(axisAngle)) + '" }'
+        text.text = '{ "diameter": "' + str(round(float(self.options.diameter),
+                                                  2)) + '",' + '"width": "' + str(round(float(self.options.width),
+                                                                                        2)) + '",' + '"sectors": "' + str(round(360.0 / SEGMENTS,
+                                                                                                                                2)) + '",' + '"height": "' + str((round(layerHeight,
+                                                                                                                                                                        1))) + '",' + '"angle": "' + str(int(axisAngle)) + '" }'
 
         # Set text position to center of document.
         width = self.svg.unittouu(root.attrib['width'])

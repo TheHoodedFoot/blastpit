@@ -45,17 +45,18 @@ effect = Layertest()
 effect.affect()
 
 
-
 # From some found code:
-def getLayers(self,root,result):
+def getLayers(self, root, result):
     for child in root:
         if child.tag[-1] == 'g':
             result.append(child)
         self.getLayers(child, result)
+
+
 return result
 
 root = tree.getroot()
-layers = self.getLayers(root,[])
+layers = self.getLayers(root, [])
 
 for currentLayer in layers:
     attributeValue = currentLayer.get(self.attributeName)
@@ -66,4 +67,4 @@ for currentLayer in layers:
     else:
         setValue = self.hiddenLayer
 
-currentLayer.set('style',setValue)
+currentLayer.set('style', setValue)

@@ -17,6 +17,7 @@ Parser::Parser(QObject *parent) : QObject(parent)
 			 SLOT(log(int, const char *, QString)));
 	QObject::connect(&lmos, SIGNAL(ack(QString)), this,
 			 SLOT(ack(QString)));
+    QObject::connect(&lmos, SIGNAL(sendEvent(QString)), this, SLOT(receiveSignal(QString)));
 
 	QSettings traySettings("Rfbevanco", "lmos-tray");
 	QString mqttsvr = traySettings.value("mqttServer").toString();
@@ -95,6 +96,14 @@ Parser::ackReturn(int id, int retval)
 
 	QString message = QString::number(id) + "," + QString::number(retval);
 	bp_sendMessage(blast, "broadcast", message.toStdString().c_str());
+}
+
+void
+Parser::receiveSignal(QString message)
+{ /* Send an LMOS generated signal back to the client */
+
+    QString msg = QString::number(0) + "," + message;
+    bp_sendMessage(blast, "broadcast", msg.toStdString().c_str());
 }
 
 void
@@ -295,11 +304,4 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			qDebug() << "Unknown command " << command
 				 << " in parseCommand()";
 	}
-}
-
-void
-Parser::receiveEvent(QString event)
-{  // Signal has been received from Lmos
-
-	qDebug() << "myEvent: " << event;
 }

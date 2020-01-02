@@ -33,6 +33,7 @@ int mqtt_unsubscribe(t_Mqtt *self, const char *topic);
 void setReceiveCallback(t_Mqtt *, void (*)(void *));
 t_Message *popMessage(t_Mqtt *);
 t_Message *getMessageAt(t_Mqtt *, int index);
+bool deleteMessageAt(t_Mqtt *, int index);
 void pushMessage(t_Mqtt *, t_Message *);
 int mqtt_sendMessage(t_Mqtt *, const char *, const char *);
 void setNewestMessage(t_Mqtt *, t_Message *);

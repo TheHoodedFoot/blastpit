@@ -179,7 +179,7 @@ int bp_sendMessageAndWait(t_Blastpit *self, int id, const char *topic,
 			  const char *message, int timeout);
 int bp_sendCommandAndWait(t_Blastpit *self, int id, const char *topic,
 			  int command, int timeout);
-int bp_waitForReply(t_Blastpit *self, int id, int timeout);
+char *bp_waitForString(t_Blastpit *self, int id, int timeout);
 int bp_subscribe(t_Blastpit *self, const char *topic, int timeout_ms);
 int bp_unsubscribe(t_Blastpit *self, const char *topic, int timeout_ms);
 int clearQPSets(t_Blastpit *);

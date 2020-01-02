@@ -27,17 +27,10 @@ Lmos::Lmos(QObject* parent) : QObject(parent)
 		SLOT(mOBeginName(QString&)));
 	connect(&lmos_actx, SIGNAL(MOEndName(QString&)), this,
 		SLOT(mOEndName(QString&)));
-	connect(&lmos_actx, SIGNAL(PLCEvent(QString&, QString&, QString&)),
-		this, SLOT(plcEvent(QString&, QString&, QString&))),
-		connect(&lmos_actx,
-			SIGNAL(exception(int, QString, QString, QString)),
-			this,
-			SLOT(exception(int, const QString, const QString,
-				       const QString)));
+    connect(&lmos_actx, SIGNAL(PLCEvent(QString&, QString&, QString&)), this, SLOT(plcEvent(QString&, QString&, QString&)));
+        connect(&lmos_actx, SIGNAL(exception(int, QString, QString, QString)), this, SLOT(exception(int, const QString, const QString, const QString)));
 	connect(&lmos_actx, SIGNAL(signal(const QString&, int, void*)), this,
-		SLOT(logstring(const QString&, int, void*)));
-	// connect(&lmos_actx, SIGNAL(MouseDown(int, int, double, double)),
-	// this, SLOT(emitSig(QString("mouse"))));
+        SLOT(emitSig(const QString&)));
 	lmos_actx.show();
 #endif
 }
@@ -119,10 +112,11 @@ Lmos::LoadXML(const QString& xml)
 void
 Lmos::ClearQPSets()
 {
-#ifdef QT_DEBUG
+/*#ifdef QT_DEBUG
 	emit log(kDebug, __func__, "Debug mode: not Clearing QP Sets");
-	return;
+    return;
 #endif
+*/
 	emit log(kDebug, __func__, "Clearing QP Sets");
 #if defined(Q_OS_WIN32)
 	QVariant qpNames = lmos_actx.GetGlobalQPSetNames();
@@ -194,11 +188,11 @@ Lmos::StartMarking()
 	// startMarking: Begin the marking operation
 	emit log(kDebug, __func__, "Calling lmos.StartMarking()");
 #if defined(Q_OS_WIN32)
-	if (lmos_actx.LoadJob()) {
+    if (lmos_actx.LoadJob()) {
 		return lmos_actx.StartMarking();
-	} else {
-		emit log(kDebug, __func__, "lmos.LoadJob() failed");
-	}
+    } else {
+        emit log(kDebug, __func__, "lmos.LoadJob() failed");
+    }
 #else
 	// this->sigImageEnd2(
 	// 999,
@@ -542,6 +536,47 @@ Lmos::logstring(const QString& name, int argc, void* argv)
 }
 
 void
+Lmos::ZoomWindow(int x1, int y1, int x2, int y2)
+{
+    emit log(QString(__func__) + QString("Begin: ") +
+         QString::number(x1) + QString(", ") + QString::number(y1) +
+         QString(", ") + QString::number(x2) + QString(", ") +
+         QString::number(y2));
+#if defined(Q_OS_WIN32)
+    // lmos_actx.ShowZoomWindow(50, 50, 70, 70);
+    lmos_actx.ActivateZoomWindow(true);
+    lmos_actx.ShowZoomWindow(x1, y1, x2, y2);
+    // lmos_actx.ActivateZoomWindow(false);
+    // lmos_actx.ShowMarkingAreaZoom();
+    // lmos_actx.RedrawLayout();
+#endif
+}
+
+void
+Lmos::Test()
+{
+    emit log(kInfo, __func__, "Beginning LMOS::Test");
+
+#if defined(Q_OS_WIN32)
+
+    // List signals
+    QMetaObject metaObject = lmos_actx.staticMetaObject;
+    for (int i = 0; i < metaObject.methodCount(); i++) {
+        QMetaMethod method = metaObject.method(i);
+        if (method.methodType() == QMetaMethod::Signal) {
+            log(kDebug, __func__,
+                "Signal: " + method.methodSignature());
+        }
+        if (method.methodType() == QMetaMethod::Method) {
+            log(kDebug, __func__,
+                "Method: " + method.methodSignature());
+        }
+    }
+
+#endif
+}
+
+void
 Lmos::messagemap(QString& name)
 {
 	QString bob = name;
@@ -561,9 +596,10 @@ Lmos::imageend()
 }
 
 void
-Lmos::currentChanged(double)
+Lmos::currentChanged(double current)
 {
 	emit log(kDebug, __func__, "signal issued");
+    emit log(kDebug, __func__, "param1: " + QString::number(current));
 }
 
 void
@@ -591,7 +627,7 @@ void
 Lmos::frequencyChanged(int a)
 {
 	emit log(kDebug, __func__, "signal issued");
-	emit log(kDebug, __func__, "param1: " + QString::number(a));
+    emit log(kDebug, __func__, "param1: " + QString::number(a));
 }
 
 void
@@ -609,9 +645,12 @@ Lmos::mOEndName(QString& a)
 }
 
 void
-Lmos::plcEvent(QString&, QString&, QString&)
+Lmos::plcEvent(QString& a, QString& b, QString& c)
 {
 	emit log(kDebug, __func__, "signal issued");
+    emit log(kDebug, __func__, "param1: " + a);
+    emit log(kDebug, __func__, "param2: " + b);
+    emit log(kDebug, __func__, "param3: " + c);
 }
 void
 Lmos::alarm(int alarmNum, QString description, QString moName, int moID)
@@ -630,50 +669,10 @@ Lmos::exception(int alarmNum, const QString& description,
 }
 
 void
-Lmos::ZoomWindow(int x1, int y1, int x2, int y2)
+Lmos::emitSig(const QString &sig)
 {
-	emit log(QString(__func__) + QString("Begin: ") +
-		 QString::number(x1) + QString(", ") + QString::number(y1) +
-		 QString(", ") + QString::number(x2) + QString(", ") +
-		 QString::number(y2));
-#if defined(Q_OS_WIN32)
-	// lmos_actx.ShowZoomWindow(50, 50, 70, 70);
-	lmos_actx.ActivateZoomWindow(true);
-	lmos_actx.ShowZoomWindow(x1, y1, x2, y2);
-	// lmos_actx.ActivateZoomWindow(false);
-	// lmos_actx.ShowMarkingAreaZoom();
-	// lmos_actx.RedrawLayout();
-#endif
-}
-
-void
-Lmos::Test()
-{
-	emit log(kInfo, __func__, "Beginning LMOS::Test");
-
-#if defined(Q_OS_WIN32)
-
-	// List signals
-	QMetaObject metaObject = lmos_actx.staticMetaObject;
-	for (int i = 0; i < metaObject.methodCount(); i++) {
-		QMetaMethod method = metaObject.method(i);
-		if (method.methodType() == QMetaMethod::Signal) {
-			log(kDebug, __func__,
-			    "Signal: " + method.methodSignature());
-		}
-		if (method.methodType() == QMetaMethod::Method) {
-			log(kDebug, __func__,
-			    "Method: " + method.methodSignature());
-		}
-	}
-
-#endif
-}
-
-void
-Lmos::emitSig(QString sig)
-{
-	emit sendEvent(sig);
+    emit log(kDebug, __func__, "Sending event " + sig);
+    emit sendEvent(sig);
 }
 
 // vi: fdm=syntax foldlevel=0

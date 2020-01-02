@@ -24,7 +24,7 @@ class Parser : public QObject {
 	void ack(QString);
 	void ackReturn(int id, int retval);
 	void log(int, const char *, QString);
-	void receiveEvent(QString);
+    void receiveSignal(QString message);
 
       private:
 	void parseCommand(int id, int command, pugi::xml_document &xml);

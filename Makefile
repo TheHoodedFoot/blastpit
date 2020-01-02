@@ -77,7 +77,7 @@ FORMAT_FILES = src/libbp/*.{h,c,cpp}
 FORMATEXTRA_FILES = src/lmos-tray/{lmos,lmos-tray,parser}.{hpp,cpp}
 # FORMAT_FILES += src/bpgui/*.{h,c,cpp} src/testchamber/*/*.{h,cpp} src/lmos-tray/{lmos,lmos-tray,parser}.{h,cpp} src/lmos-tray/main.cpp
 
-FORMAT_FILES_PYTHON = src/blastpy/blastpy.py src/libbp/t_*.py src/inkscape/*.py src/testchamber/bpy/test.py # bin/*.py src/freecad/*.py src/freecad/Blastpit/*.py 
+FORMAT_FILES_PYTHON = src/libbp/*.py src/inkscape/*.py src/freecad/*.py
 FORMAT_FILES_XML = src/inkscape/*.inx
 
 
@@ -186,8 +186,11 @@ formatextra:
 
 formatpython:
 	/bin/sh -c 'for file in $(FORMAT_FILES_XML); do xmllint --format --nsclean --output $$file $$file; done'
-	autopep8 --ignore=E402 --aggressive --aggressive -i $(FORMAT_FILES_PYTHON)
-	# flake8 --ignore=E402 --max-complexity=10 --show-source $(FORMAT_FILES_PYTHON)
+	autopep8 --global-config=$(PROJECT_ROOT)/res/cfg/pycodestyle --aggressive --aggressive -i $(FORMAT_FILES_PYTHON)
+	flake8 --ignore=E402 --max-complexity=10 --show-source $(FORMAT_FILES_PYTHON)
+
+unexpand:
+	/bin/sh -c 'for file in $(FORMAT_FILES_PYTHON); do unexpand -t4 $$file > unexpanded.tmp; mv unexpanded.tmp $$file; done'
 
 doxygen:
 	@/bin/sh -c 'cd doc; doxygen; xdg-open html/index.html'

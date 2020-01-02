@@ -2,6 +2,8 @@
 
 ## Description
 
+![Tentacle](/res/img/blastpit256.png)
+
 **blastpit** adds additional functionality to the Rofin Easyjewel marking system. Features will **(hopefully)** include:
 
 * Network control of laser marking

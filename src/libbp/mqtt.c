@@ -203,6 +203,35 @@ popMessage(t_Mqtt* self)
 	return result;
 }
 
+t_Message*
+getMessageAt(t_Mqtt* self, int index)
+{ /* Get pointer to message at <index> or NULL */
+
+	t_LinkedList* fifo = self->messageFifo;
+
+	for (int i = 0; (i < index) && fifo; i++) fifo = fifo->next;
+
+	if (fifo) return (t_Message*)fifo->item;
+	return NULL;
+}
+
+bool
+deleteMessageAt(t_Mqtt* self, int index)
+{ /* Get pointer to message at <index> or NULL */
+
+	t_LinkedList* fifo = self->messageFifo;
+
+	for (int i = 0; (i < index) && fifo; i++) fifo = fifo->next;
+
+	if (fifo) {
+		removeEntry(self->messageFifo, fifo);
+		return true;
+	}
+
+	return false;
+}
+
+
 void
 setNewestMessage(t_Mqtt* self, t_Message* msg)
 {

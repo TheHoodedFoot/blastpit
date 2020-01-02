@@ -16,6 +16,7 @@ import socket
 import time
 
 SERVER = "tcp://rfbevan.co.uk:1883"
+# SERVER = "tcp://hilly:1883"
 MQTT_ID = socket.gethostname()
 TIMEOUT = 2000
 
@@ -53,11 +54,17 @@ class TestBlastpy(unittest.TestCase):
 
     def test_reconnect(self):
         self.assertEqual(0, bp.bp_getMessageCount(self.blast))
-        bp.bp_sendMessage(self.blast, MQTT_ID, "You are a nob!")
+        bp.bp_sendMessage(self.blast, MQTT_ID, "You are abcde!")
         time.sleep(0.5)
         self.assertEqual(1, bp.bp_getMessageCount(self.blast))
         bp.bp_getNewestMessage(self.blast)
         self.assertEqual(0, bp.bp_getMessageCount(self.blast))
+
+    def test_waitForString(self):
+        self.assertEqual(0, bp.bp_getMessageCount(self.blast))
+        string = bp.bp_waitForString(self.blast, 0, 5000)
+        if string is not None:
+            self.assertEqual(34, len(string))
 
     def tearDown(self):
         bp.bp_unsubscribe(self.blast, MQTT_ID, TIMEOUT)

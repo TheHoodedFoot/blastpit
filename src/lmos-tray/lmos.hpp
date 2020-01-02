@@ -52,7 +52,7 @@ class Lmos : public QObject {
 	void mOBeginName(QString&);
 	void mOEndName(QString&);
 	/* void mouseDown(int, int, double, double); */
-	void emitSig(QString);
+    void emitSig(const QString&);
 
       public:
 	void AddQPSet(const QString&, double, int, int);

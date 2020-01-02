@@ -33,9 +33,9 @@ sys.path.append('/usr/share/inkscape/extensions')
 
 
 # Laser constants
-# SAGITTA = 2.0  # Focal range
-# ROTARY_Z_LEVEL = 77.0  # Height from table to centre of rotation
-# ROTARY_OVERLAP = 2.0  # Shadow overlap
+# SAGITTA = 2.0	 # Focal range
+# ROTARY_Z_LEVEL = 77.0	 # Height from table to centre of rotation
+# ROTARY_OVERLAP = 2.0	# Shadow overlap
 
 
 # Math functions
@@ -91,11 +91,11 @@ class ring_generator(inkex.Effect):
 
         # print >> sys.stderr, colstr
         # xml.addLayer(
-        #     str("%.1f" % i),
-        #     colours[0] * 255,
-        #     colours[1] * 255,
-        #     colours[2] * 255,
-        #     i)
+        #	  str("%.1f" % i),
+        #	  colours[0] * 255,
+        #	  colours[1] * 255,
+        #	  colours[2] * 255,
+        #	  i)
 
         style = {'stroke': 'none',
                  'stroke-width': '1',
@@ -122,9 +122,8 @@ class ring_generator(inkex.Effect):
         sagitta = 1
 
         RADIUS = self.options.diameter / 2
-        SEGMENTS = int(math.ceil((math.pi * self.options.diameter)
-                                 / (chordArcLength(RADIUS, sagitta)
-                                    )))
+        SEGMENTS = int(math.ceil(
+            (math.pi * self.options.diameter) / (chordArcLength(RADIUS, sagitta))))
         SECTOR_WIDTH = (math.pi * self.options.diameter) / SEGMENTS
 
         # Resize the document to the area of the ring
@@ -141,7 +140,7 @@ class ring_generator(inkex.Effect):
         layer.set(inkex.addNS('label', 'inkscape'), 'Shadow Layer')
 
         # Create group
-        # centre = self.view_center  # Put in in the centre of the current view
+        # centre = self.view_center	 # Put in in the centre of the current view
         # grp_transform = 'translate' + str(centre)
         grp_transform = ''
 
@@ -196,12 +195,12 @@ class ring_generator(inkex.Effect):
                                                                                                     2))})
 
             # self.draw_rectangle((sec_width,
-            #                      self.options.width),
-            #                     (sec_start,
-            #                      y_offset),
-            #                     hue,
-            #                     parent,
-            #                     "shadow" + str(int(i)).zfill(2))
+            #					   self.options.width),
+            #					  (sec_start,
+            #					   y_offset),
+            #					  hue,
+            #					  parent,
+            #					  "shadow" + str(int(i)).zfill(2))
 
         # Create text element
         text = inkex.etree.Element(inkex.addNS('text', 'svg'))
