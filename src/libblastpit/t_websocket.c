@@ -72,7 +72,7 @@ TEST(WebsocketGroup, wsListen)
 	// Create a client
 	t_Websocket *ws_client = websocketNew();
 	result = wsClientCreate(ws_client, "ws://localhost:8002");
-	TEST_ASSERT_EQUAL(true, result);
+	TEST_ASSERT_EQUAL(kSuccess, result);
 
 	ws_client->messageReceived = &testcallback;
 

@@ -265,6 +265,8 @@ tabconvert:
 	convert -background none -define icon:auto-resize=256,128,64,48,32,16 $^ $@
 %.png:	%.svg
 	convert -background none $^ $@
+res/img/logo.png:	res/img/blastpit.svg
+	inkscape -w 256 -h 256 $^ --export-filename $@
 icons:	res/img/laseractive.ico res/img/noconnection.ico res/img/nolaser.ico
 pngs:	res/img/laseractive.png res/img/noconnection.png res/img/nolaser.png
 	# convert -background none -define icon:auto-resize=256,128,64,48,32,16 src/img/blastpit.svg src/img/tentacle.ico

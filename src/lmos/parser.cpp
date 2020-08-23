@@ -340,6 +340,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			/* ackMessage(id, bArray); */
 			// QByteArray => std::string
 			stdString = std::string(bArray.constData(), bArray.length());
+			ackReturn(id, kSuccess);
 			bp_sendMessage(blast, id, stdString.c_str());
 			/* #if DEBUG_LEVEL == 3 */
 			/* log(stdString.c_str()); */
@@ -353,13 +354,39 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			break;
 		case kSuppressRedraw:
 			lmos.SuppressRedraw(QString(cmd.attribute("redraw").value()).toInt());
+			ackReturn(id, kSuccess);
 			break;
 		case kForceRedraw:
 			lmos.ForceRedraw();
+			ackReturn(id, kSuccess);
 			break;
-
+		case kCreateLMOS:
+			lmos.CreateControl();
+			ackReturn(id, kSuccess);
+			break;
+		case kDestroyLMOS:
+			lmos.DestroyControl();
+			ackReturn(id, kSuccess);
+			break;
+		case kConnectSignals:
+			lmos.ConnectSignals();
+			ackReturn(id, kSuccess);
+			break;
+		case kDisconnectSignals:
+			lmos.DisconnectSignals();
+			ackReturn(id, kSuccess);
+			break;
+		case kShowLMOS:
+			lmos.ShowWindow();
+			ackReturn(id, kSuccess);
+			break;
+		case kHideLMOS:
+			lmos.HideWindow();
+			ackReturn(id, kSuccess);
+			break;
 		default:
 			// We should not get here
-			qDebug() << "Unknown command " << command << " in parseCommand()";
+			log("Warning: default case label reached in Parser::parseCommand");
+			ackReturn(id, kFailure);
 	}
 }

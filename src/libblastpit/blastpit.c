@@ -334,3 +334,17 @@ readMessageAt(t_Blastpit* self, int index)
 
 	return (char*)wsReadMessageAt(self->ws, index);
 }
+
+void
+startLMOS(t_Blastpit* self)
+{  // Send a message to LMOS to unload the ActiveX control
+
+	sendCommand(self, 0, kCreateLMOS);
+}
+
+void
+stopLMOS(t_Blastpit* self)
+{  // Send a message to LMOS to unload the ActiveX control
+
+	sendCommand(self, 0, kDestroyLMOS);
+}

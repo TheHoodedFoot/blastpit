@@ -27,14 +27,20 @@ enum BpReply {
 #define GENERATE_STRING(STRING) #STRING,
 
 #define FOREACH_BPCOMMAND(COMMAND)   \
-	COMMAND(kReply)              \
 	COMMAND(kAddQpSet)           \
 	COMMAND(kCancelJob)          \
 	COMMAND(kClearLayout)        \
 	COMMAND(kClearQpSets)        \
+	COMMAND(kConnectSignals)     \
+	COMMAND(kCreateLMOS)         \
+	COMMAND(kDestroyLMOS)        \
+	COMMAND(kDisconnectSignals)  \
+	COMMAND(kEmergencyStop)      \
 	COMMAND(kExit)               \
+	COMMAND(kForceRedraw)        \
 	COMMAND(kGetPng)             \
 	COMMAND(kGetVersion)         \
+	COMMAND(kHideLMOS)           \
 	COMMAND(kImportXML)          \
 	COMMAND(kInitMachine)        \
 	COMMAND(kLayerSetExportable) \
@@ -50,52 +56,53 @@ enum BpReply {
 	COMMAND(kReadByte)           \
 	COMMAND(kReadIOBit)          \
 	COMMAND(kReference)          \
+	COMMAND(kReply)              \
 	COMMAND(kSaveVLM)            \
 	COMMAND(kSelfTest)           \
 	COMMAND(kSetDimension)       \
 	COMMAND(kSetMOLayer)         \
 	COMMAND(kSetPosValues)       \
 	COMMAND(kSetQualityParam)    \
+	COMMAND(kShowLMOS)           \
 	COMMAND(kShowMarkingArea)    \
+	COMMAND(kSignal)             \
 	COMMAND(kStartMarking)       \
 	COMMAND(kStartPosHelp)       \
 	COMMAND(kStatus)             \
 	COMMAND(kStopMarking)        \
 	COMMAND(kStopPosHelp)        \
+	COMMAND(kSuppressRedraw)     \
 	COMMAND(kTermMachine)        \
 	COMMAND(kWriteByte)          \
 	COMMAND(kWriteIOBit)         \
-	COMMAND(kSuppressRedraw)     \
-	COMMAND(kForceRedraw)        \
-	COMMAND(kCurrentChanged)     \
-	COMMAND(kException)          \
-	COMMAND(kFreqChanged)        \
-	COMMAND(kImageBegin)         \
-	COMMAND(kImageEnd)           \
-	COMMAND(kImageEnd2)          \
-	COMMAND(kInfo)               \
-	COMMAND(kJobBegin)           \
-	COMMAND(kJobEnd)             \
-	COMMAND(kMessageMap)         \
-	COMMAND(kMoBegin)            \
-	COMMAND(kMoEnd)              \
-	COMMAND(kPlcEvent)           \
-	COMMAND(kSignal)             \
 	COMMAND(kZoomWindow)
 
 #define FOREACH_RETVAL(RETVAL)     \
-	RETVAL(kFailure)           \
 	RETVAL(kSuccess)           \
+	RETVAL(kFailure)           \
 	RETVAL(kAlarm)             \
-	RETVAL(kBadCommand)        \
-	RETVAL(kAlreadyInUse)      \
 	RETVAL(kAllocationFailure) \
-	RETVAL(kConnectionFailure) \
+	RETVAL(kAlreadyInUse)      \
+	RETVAL(kBadCommand)        \
 	RETVAL(kBadLogic)          \
+	RETVAL(kCommandFailed)     \
+	RETVAL(kConnectionFailure) \
+	RETVAL(kCurrentChanged)    \
+	RETVAL(kException)         \
+	RETVAL(kFreqChanged)       \
+	RETVAL(kImageBegin)        \
+	RETVAL(kImageEnd)          \
+	RETVAL(kImageEnd2)         \
+	RETVAL(kInfo)              \
+	RETVAL(kJobBegin)          \
+	RETVAL(kJobEnd)            \
+	RETVAL(kMessageMap)        \
+	RETVAL(kMoBegin)           \
+	RETVAL(kMoEnd)             \
 	RETVAL(kNullResource)      \
+	RETVAL(kPlcEvent)          \
 	RETVAL(kReplyTimeout)      \
-	RETVAL(kSetterFailure)     \
-	RETVAL(kCommandFailed)
+	RETVAL(kSetterFailure)
 
 #define FOREACH_DEBUGLEVEL(LEVEL) \
 	LEVEL(kLvlOff)            \
@@ -272,6 +279,8 @@ char *popMessageAt(t_Blastpit *self, int index);
 char *readMessageAt(t_Blastpit *self, int index);
 const char *bpCommandName(int command);
 const char *bpRetvalName(int retval);
+void stopLMOS(t_Blastpit *self);
+void startLMOS(t_Blastpit *self);
 
 
 #ifdef __cplusplus
