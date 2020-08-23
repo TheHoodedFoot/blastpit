@@ -13,20 +13,24 @@ import blastpy
 
 SERVER = "ws://127.0.0.1:8000"
 
+#print(dir(blastpy))
+
 bp = blastpy.blastpitNew()
 result = blastpy.connectToServer(bp, SERVER, 2000)
-print("connectToServer: %d" % result)
+print("connectToServer: %s" % blastpy.bpRetvalName(result))
+
 # for i in range(20):
 #         pollMessages(bp)
 #         sleep(0.1)
-if blastpy.bp_isConnected(bp):
-    print("Sending clearqpsets command")
-    result = blastpy.bp_sendCommandAndWait(bp, 4, blastpy.kClearQpSets, 5000)
-    if result <= 0:
-        print("Cannot clear qpsets")
-        sys.exit()
-else:
+
+if not blastpy.bp_isConnected(bp):
     print("Could not connect")
+    sys.exit()
+
+print("Sending clearqpsets command")
+result = blastpy.bp_sendCommandAndWait(bp, 4, blastpy.kClearQpSets, 5000)
+if result <= 0:
+    print("Cannot clear qpsets")
     sys.exit()
 
 for i in range(5):
@@ -37,5 +41,7 @@ for i in range(5):
     sleep(1)
 
 print(blastpy.popMessage(bp))
+
+blastpy.stopLMOS(bp)
 
 blastpy.disconnectFromServer(bp)

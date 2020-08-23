@@ -754,11 +754,13 @@ Lmos::emitSig(const QString& sig)
 
 void
 Lmos::sendIdEvent(QString string, int id)
-{ /* Helper function for sending mqtt event */
+{  // Helper function for sending an event
 
+	// To distinguish events from other return values,
+	// they are all negatives of the enums they represent.
 	QString message = string;  // + QChar::Null;
 	emit log(kLvlDebug, __func__, QString("sendIdEvent: (") + QString::number(id) + QString(") ") + message);
-	emit sendEvent(id, message);
+	emit sendEvent(-id, message);
 }
 
 void

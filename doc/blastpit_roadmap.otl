@@ -25,6 +25,13 @@ Battle Plan (Read every time)
 		Use afl fuzzing
 		Better Python debugging with Python-GDB
 		Convert as much code to C and Zig as possible.
+		Google Style Guide
+			: Filenames: Lowercase with underscores, use .cc for c++ files
+			: Types: Capital letter starting each word, no underscores.
+			: Variables: All lowercase with underscores between words
+			: Struct data members: Same as variables
+			: Constants: Start with k, followed by capital word starts
+			: Enums: Same as constants
 	Test Driven Development
 		Fundamentals
 			Tests test against the feature requirements, not against the code structure

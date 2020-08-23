@@ -2,7 +2,7 @@
 
 ## Description
 
-![Tentacle](/res/img/blastpit256.png)
+![Tentacle](/res/img/logo.png)
 
 **blastpit** adds additional functionality to the Rofin Easyjewel marking system. Features will **(hopefully)** include:
 
@@ -16,8 +16,8 @@
 **blastpit** is composed of three parts:
 
 1. The **blastpit** library contains the core class and geometry functions, along with bindings for the Python language
-2. **blastpit-gui** is a tray application providing notifications, controller support and gui adjustment of laser parameters
-3. **lmos-tray** is the server interface to the Rofin LMOS ActiveX control
+2. **blastpitgui** is a web app and hardware driver, providing notifications, controller support and gui adjustment of laser parameters
+3. **lmosgui** is the server interface to the Rofin LMOS ActiveX control
 
 ## Notes
 
@@ -29,8 +29,10 @@ The development git repository can be found at http://git.47or.com/thf/Blastpit.
 
 ### Prerequisites for building
 
-**blastpit** requires [Qt](http://www.qt.io), but can be statically compiled for ease of installation.
-[SWIG](http://www.swig.org) is needed to create the Python language bindings. **lmos-tray** will only compile and run on Microsoft Windows platforms, as it requires the Rofin LMOS ActiveX control.
+The Rofin LMOS ActiveX control requires [Qt](http://www.qt.io) with ActiveQt, either running natively on Windows or under emulation using Wine or a virtual machine.
+[SWIG](http://www.swig.org) is needed to create the Python language bindings.
+[Zig](https://ziglang.org) is used for cross-compiling, building, and unit tests.
+[Mongoose](https://github.com/cesanta/mongoose) is used for the WebSockets server and client code.
 
 ### Building
 

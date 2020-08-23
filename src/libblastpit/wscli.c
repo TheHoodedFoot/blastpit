@@ -5,15 +5,19 @@
 
 #include "blastpit.h"
 
+/* Flag set by ‘--verbose’. */
+static int verbose_flag;
+
 int callbackCount = 0;
 
 void
 messageReceivedCallback(void *ev_data)
 {
-	(void)ev_data;
-	// struct websocket_message *wm = (struct websocket_message *)ev_data;
-
-	// printf("wm: %s\n", wm->data);
+	if (verbose_flag) {
+		struct websocket_message *wm = (struct websocket_message *)ev_data;
+		// This string may not be null terminated, so we supply a max length.
+		printf("%.*s\n", (int)wm->size, wm->data);
+	}
 
 	callbackCount++;
 	printf("messageReceivedCallback was called %d times\n", callbackCount);
@@ -77,9 +81,6 @@ client(const char *server, const char *message)
 	disconnectFromServer(client);
 	blastpitDelete(client);
 }
-
-/* Flag set by ‘--verbose’. */
-static int verbose_flag;
 
 int
 main(int argc, char **argv)
