@@ -1,0 +1,13 @@
+Step 1: write the documentation first
+Step 2: write the unit tests
+Step 3: write the code last
+
+You should feel like you want to write code first, resist the temptation. Keep writing more and more documentation.
+
+Every function needs at least one unit test. Your tests will probe out to the edges of the ranges of each parameter. Try to make all of the errors happen. Read over your documentation and make sure you are testing every bit of what it says your program will do. It will seem like stupid busy work at this point but it will all pay off soon enough.
+
+By the time you get to this point, you will feel the code in your fingers, just itching to get out. It will all come pouring out at once. Let it flow! Get it all out of you and start testing right away while it it all fresh in your head. Fix all of the warning messages. Compile with different compilers on different platforms and fix the warning messages you get from those other compilers, too. If you don’t have one, get a macbook and test with xcode, you will surely find even more bugs. Test and fix, lather and repeat until all your tests are passing. Test on 32 and 64 bit systems, big-endian and little-endian.
+
+If you do things in this order then bugs like typos in your code, edge cases, etc. get caught immediately before they fester into weirdness. Also it loses the mystique and it becomes more like an ordinary thing that you can just do every day. It’s also the fastest way to arrive at your destination of a working program.
+
+and valginnd absolutely rules! figure it out and use it! Run it on your unit tests. Run it on your program. It will probably find bugs in the libraries that you use. File bug reports and get them fixed so they don’t break your program.

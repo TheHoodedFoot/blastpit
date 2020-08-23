@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <_name>Laser Properties</_name>
+  <id>org.inkscape.laser.properties</id>
+  <dependency type="executable" location="extensions">laser_properties.py</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <param name="name" type="notebook">
+    <page name="action" gui-text="Action">
+      <param name="mode" type="enum" gui-text="Laser mode:">
+        <_item value="save">Save to disc</_item>
+        <_item value="position">Positioning</_item>
+        <_item value="engraveclean">Engrave and clean</_item>
+        <_item value="clean">Cleaning only</_item>
+        <_item value="cancel">Cancel positioning laser</_item>
+      </param>
+      <param name="flatten" type="boolean" gui-text="Flatten text and clones?">False</param>
+      <param name="height" type="float" precision="2" min="0" max="120" gui-text="Layer height:">0
+      </param>
+      <param name="frequency" type="int" min="20000" max="60000" gui-text="Start frequency:">44000
+      </param>
+      <param name="freqstep" type="int" min="-40000" max="40000" gui-text="Frequency step:">-1000
+      </param>
+      <param name="current" type="int" min="0" max="100" gui-text="Laser current:">20
+      </param>
+      <param name="speed" type="int" min="1" max="1000" gui-text="Laser speed:">500
+      </param>
+    </page>
+    <page name="settings" gui-text="Preferences">
+      <param name="server" type="string" gui-text="MQTT Server:">localhost</param>
+      <param name="port" type="int" min="1024" max="65535" gui-text="Port:">1030</param>
+    </page>
+  </param>
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Laser"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command reldir="extensions" interpreter="python">laser.py</command>
+  </script>
+</inkscape-extension>

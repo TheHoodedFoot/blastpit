@@ -1,0 +1,11 @@
+{
+<Errors caused by Unity>
+Memcheck:Cond
+src:unity.c
+}
+
+{
+<Errors caused by pugixml>
+Memcheck:Cond
+src:pugixml.cpp
+}

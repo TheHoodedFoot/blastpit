@@ -184,7 +184,7 @@ class ring_generator(inkex.Effect):
                     break
             for child in group:
                 if '{http://www.inkscape.org/namespaces/inkscape}label' in child.attrib.keys():
-                    if "flatdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
+                    if "laserdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
                         group.remove(child)
                         break
                     if "ringdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
@@ -248,7 +248,7 @@ class ring_generator(inkex.Effect):
 
         # Create text element
         text = etree.Element(inkex.addNS('text', 'svg'))
-        text.set(inkex.addNS('label', 'inkscape'), 'ringdata')
+        text.set(inkex.addNS('label', 'inkscape'), 'laserdata')
         text.text = '{ "diameter": "' + str(round(float(self.options.diameter),
                                                   2)) + '",' + '"width": "' + str(round(float(self.options.width),
                                                                                         2)) + '",' + '"sectors": "' + str(round(360.0 / SEGMENTS,
@@ -279,6 +279,9 @@ class ring_generator(inkex.Effect):
                     root.remove(child)
                     root.insert(3, shadowlayer)
                     break
+
+        # Lock layer
+        # layer.set(inkex.addNS('insensitive', 'sodipodi'), 'true')
 
 
 effect = ring_generator()

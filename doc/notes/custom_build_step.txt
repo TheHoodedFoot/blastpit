@@ -3,5 +3,9 @@ Qt Creator -> Projects -> Build & Run -> Build Settings
 Add Build Step
 
 	Command:	cmd
-	Arguments:	/c copy lmos-tray\release\lmos-tray.exe \\ROFIN-PC\Blastpit
+	Arguments:	/c copy %{buildDir}\libbp\%{CurrentBuild:Type}\bp.dll %{buildDir}\lmos-tray\%{CurrentBuild:Type}\ /Y
+	Working dir:	%{buildDir}
+
+	Command:	cmd
+	Arguments:	/c copy lmos-tray\%{CurrentBuild:Type}\lmos-tray.exe \\ROFIN-PC\Blastpit
 	Working dir:	%{buildDir}

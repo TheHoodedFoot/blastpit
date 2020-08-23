@@ -1,2 +1,2 @@
-gdb -tui -q -x .breakpoints -x .gdbinit
-src/libbp/t_blastpit_x
+lldb
+-- build/t_websocket_x -v

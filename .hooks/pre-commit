@@ -38,13 +38,14 @@ fi
 STASH_NAME="pre-commit-$(date +%F_%T)"
 # git stash save --keep-index --include-untracked $STASH_NAME
 
-make clean
 
 # Tidy
-make format formatextra
+make format
 
 # Run tests
-make -j$(nproc) test
+make clean
+make -j$(nproc)
+# make -j$(nproc) test
 TEST_RESULT=$?
 
 if [[ ${TEST_RESULT} -ne 0 ]]
@@ -55,8 +56,3 @@ else
 	# TODO: add any files changed by make format
 	git stash drop || /bin/true
 fi
-
-# Create the standalone build script for ebuilds without tup
-make clean
-make standalone
-git add res/ebuild/tup-make.sh

@@ -1,0 +1,5 @@
+import socket
+
+SERVER = "tcp://host:1883"
+MQTT_ID = socket.gethostname()
+TIMEOUT = 1000

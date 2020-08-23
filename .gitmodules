@@ -1,60 +1,63 @@
-[submodule "sub/libsvgtiny"]
-	path = sub/libsvgtiny
-	url = git://git.netsurf-browser.org/libsvgtiny.git
-[submodule "sub/SVGnest"]
-	path = sub/SVGnest
-	url = git://github.com/Jack000/SVGnest.git
-[submodule "sub/pugixml"]
-	path = sub/pugixml
-	url = git://github.com/zeux/pugixml.git
-[submodule "sub/simplify-cpp"]
-	path = sub/simplify-cpp
-	url = git://github.com/FishingCactus/simplify-cpp.git
-[submodule "sub/nanosvg"]
-	path = sub/nanosvg
-	url = git://github.com/memononen/nanosvg.git
-[submodule "sub/simplify.py"]
-	path = sub/simplify.py
-	url = git://github.com/omarestrella/simplify.py.git
-[submodule "sub/python-svg"]
-	path = sub/svg
-	url = git://github.com/cjlano/svg.git
-[submodule "sub/svg.path"]
-	path = sub/svg.path
-	url = git://github.com/regebro/svg.path.git
-[submodule "sub/CRCpp"]
-	path = sub/CRCpp
-	url = https://github.com/d-bahr/CRCpp.git
-[submodule "sub/svg"]
-	path = sub/svg
-	url = https://github.com/cjlano/svg.git
-[submodule "python-qrcode"]
-	path = python-qrcode
-	url = https://github.com/lincolnloop/python-qrcode
-[submodule "sub/swig_qt"]
-	path = sub/swig_qt
-	url = https://github.com/feddischson/swig_qt.git
-[submodule "sub/paho_mqtt_c"]
-	path = sub/paho_mqtt_c
-	url = https://github.com/eclipse/paho.mqtt.c.git
-[submodule "sub/CException"]
-	path = sub/CException
-	url = https://github.com/ThrowTheSwitch/CException
-[submodule "sub/Unity"]
-	path = sub/Unity
+; [submodule "libsvgtiny"]
+; 	path = src/submodules/libsvgtiny
+; 	url = git://git.netsurf-browser.org/libsvgtiny.git
+; [submodule "simplify-cpp"]
+; 	path = src/submodules/simplify-cpp
+; 	url = git://github.com/FishingCactus/simplify-cpp.git
+; [submodule "nanosvg"]
+; 	path = src/submodules/nanosvg
+; 	url = git://github.com/memononen/nanosvg.git
+; [submodule "simplify.py"]
+; 	path = src/submodules/simplify.py
+; 	url = git://github.com/omarestrella/simplify.py.git
+; [submodule "python-svg"]
+; 	path = src/submodules/svg
+; 	url = git://github.com/cjlano/svg.git
+; [submodule "svg.path"]
+; 	path = src/submodules/svg.path
+; 	url = git://github.com/regebro/svg.path.git
+; [submodule "CRCpp"]
+; 	path = src/submodules/CRCpp
+; 	url = https://github.com/d-bahr/CRCpp.git
+; [submodule "svg"]
+; 	path = src/submodules/svg
+; 	url = https://github.com/cjlano/svg.git
+; [submodule "python-qrcode"]
+; 	path = src/submodules/python-qrcode
+; 	url = https://github.com/lincolnloop/python-qrcode
+; [submodule "paho_mqtt_c"]
+; 	path = src/submodules/paho_mqtt_c
+; 	url = https://github.com/eclipse/paho.mqtt.c.git
+; [submodule "CException"]
+; 	path = src/submodules/CException
+; 	url = https://github.com/ThrowTheSwitch/CException
+; [submodule "tinyspline"]
+; 	path = src/submodules/tinyspline
+; 	url = https://github.com/msteinbeck/tinyspline.git
+; [submodule "apriltag"]
+; 	path = src/submodules/apriltag
+; 	url = https://github.com/AprilRobotics/apriltag.git
+; [submodule "apriltag-generation"]
+; 	path = src/submodules/apriltag-generation
+; 	url = https://github.com/AprilRobotics/apriltag-generation.git
+; [submodule "apriltags"]
+; 	path = src/submodules/apriltags
+; 	url = https://bitbucket.org/kaess/apriltags.git
+[submodule "pugixml"]
+	path = src/submodules/pugixml
+	url = https://github.com/zeux/pugixml.git
+[submodule "unity"]
+	path = src/submodules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
-[submodule "sub/tinyspline"]
-	path = tinyspline
-	url = https://github.com/msteinbeck/tinyspline.git
-[submodule "sub/sds"]
-	path = sub/sds
+[submodule "mongoose"]
+	path = src/submodules/mongoose
+	url = https://github.com/cesanta/mongoose.git
+[submodule "tracy"]
+	path = src/submodules/tracy
+	url = https://github.com/wolfpld/tracy.git
+[submodule "src/submodules/emsdk"]
+	path = src/submodules/emsdk
+	url = https://github.com/emscripten-core/emsdk.git
+[submodule "sds"]
+	path = src/submodules/sds
 	url = https://github.com/antirez/sds.git
-[submodule "sub/apriltag"]
-	path = sub/apriltag
-	url = https://github.com/AprilRobotics/apriltag.git
-[submodule "sub/apriltag-generation"]
-	path = sub/apriltag-generation
-	url = https://github.com/AprilRobotics/apriltag-generation.git
-[submodule "sub/apriltags"]
-	path = sub/apriltags
-	url = https://bitbucket.org/kaess/apriltags.git

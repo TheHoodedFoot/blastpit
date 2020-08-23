@@ -1,0 +1,162 @@
+mosquitto_sub -v --host "rfbevan.co.uk" --topic broadcast --topic lmos --topic client --topic server
+lmos <?xml version="1.0"?>
+<command id="512">30</command>
+
+broadcast <?xml version="1.0"?>
+<command id="512">1</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">ImageBegin()</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-93">0</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">SubStateChanged(eLaserSubStateConstants)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOBeginName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-86">triangle01</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOEndName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-85">triangle01</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOBeginName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-86">triangle02</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">SpeedChanged(int)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">LaserPowerChanged(double,QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">SubStateChanged(eLaserSubStateConstants)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">FrequencyChanged(int)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-94">60000</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOEndName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-85">triangle02</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">ImageEnd()</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-92">0</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">ImageEnd2(double,ImageResultConstants)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-91">imageEnd2: 0</command>
+
+lmos <?xml version="1.0"?>
+<command id="513">17</command>
+
+broadcast <?xml version="1.0"?>
+<command id="513">-90</command>
+
+lmos <?xml version="1.0"?>
+<command object="triangle01" id="514">16</command>
+
+broadcast <?xml version="1.0"?>
+<command id="514">-90</command>
+
+lmos <?xml version="1.0"?>
+<command id="515">30</command>
+
+broadcast <?xml version="1.0"?>
+<command id="515">1</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">ImageBegin()</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-93">0</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">SubStateChanged(eLaserSubStateConstants)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOBeginName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-86">triangle01</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">LaserPowerChanged(double,QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">FrequencyChanged(int)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-94">60000</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOEndName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-85">triangle01</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOBeginName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-86">triangle02</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MOEndName(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-85">triangle02</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">ImageEnd()</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-92">0</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">ImageEnd2(double,ImageResultConstants)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-91">imageEnd2: 0</command>
+
+lmos <?xml version="1.0"?>
+<command id="516">2</command>
+
+broadcast <?xml version="1.0"?>
+<command id="516">1</command>
+
+lmos <?xml version="1.0"?>
+<command id="517">6</command>
+
+broadcast <?xml version="1.0"?>
+<command id="517">iVBORw0KGgoAAAANSUhEUgAAAPoAAAD6CAIAAAAHjs1qAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACrUlEQVR4nO3SMQEAIAzAMMC/5+ECjiYKenTPzIKG8zsA3rE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCbE7IXYnxO6E2J0QuxNid0LsTojdCblRZwTxhqC9bwAAAABJRU5ErkJggg==</command>
+
+lmos <?xml version="1.0"?>
+<command id="518">35</command>
+
+broadcast <?xml version="1.0"?>
+<command id="518">-90</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-83">MessageMap(QString&amp;)</command>
+
+broadcast <?xml version="1.0"?>
+<command id="-87">The operation 'hardware access termination' has been completed successfully.</command>

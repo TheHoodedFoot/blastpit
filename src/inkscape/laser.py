@@ -6,22 +6,21 @@
 # Modified work copyright 2016 Maren Hachmann <marenhachmannATyahoo.com>
 # Modified work copyright 2016 Andrew Black <andrew@rfbevan.co.uk>
 #
-#	 This program is free software; you can redistribute it and/or modify
-#	 it under the terms of the GNU General Public License as published by
-#	 the Free Software Foundation; either version 2 of the License, or
-#	 (at your option) any later version.
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
 #
-#	 This program is distributed in the hope that it will be useful,
-#	 but WITHOUT ANY WARRANTY; without even the implied warranty of
-#	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#	 GNU General Public License for more details.
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-#	 You should have received a copy of the GNU General Public License along
-#	 with this program; if not, write to the Free Software Foundation, Inc.,
-#	 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#    You should have received a copy of the GNU General Public License along
+#    with this program; if not, write to the Free Software Foundation, Inc.,
+#    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import blastpy
 import socket
 import math
 import time
@@ -32,6 +31,7 @@ import io
 import inkex
 import os
 import json
+import datetime
 
 # For duplicating and processing the SVG file
 from subprocess import Popen, PIPE
@@ -40,8 +40,15 @@ from shutil import copy2
 # Needed until bpy is installed system-wide
 import sys
 from os.path import expanduser
-sys.path.append(expanduser("~") + "/projects/blastpit/src/libbp")
+sys.path.append(expanduser("~") + "/projects/blastpit/build")
+import blastpy
 
+# This disables stderr to prevent popup window when debugging
+os.close(sys.stderr.fileno())
+
+# Server timeouts
+SHORT_TIMEOUT=9000
+LONG_TIMEOUT=20000
 
 # Laser constants
 SAGITTA = 0.5  # Focal range
@@ -95,46 +102,11 @@ class Laser(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
 
-        # options = [
-        #	  ["a", "name", "", "Unknown"],
-        #	  ["c", "current", "20", "Laser current"],
-        #	  ["d", "diameter", "0", "Ring diameter"],
-        #	  ["e", "offset", "0", "Ring holder offset"],
-        #	  ["f", "flatten", "True", "Should text be flattened"],
-        #	  ["i", "height", "120", "Default layer height"],
-        #	  ["m", "mode", "", "Operating mode of laser"],
-        #	  ["w", "width", "6.0", "Ring width"],
-        #	  ["n", "ring_type", "", "Concave or convex ring type"],
-        #	  ["o", "holder", "", "Ring holder type"],
-        #	  ["p", "port", '1030', "The server port"],
-        #	  ["q", "frequency", "44000", "Start frequency"],
-        #	  ["r", "rotary", "False", "Enable rotary axis"],
-        #	  ["v", "override", "False", "Override the 20 degree limit"],
-        #	  ["s", "server", "localhost", "The server address"],
-        #	  ["t", "tabs", "", ""],
-        #	  ["y", "speed", "500", "Laser speed"],
-        #	  ["z", "freqstep", "-1000", "Frequency step"],
-        # ]
-
-        # for arg in options:
-        #	  self.arg_parser.add_argument("-" + arg[0], "--" + arg[1], default=arg[2], help=arg[3])
-
-        # for arg in options:
-        #	  self.OptionParser.add_option(
-        #		  "-" + arg[0],
-        #		  "--" + arg[1],
-        #		  action="store",
-        #		  type=arg[2],
-        #		  dest=arg[1],
-        #		  default=arg[3],
-        #		  help=arg[4])
-        # self.arg_parser.add_argument("-a", "--name", default='', help="unknown")
-
     def setupServer(self):
         # Connect to server
         try:
-            bp = blastpy.bp_connectToServer(
-                self.blast, self.server, "INKSCAPE", 1000)
+            bp = blastpy.connectToServer(
+                self.blast, self.server, "INKSCAPE", 1000, True)
         except socket.gaierror:
             return None
 
@@ -150,102 +122,100 @@ class Laser(inkex.Effect):
     def effect(self):
 
         # Find the ring or flat data
+
+        # Defaults
+        self.rofin = "flat"
+        self.height = 120.0
+        self.mode = "save"
+        self.current = 0
+        self.frequency = 60000
+        self.freqstep = 0
+        self.speed = 500
+        self.server = "ws://127.0.0.1:8000"
+        self.filename = None
+        self.customer = None
+
         for group in self.document.getroot():
             for child in group:
                 if '{http://www.inkscape.org/namespaces/inkscape}label' in child.attrib.keys():
-                    if "flatdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
+                    if "laserdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
                         myjson = json.loads(child.text)
                         if myjson is not None:
-                            self.rofin = "flat"
                             try:
                                 self.current = float(myjson["current"])
                             except BaseException:
-                                self.current = 0
+                                pass
                             try:
                                 self.freqstep = float(myjson["freqstep"])
                             except BaseException:
-                                self.freqstep = 0
+                                pass
                             try:
                                 self.frequency = float(myjson["frequency"])
                             except BaseException:
-                                self.frequency = 60000
+                                pass
                             try:
                                 self.mode = myjson["mode"]
                             except BaseException:
-                                self.mode = "save"
+                                pass
                             try:
                                 self.speed = float(myjson["speed"])
                             except BaseException:
-                                self.speed = 1000
+                                pass
                             try:
                                 self.server = myjson["server"]
                             except BaseException:
-                                self.server = "10.53.69.30"
+                                pass
                             try:
                                 self.height = float(myjson["height"])
                             except BaseException:
-                                print(
-                                    "One of the required variables (height, server) could not be found.",
-                                    file=sys.stderr)
-                                exit(1)
+                                pass
                             try:
                                 self.filename = myjson["filename"]
+                            except BaseException:
+                                pass
+                            try:
                                 self.customer = myjson["customer"]
                             except BaseException:
-                                self.filename = None
-                                self.customer = None
-                        break
-                    if "ringdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
-                        myjson = json.loads(child.text)
-                        if myjson is not None:
-                            self.rofin = "rotary"
+                                pass
                             try:
                                 self.angle = float(myjson["angle"])
+                                self.rofin = "rotary"
+                            except BaseException:
+                                pass
+                            try:
                                 self.diameter = float(myjson["diameter"])
+                                self.rofin = "rotary"
+                            except BaseException:
+                                pass
+                            try:
                                 self.height = float(myjson["height"])
+                            except BaseException:
+                                pass
+                            try:
                                 self.sectors = float(myjson["sectors"])
+                            except BaseException:
+                                pass
+                            try:
                                 self.width = float(myjson["width"])
                             except BaseException:
-                                print(
-                                    "One of the rotary variables (angle, diameter, height, sectors, or width could not be found.",
-                                    file=sys.stderr)
-                                exit(1)
-
-                            try:
-                                self.server = myjson["server"]
-                            except BaseException:
-                                self.server = "10.53.69.30"
-                            try:
-                                self.current = float(myjson["current"])
-                            except BaseException:
-                                self.current = 0
-                            try:
-                                self.freqstep = float(myjson["freqstep"])
-                            except BaseException:
-                                self.freqstep = 0
-                            try:
-                                self.frequency = float(myjson["frequency"])
-                            except BaseException:
-                                self.frequency = 60000
-                            try:
-                                self.mode = myjson["mode"]
-                            except BaseException:
-                                self.mode = "save"
-                            try:
-                                self.speed = float(myjson["speed"])
-                            except BaseException:
-                                self.speed = 1000
-                            try:
-                                self.filename = myjson["filename"]
-                                self.customer = myjson["customer"]
-                            except BaseException:
-                                self.filename = None
-                                self.customer = None
-                        break
+                                pass
 
         self.blast = blastpy.t_Blastpit()
 
         # If this is rotary, compile a list of shadows from the shadow layers,
+
+        # HARD: Calculate all shadows
+
+        # Explode all text
+        # Convert all strokes to paths
+        # Merge all paths
+        # For each shadow, crop to the shadow and export/laser
+
+        # Work backwards
+        #
+        # Starting with all of the geometries ready to go and all of the shadows calculated,
+        # loop through the shadows, isolate the geometries within that shadow,
+        # and mark the geometries
 
         file = self.options.input_file
         tempfile = os.path.splitext(file)[0] + "-multicut.svg"
@@ -275,8 +245,9 @@ class Laser(inkex.Effect):
             # Calculate the segment size based on including the overlap each end.
             # This makes the segments smaller, but prevents the overlap falling
             # outside of the focal range.
-            SEGMENTS = int(math.ceil((math.pi * float(self.diameter)) /
-                                     (chordArcLength(RADIUS, SAGITTA) - 2 * ROTARY_OVERLAP)))
+            SEGMENTS = int(math.ceil((math.pi * float(self.diameter))
+                                     / (chordArcLength(RADIUS, SAGITTA) -
+                                        2 * ROTARY_OVERLAP)))
 
             SECTOR = 360.0 / SEGMENTS  # Needed in degrees for lmos
             SECTOR_WIDTH = (math.pi * float(self.diameter)) / SEGMENTS
@@ -294,6 +265,7 @@ class Laser(inkex.Effect):
 
         # The main XML object
         xml = blastpy.BpXML()
+        qpsets = blastpy.BpXML()
 
         # print(self.options.rotary, file=sys.stderr)
         if self.rofin == "rotary":
@@ -329,13 +301,13 @@ class Laser(inkex.Effect):
                         if rotaryLayerHeight < 45:
                             rotaryLayerHeight = 120
                         # print >> sys.stderr, "Layer height: " + \
-                        #	  str(rotaryLayerHeight)
+                        #     str(rotaryLayerHeight)
                         addColourLayer(xml, colour, float(str(self.height)))
                     else:
                         addColourLayer(xml, colour, float(str(self.height)))
                     # print >> sys.stderr, "Adding Qp set bp_" + colour
-                    if self.mode != "view":
-                        xml.addQpSet(
+                    if self.mode != "dummy":
+                        qpsets.addQpSet(
                             "bp_" + colour,
                             self.current,
                             self.speed,
@@ -348,7 +320,7 @@ class Laser(inkex.Effect):
                 else:
                     id = line
                 # group = xml.addGroup(
-                #	  "g" + id, "bp_" + colour, "bp_" + colour, "Standard")
+                #     "g" + id, "bp_" + colour, "bp_" + colour, "Standard")
                 group = xml.addGroup(
                     "g" + id, "bp_" + colour, "bp_" + colour, "bp_0_01")
             else:
@@ -413,136 +385,120 @@ class Laser(inkex.Effect):
             bp.startMarking(3)
 
         if self.mode == "save":
-            blast = blastpy.t_Blastpit()
-            if blastpy.bp_connectToServer(
-                    blast, self.server, "inkscape", 3000) != 0:
-                print("Can't connect", file=sys.stderr)
+            blast = blastpy.blastpitNew()
+            result = blastpy.connectToServer( blast, self.server, SHORT_TIMEOUT)
+            if result != blastpy.kSuccess:
+                print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
-            blastpy.bp_sendCommandAndWait(
-                blast, 11, "lmos", blastpy.BpCommand.kClearQpSets, 2000)
-            xml.setCommand(blastpy.BpCommand.kAddQpSet, 12)
-            retval = blastpy.bp_sendMessageAndWait(
-                blast, 12, "lmos", str(xml.xml()), 30000)
-            xml.setCommand(blastpy.BpCommand.kImportXML, 13)
-            retval = blastpy.bp_sendMessageAndWait(
-                blast, 13, "lmos", str(xml.xml()), 30000)
-            if retval == -1:
-                print("Can't send", file=sys.stderr)
+            id = 4
+            result = blastpy.bp_sendCommandAndWait( blast, id, blastpy.kClearQpSets, SHORT_TIMEOUT)
+            if result <= 0:
+                print("Cannot clear Qpsets (is lmos running?)", file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
                 sys.exit()
-            # print >> sys.stderr, xml.xml()
-
+            id = id + 1
+            qpsets.setCommand(blastpy.kAddQpSet, id)
+            result = blastpy.bp_sendMessageAndWait( blast, id, str(qpsets.xml()), SHORT_TIMEOUT)
+            if result <= 0:
+                print("Cannot add Qpsets", file=sys.stderr)
+                print("num messages: %d" % blastpy.getMessageCount(blast), file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                sys.exit()
+            id = id + 1
+            xml.setCommand(blastpy.kImportXML, id)
+            result = blastpy.bp_sendMessageAndWait( blast, id, str(xml.xml()), LONG_TIMEOUT)
+            if result <= 0:
+                print("Can't send the drawing XML", file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                sys.exit()
+            id = id + 1
+            result = blastpy.bp_sendMessageAndWait( blast, id, "<command id=\"" + str(id) +
+                "\" layer=\"RofinStandard\" laserable=\"0\">" +
+                str( blastpy.kLayerSetLaserable) + "</command>", SHORT_TIMEOUT)
+            if result <= 0:
+                print("Can't set RofinStandard layer as not laserable", file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                sys.exit()
+            id = id + 1
             blastpy.bp_sendMessageAndWait(
                 blast,
-                14,
-                "lmos",
-                "<command id=\"14\" layer=\"RofinStandard\" laserable=\"0\">" +
+                id,
+                "<command id=\"" +
+                str(id) +
+                "\" layer=\"RofinStandard\" height=\"120\">" +
                 str(
-                    blastpy.BpCommand.kLayerSetLaserable) +
+                    blastpy.kLayerSetHeight) +
                 "</command>",
-                2000)
+                SHORT_TIMEOUT)
+            id = id + 1
             blastpy.bp_sendMessageAndWait(
                 blast,
-                15,
-                "lmos",
-                "<command id=\"15\" layer=\"RofinStandard\" height=\"120\">" +
+                id,
+                "<command id=\"" +
+                str(id) +
+                "\" layer=\"RofinBackground\" height=\"120\">" +
                 str(
-                    blastpy.BpCommand.kLayerSetHeight) +
+                    blastpy.kLayerSetHeight) +
                 "</command>",
-                2000)
-            blastpy.bp_sendMessageAndWait(
-                blast,
-                16,
-                "lmos",
-                "<command id=\"16\" layer=\"RofinBackground\" height=\"120\">" +
-                str(
-                    blastpy.BpCommand.kLayerSetHeight) +
-                "</command>",
-                2000)
+                SHORT_TIMEOUT)
             # bp.layerSetLaserable(995, "RofinStandard", 0)
             # bp.layerSetHeight(996, "RofinStandard", 120)
             # bp.layerSetHeight(997, "RofinBackground", 120)
-            id = 17
+            id = id + 1
             for layer in layers:
-                blastpy.bp_sendMessageAndWait(
-                    blast,
-                    id,
-                    "lmos",
-                    "<command id=\"" +
-                    str(id) +
-                    "\" layer=\"" +
-                    str(
-                        layer[0]) +
-                    "\" exportable=\"1\">" +
-                    str(
-                        blastpy.BpCommand.kLayerSetExportable) +
-                    "</command>",
-                    2000)
+                blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" + str(id) + "\" layer=\"" + str(
+                    layer[0]) + "\" exportable=\"1\">" + str(blastpy.kLayerSetExportable) + "</command>", SHORT_TIMEOUT)
                 id = id + 1
-                blastpy.bp_sendMessageAndWait(blast, id, "lmos", "<command id=\"" +
+                blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" +
                                               str(id) +
                                               "\" layer=\"" +
                                               str(layer[0]) +
                                               "\" height=\"" +
                                               str(layer[1]) +
                                               "\">" +
-                                              str(blastpy.BpCommand.kLayerSetHeight) +
-                                              "</command>", 2000)
+                                              str(blastpy.kLayerSetHeight) +
+                                              "</command>", SHORT_TIMEOUT)
                 id = id + 1
-            #	  bp.layerSetHeight(999, layer[0], layer[1])
+            #     bp.layerSetHeight(999, layer[0], layer[1])
             if self.filename is not None and self.customer is not None:
-                blastpy.bp_sendMessageAndWait(
-                    blast,
-                    14,
-                    "lmos",
-                    "<command id=\"" +
-                    str(id) +
-                    "\" filename=\"Z:\\drawings\\2019\\" +
-                    self.customer +
-                    "\\" +
-                    self.filename +
-                    ".VLM\">" +
-                    str(
-                        blastpy.BpCommand.kSaveVLM) +
-                    "</command>",
-                    2000)
+                # print("saving as customer/filename", file=sys.stderr)
+                blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" +
+                                              str(id) +
+                                              "\" filename=\"Z:\\drawings\\" +
+                                              str(datetime.date.today().year) +
+                                              "\\" +
+                                              self.customer +
+                                              "\\" +
+                                              self.filename +
+                                              ".VLM\">" +
+                                              str(blastpy.kSaveVLM) +
+                                              "</command>", SHORT_TIMEOUT)
             else:
+                id = id + 1
+                # print("saving default", file=sys.stderr)
                 blastpy.bp_sendMessageAndWait(
                     blast,
-                    14,
-                    "lmos",
+                    id,
                     "<command id=\"" +
                     str(id) +
                     "\" filename=\"C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM\">" +
                     str(
-                        blastpy.BpCommand.kSaveVLM) +
+                        blastpy.kSaveVLM) +
                     "</command>",
-                    2000)
-            # bp.saveVLM(
-            #	  3, "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM")
-            # print >> sys.stderr, layers
-            blastpy.bp_disconnectFromServer(blast)
+                    SHORT_TIMEOUT)
+            blastpy.disconnectFromServer(blast)
 
         if self.mode == "position":
             blast = blastpy.t_Blastpit()
             if blastpy.bp_connectToServer(
-                    blast, self.server, "inkscape", 1000) != 0:
+                    blast, self.server, "inkscape", 1000, True) != 0:
                 print("Can't connect", file=sys.stderr)
                 sys.exit()
 
         if self.mode == "view":
-            blast = blastpy.t_Blastpit()
-            if blastpy.bp_connectToServer(
-                    blast, self.server, "inkscape", 1000) != 0:
-                print("Can't connect", file=sys.stderr)
-            else:
-                xml.setCommand(6, 12)
-                # blastpy.bp_sendCommand(blast, "lmos", 4)
-                if blastpy.bp_sendMessage(blast, "lmos", xml.xml()) != 0:
-                    print("Can't send", file=sys.stderr)
-                # blastpy.bp_waitForAck(blast, 123)
-                time.sleep(1)
-                blastpy.bp_disconnectFromServer(blast)
-                # print >> sys.stderr, "finished"
+            print(qpsets.xml(), file=sys.stderr)
+            print(file=sys.stderr)
+            print(xml.xml(), file=sys.stderr)
 
         fh.close()
 
@@ -553,16 +509,16 @@ if __name__ == '__main__':
 
 
 # for id_, node in self.selected.iteritems():
-#	  # get value of attribute 'inkscape:label' from current node
-#	  node_label = node.get(inkex.addNS('label', 'inkscape'),
-#		 "No label set for this element")
-#	  # report back
-#	  inkex.debug("Label of object %s: %s" % (id_, node_label))
-#	  # if label starts with "foo", modify it
-#	  if node_label.startswith("foo"):
-#		  new_label = node_label[0:3] + "bar"
-#		  # set label to new value
-#		  node.set(inkex.addNS('label', 'inkscape'), new_label)
-#	  # report back current value of attribute 'inkscape:label'
-#	  inkex.debug("Label of object %s: %s" % (id_,
-#			node.get(inkex.addNS('label', 'inkscape'))))
+#     # get value of attribute 'inkscape:label' from current node
+#     node_label = node.get(inkex.addNS('label', 'inkscape'),
+#        "No label set for this element")
+#     # report back
+#     inkex.debug("Label of object %s: %s" % (id_, node_label))
+#     # if label starts with "foo", modify it
+#     if node_label.startswith("foo"):
+#         new_label = node_label[0:3] + "bar"
+#         # set label to new value
+#         node.set(inkex.addNS('label', 'inkscape'), new_label)
+#     # report back current value of attribute 'inkscape:label'
+#     inkex.debug("Label of object %s: %s" % (id_,
+#           node.get(inkex.addNS('label', 'inkscape'))))
