@@ -165,12 +165,26 @@ TEST(BlastpitGroup, MessageTest)
 	blastpitDelete(simpleserver);
 }
 
+TEST(BlastpitGroup, XmlRetvalTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+	
+	// Tests whether getValuesFromXml() can parse return values
+	// Warn if no values found
+
+	TEST_FAIL();
+}
+
 TEST_GROUP_RUNNER(BlastpitGroup)
 { /* Add a line below for each unit test */
 
 	// RUN_TEST_CASE(BlastpitGroup, simpleServerTest);
 	// RUN_TEST_CASE(BlastpitGroup, SendAndWaitTest);
 	RUN_TEST_CASE(BlastpitGroup, MessageTest);
+	RUN_TEST_CASE(BlastpitGroup, XmlRetvalTest);
 }
 
 static void

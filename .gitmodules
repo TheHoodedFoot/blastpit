@@ -61,3 +61,9 @@
 [submodule "sds"]
 	path = src/submodules/sds
 	url = https://github.com/antirez/sds.git
+[submodule "src/submodules/mxml"]
+	path = src/submodules/mxml
+	url = https://github.com/michaelrsweet/mxml.git
+[submodule "src/submodules/nanosvg"]
+	path = src/submodules/nanosvg
+	url = https://github.com/memononen/nanosvg.git
