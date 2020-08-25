@@ -165,7 +165,7 @@ TEST(BlastpitGroup, MessageTest)
 	blastpitDelete(simpleserver);
 }
 
-TEST(BlastpitGroup, RetvalTest)
+TEST(BlastpitGroup, XmlRetvalTest)
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -180,6 +180,11 @@ TEST(BlastpitGroup, RetvalTest)
 	XmlReply reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(reply.id, 1);
 	TEST_ASSERT_EQUAL(reply.retval, 99);
+	
+	// Tests whether getValuesFromXml() can parse return values
+	// Warn if no values found
+
+	TEST_FAIL();
 }
 
 TEST_GROUP_RUNNER(BlastpitGroup)
@@ -188,7 +193,7 @@ TEST_GROUP_RUNNER(BlastpitGroup)
 	// RUN_TEST_CASE(BlastpitGroup, simpleServerTest);
 	// RUN_TEST_CASE(BlastpitGroup, SendAndWaitTest);
 	RUN_TEST_CASE(BlastpitGroup, MessageTest);
-	RUN_TEST_CASE(BlastpitGroup, RetvalTest);
+	RUN_TEST_CASE(BlastpitGroup, XmlRetvalTest);
 }
 
 static void
