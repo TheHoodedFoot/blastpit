@@ -295,20 +295,21 @@ graph:	$(patsubst %,$(GRAPHDIR)/%.pdf, bp bp_database)
 #
 # Change setting in lmos.pro to debug_and_release for release version
 
-WHINE_PREFIX = "${HOME}/.wine/rofin"
-WHINE_ARCH = "win32"
-WHINE_LIBS = "C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin"
-WHINE_CXX = $(WHINE_LIBS)"\\g++.exe"
+WINE_PREFIX = "${HOME}/.wine/32bit"
+WINE_ARCH = "win32"
+WINE_LIBS = "C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin"
+WINE_CXX = $(WINE_LIBS)"\\g++.exe"
+QT_DLL_DIR = "Qt/Qt5.14.2/5.14.2/mingw730_32/bin"
 
 # Qt (Wine) - Must be run from within the 32-bit environment
-WINEDIR=${HOME}/.wine/rofin
+WINEDIR=${WINE_PREFIX}
 
 $(BUILD_DIR)/win32/debug/platforms $(BUILD_DIR)/win32/release/platforms:
 	mkdir -p $(BUILD_DIR)/win32/{release,debug}/platforms
-	cp -v ~/.wine/rofin/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/Qt5{Core,Gui,Widgets}.dll $(BUILD_DIR)/win32/release/
-	cp -v ~/.wine/rofin/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/plugins/platforms/qwindows.dll $(BUILD_DIR)/win32/release/platforms
-	cp -v ~/.wine/rofin/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/Qt5{Core,Gui,Widgets}.dll $(BUILD_DIR)/win32/debug/
-	cp -v ~/.wine/rofin/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/plugins/platforms/qwindows.dll $(BUILD_DIR)/win32/debug/platforms
+	cp -v $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/Qt5{Core,Gui,Widgets}.dll $(BUILD_DIR)/win32/release/
+	cp -v $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/plugins/platforms/qwindows.dll $(BUILD_DIR)/win32/release/platforms
+	cp -v $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/Qt5{Core,Gui,Widgets}.dll $(BUILD_DIR)/win32/debug/
+	cp -v $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/plugins/platforms/qwindows.dll $(BUILD_DIR)/win32/debug/platforms
 
 qmake $(BUILD_DIR)/win32/Makefile: $(BUILD_DIR)
 	env WINEPREFIX="$(WINEDIR)" \
@@ -344,7 +345,7 @@ lmoslin:	$(BUILD_DIR)/lmosgui/Makefile
 	$(BUILD_DIR)/lmosgui/lmosgui
 
 boost:
-	cp -v ~/.wine/rofin/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/libwinpthread-1.dll .
+	cp -v $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/libwinpthread-1.dll .
 	env WINEPREFIX="$(WINEDIR)" \
 		WINEARCH="win32" \
 		wine "C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin\\g++.exe" \
@@ -371,7 +372,7 @@ mingoose:
 		WINEARCH="win32" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
 		WINEDLLPATH="C:\\Qt\\Qt5.14.2\\5.14.2\\mingw73_32\\bin" \
-		wine ~/.wine/rofin/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/gcc.exe \
+		wine $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/gcc.exe \
 		-I ~/projects/blastpit/src/submodules/mongoose \
 		-o $@ \
 		~/projects/blastpit/src/submodules/mongoose/mongoose.c \
@@ -429,23 +430,23 @@ websocketwin:	$(BUILD_DIR)
 		-lwsock32
 
 win.exe:	test.cpp src/libblastpit/linkedlist.c src/libblastpit/blastpit.c src/libblastpit/parser.c src/libblastpit/message.c src/libblastpit/new.c src/libblastpit/xml.cpp sub/pugixml/src/pugixml.cpp
-	env WINEPREFIX="$(WHINE_PREFIX)" \
-		WINEARCH="$(WHINE_ARCH)" \
+	env WINEPREFIX="$(WINE_PREFIX)" \
+		WINEARCH="$(WINE_ARCH)" \
 		PATH="/usr/bin" \
-		WINEPATH=$(WHINE_LIBS) \
-		wine "$(WHINE_CXX)" \
+		WINEPATH=$(WINE_LIBS) \
+		wine "$(WINE_CXX)" \
 		-D_GLIBCXX_USE_CXX11_ABI=1 -std=c++11 $^ -o $@
 
 win:	win.exe
-	env WINEPREFIX="$(WHINE_PREFIX)" \
-		WINEARCH="$(WHINE_ARCH)" \
-		WINEPATH="$(WHINE_LIBS)" \
+	env WINEPREFIX="$(WINE_PREFIX)" \
+		WINEARCH="$(WINE_ARCH)" \
+		WINEPATH="$(WINE_LIBS)" \
 		wine $^
 
 qtcreator:
-	env WINEPREFIX="$(WHINE_PREFIX)" \
-		WINEARCH="$(WHINE_ARCH)" \
-		WINEPATH="$(WHINE_LIBS)" wine $(WHINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/QtCreator/bin/qtcreator
+	env WINEPREFIX="$(WINE_PREFIX)" \
+		WINEARCH="$(WINE_ARCH)" \
+		WINEPATH="$(WINE_LIBS)" wine $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/QtCreator/bin/qtcreator
 
 cross:	$(BUILD_DIR)
 	CC="zig cc -target i386-windows-gnu" CXX="zig c++ -target i386-windows-gnu -std=c++11" CPPFLAGS="-fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1" LDFLAGS="-lc++" $(MAKE) -C $(BUILD_DIR)/win32/ -f $(PROJECT_ROOT)/Makefile libblastpit.a
@@ -495,9 +496,9 @@ server:	$(BUILD_DIR)/wscli
 	$^ -s 8000
 
 winws:	
-	env WINEPREFIX="$(WHINE_PREFIX)" \
-		WINEARCH="$(WHINE_ARCH)" \
-		WINEPATH="$(WHINE_LIBS)" \
+	env WINEPREFIX="$(WINE_PREFIX)" \
+		WINEARCH="$(WINE_ARCH)" \
+		WINEPATH="$(WINE_LIBS)" \
 		wine build/win32/wscli.exe -c ws://127.0.0.1:8000
 
 vale:	README.md
@@ -513,7 +514,7 @@ tarball:
 		--exclude=\*.h \
 		--exclude=\*.cpp \
 		Qt5Core.dll Qt5Gui.dll Qt5Widgets.dll lmosgui.exe platforms \
-		-C ~/.wine/rofin/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
+		-C $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
 		libstdc++-6.dll libgcc_s_dw2-1.dll
 
 
