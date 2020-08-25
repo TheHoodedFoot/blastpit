@@ -226,11 +226,6 @@ union psHeader {
 	struct BpPacket header;
 };
 
-typedef struct {  // Used for Xml replies
-	int id;
-	int retval;
-} XmlReply;
-
 /* We need to hide our c class code from the c++ compiler */
 //#ifndef __cplusplus
 #include "websocket.h"
@@ -238,6 +233,8 @@ typedef struct {  // Used for Xml replies
 
 // extern const void *Blastpit;
 
+// TODO: Convert this to a void pointer so we don't need to include
+// websocket.h in every file that includes blastpit.h
 typedef struct Blastpit {
 	t_Websocket *ws;
 } t_Blastpit;

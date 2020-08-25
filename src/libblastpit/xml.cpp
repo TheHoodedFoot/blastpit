@@ -138,3 +138,10 @@ xml_removeId(const char* message)
 	const char* cstring = stdstring.c_str();
 	return xml_mallocCopy(cstring);
 }
+
+XmlReply
+ParseXmlIdAndRetval(const char* xml)
+{ // Extract the id and return value into a struct
+
+	XmlReply reply = { .id = 999, .retval = 999 };
+}
