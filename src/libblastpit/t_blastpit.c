@@ -5,7 +5,7 @@
 #include "unity_fixture.h"
 
 // This uncontrolled file defines SERVER and MQTT_TIMEOUT
-#include "../../res/cfg/t_common.h"
+// #include "../../res/cfg/t_common.h"
 
 TEST_GROUP(BlastpitGroup);
 
@@ -180,7 +180,7 @@ TEST(BlastpitGroup, XmlRetvalTest)
 	XmlReply reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(reply.id, 1);
 	TEST_ASSERT_EQUAL(reply.retval, 99);
-	
+
 	// Tests whether getValuesFromXml() can parse return values
 	// Warn if no values found
 

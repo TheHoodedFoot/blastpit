@@ -20,8 +20,7 @@ USER_DEFINES  = SPACENAV MG_ENABLE_FILESYSTEM=1
 USER_DEFINES += DEBUG_LEVEL=5
 CPPFLAGS     += $(addprefix -D, $(USER_DEFINES))
 CPPFLAGS     += -pthread
-# MAXJOBS       = -j1
-MAXJOBS       = -j$(shell nproc)
+MAXJOBS      ?= $(shell nproc)
 
 # Linker
 LD      = ld.lld
@@ -51,8 +50,8 @@ release_build:	CPPFLAGS += -Ofast
 profile: 	CPPFLAGS += -pg --coverage
 
 # Library source and object files
-LIBBLASTPIT_SOURCES := blastpit.c websocket.c mongoose.c
-LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) xml.o pugixml.o sds.o
+LIBBLASTPIT_SOURCES := blastpit.c websocket.c
+LIBBLASTPIT_OBJS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.o,$(LIBBLASTPIT_SOURCES)) xml.o pugixml.o sds.o mongoose.o
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES)) $(SUBMODULES_DIR)/sds/sds.c
 LIBBLASTPIT_TARGETS := libblastpit.a _blastpy.so blastpy.py 
 
@@ -73,7 +72,7 @@ LIBS  = -lm
 
 # Blastpy
 BLASTPY_FILES  = blastpy_wrap.o xml.o pugixml.o
-BLASTPY_SRCS   = $(patsubst %.o,$(SRCDIR)/%.c,$(BLASTPY_FILES))
+# BLASTPY_SRCS   = $(patsubst %.o,$(SRCDIR)/%.c,$(BLASTPY_FILES))
 BLASTPY_FILES += libblastpit.a
 BLASTPY_LIBS   = 
 
@@ -108,12 +107,12 @@ all: 		test
 		@printf "\033k$(PROJECT)\033\\"
 
 debug: 		$(BUILD_DIR) .tags
-		bear -a $(MAKE) $(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile debug_build
+		bear -a $(MAKE) -j$(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile debug_build
 
 release:	$(BUILD_DIR)
-		$(MAKE) $(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile release_build 
+		$(MAKE) -j$(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile release_build 
 
-targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES) cli
+targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES)
 
 debug_build:	targets
 
@@ -125,7 +124,7 @@ clean:
 	rm -rf $(BUILD_DIR) compile_commands.json .tags{,extra} .clangd
 	pkill wscli || /bin/true
 
-$(BUILD_DIR) $(BUILD_DIR)/lmosgui/:
+$(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)/{win32,lmosgui}
 	ln -fs $(PROJECT_ROOT)/.git/untracked/myconfig.py $(BUILD_DIR)/
 
@@ -134,13 +133,13 @@ emcc:
 
 # Libblastpit Recipes
 xml.o:	$(PROJECT_ROOT)/src/libblastpit/xml.cpp
-	$(CXX) $(CPPFLAGS) -I$(SUBMODULES_DIR)/pugixml/src -c -fPIC $^ -o $@
+	$(CXX) $(CPPFLAGS) -I$(INCFLAGS) -I$(SUBMODULES_DIR)/pugixml/src -c -fPIC $^ -o $@
 
 pugixml.o:	$(SUBMODULES_DIR)/pugixml/src/pugixml.cpp
-	$(CXX) $(CPPFLAGS) -c -fPIC $^ -o $@
+	$(CXX) $(CPPFLAGS) -I$(INCFLAGS) -c -fPIC $^ -o $@
 
 sds.o:	$(SUBMODULES_DIR)/sds/sds.c
-	$(CC) $(CPPFLAGS) -c -fPIC $^ -o $@
+	$(CC) $(CPPFLAGS) -I$(INCFLAGS) -c -fPIC $^ -o $@
 
 libblastpit.a: $(LIBBLASTPIT_OBJS)
 	$(AR) -crs $@ $^
@@ -164,10 +163,13 @@ unity.o:	$(UNITY_DIR)/unity.c
 	$(CC) $(CPPFLAGS) $(UNITY_DEFS) $(CPPFLAGS) $(INCFLAGS) -c $< -o $@
 
 t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
-	$(CXX) $(CPPFLAGS) $(UNITY_DEFS) $(SANFLAGS) $(UNITY_OBJS) $< -L. -lblastpit -o $@ $(LIBS)
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(SANFLAGS) $(UNITY_OBJS) $< -L. -lblastpit -o $@ $(LIBS)
 
 %.o:	%.cpp
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
+
+%.o:	%.c
+	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
 
 %.o:	$(LIBBLASTPIT_DIR)/%.c
 	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
@@ -206,7 +208,7 @@ octave_%:	$(BLASTMINE_DIR)/octave_%.cpp
 
 # Testing and Debugging
 test:	debug
-	$(MAKE) $(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile test_run
+	$(MAKE) -j$(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile test_run
 
 test_run:
 	@#if [[ $(shell cat /proc/sys/vm/overcommit_memory) != "0" ]]; then echo 0 | sudo tee /proc/sys/vm/overcommit_memory; fi
@@ -323,7 +325,7 @@ lmos $(BUILD_DIR)/win32/debug/lmosgui.exe $(BUILD_DIR)/win32/release/lmosgui.exe
 	env WINEPREFIX="$(WINEDIR)" \
 		WINEARCH="win32" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
-		wine $(WINEDIR)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/mingw32-make.exe -C $(BUILD_DIR)/win32 $(MAXJOBS)
+		wine $(WINEDIR)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/mingw32-make.exe -C $(BUILD_DIR)/win32 -j$(MAXJOBS)
 
 lmostray:	$(BUILD_DIR)/win32/debug/lmosgui.exe
 	env WINEPREFIX="$(WINEDIR)" \
@@ -341,7 +343,7 @@ $(BUILD_DIR)/lmosgui/Makefile:	$(BUILD_DIR)/lmosgui/ $(PROJECT_ROOT)/src/lmos/lm
 	qmake -o $@ $(PROJECT_ROOT)/src/lmos/lmos.pro
 
 lmoslin:	$(BUILD_DIR)/lmosgui/Makefile
-	make -C $(BUILD_DIR)/lmosgui $(MAXJOBS)
+	make -C $(BUILD_DIR)/lmosgui -j$(MAXJOBS)
 	$(BUILD_DIR)/lmosgui/lmosgui
 
 boost:
@@ -349,7 +351,7 @@ boost:
 	env WINEPREFIX="$(WINEDIR)" \
 		WINEARCH="win32" \
 		wine "C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin\\g++.exe" \
-		"-IZ:/home/thf/projects/blastpit/src/submodules/websocketpp" \
+		"-IZ:~/projects/blastpit/src/submodules/websocketpp" \
 		"-IZ:/home/tmp/boost_1_73_0" \
 		-v \
 		examples/debug_server/debug_server.cpp \
@@ -368,7 +370,7 @@ winincsearch:
 # Build Mongoose example using mingw and Wine
 mingoose:
 	env \
-		WINEPREFIX="/home/thf/.wine/rofin" \
+		WINEPREFIX="~/.wine/32bit" \
 		WINEARCH="win32" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
 		WINEDLLPATH="C:\\Qt\\Qt5.14.2\\5.14.2\\mingw73_32\\bin" \
@@ -386,14 +388,14 @@ mongoose:	$(BUILD_DIR)
 		-DCS_PLATFORM=CS_P_WINDOWS \
 		-o $(BUILD_DIR)/mongoose.exe \
 		-I ~/projects/blastpit/src/submodules/mongoose \
-		-L /home/thf/.wine/rofin/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
+		-L ~/.wine/32bit/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
 		src/submodules/mongoose/mongoose.c \
 		src/submodules/mongoose/examples/simplest_web_server/simplest_web_server.c \
 		-lwsock32
 
 rungoose:	
 	env \
-		WINEPREFIX="/home/thf/.wine/rofin" \
+		WINEPREFIX="~/.wine/32bit" \
 		WINEARCH="win32" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
 		WINEDLLPATH="C:\\Qt\\Qt5.14.2\\5.14.2\\mingw73_32\\bin" \
@@ -425,7 +427,7 @@ websocketwin:	$(BUILD_DIR)
 		-DCS_PLATFORM=CS_P_WINDOWS \
 		-o $(BUILD_DIR)/mongoose.o \
 		-I src/submodules/mongoose \
-		-L /home/thf/.wine/rofin/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
+		-L ~/.wine/32bit/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
 		-c src/submodules/mongoose/mongoose.c \
 		-lwsock32
 
@@ -466,7 +468,7 @@ wscli.exe:
 	$(CC) \
 		-I ../../src/libblastpit \
 		-I ../../src/submodules/mongoose \
-		-L /home/thf/.wine/rofin/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
+		-L ~/.wine/32bit/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
 		-o wscli.exe \
 		../../src/libblastpit/wscli.c \
 		libblastpit.a \

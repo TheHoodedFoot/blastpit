@@ -141,7 +141,13 @@ xml_removeId(const char* message)
 
 XmlReply
 ParseXmlIdAndRetval(const char* xml)
-{ // Extract the id and return value into a struct
+{  // Extract the id and return value into a struct
 
-	XmlReply reply = { .id = 999, .retval = 999 };
+	(void)xml;
+
+	XmlReply reply;
+	reply.id = 999;
+	reply.retval = 999;
+
+	return reply;
 }
