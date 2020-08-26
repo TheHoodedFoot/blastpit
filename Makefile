@@ -37,7 +37,7 @@ RANLIB = llvm-ranlib
 debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror
 debug_build:	CPPFLAGS += -Og -g3
-# debug_build:	CC        = zig cc
+# debug_build:	CC        = zig c++
 # debug_build:	CXX       = zig c++
 debug_build:	CC        = ccache clang
 debug_build:	CXX       = ccache clang++
@@ -51,7 +51,7 @@ profile: 	CPPFLAGS += -pg --coverage
 
 # Library source and object files
 LIBBLASTPIT_SOURCES := blastpit.c websocket.c
-LIBBLASTPIT_OBJS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.o,$(LIBBLASTPIT_SOURCES)) xml.o pugixml.o sds.o mongoose.o
+LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) xml.o pugixml.o sds.o mongoose.o
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES)) $(SUBMODULES_DIR)/sds/sds.c
 LIBBLASTPIT_TARGETS := libblastpit.a _blastpy.so blastpy.py 
 
@@ -112,7 +112,7 @@ debug: 		$(BUILD_DIR) .tags
 release:	$(BUILD_DIR)
 		$(MAKE) -j$(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile release_build 
 
-targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES)
+targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES) cli
 
 debug_build:	targets
 
@@ -163,7 +163,7 @@ unity.o:	$(UNITY_DIR)/unity.c
 	$(CC) $(CPPFLAGS) $(UNITY_DEFS) $(CPPFLAGS) $(INCFLAGS) -c $< -o $@
 
 t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(SANFLAGS) $(UNITY_OBJS) $< -L. -lblastpit -o $@ $(LIBS)
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(SANFLAGS) $(UNITY_OBJS) $< -L. -o $@ $(LIBS) $(BUILD_DIR)/libblastpit.a
 
 %.o:	%.cpp
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
@@ -455,7 +455,7 @@ cross:	$(BUILD_DIR)
 
 # DON'T use 'localhost' under win32. It doesn't resolve correctly (ipv6?)
 
-cli:	$(BUILD_DIR) wscli_lin wscli_win
+cli:	$(BUILD_DIR) wscli wscli_win
 
 wscli_win: cross
 	CC="zig cc -target i386-windows-gnu" \
@@ -475,9 +475,9 @@ wscli.exe:
 		-lc++ \
 		-lwsock32
 
-wscli_lin: $(BUILD_DIR)
-	$(MAKE) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile libblastpit.a
-	$(MAKE) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile wscli
+# wscli_lin: $(BUILD_DIR)
+# 	$(MAKE) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile libblastpit.a
+# 	$(MAKE) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile wscli
 
 wscli:	libblastpit.a
 	$(CXX) $(CPPFLAGS) \

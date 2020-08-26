@@ -1,6 +1,10 @@
 #ifndef WEBSOCKET_H
 #define WEBSOCKET_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include "mongoose.h"
 
@@ -65,5 +69,9 @@ void broadcastServer(struct mg_connection *nc, const struct mg_str msg);
 // int netDisconnectFromServer(t_WebsocketClient *);
 // int netMessageToServer(t_WebsocketClient *, const int, const char *);
 // void netSetOnReceiveCallback(t_WebsocketClient *, void (*)(void *));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

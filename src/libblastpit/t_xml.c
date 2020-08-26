@@ -23,14 +23,14 @@ TEST_TEAR_DOWN(XmlGroup) {}
 
 TEST(XmlGroup, AddRemoveIdTest)
 {
-	TEST_ASSERT_EQUAL(0, xml_getId("Hello, world!"));
+	TEST_ASSERT_EQUAL(kInvalid, xml_getId("Hello, world!"));
 
 	TEST_ASSERT_EQUAL(33, xml_getId("<command id=\"33\"/>"));
 
 	char *messageRemoved = xml_removeId("<command id=\"33\"/>");
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
 	TEST_ASSERT_NOT_NULL(messageRemoved);
-	TEST_ASSERT_EQUAL(0, xml_getId(messageRemoved));
+	TEST_ASSERT_EQUAL(kInvalid, xml_getId(messageRemoved));
 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<command />\n", messageRemoved);
 
 	char *messageAdded = xml_setId(123, messageRemoved);
@@ -72,6 +72,38 @@ TEST(XmlGroup, OverflowTest)
 	free(messageRemoved);
 }
 
+TEST(XmlGroup, XmlRetvalTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	// Replies are in the format:
+	// <xml><command id="1">3</command>
+	// or
+	// <xml><command id="1">string</command>
+
+	// Tests whether getValuesFromXml() can parse return values
+	const char *xml = "<command id=\"73\">992</Command>";
+	XmlReply reply = ParseXmlIdAndRetval(xml);
+	TEST_ASSERT_EQUAL(73, reply.id);
+	TEST_ASSERT_EQUAL(992, reply.retval);
+
+	// Invalid or missing id should return kInvalid
+	xml = "<command>123</Command>";
+	reply = ParseXmlIdAndRetval(xml);
+	TEST_ASSERT_EQUAL(kInvalid, reply.id);
+	TEST_ASSERT_EQUAL(123, reply.retval);
+
+	// Invalid retvals should return zero (kFailure)
+	xml = "<command id=\"39\"></Command>";
+	reply = ParseXmlIdAndRetval(xml);
+	TEST_ASSERT_EQUAL(39, reply.id);
+	TEST_ASSERT_EQUAL(kFailure, reply.retval);
+
+	// Warn if no values found
+}
 
 TEST_GROUP_RUNNER(XmlGroup)
 { /* Add a line below for each unit test */
@@ -80,6 +112,7 @@ TEST_GROUP_RUNNER(XmlGroup)
 	RUN_TEST_CASE(XmlGroup, AddHeaderTest);
 	RUN_TEST_CASE(XmlGroup, CommandStringTest);
 	RUN_TEST_CASE(XmlGroup, OverflowTest);
+	RUN_TEST_CASE(XmlGroup, XmlRetvalTest);
 }
 
 static void

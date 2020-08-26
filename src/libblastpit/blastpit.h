@@ -78,8 +78,8 @@ enum BpReply {
 	COMMAND(kZoomWindow)
 
 #define FOREACH_RETVAL(RETVAL)     \
-	RETVAL(kSuccess)           \
 	RETVAL(kFailure)           \
+	RETVAL(kSuccess)           \
 	RETVAL(kAlarm)             \
 	RETVAL(kAllocationFailure) \
 	RETVAL(kAlreadyInUse)      \
@@ -102,7 +102,8 @@ enum BpReply {
 	RETVAL(kNullResource)      \
 	RETVAL(kPlcEvent)          \
 	RETVAL(kReplyTimeout)      \
-	RETVAL(kSetterFailure)
+	RETVAL(kSetterFailure)     \
+	RETVAL(kInvalid = -1)
 
 #define FOREACH_DEBUGLEVEL(LEVEL) \
 	LEVEL(kLvlOff)            \

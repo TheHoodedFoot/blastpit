@@ -13,11 +13,15 @@ xml_getId(const char* message)
 { /* Returns message id, or -1 if nonexistent */
 
 	if (!message)
-		return -1;
+		return kInvalid;
 
 	pugi::xml_document xml;
 	xml.load_string(message);
-	return atoi(xml.child("command").attribute("id").value());
+
+	// Zero is considered an invalid id because atoi() returns 0
+	// for invalid inputs.
+	int id = atoi(xml.child("command").attribute("id").value());
+	return id ? id : kInvalid;
 }
 
 int
@@ -143,11 +147,15 @@ XmlReply
 ParseXmlIdAndRetval(const char* xml)
 {  // Extract the id and return value into a struct
 
-	(void)xml;
+	XmlReply reply{kInvalid, kInvalid};
 
-	XmlReply reply;
-	reply.id = 999;
-	reply.retval = 999;
+	if (!xml_hasHeader(xml))
+		return reply;
+
+	reply.id = xml_getId(xml);
+	char* xmldata = xml_getCommandString(xml);
+	reply.retval = atoi(xmldata);
+	free(xmldata);
 
 	return reply;
 }
