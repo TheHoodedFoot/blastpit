@@ -1,6 +1,10 @@
 #ifndef BLASTPIT_H
 #define BLASTPIT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef _MSC_VER
 #include "stdint.h"
 #else
@@ -238,6 +242,7 @@ union psHeader {
 // websocket.h in every file that includes blastpit.h
 typedef struct Blastpit {
 	t_Websocket *ws;
+	int highest_id;	 // Highest id used (for auto generation)
 } t_Blastpit;
 
 typedef struct bp_message {
@@ -245,18 +250,18 @@ typedef struct bp_message {
 	char *data;
 } t_bp_message;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef struct {  // Acknowledgement of send plus generated id
+	int id;
+	int retval;
+} IdAck;
 
 /* Methods */
 char *bp_sendMessageAndWaitForString(t_Blastpit *self, int id, const char *message, int timeout);
 char *bp_waitForString(t_Blastpit *self, int id, int timeout);
 char *bp_waitForXml(t_Blastpit *self, int id, int timeout, int del);
 t_Blastpit *blastpitNew();
-int bp_getNextFreeID(t_Blastpit *self);
 bool bp_isConnected(t_Blastpit *self);
-int bp_sendCommandAndWait(t_Blastpit *self, int id, int command, int timeout);
+IdAck bp_sendCommandAndWait(t_Blastpit *self, int id, int command, int timeout);
 int bp_sendMessage(t_Blastpit *self, int id, const char *message);
 int bp_sendMessageAndWait(t_Blastpit *self, int id, const char *message, int timeout);
 int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
@@ -284,13 +289,12 @@ const char *bpCommandName(int command);
 const char *bpRetvalName(int retval);
 void stopLMOS(t_Blastpit *self);
 void startLMOS(t_Blastpit *self);
+int AutoGenerateId(t_Blastpit *self);
 
+#define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 
 #ifdef __cplusplus
 }
 #endif
 
-//#endif
-
-#define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 #endif /* end of include guard: BLASTPIT_H */

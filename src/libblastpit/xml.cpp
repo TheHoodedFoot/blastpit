@@ -147,7 +147,7 @@ XmlReply
 ParseXmlIdAndRetval(const char* xml)
 {  // Extract the id and return value into a struct
 
-	XmlReply reply{kInvalid, kInvalid};
+	XmlReply reply = {kInvalid, kInvalid};
 
 	if (!xml_hasHeader(xml))
 		return reply;

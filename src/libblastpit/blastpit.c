@@ -175,9 +175,19 @@ registerObject(t_Blastpit* self, void* object)
 	wsSetMessageReceivedObject(self->ws, object);
 }
 
+void
+UpdateHighestId(t_Blastpit* self, int id)
+{  // Updates the highest known id
+
+	if (id > self->highest_id)
+		self->highest_id = id;
+}
+
 int
 bp_sendMessage(t_Blastpit* self, int id, const char* message)
 {
+	UpdateHighestId(self, id);
+
 	char* id_message = xml_setId(id, message);
 	if (!id_message)
 		return kSetterFailure;
@@ -270,18 +280,31 @@ sendCommand(t_Blastpit* self, int id, int command)
 }
 
 int
+AutoGenerateId(t_Blastpit* self)
+{  // Generates a random id
+
+	return self->highest_id++;
+}
+
+IdAck
 bp_sendCommandAndWait(t_Blastpit* self, int id, int command, int timeout)
 {
+	if (!id)
+		id = AutoGenerateId(self);
+
 	if (!sendCommand(self, id, command)) {
 		LOG(kLvlDebug, "%s: Failed to send command", __func__);
-		return kCommandFailed;
+		IdAck retval = {kInvalid, kCommandFailed};
+		return retval;
 	}
 	if (bp_waitForXml(self, id, timeout, false) == NULL) {
 		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
-		return kReplyTimeout;
+		IdAck retval = {kInvalid, kReplyTimeout};
+		return retval;
 	}
 
-	return kSuccess;
+	IdAck retval = {id, kSuccess};
+	return retval;
 }
 
 bool
@@ -296,14 +319,6 @@ bp_waitForSignal(t_Blastpit* self, int signal, int timeout)
 
 	int result = xml_getId(bp_waitForXml(self, signal, timeout, true));
 	return result ? result : false;
-}
-
-int
-bp_getNextFreeID(t_Blastpit* self)
-{
-	(void)self;
-	// return mqtt_getNextFreeID(self->ws);
-	return -1;
 }
 
 char*
