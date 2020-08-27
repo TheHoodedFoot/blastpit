@@ -5,6 +5,7 @@
 #include <QtCore>
 /* #include "network.hpp" */
 // #include "../../res/cfg/t_common.h"
+#include "mongoose.h"
 #include "pugixml.hpp"
 
 //#include <unistd.h>

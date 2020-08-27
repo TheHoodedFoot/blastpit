@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "blastpit.h"
+#include "websocket.h"
 #include "xml.hpp"
 
 #include "unity_fixture.h"
@@ -62,10 +63,10 @@ TEST(BlastpitGroup, simpleServerTest)
 	for (int i = 0; i < 100; i++) {
 		pollMessages(simpleserver);
 		pollMessages(client);
-		if (client->ws->isConnected)
+		if (((t_Websocket *)client->ws)->isConnected)
 			break;
 	}
-	TEST_ASSERT_EQUAL(true, client->ws->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
 
 	// Send a message
 	testval = 0;
@@ -94,7 +95,7 @@ TEST(BlastpitGroup, SendAndWaitTest)
 	// Connect to the server
 	int result = connectToServer(client, "ws://localhost:8123", 1000);
 	TEST_ASSERT_EQUAL(true, result);
-	TEST_ASSERT_EQUAL(true, client->ws->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
 
 	// Send a message
 	sendClientMessage(client, "test");
@@ -130,12 +131,12 @@ TEST(BlastpitGroup, MessageTest)
 		pollMessages(simpleserver);
 		pollMessages(client1);
 		pollMessages(client2);
-		if (client1->ws->isConnected && client2->ws->isConnected)
+		if (((t_Websocket *)client1->ws)->isConnected && ((t_Websocket *)client2->ws)->isConnected)
 			break;
 	}
 
-	TEST_ASSERT_EQUAL(true, client1->ws->isConnected);
-	TEST_ASSERT_EQUAL(true, client2->ws->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client1->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client2->ws)->isConnected);
 
 	// Send a message
 	sendClientMessage(client1, "client1");

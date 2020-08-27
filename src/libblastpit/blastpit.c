@@ -36,7 +36,7 @@ blastpitNew()
 
 	t_Blastpit* bp = (t_Blastpit*)malloc(sizeof(t_Blastpit));
 	if (bp) {
-		bp->ws = websocketNew();
+		bp->ws = (void*)websocketNew();
 	}
 
 	return bp;
@@ -47,7 +47,7 @@ blastpitDelete(t_Blastpit* bp)
 {  // Destructor
 
 	if (bp->ws)
-		websocketDelete(bp->ws);
+		websocketDelete((t_Websocket*)bp->ws);
 	free(bp);
 }
 
@@ -56,10 +56,10 @@ serverCreate(t_Blastpit* self, const char* port)
 {  // Start a listening server
 
 	assert(port != NULL);
-	if (self->ws->isServer)
+	if (((t_Websocket*)self->ws)->isServer)
 		return kAlreadyInUse;  // Already in use
 
-	int result = wsServerCreate(self->ws, port);
+	int result = wsServerCreate((t_Websocket*)self->ws, port);
 	return result;
 }
 
@@ -67,7 +67,7 @@ void
 serverDestroy(t_Blastpit* self)
 {  // Close the WebSocket server and free any resources
 
-	wsServerDestroy(self->ws);
+	wsServerDestroy((t_Websocket*)self->ws);
 }
 
 int
@@ -79,14 +79,14 @@ connectToServer(t_Blastpit* self, const char* server, int timeout_ms)
 	assert(self->ws);
 
 	// Prevent servers connecting to servers
-	if (self->ws->isServer)
+	if (((t_Websocket*)self->ws)->isServer)
 		return kBadLogic;
 
-	wsClientCreate(self->ws, server);
+	wsClientCreate((t_Websocket*)self->ws, server);
 
 	// Wait until connected or timeout
 	// Note: This relies on the server running and polling itself
-	while (!self->ws->isConnected) {
+	while (!((t_Websocket*)self->ws)->isConnected) {
 		pollMessages(self);
 		// TODO: Convert these magic numbers to DEFINES
 		usleep(100000);
@@ -107,7 +107,7 @@ waitForConnection(t_Blastpit* self, int timeout)
 	(void)timeout;
 
 	while (timeout > 0) {
-		if (self->ws->isConnected) {
+		if (((t_Websocket*)self->ws)->isConnected) {
 			fprintf(stderr, "Now connected\n");
 			return 17;
 		}
@@ -129,19 +129,19 @@ void
 pollMessages(t_Blastpit* self)
 {  // Check for and process network activity
 
-	wsPoll(self->ws);
+	wsPoll((t_Websocket*)self->ws);
 }
 
 void
 sendClientMessage(t_Blastpit* self, const char* message)
 {
-	wsClientSendMessage(self->ws, (char*)message);
+	wsClientSendMessage((t_Websocket*)self->ws, (char*)message);
 }
 
 void
 sendServerMessage(t_Blastpit* self, const char* message)
 {
-	wsServerSendMessage(self->ws, (char*)message);
+	wsServerSendMessage((t_Websocket*)self->ws, (char*)message);
 }
 
 int
@@ -158,21 +158,21 @@ void
 registerCallback(t_Blastpit* self, void (*callback)(void*))
 {  // Specify an additional callback upon message receipt
 
-	wsSetMessageReceivedCallback(self->ws, callback);
+	wsSetMessageReceivedCallback((t_Websocket*)self->ws, callback);
 }
 
 void
 registerCallbackCpp(t_Blastpit* self, void (*callback)(void*, void*))
 {  // Specify an additional callback upon message receipt
 
-	wsSetMessageReceivedCallbackCpp(self->ws, callback);
+	wsSetMessageReceivedCallbackCpp((t_Websocket*)self->ws, callback);
 }
 
 void
 registerObject(t_Blastpit* self, void* object)
 {  // Specify an instance to call the callback method
 
-	wsSetMessageReceivedObject(self->ws, object);
+	wsSetMessageReceivedObject((t_Websocket*)self->ws, object);
 }
 
 void
@@ -192,10 +192,10 @@ bp_sendMessage(t_Blastpit* self, int id, const char* message)
 	if (!id_message)
 		return kSetterFailure;
 
-	if (self->ws->isServer) {
+	if (((t_Websocket*)self->ws)->isServer) {
 		sendServerMessage(self, id_message);
 	} else {
-		if (!self->ws->isConnected)
+		if (!((t_Websocket*)self->ws)->isConnected)
 			return kConnectionFailure;
 		sendClientMessage(self, id_message);
 	}
@@ -310,7 +310,7 @@ bp_sendCommandAndWait(t_Blastpit* self, int id, int command, int timeout)
 bool
 bp_isConnected(t_Blastpit* self)
 {
-	return self->ws->isConnected;
+	return ((t_Websocket*)self->ws)->isConnected;
 }
 
 int
@@ -333,21 +333,21 @@ char*
 popMessageAt(t_Blastpit* self, int index)
 {  // Pop a message at a specific index
 
-	return (char*)wsPopMessageAt(self->ws, index);
+	return (char*)wsPopMessageAt((t_Websocket*)self->ws, index);
 }
 
 int
 getMessageCount(t_Blastpit* self)
 {  // Get the count of the message stack
 
-	return wsGetMessageCount(self->ws);
+	return wsGetMessageCount((t_Websocket*)self->ws);
 }
 
 char*
 readMessageAt(t_Blastpit* self, int index)
 {  // Get the message for a specific index without deleting
 
-	return (char*)wsReadMessageAt(self->ws, index);
+	return (char*)wsReadMessageAt((t_Websocket*)self->ws, index);
 }
 
 void

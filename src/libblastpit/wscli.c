@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "blastpit.h"
+#include "mongoose.h"
 
 /* Flag set by ‘--verbose’. */
 static int verbose_flag;

@@ -43,9 +43,10 @@ STASH_NAME="pre-commit-$(date +%F_%T)"
 make format
 
 # Run tests
-make clean
-make -j$(nproc)
-# make -j$(nproc) test
+# make clean debug #test
+echo "DIRECTORY="
+pwd
+make clean release
 TEST_RESULT=$?
 
 if [[ ${TEST_RESULT} -ne 0 ]]

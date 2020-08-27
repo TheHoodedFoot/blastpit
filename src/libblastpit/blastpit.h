@@ -11,6 +11,8 @@ extern "C" {
 #include <stdint.h>
 #endif
 
+#include <stdbool.h>
+
 #define LISTEN_PORT 1030
 
 #define BP_PACKET_CHECKSUM_SIZE 5 * sizeof(uint32_t)
@@ -233,7 +235,7 @@ union psHeader {
 
 /* We need to hide our c class code from the c++ compiler */
 //#ifndef __cplusplus
-#include "websocket.h"
+// #include "websocket.h"
 // #include "xml.hpp"
 
 // extern const void *Blastpit;
@@ -241,7 +243,8 @@ union psHeader {
 // TODO: Convert this to a void pointer so we don't need to include
 // websocket.h in every file that includes blastpit.h
 typedef struct Blastpit {
-	t_Websocket *ws;
+	// t_Websocket *ws;
+	void *ws;
 	int highest_id;	 // Highest id used (for auto generation)
 } t_Blastpit;
 

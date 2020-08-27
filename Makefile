@@ -265,12 +265,18 @@ tabconvert:
 # Documentation and Resource Generation
 %.ico:	%.svg
 	convert -background none -define icon:auto-resize=256,128,64,48,32,16 $^ $@
+
 %.png:	%.svg
-	convert -background none $^ $@
-res/img/logo.png:	res/img/blastpit.svg
-	inkscape -w 256 -h 256 $^ --export-filename $@
+	rsvg-convert --width 256 --height 256 --format png $^ > $@
+	# convert -background none $^ $@
+
+# res/img/logo.png:	res/img/blastpit.svg
+# 	rsvg-convert --width 256 --height 256 --format png $^ > $@
+	# inkscape -w 256 -h 256 $^ --export-filename $@
+
 icons:	res/img/laseractive.ico res/img/noconnection.ico res/img/nolaser.ico
-pngs:	res/img/laseractive.png res/img/noconnection.png res/img/nolaser.png
+
+pngs:	res/img/laseractive.png res/img/noconnection.png res/img/nolaser.png res/img/blastpit.png
 	# convert -background none -define icon:auto-resize=256,128,64,48,32,16 src/img/blastpit.svg src/img/tentacle.ico
 	# convert -background none src/img/blastpit.svg src/img/tentacle.png && convert -background none src/img/blastpit.svg src/img/tripmine.png
 
@@ -322,6 +328,8 @@ qmake $(BUILD_DIR)/win32/Makefile: $(BUILD_DIR)
 		src\\lmos\\lmos.pro
 
 lmos $(BUILD_DIR)/win32/debug/lmosgui.exe $(BUILD_DIR)/win32/release/lmosgui.exe:	$(BUILD_DIR)/win32/Makefile $(BUILD_DIR)/win32/debug/platforms $(BUILD_DIR)/win32/release/platforms
+	echo this needs to detect if we are running under wine
+	/bin/false
 	env WINEPREFIX="$(WINEDIR)" \
 		WINEARCH="win32" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
