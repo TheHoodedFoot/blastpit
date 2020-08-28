@@ -17,7 +17,6 @@ GIT_HOOKS       := ${PROJECT_ROOT}/$(shell git config --get core.hooksPath)
 
 # User defines
 USER_DEFINES  = SPACENAV MG_ENABLE_FILESYSTEM=1
-USER_DEFINES += DEBUG_LEVEL=5
 CPPFLAGS     += $(addprefix -D, $(USER_DEFINES))
 CPPFLAGS     += -pthread
 MAXJOBS      ?= $(shell nproc)
@@ -37,6 +36,7 @@ RANLIB = llvm-ranlib
 debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror
 debug_build:	CPPFLAGS += -Og -g3
+debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
 # debug_build:	CC        = zig c++
 # debug_build:	CXX       = zig c++
 debug_build:	CC        = ccache clang
@@ -98,7 +98,7 @@ TEST_BINARIES = $(patsubst %.c,%_x,$(TEST_SOURCES))
 
 
 
-.PHONY:	all clean debug release debug_build release_build emcc cross cli
+.PHONY:	all clean debug release debug_build release_build emcc cross cli ebuild
 
 # We have to wrap debug_build and release_build below because
 # the secondary call to make would otherwise forget
@@ -119,6 +119,8 @@ debug_build:	targets
 release_build:	targets emcc webapp
 
 test_build:	targets
+
+ebuild:		$(LIBBLASTPIT_TARGETS)
 
 clean:
 	rm -rf $(BUILD_DIR) compile_commands.json .tags{,extra} .clangd
@@ -148,7 +150,7 @@ libblastpit.a: $(LIBBLASTPIT_OBJS)
 blastpy.py:	blastpy_wrap.c
 
 blastpy_wrap.c:	libblastpit.a # This forces rerunning swig on blastpit change
-	swig -o blastpy_wrap.c -outdir $(BUILD_DIR) -python $(PROJECT_ROOT)/src/libblastpit/blastpy.i
+	swig -o blastpy_wrap.c -python $(PROJECT_ROOT)/src/libblastpit/blastpy.i
 
 blastpy_wrap.o:	blastpy_wrap.c
 	$(CC) -fPIC -I$(PROJECT_ROOT)/src/libblastpit -I$(SUBMODULES_DIR)/mongoose -o $@ -c $^ $(PYTHON_INCS)
@@ -271,17 +273,10 @@ $(PROJECT_ROOT)/src/lmos/lmos-tray.ico:	$(PROJECT_ROOT)/res/img/blastpit.svg
 
 %.png:	%.svg
 	rsvg-convert --width 256 --height 256 --format png $^ > $@
-	# convert -background none $^ $@
-
-# res/img/logo.png:	res/img/blastpit.svg
-# 	rsvg-convert --width 256 --height 256 --format png $^ > $@
-	# inkscape -w 256 -h 256 $^ --export-filename $@
 
 images:	pngs $(PROJECT_ROOT)/src/lmos/lmos-tray.ico
 
 pngs:	$(PROJECT_ROOT)/res/img/laseractive.png $(PROJECT_ROOT)/res/img/noconnection.png $(PROJECT_ROOT)/res/img/nolaser.png $(PROJECT_ROOT)/res/img/blastpit.png
-	# convert -background none -define icon:auto-resize=256,128,64,48,32,16 src/img/blastpit.svg src/img/tentacle.ico
-	# convert -background none src/img/blastpit.svg src/img/tentacle.png && convert -background none src/img/blastpit.svg src/img/tripmine.png
 
 tex:
 	/bin/sh -c "cd doc/manual; xelatex -output-directory=$(PROJECT_ROOT)/build blastpit.tex"
