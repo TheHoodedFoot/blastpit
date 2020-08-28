@@ -32,10 +32,14 @@ enum BpReply {
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,
 
+// kInvalidCommand must be kept as the first item (index=0),
+// so that bad strings, which evaluate to 0, will be discovered
 #define FOREACH_BPCOMMAND(COMMAND)   \
+	COMMAND(kInvalidCommand)     \
 	COMMAND(kAddQpSet)           \
 	COMMAND(kCancelJob)          \
 	COMMAND(kClearLayout)        \
+	COMMAND(kClearLog)           \
 	COMMAND(kClearQpSets)        \
 	COMMAND(kConnectSignals)     \
 	COMMAND(kCreateLMOS)         \
@@ -80,7 +84,7 @@ enum BpReply {
 	COMMAND(kSuppressRedraw)     \
 	COMMAND(kTermMachine)        \
 	COMMAND(kWriteByte)          \
-	COMMAND(kWriteIOBit)         \
+	COMMAND(kWriteIoBit)         \
 	COMMAND(kZoomWindow)
 
 #define FOREACH_RETVAL(RETVAL)     \
@@ -89,8 +93,8 @@ enum BpReply {
 	RETVAL(kAlarm)             \
 	RETVAL(kAllocationFailure) \
 	RETVAL(kAlreadyInUse)      \
-	RETVAL(kBadCommand)        \
 	RETVAL(kBadLogic)          \
+	RETVAL(kBadCommand)        \
 	RETVAL(kCommandFailed)     \
 	RETVAL(kConnectionFailure) \
 	RETVAL(kCurrentChanged)    \
@@ -233,15 +237,6 @@ union psHeader {
 	struct BpPacket header;
 };
 
-/* We need to hide our c class code from the c++ compiler */
-//#ifndef __cplusplus
-// #include "websocket.h"
-// #include "xml.hpp"
-
-// extern const void *Blastpit;
-
-// TODO: Convert this to a void pointer so we don't need to include
-// websocket.h in every file that includes blastpit.h
 typedef struct Blastpit {
 	// t_Websocket *ws;
 	void *ws;
@@ -256,19 +251,20 @@ typedef struct bp_message {
 typedef struct {  // Acknowledgement of send plus generated id
 	int id;
 	int retval;
+	char *string;
 } IdAck;
 
 /* Methods */
-char *bp_sendMessageAndWaitForString(t_Blastpit *self, int id, const char *message, int timeout);
-char *bp_waitForString(t_Blastpit *self, int id, int timeout);
-char *bp_waitForXml(t_Blastpit *self, int id, int timeout, int del);
+IdAck bp_sendMessageAndWaitForString(t_Blastpit *self, int id, const char *message, int timeout);
+IdAck bp_waitForString(t_Blastpit *self, int id, int timeout);
+IdAck bp_waitForXml(t_Blastpit *self, int id, int timeout, int del);
 t_Blastpit *blastpitNew();
 bool bp_isConnected(t_Blastpit *self);
 IdAck bp_sendCommandAndWait(t_Blastpit *self, int id, int command, int timeout);
-int bp_sendMessage(t_Blastpit *self, int id, const char *message);
-int bp_sendMessageAndWait(t_Blastpit *self, int id, const char *message, int timeout);
+IdAck bp_sendMessage(t_Blastpit *self, int id, const char *message);
+IdAck bp_sendMessageAndWait(t_Blastpit *self, int id, const char *message, int timeout);
 int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
-int clearQPSets(t_Blastpit *);
+void clearQPSets(t_Blastpit *);
 int connectToServer(t_Blastpit *, const char *server, int timeout_ms);
 int serverCreate(t_Blastpit *self, const char *address);
 void serverDestroy(t_Blastpit *self);
@@ -277,7 +273,7 @@ void disconnectFromServer(t_Blastpit *);
 void registerCallback(t_Blastpit *, void (*)(void *));
 void registerCallbackCpp(t_Blastpit *, void (*)(void *, void *));
 void registerObject(t_Blastpit *, void *);
-int sendCommand(t_Blastpit *self, int id, int command);
+IdAck sendCommand(t_Blastpit *self, int id, int command);
 void pollMessages(t_Blastpit *self);
 void sendClientMessage(t_Blastpit *self, const char *message);
 void sendServerMessage(t_Blastpit *self, const char *message);
@@ -293,6 +289,8 @@ const char *bpRetvalName(int retval);
 void stopLMOS(t_Blastpit *self);
 void startLMOS(t_Blastpit *self);
 int AutoGenerateId(t_Blastpit *self);
+void LayerSetLaserable(t_Blastpit *self, int id, const char *layer, bool laserable);
+void LayerSetHeight(t_Blastpit *self, int id, const char *layer, int height);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

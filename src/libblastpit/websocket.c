@@ -263,7 +263,7 @@ wsServerCreate(t_Websocket *self, const char *port)
 	s_http_server_opts.document_root = "src/submodules/mongoose/examples/websocket_chat";  // Serve current directory
 	s_http_server_opts.enable_directory_listing = "yes";
 
-	return true;
+	return kSuccess;
 }
 
 int

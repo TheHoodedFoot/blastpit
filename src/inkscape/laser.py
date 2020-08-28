@@ -47,8 +47,8 @@ import blastpy
 os.close(sys.stderr.fileno())
 
 # Server timeouts
-SHORT_TIMEOUT=9000
-LONG_TIMEOUT=20000
+SHORT_TIMEOUT=2000
+LONG_TIMEOUT=60000
 
 # Laser constants
 SAGITTA = 0.5  # Focal range
@@ -390,34 +390,35 @@ class Laser(inkex.Effect):
             if result != blastpy.kSuccess:
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
-            id = 4
+            id = 49
+            blastpy.sendCommand(blast, 0, blastpy.kClearLog)
             result = blastpy.bp_sendCommandAndWait( blast, id, blastpy.kClearQpSets, SHORT_TIMEOUT)
-            if result <= 0:
+            if result.retval != blastpy.kSuccess:
                 print("Cannot clear Qpsets (is lmos running?)", file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
                 sys.exit()
             id = id + 1
             qpsets.setCommand(blastpy.kAddQpSet, id)
             result = blastpy.bp_sendMessageAndWait( blast, id, str(qpsets.xml()), SHORT_TIMEOUT)
-            if result <= 0:
+            if result.retval != blastpy.kSuccess:
                 print("Cannot add Qpsets", file=sys.stderr)
                 print("num messages: %d" % blastpy.getMessageCount(blast), file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
                 sys.exit()
             id = id + 1
             xml.setCommand(blastpy.kImportXML, id)
             result = blastpy.bp_sendMessageAndWait( blast, id, str(xml.xml()), LONG_TIMEOUT)
-            if result <= 0:
+            if result.retval != blastpy.kSuccess:
                 print("Can't send the drawing XML", file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
                 sys.exit()
             id = id + 1
             result = blastpy.bp_sendMessageAndWait( blast, id, "<command id=\"" + str(id) +
                 "\" layer=\"RofinStandard\" laserable=\"0\">" +
                 str( blastpy.kLayerSetLaserable) + "</command>", SHORT_TIMEOUT)
-            if result <= 0:
+            if result.retval != blastpy.kSuccess:
                 print("Can't set RofinStandard layer as not laserable", file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result), file=sys.stderr)
+                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
                 sys.exit()
             id = id + 1
             blastpy.bp_sendMessageAndWait(
@@ -441,25 +442,12 @@ class Laser(inkex.Effect):
                     blastpy.kLayerSetHeight) +
                 "</command>",
                 SHORT_TIMEOUT)
-            # bp.layerSetLaserable(995, "RofinStandard", 0)
-            # bp.layerSetHeight(996, "RofinStandard", 120)
-            # bp.layerSetHeight(997, "RofinBackground", 120)
             id = id + 1
             for layer in layers:
-                blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" + str(id) + "\" layer=\"" + str(
-                    layer[0]) + "\" exportable=\"1\">" + str(blastpy.kLayerSetExportable) + "</command>", SHORT_TIMEOUT)
-                id = id + 1
-                blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" +
-                                              str(id) +
-                                              "\" layer=\"" +
-                                              str(layer[0]) +
-                                              "\" height=\"" +
-                                              str(layer[1]) +
-                                              "\">" +
-                                              str(blastpy.kLayerSetHeight) +
-                                              "</command>", SHORT_TIMEOUT)
-                id = id + 1
-            #     bp.layerSetHeight(999, layer[0], layer[1])
+                blastpy.LayerSetHeight(blast, 0, str(layer[0]), int(layer[1]))
+            # blastpy.LayerSetLaserable(blast, 0, "RofinStandard", False)
+            # blastpy.LayerSetHeight(blast, 0, "RofinStandard", 120)
+            # blastpy.LayerSetHeight(blast, 0, "RofinBackground", 120)
             if self.filename is not None and self.customer is not None:
                 # print("saving as customer/filename", file=sys.stderr)
                 blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" +

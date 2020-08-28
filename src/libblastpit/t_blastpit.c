@@ -15,7 +15,7 @@ t_Blastpit *server;
 TEST_SETUP(BlastpitGroup)
 {
 	server = blastpitNew();
-	serverCreate(server, "8123");
+	assert(serverCreate(server, "8123") == kSuccess);
 }
 
 TEST_TEAR_DOWN(BlastpitGroup)
@@ -46,7 +46,7 @@ TEST(BlastpitGroup, simpleServerTest)
 
 	// Sets the t_Websocket address via serverCreate()
 	int result = serverCreate(simpleserver, "8124");
-	TEST_ASSERT_EQUAL(true, result);
+	TEST_ASSERT_EQUAL(kSuccess, result);
 
 	// Create a client
 	t_Blastpit *client = blastpitNew();
@@ -56,8 +56,8 @@ TEST(BlastpitGroup, simpleServerTest)
 	// TEST_ASSERT_EQUAL(false, result);
 
 	// Connect to the server
-	result = connectToServer(client, "ws://localhost:8124", 100);
-	TEST_ASSERT_EQUAL(true, result);
+	// We can't test for timeout because the server is not polling
+	connectToServer(client, "ws://localhost:8124", 0);
 
 	// Wait for handshake
 	for (int i = 0; i < 100; i++) {
@@ -93,8 +93,13 @@ TEST(BlastpitGroup, SendAndWaitTest)
 	t_Blastpit *client = blastpitNew();
 
 	// Connect to the server
-	int result = connectToServer(client, "ws://localhost:8123", 1000);
-	TEST_ASSERT_EQUAL(true, result);
+	connectToServer(client, "ws://127.0.0.1:8123", 0);
+	for (int i = 0; i < 100; i++) {
+		pollMessages(server);
+		pollMessages(client);
+		if (((t_Websocket *)client->ws)->isConnected)
+			break;
+	}
 	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
 
 	// Send a message
@@ -166,12 +171,25 @@ TEST(BlastpitGroup, MessageTest)
 	blastpitDelete(simpleserver);
 }
 
+TEST(BlastpitGroup, AutoGenId)
+{
+	// The first auto-generated id should be 1
+	t_Blastpit *bp = blastpitNew();
+	TEST_ASSERT_EQUAL(1, AutoGenerateId(bp));
+
+	// The generated ids should be one greater than the previous
+	bp->highest_id = 123;
+	TEST_ASSERT_EQUAL(124, AutoGenerateId(bp));
+	TEST_ASSERT_EQUAL(125, AutoGenerateId(bp));
+}
+
 TEST_GROUP_RUNNER(BlastpitGroup)
 { /* Add a line below for each unit test */
 
-	// RUN_TEST_CASE(BlastpitGroup, simpleServerTest);
-	// RUN_TEST_CASE(BlastpitGroup, SendAndWaitTest);
+	RUN_TEST_CASE(BlastpitGroup, simpleServerTest);
+	RUN_TEST_CASE(BlastpitGroup, SendAndWaitTest);
 	RUN_TEST_CASE(BlastpitGroup, MessageTest);
+	RUN_TEST_CASE(BlastpitGroup, AutoGenId);
 }
 
 static void

@@ -21,15 +21,6 @@ bpRetvalName(int retval)
 	return bpRetvalString[retval];
 }
 
-// void
-// debugInfo(t_Blastpit* bp)
-// {
-// 	LOG(kLvlDebug, "messageReceived = %p\n", (void*)bp->ws->messageReceived);
-// 	LOG(kLvlDebug, "messageReceived = %p\n", (void*)bp->ws->messageReceivedCpp);
-
-// 	(void) bp;
-// }
-
 t_Blastpit*
 blastpitNew()
 {  // Constructor
@@ -37,6 +28,7 @@ blastpitNew()
 	t_Blastpit* bp = (t_Blastpit*)malloc(sizeof(t_Blastpit));
 	if (bp) {
 		bp->ws = (void*)websocketNew();
+		bp->highest_id = 0;
 	}
 
 	return bp;
@@ -144,16 +136,6 @@ sendServerMessage(t_Blastpit* self, const char* message)
 	wsServerSendMessage((t_Websocket*)self->ws, (char*)message);
 }
 
-int
-clearQPSets(t_Blastpit* self)
-{
-	(void)self;
-
-	/* t_Mqtt* net = self->ws; */
-
-	return false;
-}
-
 void
 registerCallback(t_Blastpit* self, void (*callback)(void*))
 {  // Specify an additional callback upon message receipt
@@ -183,53 +165,69 @@ UpdateHighestId(t_Blastpit* self, int id)
 		self->highest_id = id;
 }
 
-int
+IdAck
 bp_sendMessage(t_Blastpit* self, int id, const char* message)
 {
+	if (!id)
+		id = AutoGenerateId(self);
+
 	UpdateHighestId(self, id);
 
 	char* id_message = xml_setId(id, message);
-	if (!id_message)
-		return kSetterFailure;
+	if (!id_message) {
+		return (IdAck){kInvalid, kSetterFailure, NULL};
+	}
 
 	if (((t_Websocket*)self->ws)->isServer) {
 		sendServerMessage(self, id_message);
 	} else {
-		if (!((t_Websocket*)self->ws)->isConnected)
-			return kConnectionFailure;
+		if (!((t_Websocket*)self->ws)->isConnected) {
+			return (IdAck){kInvalid, kConnectionFailure, NULL};
+			// return result;
+		}
 		sendClientMessage(self, id_message);
 	}
 
 	free(id_message);
 
-	return kSuccess;
+	return (IdAck){id, kSuccess, NULL};
 }
 
-int
+IdAck
 bp_sendMessageAndWait(t_Blastpit* self, int id, const char* message, int timeout)
 { /* Sends message and waits. Returns xml of reply with matching id */
 
-	int result = bp_sendMessage(self, id, message);
-	if (result != kSuccess) {
+	IdAck result;
+
+	result = bp_sendMessage(self, id, message);
+	if (result.retval != kSuccess) {
 		return result;
 	}
 
-	return bp_waitForXml(self, id, timeout, false) != NULL ? kSuccess : kReplyTimeout;
+	result = bp_waitForXml(self, id, timeout, true);
+	// if (bp_waitForXml(self, id, timeout, false).retval != kSuccess )
+	// {
+	// 	result = (IdAck){id, kSuccess, NULL};
+	// } else {
+	// 	result = (IdAck){id, kReplyTimeout, NULL};
+	// }
+
+	return result;
 }
 
-char*
+IdAck
 bp_sendMessageAndWaitForString(t_Blastpit* self, int id, const char* message, int timeout)
 { /* Sends message and waits. Returns xml of reply with matching id */
 
-	int result = bp_sendMessage(self, id, message);
-	if (result != kSuccess) {
-		return NULL;
+	IdAck result = bp_sendMessage(self, id, message);
+	if (result.retval != kSuccess) {
+		return result;
 	}
 
 	return bp_waitForString(self, id, timeout);
 }
 
-char*
+IdAck
 bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 { /* Return the message data as a string, or NULL */
 
@@ -246,10 +244,12 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 						/* fprintf(stderr,
 						 * "(bp_waitForString) message
 						 * id matched\n"); */
-						if (del)
-							popMessageAt(
-								self, j);
-						return message;
+						if (del) {
+							popMessageAt(self, j);
+						} else {
+							readMessageAt(self, j);
+						}
+						return (IdAck){id, kSuccess, message};
 					}
 				}
 			}
@@ -258,17 +258,25 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 		if (!(i % 10))
 			pollMessages(self);
 	}
-	return NULL;
+	return (IdAck){id, kFailure, NULL};
 }
 
-char*
+IdAck
 bp_waitForString(t_Blastpit* self, int id, int timeout)
 {
-	char* result = xml_getCommandString(bp_waitForXml(self, id, timeout, false));
-	return result ? result : BP_EMPTY_STRING;
+	char* string = xml_getCommandString(bp_waitForXml(self, id, timeout, false).string);
+
+	IdAck result;
+	if (string) {
+		result = (IdAck){id, kSuccess, string};
+	} else {
+		result = (IdAck){id, kFailure, BP_EMPTY_STRING};
+	};
+
+	return result;
 }
 
-int
+IdAck
 sendCommand(t_Blastpit* self, int id, int command)
 {
 	assert(self);
@@ -281,30 +289,31 @@ sendCommand(t_Blastpit* self, int id, int command)
 
 int
 AutoGenerateId(t_Blastpit* self)
-{  // Generates a random id
+{  // Generates an id higher than any previous
 
-	return self->highest_id++;
+	self->highest_id++;
+	return self->highest_id;
 }
 
 IdAck
 bp_sendCommandAndWait(t_Blastpit* self, int id, int command, int timeout)
 {
-	if (!id)
-		id = AutoGenerateId(self);
+	IdAck result;
 
-	if (!sendCommand(self, id, command)) {
+	result = sendCommand(self, id, command);
+	if (result.retval != kSuccess) {
 		LOG(kLvlDebug, "%s: Failed to send command", __func__);
-		IdAck retval = {kInvalid, kCommandFailed};
-		return retval;
+		result = (IdAck){kInvalid, kCommandFailed, NULL};
+		return result;
 	}
-	if (bp_waitForXml(self, id, timeout, false) == NULL) {
+	result = bp_waitForXml(self, id, timeout, false);
+	if (result.retval != kSuccess) {
 		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
-		IdAck retval = {kInvalid, kReplyTimeout};
-		return retval;
+		result = (IdAck){kInvalid, kReplyTimeout, NULL};
+		return result;
 	}
 
-	IdAck retval = {id, kSuccess};
-	return retval;
+	return result;
 }
 
 bool
@@ -317,7 +326,7 @@ int
 bp_waitForSignal(t_Blastpit* self, int signal, int timeout)
 { /* Waits for an Lmos signal */
 
-	int result = xml_getId(bp_waitForXml(self, signal, timeout, true));
+	int result = xml_getId(bp_waitForXml(self, signal, timeout, true).string);
 	return result ? result : false;
 }
 
@@ -362,4 +371,31 @@ stopLMOS(t_Blastpit* self)
 {  // Send a message to LMOS to unload the ActiveX control
 
 	sendCommand(self, 0, kDestroyLMOS);
+}
+
+void
+clearQPSets(t_Blastpit* self)
+{  // Tell Lmos to erase all existing QPsets
+
+	sendCommand(self, 0, kClearQpSets);
+}
+
+void
+LayerSetLaserable(t_Blastpit* self, int id, const char* layer, bool laserable)
+{
+	sds message = sdscatprintf(sdsempty(),
+				   "<command id=\"%d\" layer=\"%s\" laserable=\"%d\">%d</command>",
+				   id, layer, (int)laserable, kLayerSetLaserable);
+	bp_sendMessage(self, id, message);
+	sdsfree(message);
+}
+
+void
+LayerSetHeight(t_Blastpit* self, int id, const char* layer, int height)
+{
+	sds message = sdscatprintf(sdsempty(),
+				   "<command id=\"%d\" layer=\"%s\" height=\"%d\">%d</command>",
+				   id, layer, height, kLayerSetHeight);
+	bp_sendMessage(self, id, message);
+	sdsfree(message);
 }

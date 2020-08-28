@@ -300,7 +300,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			lmos.SaveQPSets();
 			ackReturn(id, kSuccess);
 			break;
-		case kWriteIOBit:
+		case kWriteIoBit:
 			lmos.WriteIOBit(cmd.attribute("bitfunction").value(), QString(cmd.attribute("value").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
@@ -383,6 +383,10 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			break;
 		case kHideLMOS:
 			lmos.HideWindow();
+			ackReturn(id, kSuccess);
+			break;
+		case kClearLog:
+			emit ClearLog();
 			ackReturn(id, kSuccess);
 			break;
 		default:

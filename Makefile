@@ -112,7 +112,7 @@ debug: 		$(BUILD_DIR) .tags
 release:	$(BUILD_DIR)
 		$(MAKE) -j$(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile release_build 
 
-targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES) cli
+targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES) cli images
 
 debug_build:	targets
 
@@ -263,6 +263,9 @@ tabconvert:
 
 
 # Documentation and Resource Generation
+$(PROJECT_ROOT)/src/lmos/lmos-tray.ico:	$(PROJECT_ROOT)/res/img/blastpit.svg
+	convert -background none -define icon:auto-resize=256,128,64,48,32,16 $^ $@
+
 %.ico:	%.svg
 	convert -background none -define icon:auto-resize=256,128,64,48,32,16 $^ $@
 
@@ -274,9 +277,9 @@ tabconvert:
 # 	rsvg-convert --width 256 --height 256 --format png $^ > $@
 	# inkscape -w 256 -h 256 $^ --export-filename $@
 
-icons:	res/img/laseractive.ico res/img/noconnection.ico res/img/nolaser.ico
+images:	pngs $(PROJECT_ROOT)/src/lmos/lmos-tray.ico
 
-pngs:	res/img/laseractive.png res/img/noconnection.png res/img/nolaser.png res/img/blastpit.png
+pngs:	$(PROJECT_ROOT)/res/img/laseractive.png $(PROJECT_ROOT)/res/img/noconnection.png $(PROJECT_ROOT)/res/img/nolaser.png $(PROJECT_ROOT)/res/img/blastpit.png
 	# convert -background none -define icon:auto-resize=256,128,64,48,32,16 src/img/blastpit.svg src/img/tentacle.ico
 	# convert -background none src/img/blastpit.svg src/img/tentacle.png && convert -background none src/img/blastpit.svg src/img/tripmine.png
 
@@ -329,7 +332,6 @@ qmake $(BUILD_DIR)/win32/Makefile: $(BUILD_DIR)
 
 lmos $(BUILD_DIR)/win32/debug/lmosgui.exe $(BUILD_DIR)/win32/release/lmosgui.exe:	$(BUILD_DIR)/win32/Makefile $(BUILD_DIR)/win32/debug/platforms $(BUILD_DIR)/win32/release/platforms
 	echo this needs to detect if we are running under wine
-	/bin/false
 	env WINEPREFIX="$(WINEDIR)" \
 		WINEARCH="win32" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \

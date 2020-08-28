@@ -188,9 +188,7 @@ LmosTray::listen()
 	connect(parser, SIGNAL(sendlog(QString)), this, SLOT(log(QString)));
 	connect(parser, SIGNAL(settray(QString)), this, SLOT(setTrayBalloon(QString)));
 	connect(parser, SIGNAL(seticon(QString)), this, SLOT(setIcon(QString)));
-	// QSettings traySettings("Rfbevanco", "lmos-tray");
-	// QString wsserver = traySettings.value("wsServer").toString();
-	// setTrayBalloon("Server listening (" + wsserver + ")");
+	connect(parser, SIGNAL(ClearLog()), this, SLOT(clearLog()));
 }
 
 void

@@ -1,8 +1,8 @@
 #include "xml.hpp"
 
-#ifdef __cplusplus
+// #ifdef __cplusplus
 #include "pugixml.hpp"
-#endif
+// #endif
 
 #include <cstring>
 #include <iostream>

@@ -21,6 +21,7 @@ class Parser : public QObject {
 	void sendlog(QString);
 	void settray(QString);
 	void seticon(QString);
+	void ClearLog();
 
       public slots:
 	void log(QString);
