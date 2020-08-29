@@ -27,9 +27,11 @@ if not blastpy.bp_isConnected(bp):
     print("Could not connect")
     sys.exit()
 
+# blastpy.startLMOS(bp)
+
 print("Sending clearqpsets command")
 result = blastpy.bp_sendCommandAndWait(bp, 4, blastpy.kClearQpSets, 5000)
-if result <= 0:
+if result.retval != blastpy.kSuccess:
     print("Cannot clear qpsets")
     sys.exit()
 
@@ -42,6 +44,11 @@ for i in range(5):
 
 print(blastpy.popMessage(bp))
 
-blastpy.stopLMOS(bp)
+blastpy.sendCommand(bp, 33, blastpy.kGetPng)
+result = blastpy.bp_waitForString(bp, 33, 5000)
+print(result.retval)
+print(result.string)
+
+# blastpy.stopLMOS(bp)
 
 blastpy.disconnectFromServer(bp)

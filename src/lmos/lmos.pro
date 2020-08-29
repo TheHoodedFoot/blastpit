@@ -29,6 +29,7 @@ INCLUDEPATH += $$PWD/../libblastpit
 INCLUDEPATH += $$PWD/../submodules/pugixml/src
 INCLUDEPATH += $$PWD/../submodules/mongoose
 INCLUDEPATH += $$PWD/../submodules/sds
+INCLUDEPATH += $$PWD/../submodules/mxml
 
 #LIBS += -lwsock32
 
@@ -36,7 +37,18 @@ SOURCES += main.cpp \
 	../libblastpit/blastpit.c \
 	../libblastpit/websocket.c \
 	../libblastpit/xml.cpp \
+	../libblastpit/xml2.c \
 	../submodules/mongoose/mongoose.c \
+	../submodules/mxml/mxml-attr.c \
+	../submodules/mxml/mxml-entity.c \
+	../submodules/mxml/mxml-file.c \
+	../submodules/mxml/mxml-get.c \
+	../submodules/mxml/mxml-index.c \
+	../submodules/mxml/mxml-node.c \
+	../submodules/mxml/mxml-private.c \
+	../submodules/mxml/mxml-search.c \
+	../submodules/mxml/mxml-set.c \
+	../submodules/mxml/mxml-string.c \
 	../submodules/pugixml/src/pugixml.cpp \
 	../submodules/sds/sds.c \
 	lmos-tray.cpp \
@@ -47,8 +59,10 @@ SOURCES += main.cpp \
 HEADERS += \
 	../libblastpit/blastpit.h \
 	../libblastpit/websocket.h \
+	../libblastpit/xml.h \
 	../libblastpit/xml.hpp \
 	../submodules/mongoose/mongoose.h \
+	../submodules/mxml/mxml.h \
 	../submodules/pugixml/src/pugixml.hpp \
 	../submodules/sds/sds.h \
 	lmos-tray.hpp \

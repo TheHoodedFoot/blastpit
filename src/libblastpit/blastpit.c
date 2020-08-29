@@ -265,6 +265,7 @@ IdAck
 bp_waitForString(t_Blastpit* self, int id, int timeout)
 {
 	char* string = xml_getCommandString(bp_waitForXml(self, id, timeout, false).string);
+	LOG(kLvlDebug, "bp_waitForString:\n\n%s\n\n", string);
 
 	IdAck result;
 	if (string) {

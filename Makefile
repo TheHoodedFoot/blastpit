@@ -47,10 +47,16 @@ debug_build:	CXX       = ccache clang++
 
 release_build:	CPPFLAGS += -Ofast
 
+ebuild:		CC = zig cc -target x86_64-linux-gnu
+ebuild:		CXX = zig c++ -target x86_64-linux-gnu
+ebuild:		CPPFLAGS += -march=x86_64
+
 profile: 	CPPFLAGS += -pg --coverage
 
 # Library source and object files
-LIBBLASTPIT_SOURCES := blastpit.c websocket.c
+LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
+LIBMXML_OBJS        := $(patsubst %.c,%.o,$(LIBMXML_SRCS))
+LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml2.c
 LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) xml.o pugixml.o sds.o mongoose.o
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES)) $(SUBMODULES_DIR)/sds/sds.c
 LIBBLASTPIT_TARGETS := libblastpit.a _blastpy.so blastpy.py 
@@ -62,7 +68,7 @@ UNITY_OBJS        = unity.o unity_fixture.o
 UNITY_DEFS        = -DUNITY_OUTPUT_COLOR -DUNITY_FIXTURE_NO_EXTRAS
 
 # Includes
-INCFLAGS = -I. -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR) -I$(SUBMODULES_DIR)/mongoose -I$(SUBMODULES_DIR)/sds
+INCFLAGS = -I. -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR) -I$(LIBBLASTPIT_DIR) -I$(SUBMODULES_DIR)/mongoose -I$(SUBMODULES_DIR)/sds -I$(SUBMODULES_DIR)/mxml
 
 # Python inclues for SWIG
 PYTHON_INCS = $(shell python-config --includes)
@@ -86,7 +92,7 @@ WEBAPP_TARGETS = $(PROJECT).html $(PROJECT).js $(PROJECT).wasm
 DEBUG_COMMAND ?= $(shell head -n1 .debugcmd)
 DEBUG_TARGET  ?= $(shell tail -n1 .debugcmd)
 
-FORMAT_FILES        = src/libblastpit/*.{h,hpp,c,cpp} src/blastmine/*.{h,hpp,cpp} src/lmos/{lmos-tray,lmos,main,parser,traysettings}.{hpp,cpp}
+FORMAT_FILES        = src/libblastpit/*.{h,c,cpp} src/blastmine/*.{h,cpp} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.cpp
 FORMAT_FILES_PYTHON = res/bin/*.py src/libblastpit/*.py src/inkscape/*.py
 FORMAT_FILES_XML    = src/inkscape/*.inx
 FORMAT_FILES_HTML   = doc/reference_manuals/lmos.html
@@ -135,15 +141,15 @@ emcc:
 
 # Libblastpit Recipes
 xml.o:	$(PROJECT_ROOT)/src/libblastpit/xml.cpp
-	$(CXX) $(CPPFLAGS) -I$(INCFLAGS) -I$(SUBMODULES_DIR)/pugixml/src -c -fPIC $^ -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) -I$(SUBMODULES_DIR)/pugixml/src -c -fPIC $^ -o $@
 
 pugixml.o:	$(SUBMODULES_DIR)/pugixml/src/pugixml.cpp
-	$(CXX) $(CPPFLAGS) -I$(INCFLAGS) -c -fPIC $^ -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
 
 sds.o:	$(SUBMODULES_DIR)/sds/sds.c
-	$(CC) $(CPPFLAGS) -I$(INCFLAGS) -c -fPIC $^ -o $@
+	$(CC) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
 
-libblastpit.a: $(LIBBLASTPIT_OBJS)
+libblastpit.a: $(LIBBLASTPIT_OBJS) $(LIBMXML_OBJS)
 	$(AR) -crs $@ $^
 	$(RANLIB) $@
  
@@ -167,17 +173,24 @@ unity.o:	$(UNITY_DIR)/unity.c
 t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(SANFLAGS) $(UNITY_OBJS) $< -L. -o $@ $(LIBS) $(BUILD_DIR)/libblastpit.a
 
-%.o:	%.cpp
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
-
-%.o:	%.c
-	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
-
 %.o:	$(LIBBLASTPIT_DIR)/%.c
 	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
 
 %.o:	$(SUBMODULES_DIR)/mongoose/%.c
 	$(CC) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
+
+%.o:	$(SUBMODULES_DIR)/mxml/%.c
+	$(CC) $(INCFLAGS) -c -fPIC $^ -o $@
+
+# $(LIBMXML_OBJS):
+# 	pushd $(SUBMODULES_DIR)/mxml && ./configure && make -j$(MAXJOBS)
+# 	cp $(SUBMODULES_DIR)/mxml/libmxml.a .
+
+%.o:	%.c
+	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
+
+%.o:	%.cpp
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
 
 
 
@@ -344,7 +357,7 @@ lmostrayrelease:	$(BUILD_DIR)/win32/release/lmosgui.exe tarball
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
 		wine $^
 
-$(BUILD_DIR)/lmosgui/Makefile:	$(BUILD_DIR)/lmosgui/ $(PROJECT_ROOT)/src/lmos/lmos.pro
+$(BUILD_DIR)/lmosgui/Makefile:	$(PROJECT_ROOT)/src/lmos/lmos.pro
 	qmake -o $@ $(PROJECT_ROOT)/src/lmos/lmos.pro
 
 lmoslin:	$(BUILD_DIR)/lmosgui/Makefile
@@ -460,7 +473,7 @@ cross:	$(BUILD_DIR)
 
 # DON'T use 'localhost' under win32. It doesn't resolve correctly (ipv6?)
 
-cli:	$(BUILD_DIR) wscli wscli_win
+cli:	$(BUILD_DIR) wscli #wscli_win
 
 wscli_win: cross
 	CC="zig cc -target i386-windows-gnu" \

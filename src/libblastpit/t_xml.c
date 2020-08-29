@@ -25,7 +25,7 @@ TEST(XmlGroup, AddRemoveIdTest)
 {
 	TEST_ASSERT_EQUAL(kInvalid, xml_getId("Hello, world!"));
 
-	TEST_ASSERT_EQUAL(33, xml_getId("<command id=\"33\"/>"));
+	TEST_ASSERT_EQUAL(33, xml_getId("<?xml?><command id=\"33\"/>"));
 
 	char *messageRemoved = xml_removeId("<command id=\"33\"/>");
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
@@ -85,19 +85,19 @@ TEST(XmlGroup, XmlRetvalTest)
 	// <xml><command id="1">string</command>
 
 	// Tests whether getValuesFromXml() can parse return values
-	const char *xml = "<command id=\"73\">992</Command>";
+	const char *xml = "<?xml?><command id=\"73\">992</command>";
 	XmlReply reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(73, reply.id);
 	TEST_ASSERT_EQUAL(992, reply.retval);
 
 	// Invalid or missing id should return kInvalid
-	xml = "<command>123</Command>";
+	xml = "<?xml?><command>123</command>";
 	reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(kInvalid, reply.id);
 	TEST_ASSERT_EQUAL(123, reply.retval);
 
 	// Invalid retvals should return zero (kFailure)
-	xml = "<command id=\"39\"></Command>";
+	xml = "<?xml?><command id=\"39\"></command>";
 	reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(39, reply.id);
 	TEST_ASSERT_EQUAL(kFailure, reply.retval);

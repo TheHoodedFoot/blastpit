@@ -351,6 +351,7 @@ wsClientSendMessage(t_Websocket *self, char *data)
 	LOG(kLvlDebug, "%s: Sending message to server\n", __func__);
 
 	broadcastClient(self->connection, mg_mk_str(data));
+	wsPoll(self);
 
 	return true;
 }

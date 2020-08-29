@@ -103,7 +103,7 @@ Parser::update()
 		this->wsConnect();
 
 		// This is a static member function of QThread
-		Sleep(1);
+		QThread::sleep(1);
 
 	} else {
 		if (laserStatus < 1) {
@@ -341,7 +341,9 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			/* ackMessage(id, bArray); */
 			// QByteArray => std::string
 			stdString = std::string(bArray.constData(), bArray.length());
-			ackReturn(id, kSuccess);
+
+			// Don't send an ack - the returned image will be the reply
+			// ackReturn(id, kSuccess);
 			bp_sendMessage(blast, id, stdString.c_str());
 			/* #if DEBUG_LEVEL == 3 */
 			/* log(stdString.c_str()); */

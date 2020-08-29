@@ -8,7 +8,9 @@
 Lmos::Lmos(QObject* parent)
 	: QObject(parent)
 {
+#if defined(Q_OS_WIN32)
 	lmos_actx = NULL;
+#endif
 }
 
 Lmos::~Lmos()
@@ -43,6 +45,7 @@ void
 Lmos::ConnectSignals()
 {  // Connect up Qt signals and slots
 
+#if defined(Q_OS_WIN32)
 	if (!lmos_actx)
 		return;
 	connect(lmos_actx, SIGNAL(MessageMap(QString&)), this, SLOT(messagemap(QString&)), Qt::ConnectionType::DirectConnection);
@@ -62,51 +65,41 @@ Lmos::ConnectSignals()
 	connect(lmos_actx, SIGNAL(MOBeginName(QString&)), this, SLOT(mOBeginName(QString&)));
 	connect(lmos_actx, SIGNAL(MOEndName(QString&)), this, SLOT(mOEndName(QString&)));
 	connect(lmos_actx, SIGNAL(ImageEnd2(const double, const ImageResultConstants)), this, SLOT(imageEnd2(double, ImageResultConstants)));
+#endif
 }
 
 void
 Lmos::DisconnectSignals()
 {  // Disconnect Qt signals and slots
 
+#if defined(Q_OS_WIN32)
 	if (!lmos_actx)
 		return;
 
 	disconnect(lmos_actx, 0, 0, 0);
-	// disconnect(lmos_actx, SIGNAL(MessageMap(QString&)), this, SLOT(messagemap(QString&)), Qt::ConnectionType::DirectConnection);
-	// disconnect(lmos_actx, SIGNAL(ALARM(int, const QString, const QString, int)), this, SLOT(alarm(int, QString, QString, int)));
-	// disconnect(lmos_actx, SIGNAL(CurrentChanged(const double)), this, SLOT(currentChanged(double)));
-	// disconnect(lmos_actx, SIGNAL(FrequencyChanged(const int)), this, SLOT(frequencyChanged(int)));
-	// disconnect(lmos_actx, SIGNAL(JobBegin()), this, SLOT(jobBegin()));
-	// disconnect(lmos_actx, SIGNAL(JobEnd()), this, SLOT(jobEnd()));
-	// disconnect(lmos_actx, SIGNAL(PLCEvent(QString&, QString&, QString&)), this, SLOT(plcEvent(QString&, QString&, QString&)));
-	// disconnect(lmos_actx, SIGNAL(exception(const int, const QString, const QString, const QString)), this, SLOT(exception(int, const QString, const QString, const QString)));
-
-	// disconnect(lmos_actx, SIGNAL(signal(const QString&, int, void*)), this, SLOT(emitSig(const QString&)));
-
-	// /* Working */
-	// disconnect(lmos_actx, SIGNAL(ImageEnd()), this, SLOT(imageend()));
-	// disconnect(lmos_actx, SIGNAL(ImageBegin()), this, SLOT(imagebegin()));
-	// disconnect(lmos_actx, SIGNAL(MOBeginName(QString&)), this, SLOT(mOBeginName(QString&)));
-	// disconnect(lmos_actx, SIGNAL(MOEndName(QString&)), this, SLOT(mOEndName(QString&)));
-	// disconnect(lmos_actx, SIGNAL(ImageEnd2(const double, const ImageResultConstants)), this, SLOT(imageEnd2(double, ImageResultConstants)));
+#endif
 }
 
 void
 Lmos::ShowWindow()
 {  // Makes the lmos window visible
 
+#if defined(Q_OS_WIN32)
 	if (!lmos_actx)
 		return;
 	lmos_actx->show();
+#endif
 }
 
 void
 Lmos::HideWindow()
 {  // Hides the lmos window
 
+#if defined(Q_OS_WIN32)
 	if (!lmos_actx)
 		return;
 	lmos_actx->hide();
+#endif
 }
 
 QPixmap

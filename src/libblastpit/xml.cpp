@@ -8,21 +8,21 @@
 #include <iostream>
 #include <sstream>
 
-int
-xml_getId(const char* message)
-{ /* Returns message id, or -1 if nonexistent */
+// int
+// xml_getId(const char* message)
+// { /* Returns message id, or -1 if nonexistent */
 
-	if (!message)
-		return kInvalid;
+// 	if (!message)
+// 		return kInvalid;
 
-	pugi::xml_document xml;
-	xml.load_string(message);
+// 	pugi::xml_document xml;
+// 	xml.load_string(message);
 
-	// Zero is considered an invalid id because atoi() returns 0
-	// for invalid inputs.
-	int id = atoi(xml.child("command").attribute("id").value());
-	return id ? id : kInvalid;
-}
+// 	// Zero is considered an invalid id because atoi() returns 0
+// 	// for invalid inputs.
+// 	int id = atoi(xml.child("command").attribute("id").value());
+// 	return id ? id : kInvalid;
+// }
 
 int
 xml_hasHeader(const char* message)
