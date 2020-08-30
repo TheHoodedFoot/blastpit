@@ -63,6 +63,7 @@ enum BpReply {
 	COMMAND(kMOUnsetLaserable)   \
 	COMMAND(kMoveW)              \
 	COMMAND(kMoveZ)              \
+	COMMAND(kPhoto)              \
 	COMMAND(kReadByte)           \
 	COMMAND(kReadIOBit)          \
 	COMMAND(kReference)          \

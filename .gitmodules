@@ -31,9 +31,9 @@
 ; [submodule "CException"]
 ; 	path = src/submodules/CException
 ; 	url = https://github.com/ThrowTheSwitch/CException
-[submodule "tinyspline"]
-	path = src/submodules/tinyspline
-	url = https://github.com/msteinbeck/tinyspline.git
+; [submodule "tinyspline"]
+; 	path = src/submodules/tinyspline
+; 	url = https://github.com/msteinbeck/tinyspline.git
 [submodule "apriltag"]
 	path = src/submodules/apriltag
 	url = https://github.com/AprilRobotics/apriltag.git

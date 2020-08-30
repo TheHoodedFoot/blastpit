@@ -37,10 +37,10 @@ debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
-# debug_build:	CC        = zig c++
-# debug_build:	CXX       = zig c++
-debug_build:	CC        = ccache clang
-debug_build:	CXX       = ccache clang++
+debug_build:	CC        = zig cc -target x86_64-linux-musl
+debug_build:	CXX       = zig c++ -target x86_64-linux-musl
+# debug_build:	CC        = ccache clang
+# debug_build:	CXX       = ccache clang++
 # Swig does not work correctly with the undefined behaviour sanitizer settings below
 # debug_build: 	CPPFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer -fno-omit-frame-pointer
 # debug_build: 	CPPFLAGS += -fsanitize=address
@@ -469,7 +469,11 @@ qtcreator:
 		WINEPATH="$(WINE_LIBS)" wine $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/QtCreator/bin/qtcreator
 
 cross:	$(BUILD_DIR)
-	CC="zig cc -target i386-windows-gnu" CXX="zig c++ -target i386-windows-gnu -std=c++11" CPPFLAGS="-fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1" LDFLAGS="-lc++" $(MAKE) -C $(BUILD_DIR)/win32/ -f $(PROJECT_ROOT)/Makefile libblastpit.a
+	CC="zig cc -target i386-windows-gnu" \
+	   CXX="zig c++ -target i386-windows-gnu -std=c++11" \
+	   CPPFLAGS="-fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1" \
+	   LDFLAGS="-lc++" \
+	   $(MAKE) -C $(BUILD_DIR)/win32/ -f $(PROJECT_ROOT)/Makefile libblastpit.a
 
 # DON'T use 'localhost' under win32. It doesn't resolve correctly (ipv6?)
 
@@ -486,6 +490,7 @@ wscli.exe:
 	$(CC) \
 		-I ../../src/libblastpit \
 		-I ../../src/submodules/mongoose \
+		-I ~/.wine/32bit/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/include \
 		-L ~/.wine/32bit/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
 		-o wscli.exe \
 		../../src/libblastpit/wscli.c \
@@ -524,6 +529,19 @@ winws:
 vale:	README.md
 	vale $^
 
+ueye:	$(BUILD_DIR)/libblastpit.a
+	zig c++ \
+		-I src/libblastpit \
+		-I src/submodules/mongoose \
+		-I res/redist \
+		-o build/ueye \
+		src/video/ueye_simple.cpp \
+		$^ \
+		-L res/redist \
+		-lueye_api
+	rsync -havP build/ueye user@cluster1:/tmp/ && \
+		ssh cluster1 scp /tmp/ueye user@192.168.1.96:~ && \
+		ssh cluster1 rm /tmp/ueye
 
 # Packaging
 
@@ -537,6 +555,11 @@ tarball:
 		-C $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
 		libstdc++-6.dll libgcc_s_dw2-1.dll
 
+pythoninstall:	build/_blastpy.so build/blastpy.py
+	sudo cp -v $^ $(shell python -c "import sys; print(sys.path[-1])")
+
+pythonuninstall:
+	sudo rm -v $(shell python -c "import sys; print(sys.path[-1])")/{_blastpy.so,blastpy.py}
 
 # Building lmos and cli utilities
 #

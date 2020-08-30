@@ -15,7 +15,7 @@ t_Blastpit *server;
 TEST_SETUP(BlastpitGroup)
 {
 	server = blastpitNew();
-	assert(serverCreate(server, "8123") == kSuccess);
+	assert(serverCreate(server, "8223") == kSuccess);
 }
 
 TEST_TEAR_DOWN(BlastpitGroup)
@@ -93,7 +93,7 @@ TEST(BlastpitGroup, SendAndWaitTest)
 	t_Blastpit *client = blastpitNew();
 
 	// Connect to the server
-	connectToServer(client, "ws://127.0.0.1:8123", 0);
+	connectToServer(client, "ws://127.0.0.1:8223", 0);
 	for (int i = 0; i < 100; i++) {
 		pollMessages(server);
 		pollMessages(client);
