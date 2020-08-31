@@ -11,7 +11,6 @@
 *.faq
 *.fdb_latexmk
 *.fls
-*.ico
 *.idb
 *.idx
 *.ilg
@@ -28,7 +27,6 @@
 *.out
 *.pch
 *.pdb
-*.png
 *.ptc
 *.pyc
 *.res
