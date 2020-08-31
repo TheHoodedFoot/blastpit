@@ -605,30 +605,37 @@ Lmos::Test()
 
 #if defined(Q_OS_WIN32)
 
-	// List signals
-	QMetaObject metaObject = lmos_actx->staticMetaObject;
-	for (int i = 0; i < metaObject.methodCount(); i++) {
-		QMetaMethod method = metaObject.method(i);
-		if (method.methodType() == QMetaMethod::Signal) {
-			log(kLvlDebug, __func__, "Signal: " + method.methodSignature());
-		}
-		if (method.methodType() == QMetaMethod::Method) {
-			log(kLvlDebug, __func__, "Method: " + method.methodSignature());
-		}
-	}
+	// // List signals
+	// QMetaObject metaObject = lmos_actx->staticMetaObject;
+	// for (int i = 0; i < metaObject.methodCount(); i++) {
+	// 	QMetaMethod method = metaObject.method(i);
+	// 	if (method.methodType() == QMetaMethod::Signal) {
+	// 		log(kLvlDebug, __func__, "Signal: " + method.methodSignature());
+	// 	}
+	// 	if (method.methodType() == QMetaMethod::Method) {
+	// 		log(kLvlDebug, __func__, "Method: " + method.methodSignature());
+	// 	}
+	// }
 
-	QVariant moNames = lmos_actx->GetMONames();
-	QStringList moNamesList = moNames.toStringList();
-	QString moName;
-	for (int i = 0; i < moNamesList.count(); i++) {
-		log(kLvlDebug, __func__, "Moname: " + moNamesList[i]);
-	}
+	// QVariant moNames = lmos_actx->GetMONames();
+	// QStringList moNamesList = moNames.toStringList();
+	// QString moName;
+	// for (int i = 0; i < moNamesList.count(); i++) {
+	// 	log(kLvlDebug, __func__, "Moname: " + moNamesList[i]);
+	// }
 
-	QVariant bf = "Light";
-	QVariant result;
-	bool light = lmos_actx->ReadIOBit(bf, result);
-	int res = lmos_actx->WriteIOBit(bf, !light);
-	emit retval(__func__, res);
+	QVariant bf = (QString) "Light";
+	QVariant val = (bool)true;
+
+	// QVariant result;
+	// bool light = lmos_actx->ReadIOBit(bf, result);
+	// emit retval(__func__, light);
+
+	// int res = lmos_actx->WriteIOBit(bf, 1);
+	lmos_actx->dynamicCall("WriteIOBit(const QVariant&,const QVariant&)", bf, true);
+	lmos_actx->dynamicCall("WriteIOBit(QVariant&,QVariant&)", bf, val);
+	lmos_actx->dynamicCall("WriteIOBit(QVariant,QVariant)", bf, val);
+	// emit retval(__func__, res);
 #else
 	log(kLvlDebug, __func__, "Running linux Lmos::Test()");
 	currentChanged(0);

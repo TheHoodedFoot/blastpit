@@ -1,7 +1,24 @@
-Today
-	Build Win32 libblastpit under Linux
-		Preferably without requiring wine
-		QProcess / Win32 stdin/stdout parser
+	Quick Thoughts
+		Features
+			Fast setup
+			Easy jogging
+
+		In order for the Steam controller to be useful, we must have the ability to control the positioning laser 
+
+		Laser a plate with Apriltags and digitise using the camera (at extremes 0mm and 120mm)
+		Draw the same Apriltags using the positioning laser and digitise that
+		Calculate the difference
+
+		Open Inkscape Drawing
+			Select group
+				Generate bounding rectangle
+				Upload to laser
+				Start positioning help
+				Listen for Steam controller
+				Manipulate object until exit
+				Return new coordinates and rotation to Inkscape
+
+
 
 Battle Plan (Read every time)
 	Tools (test after every system/neovim update)
