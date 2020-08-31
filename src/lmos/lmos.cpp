@@ -537,7 +537,9 @@ Lmos::WriteIOBit(const QString& bitfunction, const bool value)
 	emit log(kLvlDebug, __func__, "bitfunction: " + bitfunction);
 	emit log(kLvlDebug, __func__, "value: " + QString::number(value));
 #if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->WriteIOBit(bitfunction, value));
+	QVariant bf = "OpenDoor";
+	emit retval(__func__, lmos_actx->WriteIOBit(bf, value));
+	// emit retval(__func__, lmos_actx->WriteIOBit(bitfunction, value));
 #endif
 }
 
@@ -621,6 +623,12 @@ Lmos::Test()
 	for (int i = 0; i < moNamesList.count(); i++) {
 		log(kLvlDebug, __func__, "Moname: " + moNamesList[i]);
 	}
+
+	QVariant bf = "Light";
+	QVariant result;
+	bool light = lmos_actx->ReadIOBit(bf, result);
+	int res = lmos_actx->WriteIOBit(bf, !light);
+	emit retval(__func__, res);
 #else
 	log(kLvlDebug, __func__, "Running linux Lmos::Test()");
 	currentChanged(0);

@@ -28,13 +28,6 @@
 //                                                                           //
 //===========================================================================//
 
-
-/// Developer Note: I tried to keep it as simple as possible.
-/// Therefore there are no functions asking for the newest driver software or freeing memory beforehand, etc.
-///	The sole purpose of this program is to show one of the simplest ways to interact with an IDS camera via the uEye API.
-/// (XS/XC Cameras are not supported)
-/// This program was tested in Qt5 on Ubuntu 16.04 and with the IDS Software Suite 4.90
-
 #include <ueye.h>
 #include <iostream>
 
@@ -113,6 +106,17 @@ messageReceivedCallback(void *ev_data)
 
 	// If message = kPhoto get photo and send
 	(void)wm;
+	snapshot();
+
+	// Convert to PNG
+
+	// Encode to base64
+	char *encoded_image = b64_encode((const unsigned char *)pcImageMemory, (size_t)1280 * 1024 * 3);
+
+	// Send as XML
+
+	// Cleanup
+	free(encoded_image);
 }
 
 void
@@ -170,24 +174,22 @@ main()
 		UINT nMin = nRange[0];
 		UINT nMax = nRange[1];
 		UINT nInc = nRange[2];
-		cout << "Pixel clock range: " << nMin << nMax << nInc << endl;
+		cout << "Pixel clock min: " << nMin << endl;
+		cout << "Pixel clock max: " << nMax << endl;
 	}
 
 	UINT nPixelClockDefault;
-	// Get default pixel clock
-
 	nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_GET_DEFAULT,
 			     (void *)&nPixelClockDefault, sizeof(nPixelClockDefault));
 
 	if (nRet == IS_SUCCESS) {
 		// Set this pixel clock
 		cout << "Setting pixel clock" << endl;
-		nPixelClockDefault = 7;
+		nPixelClock = 35;
 		nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_SET,
-				     (void *)&nPixelClockDefault, sizeof(nPixelClockDefault));
+				     (void *)&nPixelClock, sizeof(nPixelClock));
 		if (nRet != IS_SUCCESS)
 			cout << "Setting clock failed with retval: " << nRet;
-
 	} else {
 		cout << "Error getting pixel clock data" << endl;
 	}
@@ -204,31 +206,16 @@ main()
 
 	// Need to find out the memory size of the pixel and the colour mode
 	int nColorMode;
-	int nBitsPerPixel = 32;
+	int nBitsPerPixel = 24;
 
-	if (sInfo.nColorMode == IS_COLORMODE_BAYER) {
-		// For color camera models use RGB24 mode
-		nColorMode = IS_CM_BGR8_PACKED;
-		nBitsPerPixel = 24;
-		cout << "IS_COLORMODE_BAYER" << endl;
-	} else if (sInfo.nColorMode == IS_COLORMODE_CBYCRY) {
-		// For CBYCRY camera models use RGB32 mode
-		nColorMode = IS_CM_BGRA8_PACKED;
-		nBitsPerPixel = 32;
-		cout << "IS_COLORMODE_CBYCRY" << endl;
-	} else {
-		// For monochrome camera models use Y8 mode
-		nColorMode = IS_CM_MONO8;
-		nBitsPerPixel = 24;
-		cout << "IS_CM_MONO8" << endl;
-	}
+	nColorMode = IS_CM_BGR8_PACKED;
 
 	IS_RECT rectAOI;
 
-	rectAOI.s32X = 320;
-	rectAOI.s32Y = 256;
-	rectAOI.s32Height = 512;
-	rectAOI.s32Width = 640;
+	rectAOI.s32X = 0;
+	rectAOI.s32Y = 0;
+	rectAOI.s32Height = 1024;
+	rectAOI.s32Width = 480;
 
 	nRet = is_AOI(hCam, IS_AOI_IMAGE_SET_AOI, (void *)&rectAOI, sizeof(rectAOI));
 
@@ -242,11 +229,10 @@ main()
 	is_SetImageMem(hCam, pcImageMemory, nMemoryId);
 
 	// Event loop
-	// while (true) {
-	// 	pollMessages(client);
-	// 	usleep(100000);
-	// }
-	snapshot();
+	while (true) {
+		pollMessages(client);
+		usleep(100000);
+	}
 
 	// Releases an image memory that was allocated
 	is_FreeImageMem(hCam, pcImageMemory, nMemoryId);
