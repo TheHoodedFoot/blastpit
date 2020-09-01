@@ -26,10 +26,9 @@ typedef struct {  // WebSocket struct
 	bool evloopIsRunning;
 	bool isServer;
 	bool isConnected;
-	void (*messageReceived)(void *);	     // Callback
-	void (*messageReceivedCpp)(void *, void *);  // Callback
-	void *object;				     // Reference to the c++ Parser:: instance
-	t_Node *messageStack;			     // Linked list of received messages
+	void (*messageReceived)(void *, void *);  // Callback
+	void *object;				  // Reference to the c++ Parser:: instance
+	t_Node *messageStack;			  // Linked list of received messages
 } t_Websocket;
 
 // Constructor and destructor
@@ -37,8 +36,7 @@ t_Websocket *websocketNew();
 void websocketDelete(t_Websocket *ws);
 
 // Common functions
-void wsSetMessageReceivedCallback(t_Websocket *self, void (*callback)(void *));
-void wsSetMessageReceivedCallbackCpp(t_Websocket *self, void (*callback)(void *, void *));
+void wsSetMessageReceivedCallback(t_Websocket *self, void (*callback)(void *, void *));
 void wsSetMessageReceivedObject(t_Websocket *self, void *object);
 void wsPushMessage(t_Websocket *self, void *data);
 void *wsPopMessage(t_Websocket *self);

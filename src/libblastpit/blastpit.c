@@ -137,17 +137,10 @@ sendServerMessage(t_Blastpit* self, const char* message)
 }
 
 void
-registerCallback(t_Blastpit* self, void (*callback)(void*))
+registerCallback(t_Blastpit* self, void (*callback)(void*, void*))
 {  // Specify an additional callback upon message receipt
 
 	wsSetMessageReceivedCallback((t_Websocket*)self->ws, callback);
-}
-
-void
-registerCallbackCpp(t_Blastpit* self, void (*callback)(void*, void*))
-{  // Specify an additional callback upon message receipt
-
-	wsSetMessageReceivedCallbackCpp((t_Websocket*)self->ws, callback);
 }
 
 void

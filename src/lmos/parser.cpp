@@ -304,13 +304,14 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			lmos.WriteIOBit(cmd.attribute("bitfunction").value(), QString(cmd.attribute("value").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
-		/* case kReadByte: */
-		/* 	lmos.ReadByte(getXmlInt(xml, "port"), */
-		/* 		      getXmlInt(xml, "mask")); */
-		/* 	break; */
-		/* case kReadIOBit: */
-		/* 	lmos.ReadIOBit(getXml(xml, "bitfunction")); */
-		/* 	break; */
+		case kReadByte:
+			lmos.ReadByte(getXmlInt(xml, "port"),
+				      getXmlInt(xml, "mask"));
+			break;
+		case kReadIOBit:
+			* /
+				lmos.ReadIOBit(getXml(xml, "bitfunction"));
+			break;
 		case kSaveVLM:
 			if (lmos.SaveVLM(cmd.attribute("filename").value())) {
 				emit settray(

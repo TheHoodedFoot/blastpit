@@ -4,14 +4,14 @@ from time import sleep
 import sys
 import os.path
 if not os.path.isfile(os.path.expanduser("~")
-                      + "/projects/blastpit/build/_blastpy.so"):
+                      + "/projects/blastpit/worktree/develop/build/_blastpy.so"):
     print("The blastpit library is not available.")
     exit(1)
 sys.path.append(os.path.expanduser("~")
-                + "/projects/blastpit/build")
+                + "/projects/blastpit/worktree/develop/build")
 import blastpy
 
-SERVER = "ws://localhost:8000"
+SERVER = "ws://192.168.1.40:8000"
 
 #print(dir(blastpy))
 
@@ -35,6 +35,7 @@ if result.retval != blastpy.kSuccess:
     print("Cannot run selftest")
     sys.exit()
 
+print("Turning on light")
 # for i in range(5):
 #     blastpy.pollMessages(bp)
 #     print("Message count: %d" % blastpy.getMessageCount(bp))

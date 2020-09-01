@@ -37,8 +37,8 @@ debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
-debug_build:	CC        = zig cc -target x86_64-linux-musl
-debug_build:	CXX       = zig c++ -target x86_64-linux-musl
+debug_build:	CC        = zig cc
+debug_build:	CXX       = zig c++
 # debug_build:	CC        = ccache clang
 # debug_build:	CXX       = ccache clang++
 # Swig does not work correctly with the undefined behaviour sanitizer settings below
@@ -539,21 +539,22 @@ ueye:	$(BUILD_DIR)/libblastpit.a
 		$^ \
 		-L res/redist \
 		-lueye_api
-	rsync -havP build/ueye user@cluster1:/tmp/ && \
-		ssh cluster1 scp /tmp/ueye user@192.168.1.96:~ && \
-		ssh cluster1 rm /tmp/ueye
+	# rsync -havP build/ueye user@cluster1:/tmp/ && \
+	# 	ssh cluster1 scp /tmp/ueye user@192.168.1.96:~ && \
+	# 	ssh cluster1 rm /tmp/ueye
 
 # Packaging
 
 tarball:
-	tar cvJf /tmp/lmos.tar.xz \
-		-C build/win32/release \
+	cd build/win32/release && \
+		zip -r /tmp/lmos.zip \
 		--exclude=\*.o \
 		--exclude=\*.h \
 		--exclude=\*.cpp \
-		Qt5Core.dll Qt5Gui.dll Qt5Widgets.dll lmosgui.exe platforms \
-		-C $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib \
-		libstdc++-6.dll libgcc_s_dw2-1.dll
+		Qt5Core.dll Qt5Gui.dll Qt5Widgets.dll lmosgui.exe platforms && \
+		cd $(WINE_PREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib && \
+		zip /tmp/lmos.zip \
+		libstdc++-6.dll libgcc_s_dw2-1.dll libwinpthread-1.dll
 
 pythoninstall:	build/_blastpy.so build/blastpy.py
 	sudo cp -v $^ $(shell python -c "import sys; print(sys.path[-1])")

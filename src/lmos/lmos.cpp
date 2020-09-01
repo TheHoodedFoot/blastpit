@@ -537,7 +537,8 @@ Lmos::WriteIOBit(const QString& bitfunction, const bool value)
 	emit log(kLvlDebug, __func__, "bitfunction: " + bitfunction);
 	emit log(kLvlDebug, __func__, "value: " + QString::number(value));
 #if defined(Q_OS_WIN32)
-	QVariant bf = "OpenDoor";
+	QVariant bf = bitfunction;
+	QVariant val = value;
 	emit retval(__func__, lmos_actx->WriteIOBit(bf, value));
 	// emit retval(__func__, lmos_actx->WriteIOBit(bitfunction, value));
 #endif
@@ -631,11 +632,11 @@ Lmos::Test()
 	// bool light = lmos_actx->ReadIOBit(bf, result);
 	// emit retval(__func__, light);
 
-	// int res = lmos_actx->WriteIOBit(bf, 1);
-	lmos_actx->dynamicCall("WriteIOBit(const QVariant&,const QVariant&)", bf, true);
-	lmos_actx->dynamicCall("WriteIOBit(QVariant&,QVariant&)", bf, val);
-	lmos_actx->dynamicCall("WriteIOBit(QVariant,QVariant)", bf, val);
-	// emit retval(__func__, res);
+	int res = lmos_actx->WriteIOBit(bf, val);
+	// lmos_actx->dynamicCall("WriteIOBit(const QVariant&,const QVariant&)", bf, true);
+	// lmos_actx->dynamicCall("WriteIOBit(QVariant&,QVariant&)", bf, val);
+	// lmos_actx->dynamicCall("WriteIOBit(QVariant,QVariant)", bf, val);
+	emit retval(__func__, res);
 #else
 	log(kLvlDebug, __func__, "Running linux Lmos::Test()");
 	currentChanged(0);

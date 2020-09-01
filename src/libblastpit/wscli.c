@@ -12,8 +12,10 @@ static int verbose_flag;
 int callbackCount = 0;
 
 void
-messageReceivedCallback(void *ev_data)
+messageReceivedCallback(void *ev_data, void *object)
 {
+	(void)object;
+
 	if (verbose_flag) {
 		struct websocket_message *wm = (struct websocket_message *)ev_data;
 		// This string may not be null terminated, so we supply a max length.

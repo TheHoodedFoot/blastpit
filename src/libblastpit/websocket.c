@@ -18,27 +18,13 @@ websocketNew()
 {  // Constructor
 
 	t_Websocket *ws = (t_Websocket *)calloc(1, sizeof(t_Websocket));
-	// ws->isServer = false;
-	// ws->isConnected = false;
-	// ws->evloopIsRunning = false;
-	// ws->messageReceived = NULL;
-	// ws->messageReceivedCpp = NULL;
-	// ws->messageStack = NULL;
-	// ws->mongoose.user_data = NULL;
-
 	return ws;
 }
 
 void
-wsSetMessageReceivedCallback(t_Websocket *self, void (*callback)(void *))
+wsSetMessageReceivedCallback(t_Websocket *self, void (*callback)(void *, void *))
 {
 	self->messageReceived = callback;
-}
-
-void
-wsSetMessageReceivedCallbackCpp(t_Websocket *self, void (*callback)(void *, void *))
-{
-	self->messageReceivedCpp = callback;
 }
 
 void
@@ -112,7 +98,7 @@ server_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 
 			// Call our message handler callback
 			if (((t_Websocket *)nc->user_data)->messageReceived) {
-				((t_Websocket *)nc->user_data)->messageReceived(ev_data);
+				((t_Websocket *)nc->user_data)->messageReceived(ev_data, NULL);
 			}
 
 			/* New websocket message. Tell everybody. */
@@ -191,7 +177,7 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 			break;
 		}
 		case MG_EV_POLL: {
-			LOG(kLvlDebug, "%s: MG_EV_POLL\n", __func__);
+			LOG(kLvlEverything, "%s: MG_EV_POLL\n", __func__);
 			// mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, client_message, client_message_len);
 			break;
 		}
@@ -201,9 +187,9 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 
 			// Call our message handler callback
 			t_Websocket *ws = (t_Websocket *)nc->user_data;
-			if (ws->messageReceivedCpp) {
+			if (ws->messageReceived) {
 				LOG(kLvlDebug, "%s: Calling messageReceivedCpp callback\n", __func__);
-				ws->messageReceivedCpp(ev_data, ws->object);
+				ws->messageReceived(ev_data, ws->object);
 			} else {
 				LOG(kLvlError, "%s: Client WEBSOCKET_FRAME callback is unset.\n", __func__);
 			}
@@ -232,7 +218,7 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 			break;
 		}
 		case MG_EV_WEBSOCKET_CONTROL_FRAME: {
-			LOG(kLvlDebug, "%s: MG_EV_WEBSOCKET_CONTROL_FRAME\n", __func__);
+			LOG(kLvlEverything, "%s: MG_EV_WEBSOCKET_CONTROL_FRAME\n", __func__);
 			break;
 		}
 		default:

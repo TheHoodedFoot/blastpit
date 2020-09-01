@@ -44,6 +44,8 @@ int nMemoryId;
 char *pcImageMemory;
 int DisplayWidth, DisplayHeight;
 
+int should_exit = false;
+
 // Base 64 Encoding (https://nachtimwald.com/2017/11/18/base64-encode-and-decode-in-c/)
 size_t
 b64_encoded_size(size_t inlen)
@@ -100,26 +102,6 @@ b64_encode(const unsigned char *in, size_t len)
 }
 
 void
-messageReceivedCallback(void *ev_data)
-{
-	struct websocket_message *wm = (struct websocket_message *)ev_data;
-
-	// If message = kPhoto get photo and send
-	(void)wm;
-	snapshot();
-
-	// Convert to PNG
-
-	// Encode to base64
-	char *encoded_image = b64_encode((const unsigned char *)pcImageMemory, (size_t)1280 * 1024 * 3);
-
-	// Send as XML
-
-	// Cleanup
-	free(encoded_image);
-}
-
-void
 snapshot()
 {
 	// Acquires a single image from the camera
@@ -136,7 +118,7 @@ snapshot()
 
 	// Parameter definition for saving the image file
 	IMAGE_FILE_PARAMS ImageFileParams;
-	ImageFileParams.pwchFileName = L"./ueye.png";  /// <-- Insert name and location of the image
+	ImageFileParams.pwchFileName = L"/tmp/ueye_capture.png";  /// <-- Insert name and location of the image
 	ImageFileParams.pnImageID = NULL;
 	ImageFileParams.ppcImageMem = NULL;
 	ImageFileParams.nQuality = 100;
@@ -145,9 +127,34 @@ snapshot()
 	// Saves the image file
 	if (is_ImageFile(hCam, IS_IMAGE_FILE_CMD_SAVE, (void *)&ImageFileParams, sizeof(ImageFileParams)) == IS_SUCCESS) {
 		cout << "An Image was saved" << endl;
+		// should_exit = true;
 	} else {
 		cout << "something went wrong" << endl;
 	}
+}
+
+void
+messageReceivedCallback(void *ev_data, void *object)
+{
+	(void)object;
+
+	struct websocket_message *wm = (struct websocket_message *)ev_data;
+
+	// If message = kPhoto get photo and send
+	(void)wm;
+	(void)ev_data;
+	cout << "ueye_simple: messageReceivedCallback called" << endl;
+	snapshot();
+
+	// Convert to PNG
+
+	// Encode to base64
+	char *encoded_image = b64_encode((const unsigned char *)pcImageMemory, (size_t)1280 * 1024 * 3);
+
+	// Send as XML
+
+	// Cleanup
+	free(encoded_image);
 }
 
 int
@@ -185,7 +192,7 @@ main()
 	if (nRet == IS_SUCCESS) {
 		// Set this pixel clock
 		cout << "Setting pixel clock" << endl;
-		nPixelClock = 35;
+		UINT nPixelClock = 7;
 		nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_SET,
 				     (void *)&nPixelClock, sizeof(nPixelClock));
 		if (nRet != IS_SUCCESS)
@@ -212,10 +219,10 @@ main()
 
 	IS_RECT rectAOI;
 
-	rectAOI.s32X = 0;
-	rectAOI.s32Y = 0;
-	rectAOI.s32Height = 1024;
-	rectAOI.s32Width = 480;
+	rectAOI.s32X = 500;
+	rectAOI.s32Y = 400;
+	rectAOI.s32Width = 320;
+	rectAOI.s32Height = 240;
 
 	nRet = is_AOI(hCam, IS_AOI_IMAGE_SET_AOI, (void *)&rectAOI, sizeof(rectAOI));
 
@@ -229,7 +236,7 @@ main()
 	is_SetImageMem(hCam, pcImageMemory, nMemoryId);
 
 	// Event loop
-	while (true) {
+	while (!should_exit) {
 		pollMessages(client);
 		usleep(100000);
 	}
