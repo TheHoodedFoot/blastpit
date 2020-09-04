@@ -37,10 +37,10 @@ debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
-debug_build:	CC        = zig cc
-debug_build:	CXX       = zig c++
-# debug_build:	CC        = ccache clang
-# debug_build:	CXX       = ccache clang++
+# debug_build:	CC        = zig cc # Doesn't work with bear
+# debug_build:	CXX       = zig c++
+debug_build:	CC        = ccache clang
+debug_build:	CXX       = ccache clang++
 # Swig does not work correctly with the undefined behaviour sanitizer settings below
 # debug_build: 	CPPFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer -fno-omit-frame-pointer
 # debug_build: 	CPPFLAGS += -fsanitize=address

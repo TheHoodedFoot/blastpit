@@ -183,9 +183,25 @@ TEST(BlastpitGroup, AutoGenId)
 	TEST_ASSERT_EQUAL(125, AutoGenerateId(bp));
 }
 
+TEST(BlastpitGroup, SendCommand)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	t_Blastpit *bp = blastpitNew();
+	IdAck result = SendCommand(bp, kSelfTest);
+	TEST_ASSERT_EQUAL(kConnectionFailure, result.retval);
+	TEST_ASSERT_EQUAL(1, result.id);
+
+	blastpitDelete(bp);
+}
+
 TEST_GROUP_RUNNER(BlastpitGroup)
 { /* Add a line below for each unit test */
 
+	RUN_TEST_CASE(BlastpitGroup, SendCommand);
 	RUN_TEST_CASE(BlastpitGroup, simpleServerTest);
 	RUN_TEST_CASE(BlastpitGroup, SendAndWaitTest);
 	RUN_TEST_CASE(BlastpitGroup, MessageTest);

@@ -114,6 +114,7 @@ enum BpReply {
 	RETVAL(kPlcEvent)          \
 	RETVAL(kReplyTimeout)      \
 	RETVAL(kSetterFailure)     \
+	RETVAL(kBadVariadicParam)  \
 	RETVAL(kInvalid = -1)
 
 #define FOREACH_DEBUGLEVEL(LEVEL) \
@@ -256,14 +257,14 @@ typedef struct {  // Acknowledgement of send plus generated id
 } IdAck;
 
 /* Methods */
-IdAck bp_sendMessageAndWaitForString(t_Blastpit *self, int id, const char *message, int timeout);
+IdAck bp_sendMessageAndWaitForString(t_Blastpit *self, const char *message, int timeout);
 IdAck bp_waitForString(t_Blastpit *self, int id, int timeout);
 IdAck bp_waitForXml(t_Blastpit *self, int id, int timeout, int del);
 t_Blastpit *blastpitNew();
 bool bp_isConnected(t_Blastpit *self);
-IdAck bp_sendCommandAndWait(t_Blastpit *self, int id, int command, int timeout);
-IdAck bp_sendMessage(t_Blastpit *self, int id, const char *message);
-IdAck bp_sendMessageAndWait(t_Blastpit *self, int id, const char *message, int timeout);
+IdAck bp_sendCommandAndWait(t_Blastpit *self, int command, int timeout);
+IdAck bp_sendMessage(t_Blastpit *self, const char *message);
+IdAck bp_sendMessageAndWait(t_Blastpit *self, const char *message, int timeout);
 int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
 void clearQPSets(t_Blastpit *);
 int connectToServer(t_Blastpit *, const char *server, int timeout_ms);
@@ -273,7 +274,9 @@ void blastpitDelete(t_Blastpit *);
 void disconnectFromServer(t_Blastpit *);
 void registerCallback(t_Blastpit *, void (*)(void *, void *));
 void registerObject(t_Blastpit *, void *);
-IdAck sendCommand(t_Blastpit *self, int id, int command);
+
+IdAck sendCommand(t_Blastpit *self, int command);
+
 void pollMessages(t_Blastpit *self);
 void sendClientMessage(t_Blastpit *self, const char *message);
 void sendServerMessage(t_Blastpit *self, const char *message);
@@ -289,8 +292,10 @@ const char *bpRetvalName(int retval);
 void stopLMOS(t_Blastpit *self);
 void startLMOS(t_Blastpit *self);
 int AutoGenerateId(t_Blastpit *self);
-void LayerSetLaserable(t_Blastpit *self, int id, const char *layer, bool laserable);
-void LayerSetHeight(t_Blastpit *self, int id, const char *layer, int height);
+void LayerSetLaserable(t_Blastpit *self, const char *layer, bool laserable);
+void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
+IdAck SendMessage(t_Blastpit *self, ...);
+IdAck SendCommand(t_Blastpit *self, int command);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 
