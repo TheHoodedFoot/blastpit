@@ -632,11 +632,15 @@ Lmos::Test()
 	// bool light = lmos_actx->ReadIOBit(bf, result);
 	// emit retval(__func__, light);
 
-	int res = lmos_actx->WriteIOBit(bf, val);
+	// Disable under wine
+	// int res = lmos_actx->WriteIOBit(bf, val);
+	// emit retval(__func__, res);
+	sendIdEvent("Testing!", kImageEnd2);
+
 	// lmos_actx->dynamicCall("WriteIOBit(const QVariant&,const QVariant&)", bf, true);
 	// lmos_actx->dynamicCall("WriteIOBit(QVariant&,QVariant&)", bf, val);
 	// lmos_actx->dynamicCall("WriteIOBit(QVariant,QVariant)", bf, val);
-	emit retval(__func__, res);
+
 #else
 	log(kLvlDebug, __func__, "Running linux Lmos::Test()");
 	currentChanged(0);

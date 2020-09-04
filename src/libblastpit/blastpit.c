@@ -266,28 +266,41 @@ bp_waitForString(t_Blastpit* self, int id, int timeout)
 	return result;
 }
 
+// IdAck
+// sendCommand(t_Blastpit* self, int command)
+// {
+// 	assert(self);
+
+// 	char message[] = "<command>xxx</command>";
+
+// 	snprintf(message, sizeof(message) / sizeof(message[0]), "<command>%d</command>", command);
+// 	return bp_sendMessage(self, message);
+// }
+
 IdAck
-sendCommand(t_Blastpit* self, int command)
-{
-	assert(self);
+SendAckRetval(t_Blastpit* self, int id, int retval)
+{  // Sends a message acknowledgement with return value
 
-	char message[] = "<command>xxx</command>";
+	sds id_str = sdsfromlonglong(id);
+	sds retval_str = sdsfromlonglong(retval);
+	IdAck result = SendMessageBp(self, "reply", id_str, retval_str, NULL);
+	sdsfree(retval_str);
+	sdsfree(id_str);
 
-	snprintf(message, sizeof(message) / sizeof(message[0]), "<command>%d</command>", command);
-	return bp_sendMessage(self, message);
+	return result;
 }
 
 IdAck
 SendCommand(t_Blastpit* self, int command)
 {
 	sds cmd = sdsfromlonglong(command);
-	IdAck result = SendMessage(self, "command", cmd, NULL);
+	IdAck result = SendMessageBp(self, "command", cmd, NULL);
 	sdsfree(cmd);
 	return result;
 }
 
 IdAck
-SendMessage(t_Blastpit* self, ...)
+SendMessageBp(t_Blastpit* self, ...)
 {  // Sends single command with optional attributes
 	// If there are an odd number of optional parameters,
 	// the final parameter is used as the message CDATA
@@ -349,7 +362,7 @@ bp_sendCommandAndWait(t_Blastpit* self, int command, int timeout)
 {
 	IdAck result;
 
-	result = sendCommand(self, command);
+	result = SendCommand(self, command);
 	if (result.retval != kSuccess) {
 		LOG(kLvlDebug, "%s: Failed to send command", __func__);
 		result = (IdAck){kInvalid, kCommandFailed, NULL};
@@ -412,21 +425,21 @@ void
 startLMOS(t_Blastpit* self)
 {  // Send a message to LMOS to unload the ActiveX control
 
-	sendCommand(self, kCreateLMOS);
+	SendCommand(self, kCreateLMOS);
 }
 
 void
 stopLMOS(t_Blastpit* self)
 {  // Send a message to LMOS to unload the ActiveX control
 
-	sendCommand(self, kDestroyLMOS);
+	SendCommand(self, kDestroyLMOS);
 }
 
 void
 clearQPSets(t_Blastpit* self)
 {  // Tell Lmos to erase all existing QPsets
 
-	sendCommand(self, kClearQpSets);
+	SendCommand(self, kClearQpSets);
 }
 
 void

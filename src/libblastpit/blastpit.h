@@ -275,7 +275,7 @@ void disconnectFromServer(t_Blastpit *);
 void registerCallback(t_Blastpit *, void (*)(void *, void *));
 void registerObject(t_Blastpit *, void *);
 
-IdAck sendCommand(t_Blastpit *self, int command);
+// IdAck sendCommand(t_Blastpit *self, int command);
 
 void pollMessages(t_Blastpit *self);
 void sendClientMessage(t_Blastpit *self, const char *message);
@@ -294,8 +294,9 @@ void startLMOS(t_Blastpit *self);
 int AutoGenerateId(t_Blastpit *self);
 void LayerSetLaserable(t_Blastpit *self, const char *layer, bool laserable);
 void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
-IdAck SendMessage(t_Blastpit *self, ...);
+IdAck SendMessageBp(t_Blastpit *self, ...);
 IdAck SendCommand(t_Blastpit *self, int command);
+IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

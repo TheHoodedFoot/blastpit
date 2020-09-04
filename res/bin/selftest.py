@@ -4,14 +4,14 @@ from time import sleep
 import sys
 import os.path
 if not os.path.isfile(os.path.expanduser("~")
-                      + "/projects/blastpit/worktree/develop/build/_blastpy.so"):
+                      + "/projects/blastpit/build/_blastpy.so"):
     print("The blastpit library is not available.")
     exit(1)
 sys.path.append(os.path.expanduser("~")
-                + "/projects/blastpit/worktree/develop/build")
+                + "/projects/blastpit/build")
 import blastpy
 
-SERVER = "ws://192.168.1.40:8000"
+SERVER = "ws://minnie:8000"
 
 #print(dir(blastpy))
 
@@ -30,7 +30,7 @@ if not blastpy.bp_isConnected(bp):
 # blastpy.startLMOS(bp)
 
 print("Sending selftest command")
-result = blastpy.bp_sendCommandAndWait(bp, 4, blastpy.kSelfTest, 5000)
+result = blastpy.bp_sendCommandAndWait(bp, blastpy.kSelfTest, 5000)
 if result.retval != blastpy.kSuccess:
     print("Cannot run selftest")
     sys.exit()

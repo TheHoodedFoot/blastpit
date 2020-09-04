@@ -5,6 +5,7 @@
 #include <QtCore>
 /* #include "network.hpp" */
 // #include "../../res/cfg/t_common.h"
+#include "blastpit.h"
 #include "mongoose.h"
 #include "pugixml.hpp"
 
@@ -24,7 +25,7 @@ Parser::Parser(QObject *parent)
 
 	// Set the object
 	// void (*func)(void *
-	registerCallbackCpp(blast, &messageReceivedCallback);
+	registerCallback(blast, &messageReceivedCallback);
 	registerObject(blast, (void *)this);
 
 	wsConnect();
@@ -69,9 +70,12 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 	pugi::xml_document xml;
 	xml.load_buffer(wm->data, wm->size);
 
-	int command = QString(xml.child("command").child_value()).toInt();
+	int command = QString(xml.child("message").attribute("command").value()).toInt();
 	if (command) {
-		psr->parseCommand(QString(xml.child("command").attribute("id").value()).toInt(), command, xml);
+		// printf("Found command: %d\n", command);
+		// printf("id: %d\n", atoi(xml.child("message").attribute("id").value()));
+		// psr->log(QString((const char *)wm->data));
+		psr->parseCommand(QString(xml.child("message").attribute("id").value()).toInt(), command, xml);
 	} else {
 		psr->log("Couldn't parse xml (shown below)");
 		psr->log(QString((const char *)wm->data));
@@ -147,29 +151,34 @@ Parser::ack(QString message)
 { /* Send a network acknowledgment */
 
 	log("[ack]");
-	bp_sendMessage(blast, 0, message.toStdString().c_str());
+	bp_sendMessage(blast, message.toStdString().c_str());
 }
 
 void
 Parser::ackReturn(int id, int retval)
 { /* Send a network acknowledgment */
 
+	// TODO: Encode the id into the message
 	QString message = QString::number(retval);
 	log("[ackReturn] (" + QString::number(id) + ") " + QString(bpRetvalName(retval)));
-	bp_sendMessage(blast, id, message.toStdString().c_str());
+	SendAckRetval(blast, id, retval);
+	// bp_sendMessage(blast, message.toStdString().c_str());
 }
 
 void
 Parser::ackMessage(int id, QString message)
 {
+	// TODO: Encode the id into the message
 	log("[ackMessage] id: " + QString::number(id) + "  " + message);
-	bp_sendMessage(blast, id, message.toStdString().c_str());
+	SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), message.toStdString().c_str());
+	// bp_sendMessage(blast, message.toStdString().c_str());
 }
 
 void
 Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 {
-	qDebug() << "Parser::parseCommand";
+	// printf("Parser::parseCommand\n");
+
 	if (command >= BPCOMMAND_MAX) {
 		log("Bad command number");
 		ackReturn(id, kBadCommand);
@@ -180,7 +189,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 
 	std::stringstream out;
 	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");
-	pugi::xml_node cmd = xml.child("command");
+	pugi::xml_node cmd = xml.child("message");
 	QPixmap pixmap;
 	QByteArray bArray;
 	QBuffer buffer(&bArray);
@@ -188,6 +197,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 
 	/* Have to do this outside of switch because????? */
 
+	// printf("Switching on command\n");
 	switch (command) {
 		case kGetVersion:
 			/* Create an XML with the git version inside */
@@ -211,7 +221,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			break;
 		case kImportXML:
 			/* xml.child("DRAWING").remove_child("COMMAND"); */
-			xml.child("command").child("DRAWING").print(out, "", pugi::format_raw);
+			xml.child("message").child("DRAWING").print(out, "", pugi::format_raw);
 			/* xml.save(out); */
 			/* qInfo() << "Drawing string: " */
 			/* 	<< QString::fromStdString(out.str()); */
@@ -293,7 +303,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			break;
 		case kAddQpSet:
 			/* qInfo() << "Parsing qpsets"; */
-			for (pugi::xml_node qpset = xml.child("command").child("qpset"); qpset; qpset = qpset.next_sibling("qpset")) {
+			for (pugi::xml_node qpset = xml.child("message").child("qpset"); qpset; qpset = qpset.next_sibling("qpset")) {
 				lmos.AddQPSet(qpset.attribute("name").value(), QString(qpset.attribute("current").value()).toDouble(), QString(qpset.attribute("speed").value()).toInt(), QString(qpset.attribute("frequency").value()).toInt());
 			}
 			/* qInfo() << "Finished parsing qpsets"; */
@@ -305,12 +315,10 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kReadByte:
-			lmos.ReadByte(getXmlInt(xml, "port"),
-				      getXmlInt(xml, "mask"));
+			lmos.ReadByte(QString(cmd.attribute("port").value()).toInt(), QString(cmd.attribute("mask").value()).toInt());
 			break;
 		case kReadIOBit:
-			* /
-				lmos.ReadIOBit(getXml(xml, "bitfunction"));
+			lmos.ReadIOBit(QString(cmd.attribute("bitfunction").value()));
 			break;
 		case kSaveVLM:
 			if (lmos.SaveVLM(cmd.attribute("filename").value())) {
@@ -345,7 +353,10 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 
 			// Don't send an ack - the returned image will be the reply
 			// ackReturn(id, kSuccess);
-			bp_sendMessage(blast, id, stdString.c_str());
+
+			// TODO: Encode the id into the message
+			// bp_sendMessage(blast, stdString.c_str());
+			SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), stdString.c_str());
 			/* #if DEBUG_LEVEL == 3 */
 			/* log(stdString.c_str()); */
 			qDebug() << "bArray size: " << bArray.size();
