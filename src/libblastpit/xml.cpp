@@ -31,7 +31,7 @@ xml_hasHeader(const char* message)
 	pugi::xml_document xml;
 
 	xml.load_string(message);
-	return (xml.child("command") != nullptr);
+	return (xml.child("message") != nullptr);
 }
 
 /* The id modification functions below all produce dynamic copies of the input
@@ -48,7 +48,7 @@ xml_getCommandString(const char* string)
 	if (!strlen(string))
 		return nullptr;
 	xml.load_string(string);
-	pugi::xml_node command = xml.child("command");
+	pugi::xml_node command = xml.child("message");
 	if (!command)
 		return nullptr;
 
@@ -97,7 +97,7 @@ xml_addHeader(const char* message)
 	std::stringstream xmlstream;
 	pugi::xml_document xml;
 
-	pugi::xml_node command = xml.append_child("command");
+	pugi::xml_node command = xml.append_child("message");
 	pugi::xml_node data = command.append_child(pugi::node_pcdata);
 	data.set_value(message);
 	xml.save(xmlstream);
@@ -115,7 +115,7 @@ xml_addId(const int id, const char* message)
 	pugi::xml_document xml;
 
 	xml.load_string(message);
-	pugi::xml_node command = xml.child("command");
+	pugi::xml_node command = xml.child("message");
 	if (!command)
 		return nullptr;
 	command.append_attribute("id");
@@ -135,7 +135,7 @@ xml_removeId(const char* message)
 	pugi::xml_document xml;
 
 	xml.load_string(message);
-	xml.child("command").remove_attribute("id");
+	xml.child("message").remove_attribute("id");
 	xml.save(xmlstream);
 
 	const std::string stdstring = xmlstream.str();

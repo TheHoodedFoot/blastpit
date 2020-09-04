@@ -334,6 +334,7 @@ int
 wsClientSendMessage(t_Websocket *self, char *data)
 {  // Send message to the server
 
+	fprintf(stderr, "FUCK A DUCK\n");
 	LOG(kLvlDebug, "%s: Sending message to server\n", __func__);
 
 	broadcastClient(self->connection, mg_mk_str(data));

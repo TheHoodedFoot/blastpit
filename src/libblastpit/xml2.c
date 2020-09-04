@@ -11,20 +11,15 @@ xml_getId(const char *message)
 
 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 
-	// pugi::xml_document xml;
-	// xml.load_string(message);
-
 	// Zero is considered an invalid id because atoi() returns 0
 	// for invalid inputs.
-	mxml_node_t *node = mxmlFindElement(xml, xml, "command", NULL, NULL, MXML_DESCEND);
+	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		// fprintf(stderr, "Failed with message %s\n", message);
 		return kInvalid;
 	}
 
 	const char *value = mxmlElementGetAttr(node, "id");
-	// fprintf(stderr, "value is %s\n", value);
-
 
 	int id = 0;
 	if (value)

@@ -25,21 +25,21 @@ TEST(XmlGroup, AddRemoveIdTest)
 {
 	TEST_ASSERT_EQUAL(kInvalid, xml_getId("Hello, world!"));
 
-	TEST_ASSERT_EQUAL(33, xml_getId("<?xml?><command id=\"33\"/>"));
+	TEST_ASSERT_EQUAL(33, xml_getId("<?xml?><message id=\"33\"/>"));
 
-	char *messageRemoved = xml_removeId("<command id=\"33\"/>");
+	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
 	TEST_ASSERT_NOT_NULL(messageRemoved);
 	TEST_ASSERT_EQUAL(kInvalid, xml_getId(messageRemoved));
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<command />\n", messageRemoved);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message />\n", messageRemoved);
 
 	char *messageAdded = xml_setId(123, messageRemoved);
 	TEST_ASSERT_NOT_NULL(messageAdded);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<command id=\"123\" />\n", messageAdded);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message id=\"123\" />\n", messageAdded);
 
 	char *messageReplaced = xml_setId(124, messageAdded);
 	TEST_ASSERT_NOT_NULL(messageReplaced);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<command id=\"124\" />\n", messageReplaced);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message id=\"124\" />\n", messageReplaced);
 
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
 	free(messageRemoved);
@@ -50,13 +50,13 @@ TEST(XmlGroup, AddRemoveIdTest)
 TEST(XmlGroup, AddHeaderTest)
 {
 	char *addHeader = xml_addHeader("foo");
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<command>foo</command>\n", addHeader);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message>foo</message>\n", addHeader);
 	free(addHeader);
 }
 
 TEST(XmlGroup, CommandStringTest)
 {
-	char *message = xml_getCommandString("<command>Teststring</command>");
+	char *message = xml_getCommandString("<message>Teststring</message>");
 	TEST_ASSERT_EQUAL_STRING("Teststring", message);
 
 	char *badmessage = xml_getCommandString("<feck>Teststring</feck>");
@@ -68,7 +68,7 @@ TEST(XmlGroup, CommandStringTest)
 
 TEST(XmlGroup, OverflowTest)
 {
-	char *messageRemoved = xml_removeId("<command id=\"33\"/>");
+	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
 	free(messageRemoved);
 }
 
@@ -85,19 +85,19 @@ TEST(XmlGroup, XmlRetvalTest)
 	// <xml><command id="1">string</command>
 
 	// Tests whether getValuesFromXml() can parse return values
-	const char *xml = "<?xml?><command id=\"73\">992</command>";
+	const char *xml = "<?xml?><message id=\"73\">992</message>";
 	XmlReply reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(73, reply.id);
 	TEST_ASSERT_EQUAL(992, reply.retval);
 
 	// Invalid or missing id should return kInvalid
-	xml = "<?xml?><command>123</command>";
+	xml = "<?xml?><message>123</message>";
 	reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(kInvalid, reply.id);
 	TEST_ASSERT_EQUAL(123, reply.retval);
 
 	// Invalid retvals should return zero (kFailure)
-	xml = "<?xml?><command id=\"39\"></command>";
+	xml = "<?xml?><message id=\"39\"></message>";
 	reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(39, reply.id);
 	TEST_ASSERT_EQUAL(kFailure, reply.retval);

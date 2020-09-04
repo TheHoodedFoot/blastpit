@@ -185,17 +185,42 @@ TEST(BlastpitGroup, AutoGenId)
 
 TEST(BlastpitGroup, SendCommand)
 {
-	// What are the requirements to test 'x'?
-	// 	What does the object do?
-	// 	How does it interact with the data or hardware it controls?
-	// 	How can we make it testable?
+	t_Blastpit *bp1 = blastpitNew();
+	t_Blastpit *bp2 = blastpitNew();
 
-	t_Blastpit *bp = blastpitNew();
-	IdAck result = SendCommand(bp, kSelfTest);
-	TEST_ASSERT_EQUAL(kConnectionFailure, result.retval);
+	connectToServer(bp1, "ws://localhost:8223", 0);
+	connectToServer(bp2, "ws://localhost:8223", 0);
+
+	// Wait for handshake
+	for (int i = 0; i < 100; i++) {
+		pollMessages(server);
+		pollMessages(bp1);
+		pollMessages(bp2);
+		if ((((t_Websocket *)bp2->ws)->isConnected) && ((t_Websocket *)bp1->ws)->isConnected)
+			break;
+	}
+	TEST_ASSERT_EQUAL(true, ((t_Websocket *)bp1->ws)->isConnected);
+
+	IdAck result = SendCommand(bp1, kSelfTest);
+	TEST_ASSERT_EQUAL(kSuccess, result.retval);
 	TEST_ASSERT_EQUAL(1, result.id);
 
-	blastpitDelete(bp);
+	for (int i = 0; i < 100; i++) {
+		pollMessages(bp1);
+		pollMessages(bp2);
+		pollMessages(server);
+		if (getMessageCount(bp2) == 1)
+			break;
+	}
+
+	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
+	const char *msg1 = popMessage(bp2);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message command=\"34\" id=\"1\" />\n", msg1);
+
+	disconnectFromServer(bp1);
+	disconnectFromServer(bp2);
+	blastpitDelete(bp1);
+	blastpitDelete(bp2);
 }
 
 TEST_GROUP_RUNNER(BlastpitGroup)

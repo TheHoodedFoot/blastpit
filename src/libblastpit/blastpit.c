@@ -128,6 +128,7 @@ pollMessages(t_Blastpit* self)
 void
 sendClientMessage(t_Blastpit* self, const char* message)
 {
+	LOG(kLvlDebug, "sendClientMessage: %s\n", message);
 	wsClientSendMessage((t_Websocket*)self->ws, (char*)message);
 }
 
@@ -181,6 +182,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 		sendClientMessage(self, id_message);
 	}
 
+	LOG(kLvlDebug, "bp_sendMessage: %s\n", id_message);
 	free(id_message);
 
 	return (IdAck){id, kSuccess, NULL};
@@ -287,12 +289,15 @@ SendCommand(t_Blastpit* self, int command)
 IdAck
 SendMessage(t_Blastpit* self, ...)
 {  // Sends single command with optional attributes
+	// If there are an odd number of optional parameters,
+	// the final parameter is used as the message CDATA
 
 	(void)self;
 	va_list args;
 	va_start(args, self);
 	char *attrib, *value;
-	sds xml = sdsnew("<?xml?><");
+	sds xml = sdsnew("<?xml version=\"1.0\"?><message ");
+	bool first_attribute = true;
 
 	while (true) {
 		// Get the attribute name
@@ -302,18 +307,25 @@ SendMessage(t_Blastpit* self, ...)
 
 		// Get the attribute value
 		value = va_arg(args, char*);  // Pop the next argument (a char*)
-		if (!value) {
-			LOG(kLvlDebug, "%s: Error - Missing attribute value\n", __func__);
-			va_end(args);
-			sdsfree(xml);
-			return (IdAck){0, kBadVariadicParam, BP_EMPTY_STRING};
-		}
+		if (!value)
+			break;
 
-		// Add the attribute to the XML
-		xml = sdscatprintf(xml, ", %s=\"%s\"", attrib, value);
+		// Append the attribute to the XML
+		if (first_attribute) {
+			xml = sdscatprintf(xml, "%s=\"%s\"", attrib, value);
+			first_attribute = false;
+		} else {
+			xml = sdscatprintf(xml, ", %s=\"%s\"", attrib, value);
+		}
 	}
 
 	xml = sdscatprintf(xml, ">");
+
+	if (attrib) {  // Payload
+		xml = sdscatprintf(xml, "%s", attrib);
+	}
+
+	xml = sdscatprintf(xml, "</message>");
 
 	printf("xml is: %s\n", xml);
 	IdAck result = bp_sendMessage(self, xml);
