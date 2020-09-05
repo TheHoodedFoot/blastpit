@@ -63,10 +63,10 @@ TEST(BlastpitGroup, simpleServerTest)
 	for (int i = 0; i < 100; i++) {
 		pollMessages(simpleserver);
 		pollMessages(client);
-		if (((t_Websocket *)client->ws)->isConnected)
+		if (bp_isConnected(client))
 			break;
 	}
-	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, bp_isConnected(client));
 
 	// Send a message
 	testval = 0;

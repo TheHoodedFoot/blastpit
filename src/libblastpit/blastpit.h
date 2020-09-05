@@ -13,17 +13,15 @@ extern "C" {
 
 #include <stdbool.h>
 
-#define LISTEN_PORT 1030
-
-#define BP_PACKET_CHECKSUM_SIZE 5 * sizeof(uint32_t)
-#define BP_DATA_CHECKSUM_SIZE sizeof(struct BpPacket)
+// #define BP_PACKET_CHECKSUM_SIZE 5 * sizeof(uint32_t)
+// #define BP_DATA_CHECKSUM_SIZE sizeof(struct BpPacket)
 
 #define BP_EMPTY_STRING "<empty string>"
 
-enum BpReply {
-	kNack,
-	kAck,
-};
+// enum BpReply {
+// 	kNack,
+// 	kAck,
+// };
 
 /* The following preprocessor macros are used to generate
  * both the enums and the enum name strings. The #pragmas are used
@@ -115,7 +113,8 @@ enum BpReply {
 	RETVAL(kReplyTimeout)      \
 	RETVAL(kSetterFailure)     \
 	RETVAL(kBadVariadicParam)  \
-	RETVAL(kInvalid = -1)
+	RETVAL(kInvalid = -1)      \
+	RETVAL(kMultipleCommands = -2)
 
 #define FOREACH_DEBUGLEVEL(LEVEL) \
 	LEVEL(kLvlOff)            \
@@ -209,14 +208,14 @@ enum BpJustificationType {
 	justifyCentre,
 };
 
-struct BpPacket {
-	uint32_t id;
-	uint32_t size;
-	uint32_t command;
-	uint32_t parentid;
-	uint32_t dataChecksum;
-	uint32_t packetChecksum;
-};
+// struct BpPacket {
+// 	uint32_t id;
+// 	uint32_t size;
+// 	uint32_t command;
+// 	uint32_t parentid;
+// 	uint32_t dataChecksum;
+// 	uint32_t packetChecksum;
+// };
 
 struct BpLogEntry {
 	uint32_t id;
@@ -234,10 +233,10 @@ struct BpHID {
 	union BpHIDVal value;
 };
 
-union psHeader {
-	unsigned char bytes[sizeof(struct BpPacket)];
-	struct BpPacket header;
-};
+// union psHeader {
+// 	unsigned char bytes[sizeof(struct BpPacket)];
+// 	struct BpPacket header;
+// };
 
 typedef struct Blastpit {
 	// t_Websocket *ws;

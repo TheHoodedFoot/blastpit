@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os.path
-import socket
 import sys
 import time
 import unittest
@@ -24,23 +23,47 @@ sys.path.append(os.path.expanduser("~")
 
 import blastpy as bp
 
-# class TestBlastpy(unittest.TestCase):
 
-# def setUp(self):
-#     self.blast = bp.t_Blastpit()
-#     self.assertEqual(0,
-#                      bp.connectToServer(
-#                          self.blast,
-#                          myconfig.SERVER,
-#                          myconfig.MQTT_ID,
-#                          myconfig.TIMEOUT, True))
-#     self.assertEqual(
-#         0,
-#         bp.bp_subscribe(
-#             self.blast,
-#             myconfig.MQTT_ID,
-#             myconfig.TIMEOUT))
+# Helper functions needed due to lack of running event loop
+def PollUntilConnected(client, server, timeout=myconfig.NET_TIMEOUT):
+    for i in range(timeout):
+        bp.pollMessages(client)
+        bp.pollMessages(server)
+        if bp.bp_isConnected(client):
+            return
+        time.sleep(0.001)
 
+
+def PollUntilMessageCount(client, server, count=1, timeout=myconfig.NET_TIMEOUT):
+    for i in range(timeout):
+        bp.pollMessages(client)
+        bp.pollMessages(server)
+        if bp.getMessageCount(client) == count:
+            return
+        time.sleep(0.001)
+
+
+class Testbp(unittest.TestCase):
+
+    def setUp(self):
+        self.server = bp.blastpitNew()
+        self.assertEqual(bp.kSuccess, bp.serverCreate(self.server, myconfig.PORT))
+
+    def test_MultipleCommands(self):
+        self.client = bp.blastpitNew()
+        bp.connectToServer(self.client, myconfig.SERVER, 0)
+        PollUntilConnected(self.client, self.server)
+
+        xml = "<?xml?><message id=\"1\" command=\"98\"></message>"
+        xml = xml + "<message id=\"2\" command=\"99\"></message>"
+
+        result = bp.SendMessageBp(self.client, xml)
+
+        bp.disconnectFromServer(self.client)
+        bp.blastpitDelete(self.client)
+
+
+        
 # def test_doubleConnect(self):
 #     time.sleep(1)
 #     self.assertEqual(-1,
@@ -117,9 +140,8 @@ import blastpy as bp
 #     print("Total elapsed time: " + str(endTime - startTime))
 #     print("Max individual time: " + str(maxTime))
 
-# def tearDown(self):
-# bp.bp_unsubscribe(self.blast, MQTT_ID, TIMEOUT)
-# bp.bp_disconnectFromServer(self.blast)
+def tearDown(self):
+    self.assertEqual(kSuccess, blastpy.serverDestroy(self.server))
 
 
 if __name__ == '__main__':

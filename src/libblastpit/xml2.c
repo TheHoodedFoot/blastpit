@@ -4,7 +4,7 @@
 
 int
 xml_getId(const char *message)
-{  // Returns message id, or -1 if nonexistent
+{  // Returns message id, or kInvalid if nonexistent
 
 	if (!message)
 		return kInvalid;
@@ -25,6 +25,14 @@ xml_getId(const char *message)
 	if (value)
 		id = atoi(value);
 	return id ? id : kInvalid;
+}
+
+int
+HasMultipleMessages(const char *xml)
+{  // Returns count of <message> elements or kInvalid on bad xml
+
+	(void)xml;
+	return kInvalid;
 }
 
 // int

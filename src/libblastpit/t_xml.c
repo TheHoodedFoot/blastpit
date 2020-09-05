@@ -2,6 +2,7 @@
 #include <string.h>
 #include "unity_fixture.h" /* MUST be before <stdlib.h> */
 
+#include "xml.h"
 #include "xml.hpp"
 
 TEST_GROUP(XmlGroup);
@@ -9,17 +10,6 @@ TEST_GROUP(XmlGroup);
 TEST_SETUP(XmlGroup) {}
 
 TEST_TEAR_DOWN(XmlGroup) {}
-
-/***********************
- *  Write a test list  *
- ***********************/
-
-/* What is the set of tests which, when passes, demonstrates that the code
- * works correctly? */
-
-/* When writing a test, imagine the perfect interface for that function */
-
-/* What function do we wish existed? */
 
 TEST(XmlGroup, AddRemoveIdTest)
 {
@@ -105,9 +95,27 @@ TEST(XmlGroup, XmlRetvalTest)
 	// Warn if no values found
 }
 
+TEST(XmlGroup, MultipleMessageTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	// Must load XML and detect error
+	TEST_ASSERT_EQUAL(kInvalid, HasMultipleMessages("Feck!"));
+
+	// Must count number of <message> blocks
+	const char *xml =
+		"<?xml?><message id=\"1\" command=\"1\"></message>"
+		"<message id=\"2\" command=\"2\"></message>";
+	TEST_ASSERT_EQUAL(2, HasMultipleMessages(xml));
+}
+
 TEST_GROUP_RUNNER(XmlGroup)
 { /* Add a line below for each unit test */
 
+	RUN_TEST_CASE(XmlGroup, MultipleMessageTest);
 	RUN_TEST_CASE(XmlGroup, AddRemoveIdTest);
 	RUN_TEST_CASE(XmlGroup, AddHeaderTest);
 	RUN_TEST_CASE(XmlGroup, CommandStringTest);

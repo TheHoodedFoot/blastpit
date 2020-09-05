@@ -9,6 +9,7 @@
 #include "blastpit.h"
 #include "sds.h"
 #include "websocket.h"
+#include "xml.h"
 #include "xml.hpp"
 
 const char*
@@ -163,13 +164,21 @@ UpdateHighestId(t_Blastpit* self, int id)
 IdAck
 bp_sendMessage(t_Blastpit* self, const char* message)
 {
-	int id = AutoGenerateId(self);
+	int id;
+	char* id_message = NULL;
 
-	UpdateHighestId(self, id);
 
-	char* id_message = xml_setId(id, message);
-	if (!id_message) {
-		return (IdAck){kInvalid, kSetterFailure, NULL};
+	if (HasMultipleMessages(message) > 0) {
+		id = kMultipleCommands;
+		id_message = xml_mallocCopy(message);
+	} else {
+		id = AutoGenerateId(self);
+		UpdateHighestId(self, id);
+		id_message = xml_setId(id, message);
+
+		if (!id_message) {
+			return (IdAck){kInvalid, kSetterFailure, NULL};
+		}
 	}
 
 	if (((t_Websocket*)self->ws)->isServer) {

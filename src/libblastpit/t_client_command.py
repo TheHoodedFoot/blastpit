@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import blastpy as bp
-from myconfig import BP_NET_TIMEOUT
+from myconfig import NET_TIMEOUT
 
 # The main Blastpit object
 pit = bp.blastpitNew()
