@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "blastpit.h"
-#include "mongoose.h"
+// #include "mongoose.h"
 
 /* Flag set by ‘--verbose’. */
 static int verbose_flag;
@@ -17,9 +17,9 @@ messageReceivedCallback(void *ev_data, void *object)
 	(void)object;
 
 	if (verbose_flag) {
-		struct websocket_message *wm = (struct websocket_message *)ev_data;
+		WsMessage data = ConvertCallbackData(ev_data);
 		// This string may not be null terminated, so we supply a max length.
-		printf("%.*s\n", (int)wm->size, wm->data);
+		printf("%.*s\n", data.size, data.data);
 	}
 
 	callbackCount++;

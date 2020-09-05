@@ -256,6 +256,11 @@ typedef struct {  // Acknowledgement of send plus generated id
 	char *string;
 } IdAck;
 
+typedef struct {  // Decoded websocket_message
+	int size;
+	unsigned char *data;
+} WsMessage;
+
 /* Methods */
 IdAck bp_sendMessageAndWaitForString(t_Blastpit *self, const char *message, int timeout);
 IdAck bp_waitForString(t_Blastpit *self, int id, int timeout);
@@ -274,6 +279,7 @@ void blastpitDelete(t_Blastpit *);
 void disconnectFromServer(t_Blastpit *);
 void registerCallback(t_Blastpit *, void (*)(void *, void *));
 void registerObject(t_Blastpit *, void *);
+WsMessage ConvertCallbackData(void *ev_data);
 
 // IdAck sendCommand(t_Blastpit *self, int command);
 

@@ -146,6 +146,13 @@ registerCallback(t_Blastpit* self, void (*callback)(void*, void*))
 	wsSetMessageReceivedCallback((t_Websocket*)self->ws, callback);
 }
 
+WsMessage
+ConvertCallbackData(void* ev_data)
+{  // Gets the size and data from a websocket_message
+
+	return ExtractWsMessageData(ev_data);
+}
+
 void
 registerObject(t_Blastpit* self, void* object)
 {  // Specify an instance to call the callback method

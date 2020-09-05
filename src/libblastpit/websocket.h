@@ -60,6 +60,9 @@ int wsClientDestroy(t_Websocket *);
 void broadcastClient(struct mg_connection *nc, const struct mg_str msg);
 void broadcastServer(struct mg_connection *nc, const struct mg_str msg);
 
+// Public functions
+WsMessage ExtractWsMessageData(void *ev_data);
+
 // int ws_client_main(int argc, char **argv);
 
 // bool netIsConnected(t_WebsocketClient *);

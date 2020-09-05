@@ -435,3 +435,17 @@ wsReadMessageAt(t_Websocket *self, int index)
 
 	return node->data;
 }
+
+WsMessage
+ExtractWsMessageData(void *ev_data)
+{	// Helper function to extract the websocket message data
+	// Putting it here avoids requiring mongoose.h elsewhere
+
+	WsMessage retval;
+
+	struct websocket_message *wm = (struct websocket_message *)ev_data;
+	retval.size = (int)wm->size;
+	retval.data = wm->data;
+
+	return retval;
+}
