@@ -36,8 +36,8 @@ INCLUDEPATH += $$PWD/../submodules/mxml
 SOURCES += main.cpp \
 	../libblastpit/blastpit.c \
 	../libblastpit/websocket.c \
-	../libblastpit/xml.cpp \
-	../libblastpit/xml2.c \
+	../libblastpit/xml_old.cpp \
+	../libblastpit/xml.c \
 	../submodules/mongoose/mongoose.c \
 	../submodules/mxml/mxml-attr.c \
 	../submodules/mxml/mxml-entity.c \
@@ -60,7 +60,7 @@ HEADERS += \
 	../libblastpit/blastpit.h \
 	../libblastpit/websocket.h \
 	../libblastpit/xml.h \
-	../libblastpit/xml.hpp \
+	../libblastpit/xml_old.hpp \
 	../submodules/mongoose/mongoose.h \
 	../submodules/mxml/mxml.h \
 	../submodules/pugixml/src/pugixml.hpp \

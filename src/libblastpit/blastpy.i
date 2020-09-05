@@ -3,7 +3,7 @@
 
 %{
 #include "blastpit.h"
-#include "xml.hpp"
+#include "xml_old.hpp"
 %}
 
 /* newobject instructs swig that the returned object was malloc()ed,
@@ -14,7 +14,7 @@
 %newobject xml_addHeader;
 
 %include "blastpit.h"
-%include "xml.hpp"
+%include "xml_old.hpp"
 
 %pythoncode %{
 

@@ -56,8 +56,8 @@ profile: 	CPPFLAGS += -pg --coverage
 # Library source and object files
 LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
 LIBMXML_OBJS        := $(patsubst %.c,%.o,$(LIBMXML_SRCS))
-LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml2.c
-LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) xml.o pugixml.o sds.o mongoose.o
+LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml.c
+LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) xml_old.o pugixml.o sds.o mongoose.o
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES)) $(SUBMODULES_DIR)/sds/sds.c
 LIBBLASTPIT_TARGETS := libblastpit.a _blastpy.so blastpy.py 
 
@@ -77,7 +77,7 @@ PYTHON_INCS = $(shell python-config --includes)
 LIBS  = -lm
 
 # Blastpy
-BLASTPY_FILES  = blastpy_wrap.o xml.o pugixml.o
+BLASTPY_FILES  = blastpy_wrap.o xml_old.o pugixml.o
 # BLASTPY_SRCS   = $(patsubst %.o,$(SRCDIR)/%.c,$(BLASTPY_FILES))
 BLASTPY_FILES += libblastpit.a
 BLASTPY_LIBS   = 
@@ -140,7 +140,7 @@ emcc:
 	@if [[ ! $$(command -v emcc) ]]; then echo -e "\n\e[31mYou need to source the emscripten environment setup script. Use:\e[39m\n\n	pushd src/submodules/emsdk && source emsdk_env.sh && popd\n\n"; exit 255; fi
 
 # Libblastpit Recipes
-xml.o:	$(PROJECT_ROOT)/src/libblastpit/xml.cpp
+xml_old.o:	$(PROJECT_ROOT)/src/libblastpit/xml_old.cpp
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) -I$(SUBMODULES_DIR)/pugixml/src -c -fPIC $^ -o $@
 
 pugixml.o:	$(SUBMODULES_DIR)/pugixml/src/pugixml.cpp
@@ -449,7 +449,7 @@ websocketwin:	$(BUILD_DIR)
 		-c src/submodules/mongoose/mongoose.c \
 		-lwsock32
 
-win.exe:	test.cpp src/libblastpit/linkedlist.c src/libblastpit/blastpit.c src/libblastpit/parser.c src/libblastpit/message.c src/libblastpit/new.c src/libblastpit/xml.cpp sub/pugixml/src/pugixml.cpp
+win.exe:	test.cpp src/libblastpit/linkedlist.c src/libblastpit/blastpit.c src/libblastpit/parser.c src/libblastpit/message.c src/libblastpit/new.c src/libblastpit/xml_old.cpp sub/pugixml/src/pugixml.cpp
 	env WINEPREFIX="$(WINE_PREFIX)" \
 		WINEARCH="$(WINE_ARCH)" \
 		PATH="/usr/bin" \

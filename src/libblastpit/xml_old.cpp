@@ -1,8 +1,7 @@
-#include "xml.hpp"
+#include "xml_old.hpp"
+#include "xml.h"
 
-// #ifdef __cplusplus
 #include "pugixml.hpp"
-// #endif
 
 #include <cstring>
 #include <iostream>
@@ -78,7 +77,7 @@ xml_setId(const int id, const char* message_const)
 		return msgWithId;
 	}
 
-	if (xml_getId(message_const)) {
+	if (GetMessageId(message_const)) {
 		char* msgWithoutId = xml_removeId(message_const);
 		char* msgWithId = xml_addId(id, msgWithoutId);
 		free(msgWithoutId);
@@ -152,7 +151,7 @@ ParseXmlIdAndRetval(const char* xml)
 	if (!xml_hasHeader(xml))
 		return reply;
 
-	reply.id = xml_getId(xml);
+	reply.id = GetMessageId(xml);
 	char* xmldata = xml_getCommandString(xml);
 	reply.retval = atoi(xmldata);
 	free(xmldata);

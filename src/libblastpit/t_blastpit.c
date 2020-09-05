@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "blastpit.h"
 #include "websocket.h"
-#include "xml.hpp"
+#include "xml_old.hpp"
 
 #include "unity_fixture.h"
 
@@ -196,10 +196,10 @@ TEST(BlastpitGroup, SendCommand)
 		pollMessages(server);
 		pollMessages(bp1);
 		pollMessages(bp2);
-		if ((((t_Websocket *)bp2->ws)->isConnected) && ((t_Websocket *)bp1->ws)->isConnected)
+		if (bp_isConnected(bp1) && bp_isConnected(bp2))
 			break;
 	}
-	TEST_ASSERT_EQUAL(true, ((t_Websocket *)bp1->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, bp_isConnected(bp1));
 
 	IdAck result = SendCommand(bp1, kSelfTest);
 	TEST_ASSERT_EQUAL(kSuccess, result.retval);

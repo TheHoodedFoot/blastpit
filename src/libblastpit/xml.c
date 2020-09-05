@@ -1,9 +1,10 @@
+#include "xml.h"
 #include <mxml.h>
 #include "blastpit.h"
-#include "xml.h"
+#include "sds.h"
 
 int
-xml_getId(const char *message)
+GetMessageId(const char *message)
 {  // Returns message id, or kInvalid if nonexistent
 
 	if (!message)
@@ -31,8 +32,47 @@ int
 HasMultipleMessages(const char *xml)
 {  // Returns count of <message> elements or kInvalid on bad xml
 
-	(void)xml;
-	return kInvalid;
+	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+
+	mxml_node_t *node;
+	int count = 0;
+
+	for (node = mxmlFindElement(tree, tree, "message", NULL,
+				    NULL, MXML_DESCEND);
+	     node != NULL;
+	     node = mxmlFindElement(node, tree, "message", NULL,
+				    NULL, MXML_DESCEND)) {
+		count++;
+	}
+
+	return count;
+}
+
+sds
+GetMessageByIndex(const char *xml, int index)
+{  // Returns a string containing a single message element
+
+	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+
+	mxml_node_t *node;
+	int count = 0;
+
+	for (node = mxmlFindElement(tree, tree, "message", NULL,
+				    NULL, MXML_DESCEND);
+	     node != NULL && count < index;
+	     node = mxmlFindElement(node, tree, "message", NULL,
+				    NULL, MXML_DESCEND)) {
+		count++;
+	}
+
+	if (!node)
+		return NULL;
+	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
+	sds retval = sdsnew("<?xml?>");
+	retval = sdscat(retval, node_data);
+	free(node_data);
+
+	return retval;
 }
 
 // int

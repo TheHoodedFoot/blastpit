@@ -92,8 +92,10 @@ extern "C" {
 	RETVAL(kAlarm)             \
 	RETVAL(kAllocationFailure) \
 	RETVAL(kAlreadyInUse)      \
-	RETVAL(kBadLogic)          \
 	RETVAL(kBadCommand)        \
+	RETVAL(kBadLogic)          \
+	RETVAL(kBadVariadicParam)  \
+	RETVAL(kBadXml)            \
 	RETVAL(kCommandFailed)     \
 	RETVAL(kConnectionFailure) \
 	RETVAL(kCurrentChanged)    \
@@ -112,7 +114,6 @@ extern "C" {
 	RETVAL(kPlcEvent)          \
 	RETVAL(kReplyTimeout)      \
 	RETVAL(kSetterFailure)     \
-	RETVAL(kBadVariadicParam)  \
 	RETVAL(kInvalid = -1)      \
 	RETVAL(kMultipleCommands = -2)
 

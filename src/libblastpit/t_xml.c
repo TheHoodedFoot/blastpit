@@ -3,7 +3,7 @@
 #include "unity_fixture.h" /* MUST be before <stdlib.h> */
 
 #include "xml.h"
-#include "xml.hpp"
+#include "xml_old.hpp"
 
 TEST_GROUP(XmlGroup);
 
@@ -13,14 +13,14 @@ TEST_TEAR_DOWN(XmlGroup) {}
 
 TEST(XmlGroup, AddRemoveIdTest)
 {
-	TEST_ASSERT_EQUAL(kInvalid, xml_getId("Hello, world!"));
+	TEST_ASSERT_EQUAL(kInvalid, GetMessageId("Hello, world!"));
 
-	TEST_ASSERT_EQUAL(33, xml_getId("<?xml?><message id=\"33\"/>"));
+	TEST_ASSERT_EQUAL(33, GetMessageId("<?xml?><message id=\"33\"/>"));
 
 	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
 	TEST_ASSERT_NOT_NULL(messageRemoved);
-	TEST_ASSERT_EQUAL(kInvalid, xml_getId(messageRemoved));
+	TEST_ASSERT_EQUAL(kInvalid, GetMessageId(messageRemoved));
 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message />\n", messageRemoved);
 
 	char *messageAdded = xml_setId(123, messageRemoved);
@@ -103,13 +103,26 @@ TEST(XmlGroup, MultipleMessageTest)
 	// 	How can we make it testable?
 
 	// Must load XML and detect error
-	TEST_ASSERT_EQUAL(kInvalid, HasMultipleMessages("Feck!"));
+	TEST_ASSERT_EQUAL(0, HasMultipleMessages("Feck!"));
 
 	// Must count number of <message> blocks
-	const char *xml =
+	const char *xml1 =
+		"<?xml?><message id=\"1\" command=\"1\"></message>";
+	TEST_ASSERT_EQUAL(1, HasMultipleMessages(xml1));
+	const char *xml2 =
 		"<?xml?><message id=\"1\" command=\"1\"></message>"
 		"<message id=\"2\" command=\"2\"></message>";
-	TEST_ASSERT_EQUAL(2, HasMultipleMessages(xml));
+	TEST_ASSERT_EQUAL(2, HasMultipleMessages(xml2));
+
+	// Must be able to retrieve specific messages
+	const char *xml3 =
+		"<?xml?><message id=\"1\" command=\"1\"></message>"
+		"<message id=\"2\" command=\"2\"></message>"
+		"<message id=\"3\" command=\"3\"></message>";
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"1\" command=\"1\" />\n", GetMessageByIndex(xml3, 0));
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"2\" command=\"2\" />\n", GetMessageByIndex(xml3, 1));
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"3\" command=\"3\" />\n", GetMessageByIndex(xml3, 2));
+	TEST_ASSERT_NULL(GetMessageByIndex(xml3, 3));
 }
 
 TEST_GROUP_RUNNER(XmlGroup)

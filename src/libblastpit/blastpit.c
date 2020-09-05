@@ -10,7 +10,7 @@
 #include "sds.h"
 #include "websocket.h"
 #include "xml.h"
-#include "xml.hpp"
+#include "xml_old.hpp"
 
 const char*
 bpCommandName(int command)
@@ -167,11 +167,11 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	int id;
 	char* id_message = NULL;
 
+	if (HasMultipleMessages(message) < 1) {
+		return (IdAck){kInvalid, kBadXml, NULL};
+	}
 
-	if (HasMultipleMessages(message) > 0) {
-		id = kMultipleCommands;
-		id_message = xml_mallocCopy(message);
-	} else {
+	if (HasMultipleMessages(message) == 1) {
 		id = AutoGenerateId(self);
 		UpdateHighestId(self, id);
 		id_message = xml_setId(id, message);
@@ -179,6 +179,9 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 		if (!id_message) {
 			return (IdAck){kInvalid, kSetterFailure, NULL};
 		}
+	} else {
+		id = kMultipleCommands;
+		id_message = xml_mallocCopy(message);
 	}
 
 	if (((t_Websocket*)self->ws)->isServer) {
@@ -238,7 +241,7 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 				if (message) {
 					/* fprintf(stderr, "(bp_waitForString)
 					 * Checking message\n"); */
-					if (xml_getId(message) == id) {
+					if (GetMessageId(message) == id) {
 						/* fprintf(stderr,
 						 * "(bp_waitForString) message
 						 * id matched\n"); */
@@ -397,7 +400,7 @@ int
 bp_waitForSignal(t_Blastpit* self, int signal, int timeout)
 { /* Waits for an Lmos signal */
 
-	int result = xml_getId(bp_waitForXml(self, signal, timeout, true).string);
+	int result = GetMessageId(bp_waitForXml(self, signal, timeout, true).string);
 	return result ? result : false;
 }
 
