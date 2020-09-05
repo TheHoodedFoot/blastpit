@@ -125,9 +125,24 @@ TEST(XmlGroup, MultipleMessageTest)
 	TEST_ASSERT_NULL(GetMessageByIndex(xml3, 3));
 }
 
+TEST(XmlGroup, AttributeTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	// Get attribute value or NULL from node
+	const char *xml =
+		"<?xml?><message id=\"1\" command=\"1\" lorem=\"ipsum\"></message>";
+	TEST_ASSERT_EQUAL_STRING("ipsum", GetMessageAttribute(xml, "lorem"));
+	TEST_ASSERT_NULL(GetMessageAttribute(xml, "missing"));
+}
+
 TEST_GROUP_RUNNER(XmlGroup)
 { /* Add a line below for each unit test */
 
+	RUN_TEST_CASE(XmlGroup, AttributeTest);
 	RUN_TEST_CASE(XmlGroup, MultipleMessageTest);
 	RUN_TEST_CASE(XmlGroup, AddRemoveIdTest);
 	RUN_TEST_CASE(XmlGroup, AddHeaderTest);
