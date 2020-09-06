@@ -7,6 +7,7 @@ extern "C" {
 
 int HasMultipleMessages(const char* xml);
 int GetMessageId(const char* message);
+int GetParentId(const char* message);
 char* GetMessageByIndex(const char* xml, int index);
 char* GetMessageAttribute(const char* message, const char* attribute);
 

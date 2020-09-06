@@ -1,15 +1,10 @@
 #include "parser.hpp"
-#include <math.h>
 #include <QSettings>
 #include <QTime>
 #include <QtCore>
-/* #include "network.hpp" */
-// #include "../../res/cfg/t_common.h"
 #include "blastpit.h"
-// #include "mongoose.h"
 #include "pugixml.hpp"
-
-//#include <unistd.h>
+// #include <math.h>
 #include <sstream>
 
 Parser::Parser(QObject *parent)
@@ -63,23 +58,52 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 {
 	Parser *psr = (Parser *)object;
 
-	// psr->log("received");
-	struct websocket_message *wm = (struct websocket_message *)ev_data;
-	// printf("%.*s\n", (int)wm->size, wm->data);
+	WsMessage msg_data = ConvertCallbackData(ev_data);
 
-	pugi::xml_document xml;
-	xml.load_buffer(wm->data, wm->size);
+	psr->log("Received a message");
 
-	int command = QString(xml.child("message").attribute("command").value()).toInt();
-	if (command) {
-		// printf("Found command: %d\n", command);
-		// printf("id: %d\n", atoi(xml.child("message").attribute("id").value()));
-		// psr->log(QString((const char *)wm->data));
-		psr->parseCommand(QString(xml.child("message").attribute("id").value()).toInt(), command, xml);
-	} else {
-		psr->log("Couldn't parse xml (shown below)");
-		psr->log(QString((const char *)wm->data));
+	char *message = SdsEmpty();
+	char *id = SdsEmpty();
+	char *cmd_string = SdsEmpty();
+	int msg_count = BpHasMultipleMessages((const char *)msg_data.data);
+
+	for (int i = 0; i < msg_count; i++) {
+		psr->log("Examining xml");
+		message = BpGetMessageByIndex((const char *)msg_data.data, i);
+		psr->log("Message:");
+		psr->log(message);
+		id = BpGetMessageAttribute(message, "id");
+		cmd_string = BpGetMessageAttribute(message, "command");
+		if (!cmd_string) {
+			psr->log("Couldn't find a command attribute");
+			break;
+		}
+
+		int command = atoi(cmd_string);
+		if (command) {
+			psr->log("Found a command");
+			// If the message is a command, is it dependent?
+			// If so, did the parent command complete successfully?
+
+			// If yes, run command
+			// If no, proceed with remaining commands, if any.
+			pugi::xml_document xml;
+			xml.load_buffer(msg_data.data, msg_data.size);
+			psr->parseCommand(QString((char *)id).toInt(), command, xml);
+
+			// printf("Found command: %d\n", command);
+			// printf("id: %d\n", atoi(xml.child("message").attribute("id").value()));
+			// psr->log(QString((const char *)wm->data));
+			// psr->parseCommand(QString(xml.child("message").attribute("id").value()).toInt(), command, xml);
+		} else {
+			psr->log("Couldn't parse xml (shown below)");
+			psr->log(QString(message));
+		}
 	}
+
+	SdsFree(cmd_string);
+	SdsFree(id);
+	SdsFree(message);
 }
 
 void
@@ -158,7 +182,6 @@ void
 Parser::ackReturn(int id, int retval)
 { /* Send a network acknowledgment */
 
-	// TODO: Encode the id into the message
 	QString message = QString::number(retval);
 	log("[ackReturn] (" + QString::number(id) + ") " + QString(bpRetvalName(retval)));
 	SendAckRetval(blast, id, retval);
@@ -167,11 +190,21 @@ Parser::ackReturn(int id, int retval)
 
 void
 Parser::ackMessage(int id, QString message)
-{
-	// TODO: Encode the id into the message
-	log("[ackMessage] id: " + QString::number(id) + "  " + message);
-	SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), message.toStdString().c_str());
-	// bp_sendMessage(blast, message.toStdString().c_str());
+{  // Used by Lmos to send an event
+	// Assume that message is not null terminated
+
+	char *id_string = (char *)alloca(4);
+	snprintf(id_string, 4, "%d", id);
+	char *message_string = (char *)alloca(message.size() + 1);
+	strncpy(message_string, message.toStdString().c_str(), message.size());
+	*(message_string + message.size()) = 0;
+
+	log("Parser::ackMessage");
+	log(id_string);
+	log(message_string);
+	// log("[ackMessage] id: " + QString::number(id) + "  " + message);
+	// std::string stdString = std::string(bArray.constData(), bArray.length());
+	// SendMessageBp(blast, "type", "event", "id", QString::number(id).toStdString().c_str(), message.toStdString().c_str());
 }
 
 void

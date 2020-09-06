@@ -303,6 +303,12 @@ void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
 IdAck SendMessageBp(t_Blastpit *self, ...);
 IdAck SendCommand(t_Blastpit *self, int command);
 IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
+int BpHasMultipleMessages(const char *xml);
+char *BpGetMessageByIndex(const char *xml, int index);
+char *BpGetMessageAttribute(const char *message, const char *attribute);
+
+char *SdsEmpty();
+void SdsFree(char *string);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

@@ -197,7 +197,12 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 			// Store message
 			LOG(kLvlDebug, "%s: Pushing message onto stack\n", __func__);
 			struct websocket_message *wm = (struct websocket_message *)ev_data;
-			void *message = malloc((int)wm->size);
+			LOG(kLvlDebug, "Message size: %d\n", (int)wm->size);
+
+			// We could use calloc here, but we only need to zero the last byte
+			void *message = malloc((int)wm->size + 1);  // Allow null terminator
+			*((char *)message + (int)wm->size) = 0;
+
 			memcpy(message, wm->data, (int)wm->size);
 			wsPushMessage(ws, message);
 			break;
@@ -321,11 +326,13 @@ wsServerSendMessage(t_Websocket *self, char *data)
 {  // Broadcast message to all clients
 
 	LOG(kLvlDebug, "%s: Sending message to all clients\n", __func__);
+	LOG(kLvlDebug, "Message size: %ld\n", strlen(data));
 
 	if (!self->isServer)
 		return kBadLogic;
 
 	broadcastServer(self->connection, mg_mk_str(data));
+	wsPoll(self);
 
 	return true;
 }
@@ -334,11 +341,15 @@ int
 wsClientSendMessage(t_Websocket *self, char *data)
 {  // Send message to the server
 
+	if (!data)
+		return kInvalid;
+
 	LOG(kLvlDebug, "%s: Sending message to server\n", __func__);
+	LOG(kLvlDebug, "Message size: %ld\n", strlen(data));
 	broadcastClient(self->connection, mg_mk_str(data));
 	wsPoll(self);
 
-	return true;
+	return kSuccess;
 }
 
 void
@@ -438,7 +449,7 @@ wsReadMessageAt(t_Websocket *self, int index)
 
 WsMessage
 ExtractWsMessageData(void *ev_data)
-{	// Helper function to extract the websocket message data
+{  // Helper function to extract the websocket message data
 	// Putting it here avoids requiring mongoose.h elsewhere
 
 	WsMessage retval;

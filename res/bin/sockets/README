@@ -1,8 +1,0 @@
-Create configure.ac and Makefile.am
-
-Run:
-
-	autoreconf --force --install
-	./configure CFLAGS="-ggdb3 -O0"
-
-

@@ -11,7 +11,7 @@ sys.path.append(os.path.expanduser("~")
                 + "/projects/blastpit/build")
 import blastpy
 
-SERVER = "ws://minnie:8000"
+SERVER = "ws://10.47.1.30:8000"
 
 #print(dir(blastpy))
 

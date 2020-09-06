@@ -50,28 +50,25 @@ class Testbp(unittest.TestCase):
         self.assertEqual(bp.kSuccess, bp.serverCreate(self.server, myconfig.PORT))
 
     def test_MultipleCommands(self):
-        self.client = bp.blastpitNew()
-        bp.connectToServer(self.client, myconfig.SERVER, 0)
-        PollUntilConnected(self.client, self.server)
+        self.client1 = bp.blastpitNew()
+        self.client2 = bp.blastpitNew()
+        bp.connectToServer(self.client1, myconfig.SERVER, 0)
+        bp.connectToServer(self.client2, myconfig.SERVER, 0)
+        PollUntilConnected(self.client1, self.server)
+        PollUntilConnected(self.client2, self.server)
 
         xml = "<?xml?><message id=\"1\" command=\"98\"></message>"
         xml = xml + "<message id=\"2\" command=\"99\"></message>"
 
-        result = bp.SendMessageBp(self.client, xml)
+        result = bp.bp_sendMessage(self.client1, xml)
+        PollUntilMessageCount(self.client2, self.server)
+        print("Message count: %d" % bp.getMessageCount(self.client2))
 
-        bp.disconnectFromServer(self.client)
-        bp.blastpitDelete(self.client)
+        bp.disconnectFromServer(self.client1)
+        bp.disconnectFromServer(self.client2)
+        bp.blastpitDelete(self.client1)
+        bp.blastpitDelete(self.client2)
 
-
-        
-# def test_doubleConnect(self):
-#     time.sleep(1)
-#     self.assertEqual(-1,
-#                      bp.connectToServer(
-#                          self.blast,
-#                          myconfig.SERVER,
-#                          myconfig.MQTT_ID,
-#                          myconfig.TIMEOUT, False))
 
 # def test_sendReceive(self):
 #     self.assertEqual(

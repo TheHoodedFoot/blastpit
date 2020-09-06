@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,6 +9,7 @@
 
 /* Flag set by ‘--verbose’. */
 static int verbose_flag;
+static int exit_client_loop = false;
 
 int callbackCount = 0;
 
@@ -50,8 +52,22 @@ server(const char *port)
 }
 
 void
+SignalHandler(int dummy)
+{  // Catch ctrl-c to end the client loop
+
+	(void)dummy;
+
+	// Reset the handler so any further signals are default
+	signal(SIGINT, SIG_DFL);
+
+	exit_client_loop = true;
+}
+
+void
 client(const char *server, const char *message)
 {  // Connect to running server
+
+	(void)message;
 
 	// Create a client
 	t_Blastpit *client = blastpitNew();
@@ -59,7 +75,7 @@ client(const char *server, const char *message)
 	printf("wscli: Connecting to server at address %s\n", server);
 
 	// Set the callback
-	registerCallback(client, &messageReceivedCallback);
+	// registerCallback(client, &messageReceivedCallback);
 
 	// Connect to the server
 	int result = connectToServer(client, server, 1000);
@@ -71,12 +87,16 @@ client(const char *server, const char *message)
 	// Wait for handshake
 	printf("%d\n", waitForConnection(client, 10000));
 
-	// Send a message
-	printf("Sending message\n");
-	sendClientMessage(client, message);
-	for (int i = 0; i < 10; i++) {
+	// Send lines from STDIN as xml messages, ctrl-c to exit
+	char *line = NULL;
+	size_t len = 0;
+
+	// signal(SIGINT, SignalHandler);
+
+	while ((getline(&line, &len, stdin) != -1) && !exit_client_loop) {
+		printf("Sending message: %s\n", line);
+		sendClientMessage(client, line);
 		pollMessages(client);
-		usleep(10000);
 	}
 
 	// Wait for any messages

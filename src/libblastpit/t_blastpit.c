@@ -127,7 +127,7 @@ TEST(BlastpitGroup, MessageTest)
 	t_Blastpit *client2 = blastpitNew();
 
 	// Connect to the server
-	// We can't check the result because the server is not polling
+	// We can't check the result here because the server is not polling
 	connectToServer(client1, "ws://127.0.0.1:8129", 0);
 	connectToServer(client2, "ws://127.0.0.1:8129", 0);
 
@@ -215,7 +215,7 @@ TEST(BlastpitGroup, SendCommand)
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
 	const char *msg1 = popMessage(bp2);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message command=\"34\" id=\"1\" />\n", msg1);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message type=\"command\" command=\"34\" id=\"1\" />\n", msg1);
 
 	disconnectFromServer(bp1);
 	disconnectFromServer(bp2);

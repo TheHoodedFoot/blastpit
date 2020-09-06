@@ -80,7 +80,7 @@ connectToServer(t_Blastpit* self, const char* server, int timeout_ms)
 
 	// Wait until connected or timeout
 	// Note: This relies on the server running and polling itself
-	while (!((t_Websocket*)self->ws)->isConnected) {
+	while (!bp_isConnected(self)) {
 		pollMessages(self);
 		// TODO: Convert these magic numbers to DEFINES
 		usleep(100000);
@@ -101,7 +101,7 @@ waitForConnection(t_Blastpit* self, int timeout)
 	(void)timeout;
 
 	while (timeout > 0) {
-		if (((t_Websocket*)self->ws)->isConnected) {
+		if (bp_isConnected(self)) {
 			fprintf(stderr, "Now connected\n");
 			return 17;
 		}
@@ -129,6 +129,9 @@ pollMessages(t_Blastpit* self)
 void
 sendClientMessage(t_Blastpit* self, const char* message)
 {
+	if (!message)
+		return;
+
 	LOG(kLvlDebug, "sendClientMessage: %s\n", message);
 	wsClientSendMessage((t_Websocket*)self->ws, (char*)message);
 }
@@ -194,7 +197,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	if (((t_Websocket*)self->ws)->isServer) {
 		sendServerMessage(self, id_message);
 	} else {
-		if (!((t_Websocket*)self->ws)->isConnected) {
+		if (!bp_isConnected(self)) {
 			return (IdAck){id, kConnectionFailure, NULL};
 			// return result;
 		}
@@ -239,6 +242,8 @@ IdAck
 bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 { /* Return the message data as a string, or NULL */
 
+	LOG(kLvlDebug, "bp_waitForXml: Waiting for parent id %d\n", id);
+
 	for (int i = 0; i < timeout; i++) {
 		if (getMessageCount(self) > 0) {
 			/* Test every message with getMessageAt() */
@@ -246,9 +251,10 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 				char* message = readMessageAt(self, j);
 
 				if (message) {
+					LOG(kLvlDebug, "bp_waitForXml: found id %d\n", GetParentId(message));
 					/* fprintf(stderr, "(bp_waitForString)
 					 * Checking message\n"); */
-					if (GetMessageId(message) == id) {
+					if (GetParentId(message) == id) {
 						/* fprintf(stderr,
 						 * "(bp_waitForString) message
 						 * id matched\n"); */
@@ -272,7 +278,7 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 IdAck
 bp_waitForString(t_Blastpit* self, int id, int timeout)
 {
-	char* string = xml_getCommandString(bp_waitForXml(self, id, timeout, false).string);
+	char* string = xml_getCommandString(bp_waitForXml(self, id, timeout, true).string);
 	LOG(kLvlDebug, "bp_waitForString:\n\n%s\n\n", string);
 
 	IdAck result;
@@ -302,7 +308,7 @@ SendAckRetval(t_Blastpit* self, int id, int retval)
 
 	sds id_str = sdsfromlonglong(id);
 	sds retval_str = sdsfromlonglong(retval);
-	IdAck result = SendMessageBp(self, "reply", id_str, retval_str, NULL);
+	IdAck result = SendMessageBp(self, "type", "reply", "parentid", id_str, retval_str, NULL);
 	sdsfree(retval_str);
 	sdsfree(id_str);
 
@@ -313,7 +319,7 @@ IdAck
 SendCommand(t_Blastpit* self, int command)
 {
 	sds cmd = sdsfromlonglong(command);
-	IdAck result = SendMessageBp(self, "command", cmd, NULL);
+	IdAck result = SendMessageBp(self, "type", "command", "command", cmd, NULL);
 	sdsfree(cmd);
 	return result;
 }
@@ -347,7 +353,7 @@ SendMessageBp(t_Blastpit* self, ...)
 			xml = sdscatprintf(xml, "%s=\"%s\"", attrib, value);
 			first_attribute = false;
 		} else {
-			xml = sdscatprintf(xml, ", %s=\"%s\"", attrib, value);
+			xml = sdscatprintf(xml, " %s=\"%s\"", attrib, value);
 		}
 	}
 
@@ -382,12 +388,14 @@ bp_sendCommandAndWait(t_Blastpit* self, int command, int timeout)
 	IdAck result;
 
 	result = SendCommand(self, command);
+	LOG(kLvlDebug, "bp_sendCommandAndWait: id = %d\n", result.id);
+	LOG(kLvlDebug, "bp_sendCommandAndWait: retval = %d\n", result.retval);
 	if (result.retval != kSuccess) {
 		LOG(kLvlDebug, "%s: Failed to send command", __func__);
 		result = (IdAck){kInvalid, kCommandFailed, NULL};
 		return result;
 	}
-	result = bp_waitForXml(self, result.id, timeout, false);
+	result = bp_waitForXml(self, result.id, timeout, true);
 	if (result.retval != kSuccess) {
 		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
 		result = (IdAck){kInvalid, kReplyTimeout, NULL};
@@ -479,4 +487,40 @@ LayerSetHeight(t_Blastpit* self, const char* layer, int height)
 				   layer, height, kLayerSetHeight);
 	bp_sendMessage(self, message);
 	sdsfree(message);
+}
+
+char*
+SdsEmpty()
+{  // Helper function to create sds string that can be called from c++
+	// Avoids c++ code needing to know anything about sds
+
+	return (char*)sdsempty();
+}
+
+void
+SdsFree(char* string)
+{  // Helper function to free an sds string disguised as a char string
+
+	sdsfree((sds)string);
+}
+
+int
+BpHasMultipleMessages(const char* xml)
+{  // C++ wrapper for HasMultipleMessages
+
+	return HasMultipleMessages(xml);
+}
+
+char*
+BpGetMessageByIndex(const char* xml, int index)
+{  // Wrapper for GetMessageByIndex
+
+	return (char*)GetMessageByIndex(xml, index);
+}
+
+char*
+BpGetMessageAttribute(const char* message, const char* attribute)
+{  // Wrapper for GetMessageAttribute
+
+	return (char*)GetMessageAttribute(message, attribute);
 }

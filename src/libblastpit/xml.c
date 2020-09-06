@@ -29,6 +29,31 @@ GetMessageId(const char *message)
 }
 
 int
+GetParentId(const char *message)
+{  // Returns parent id, or kInvalid if nonexistent
+
+	if (!message)
+		return kInvalid;
+
+	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+
+	// Zero is considered an invalid id because atoi() returns 0
+	// for invalid inputs.
+	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	if (!node) {
+		// fprintf(stderr, "Failed with message %s\n", message);
+		return kInvalid;
+	}
+
+	const char *value = mxmlElementGetAttr(node, "parentid");
+
+	int id = 0;
+	if (value)
+		id = atoi(value);
+	return id ? id : kInvalid;
+}
+
+int
 HasMultipleMessages(const char *xml)
 {  // Returns count of <message> elements or kInvalid on bad xml
 
