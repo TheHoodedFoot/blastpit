@@ -60,7 +60,7 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 
 	WsMessage msg_data = ConvertCallbackData(ev_data);
 
-	psr->log("Received a message");
+	// psr->log("Received a message");
 
 	char *message = SdsEmpty();
 	char *id = SdsEmpty();
@@ -68,10 +68,10 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 	int msg_count = BpHasMultipleMessages((const char *)msg_data.data);
 
 	for (int i = 0; i < msg_count; i++) {
-		psr->log("Examining xml");
+		// psr->log("Examining xml");
 		message = BpGetMessageByIndex((const char *)msg_data.data, i);
-		psr->log("Message:");
-		psr->log(message);
+		// psr->log("Message:");
+		// psr->log(message);
 		id = BpGetMessageAttribute(message, "id");
 		cmd_string = BpGetMessageAttribute(message, "command");
 		if (!cmd_string) {
@@ -81,7 +81,7 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 
 		int command = atoi(cmd_string);
 		if (command) {
-			psr->log("Found a command");
+			// psr->log("Found a command");
 			// If the message is a command, is it dependent?
 			// If so, did the parent command complete successfully?
 

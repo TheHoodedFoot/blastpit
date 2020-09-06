@@ -122,17 +122,17 @@ class BpPolyline:
 
 class BpXML:
 	def __init__(self):
-		self.command = ET.Element("command")
-		self.drawing = ET.SubElement(self.command, "DRAWING")
+		self.message = ET.Element("message")
+		self.message.set("type", "command")
+		self.drawing = ET.SubElement(self.message, "DRAWING")
 		self.drawing.set("UNIT", "MM")
 		self.root = ET.SubElement(self.drawing, "ROOT")
 		self.root.set("ID", "Blastpit")
 		self.root.set("WIDTH", "120.0")
 		self.root.set("HEIGHT", "120.0")
 
-	def setCommand(self, command, id=0):
-		self.command.set("id", str(id))
-		self.command.text = str(command)
+	def setCommand(self, message):
+		self.message.set("command", str(message))
 
 	def axialAngle(self, radius, width, overrideMin="false"):
 		# Find tilt (in degrees so we can round it next)
@@ -249,7 +249,7 @@ class BpXML:
 		return g
 
 	def addQpSet(self, name, current, speed, frequency):
-		addqpset = ET.SubElement(self.command, "qpset")
+		addqpset = ET.SubElement(self.message, "qpset")
 		addqpset.set("name", name)
 		addqpset.set("current", str(current))
 		addqpset.set("speed", str(speed))
@@ -261,10 +261,12 @@ class BpXML:
 		# generates them in alphabetical order, Our fix is to force the layer
 		# name to always be first by prefixing it with 'AAA' and then
 		# renaming it afterwards.
-		xml = ET.tostring(self.command).decode("UTF-8")
+		xml = ET.tostring(self.message).decode("UTF-8")
 		xml = xml.replace("AAANAME", "NAME")
 		xml = xml.encode("ascii")
-		return xml
+		header = "<?xml?>"
+		header = header.encode("ascii")
+		return header + xml
 
 class BpLegacy:
 	def __init__(self, server, port):

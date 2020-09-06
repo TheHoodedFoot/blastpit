@@ -545,7 +545,7 @@ ueye:	$(BUILD_DIR)/libblastpit.a
 
 # Packaging
 
-tarball:
+tarball:	lmos
 	cd build/win32/release && \
 		zip -r /tmp/lmos.zip \
 		--exclude=\*.o \

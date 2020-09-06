@@ -13,6 +13,14 @@ extern "C" {
 
 #include <stdbool.h>
 
+// Constants fixed by Rofin hardware
+#define LMOS_CURRENT_MIN 0
+#define LMOS_CURRENT_MAX 100
+#define LMOS_SPEED_MIN 1
+#define LMOS_SPEED_MAX 1000
+#define LMOS_FREQUENCY_MIN 20000
+#define LMOS_FREQUENCY_MAX 60000
+
 // #define BP_PACKET_CHECKSUM_SIZE 5 * sizeof(uint32_t)
 // #define BP_DATA_CHECKSUM_SIZE sizeof(struct BpPacket)
 
@@ -112,6 +120,7 @@ extern "C" {
 	RETVAL(kMoEnd)             \
 	RETVAL(kNullResource)      \
 	RETVAL(kPlcEvent)          \
+	RETVAL(kQueued)            \
 	RETVAL(kReplyTimeout)      \
 	RETVAL(kSetterFailure)     \
 	RETVAL(kInvalid = -1)      \
@@ -242,7 +251,8 @@ struct BpHID {
 typedef struct Blastpit {
 	// t_Websocket *ws;
 	void *ws;
-	int highest_id;	 // Highest id used (for auto generation)
+	int highest_id;	      // Highest id used (for auto generation)
+	char *message_queue;  // Pointer to sds string holding queued messages
 } t_Blastpit;
 
 typedef struct bp_message {
@@ -300,12 +310,21 @@ void startLMOS(t_Blastpit *self);
 int AutoGenerateId(t_Blastpit *self);
 void LayerSetLaserable(t_Blastpit *self, const char *layer, bool laserable);
 void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
+
 IdAck SendMessageBp(t_Blastpit *self, ...);
 IdAck SendCommand(t_Blastpit *self, int command);
 IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
 int BpHasMultipleMessages(const char *xml);
 char *BpGetMessageByIndex(const char *xml, int index);
 char *BpGetMessageAttribute(const char *message, const char *attribute);
+
+int BpQueueQpSet(t_Blastpit *self, char *name, int current, int speed, int frequency);
+// Appends a command to an xml string for bulk upload
+int BpQueueCommand(t_Blastpit *self, int command);
+// Appends a multi-attribute message to an xml string
+int BpQueueMessage(t_Blastpit *self, ...);
+// Uploads a message to the server without touching it
+IdAck BpUploadQueuedMessages(t_Blastpit *self);
 
 char *SdsEmpty();
 void SdsFree(char *string);

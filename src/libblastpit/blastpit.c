@@ -12,17 +12,6 @@
 #include "xml.h"
 #include "xml_old.hpp"
 
-const char*
-bpCommandName(int command)
-{
-	return bpCommandString[command];
-}
-const char*
-bpRetvalName(int retval)
-{
-	return bpRetvalString[retval];
-}
-
 t_Blastpit*
 blastpitNew()
 {  // Constructor
@@ -31,6 +20,7 @@ blastpitNew()
 	if (bp) {
 		bp->ws = (void*)websocketNew();
 		bp->highest_id = 0;
+		bp->message_queue = NULL;
 	}
 
 	return bp;
@@ -42,7 +32,20 @@ blastpitDelete(t_Blastpit* bp)
 
 	if (bp->ws)
 		websocketDelete((t_Websocket*)bp->ws);
+	if (bp->message_queue)
+		sdsfree(bp->message_queue);
 	free(bp);
+}
+
+const char*
+bpCommandName(int command)
+{
+	return bpCommandString[command];
+}
+const char*
+bpRetvalName(int retval)
+{
+	return bpRetvalString[retval];
 }
 
 int
@@ -98,8 +101,6 @@ int
 waitForConnection(t_Blastpit* self, int timeout)
 {  // Repeatedly poll until we connect to server or timeout
 
-	(void)timeout;
-
 	while (timeout > 0) {
 		if (bp_isConnected(self)) {
 			fprintf(stderr, "Now connected\n");
@@ -116,6 +117,7 @@ waitForConnection(t_Blastpit* self, int timeout)
 void
 disconnectFromServer(t_Blastpit* self)
 {
+	// TODO
 	(void)self;
 }
 
@@ -330,7 +332,6 @@ SendMessageBp(t_Blastpit* self, ...)
 	// If there are an odd number of optional parameters,
 	// the final parameter is used as the message CDATA
 
-	(void)self;
 	va_list args;
 	va_start(args, self);
 	char *attrib, *value;
@@ -523,4 +524,127 @@ BpGetMessageAttribute(const char* message, const char* attribute)
 {  // Wrapper for GetMessageAttribute
 
 	return (char*)GetMessageAttribute(message, attribute);
+}
+
+int
+BpQueueCommand(t_Blastpit* self, int command)
+{
+	if (!self)
+		return kInvalid;
+
+	sds command_str = sdscatprintf(sdsempty(), "%d", command);
+
+	int result = BpQueueMessage(self, "type", "command",
+				    "command", command_str);
+
+	sdsfree(command_str);
+
+	return result;
+}
+
+int
+BpQueueMessage(t_Blastpit* self, ...)
+{  // REMEMBER THE NULL
+	// Append message to global queue for bulk upload
+	// If there are an odd number of optional parameters,
+	// the final parameter is used as the message CDATA
+
+	va_list args;
+	va_start(args, self);
+	char *attrib, *value;
+	int id = AutoGenerateId(self);
+	sds message = sdscatprintf(sdsempty(), "<message id=\"%d\" ", id);
+	sds xml;
+
+	// LOG(kLvlDebug, "message: %s\n", message);
+	while (true) {
+		// Get the attribute name
+		attrib = va_arg(args, char*);  // Pop the next argument (a char*)
+		if (!attrib)
+			break;
+
+		// Get the attribute value
+		value = va_arg(args, char*);  // Pop the next argument (a char*)
+		if (!value)
+			break;
+
+		// Append the attribute to the message
+		message = sdscatprintf(message, "%s=\"%s\" ", attrib, value);
+		// LOG(kLvlDebug, "found attribute %s\n", attrib);
+		// LOG(kLvlDebug, "found value %s\n", value);
+		// LOG(kLvlDebug, "message: %s\n", message);
+	}
+
+	message = sdscatprintf(message, ">");
+	// LOG(kLvlDebug, "message1: %s\n", message);
+
+	if (attrib) {  // Payload
+		message = sdscatprintf(message, "%s", attrib);
+		// LOG(kLvlDebug, "message2: %s\n", message);
+	}
+
+	message = sdscatprintf(message, "</message>");
+	// LOG(kLvlDebug, "message3: %s\n", message);
+
+	if (self->message_queue) {
+		xml = self->message_queue;
+	} else {
+		xml = sdsnew("<?xml version=\"1.0\"?>");
+	}
+
+	xml = sdscat(xml, message);
+
+	LOG(kLvlDebug, "(BpQueueMessage) New queue: %s\n", xml);
+
+	va_end(args);
+	sdsfree(message);
+
+	self->message_queue = xml;
+
+	return id;
+}
+
+IdAck
+BpUploadQueuedMessages(t_Blastpit* self)
+{  // Uploads the queued message and frees the sds string
+
+	LOG(kLvlDebug, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
+	sdsfree(self->message_queue);
+	self->message_queue = NULL;
+
+	return (IdAck){kInvalid, kFailure, NULL};
+}
+
+int
+BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency)
+{  // Queue a qp set for upload
+
+	if (!self)
+		return kInvalid;
+	if (current < LMOS_CURRENT_MIN || current > LMOS_CURRENT_MAX)
+		return kInvalid;
+	if (speed < LMOS_SPEED_MIN || speed > LMOS_SPEED_MAX)
+		return kInvalid;
+	if (frequency < LMOS_FREQUENCY_MIN || frequency > LMOS_FREQUENCY_MAX)
+		return kInvalid;
+
+	sds command_str = sdscatprintf(sdsempty(), "%d", kAddQpSet);
+	sds current_str = sdscatprintf(sdsempty(), "%d", current);
+	sds speed_str = sdscatprintf(sdsempty(), "%d", speed);
+	sds frequency_str = sdscatprintf(sdsempty(), "%d", frequency);
+
+	int result = BpQueueMessage(self, "type", "command",
+				    "command", command_str,
+				    "name", name,
+				    "current", current_str,
+				    "speed", speed_str,
+				    "frequency", frequency_str,
+				    NULL);
+
+	sdsfree(frequency_str);
+	sdsfree(speed_str);
+	sdsfree(current_str);
+	sdsfree(command_str);
+
+	return result;
 }
