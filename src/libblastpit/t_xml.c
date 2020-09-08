@@ -1,9 +1,8 @@
 #include <stdlib.h>
-#include <string.h>
 #include "unity_fixture.h" /* MUST be before <stdlib.h> */
 
+#include "blastpit.h"
 #include "xml.h"
-#include "xml_old.hpp"
 
 TEST_GROUP(XmlGroup);
 
@@ -17,49 +16,49 @@ TEST(XmlGroup, AddRemoveIdTest)
 
 	TEST_ASSERT_EQUAL(33, GetMessageId("<?xml?><message id=\"33\"/>"));
 
-	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
+	sds messageRemoved = xml_removeId("<message id=\"33\"/>");
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
 	TEST_ASSERT_NOT_NULL(messageRemoved);
 	TEST_ASSERT_EQUAL(kInvalid, GetMessageId(messageRemoved));
 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message />\n", messageRemoved);
 
-	char *messageAdded = xml_setId(123, messageRemoved);
+	sds messageAdded = xml_setId(123, messageRemoved);
 	TEST_ASSERT_NOT_NULL(messageAdded);
 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message id=\"123\" />\n", messageAdded);
 
-	char *messageReplaced = xml_setId(124, messageAdded);
+	sds messageReplaced = xml_setId(124, messageAdded);
 	TEST_ASSERT_NOT_NULL(messageReplaced);
 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message id=\"124\" />\n", messageReplaced);
 
 	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
-	free(messageRemoved);
-	free(messageAdded);
-	free(messageReplaced);
+	sdsfree(messageRemoved);
+	sdsfree(messageAdded);
+	sdsfree(messageReplaced);
 }
 
 TEST(XmlGroup, AddHeaderTest)
 {
-	char *addHeader = xml_addHeader("foo");
+	sds addHeader = xml_addHeader("foo");
 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message>foo</message>\n", addHeader);
-	free(addHeader);
+	sdsfree(addHeader);
 }
 
 TEST(XmlGroup, CommandStringTest)
 {
-	char *message = xml_getCommandString("<message>Teststring</message>");
+	sds message = xml_getCommandString("<message>Teststring</message>");
 	TEST_ASSERT_EQUAL_STRING("Teststring", message);
 
-	char *badmessage = xml_getCommandString("<feck>Teststring</feck>");
+	sds badmessage = xml_getCommandString("<feck>Teststring</feck>");
 	TEST_ASSERT_NULL(badmessage);
 
-	free(message);
-	free(badmessage);
+	sdsfree(message);
+	sdsfree(badmessage);
 }
 
 TEST(XmlGroup, OverflowTest)
 {
-	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
-	free(messageRemoved);
+	sds messageRemoved = xml_removeId("<message id=\"33\"/>");
+	sdsfree(messageRemoved);
 }
 
 TEST(XmlGroup, XmlRetvalTest)
@@ -76,7 +75,7 @@ TEST(XmlGroup, XmlRetvalTest)
 
 	// Tests whether getValuesFromXml() can parse return values
 	const char *xml = "<?xml?><message id=\"73\">992</message>";
-	XmlReply reply = ParseXmlIdAndRetval(xml);
+	IdAck reply = ParseXmlIdAndRetval(xml);
 	TEST_ASSERT_EQUAL(73, reply.id);
 	TEST_ASSERT_EQUAL(992, reply.retval);
 

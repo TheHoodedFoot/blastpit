@@ -11,12 +11,14 @@ GetMessageId(const char *message)
 		return kInvalid;
 
 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	if (!xml) return kInvalid;
 
 	// Zero is considered an invalid id because atoi() returns 0
 	// for invalid inputs.
 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		// fprintf(stderr, "Failed with message %s\n", message);
+		mxmlDelete(xml);
 		return kInvalid;
 	}
 
@@ -25,6 +27,7 @@ GetMessageId(const char *message)
 	int id = 0;
 	if (value)
 		id = atoi(value);
+	mxmlDelete(xml);
 	return id ? id : kInvalid;
 }
 
@@ -36,12 +39,14 @@ GetParentId(const char *message)
 		return kInvalid;
 
 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	if (!xml) return kInvalid;
 
 	// Zero is considered an invalid id because atoi() returns 0
 	// for invalid inputs.
 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		// fprintf(stderr, "Failed with message %s\n", message);
+		mxmlDelete(xml);
 		return kInvalid;
 	}
 
@@ -50,6 +55,7 @@ GetParentId(const char *message)
 	int id = 0;
 	if (value)
 		id = atoi(value);
+	mxmlDelete(xml);
 	return id ? id : kInvalid;
 }
 
@@ -70,6 +76,7 @@ HasMultipleMessages(const char *xml)
 		count++;
 	}
 
+	mxmlDelete(tree);
 	return count;
 }
 
@@ -97,7 +104,6 @@ GetMessageByIndex(const char *xml, int index)
 	sds retval = sdsnew("<?xml?>");
 	retval = sdscat(retval, node_data);
 	free(node_data);
-	mxmlDelete(node);
 	mxmlDelete(tree);
 
 	return retval;
@@ -124,7 +130,6 @@ GetMessageAttribute(const char *message, const char *attribute)
 
 	sds retval = sdsnew(value);
 
-	mxmlDelete(node);
 	mxmlDelete(xml);
 
 	return retval;
@@ -141,7 +146,6 @@ xml_hasHeader(const char* message)
 
 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (node) {
-		mxmlDelete(node);
 		mxmlDelete(xml);
 		return true;
 	}
@@ -182,7 +186,6 @@ GetCdata(const char* string)
 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (node) {
 		sds cdata = sdsnew(mxmlGetCDATA(node));
-		mxmlDelete(node);
 		mxmlDelete(xml);
 		return cdata;
 	}
@@ -190,3 +193,27 @@ GetCdata(const char* string)
 	return NULL;
 }
 
+sds
+xml_removeId(sds message)
+{ // Return a string with the id removed
+
+	if (!message) return NULL;
+
+	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	if (!xml) return false;
+
+	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	if (!node) {
+		mxmlDelete(xml);
+		return NULL;
+	}
+
+	mxmlElementDeleteAttr(node, "id");
+
+	char *node_data = mxmlSaveAllocString(xml, MXML_NO_CALLBACK);
+	sds retval = sdscat(sdsempty(), node_data);
+	free(node_data);
+	mxmlDelete(xml);
+
+	return retval;
+}
