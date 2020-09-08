@@ -23,36 +23,36 @@
 // 	return id ? id : kInvalid;
 // }
 
-int
-xml_hasHeader(const char* message)
-{ /* Returns true if <command> header exists */
+// int
+// xml_hasHeader(const char* message)
+// { /* Returns true if <command> header exists */
 
-	pugi::xml_document xml;
+// 	pugi::xml_document xml;
 
-	xml.load_string(message);
-	return (xml.child("message") != nullptr);
-}
+// 	xml.load_string(message);
+// 	return (xml.child("message") != nullptr);
+// }
 
 /* The id modification functions below all produce dynamic copies of the input
  * string, which will need to be freed by the caller */
 
-char*
-xml_getCommandString(const char* string)
-{ /* Returns the pcdata contained by the command node */
+// char*
+// xml_getCommandString(const char* string)
+// { /* Returns the pcdata contained by the command node */
 
-	pugi::xml_document xml;
+// 	pugi::xml_document xml;
 
-	if (!string)
-		return nullptr;
-	if (!strlen(string))
-		return nullptr;
-	xml.load_string(string);
-	pugi::xml_node command = xml.child("message");
-	if (!command)
-		return nullptr;
+// 	if (!string)
+// 		return nullptr;
+// 	if (!strlen(string))
+// 		return nullptr;
+// 	xml.load_string(string);
+// 	pugi::xml_node command = xml.child("message");
+// 	if (!command)
+// 		return nullptr;
 
-	return xml_mallocCopy(command.child_value());
-}
+// 	return xml_mallocCopy(command.child_value());
+// }
 
 char*
 xml_mallocCopy(const char* string)
@@ -142,19 +142,19 @@ xml_removeId(const char* message)
 	return xml_mallocCopy(cstring);
 }
 
-XmlReply
-ParseXmlIdAndRetval(const char* xml)
-{  // Extract the id and return value into a struct
+// XmlReply
+// ParseXmlIdAndRetval(const char* xml)
+// {  // Extract the id and return value into a struct
 
-	XmlReply reply = {kInvalid, kInvalid};
+// 	XmlReply reply = {kInvalid, kInvalid};
 
-	if (!xml_hasHeader(xml))
-		return reply;
+// 	if (!xml_hasHeader(xml))
+// 		return reply;
 
-	reply.id = GetMessageId(xml);
-	char* xmldata = xml_getCommandString(xml);
-	reply.retval = atoi(xmldata);
-	free(xmldata);
+// 	reply.id = GetMessageId(xml);
+// 	char* xmldata = xml_getCommandString(xml);
+// 	reply.retval = atoi(xmldata);
+// 	free(xmldata);
 
-	return reply;
-}
+// 	return reply;
+// }

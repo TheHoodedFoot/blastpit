@@ -82,6 +82,7 @@ GetMessageByIndex(const char *xml, int index)
 	mxml_node_t *node;
 	int count = 0;
 
+	// TODO: Memory leaks here
 	for (node = mxmlFindElement(tree, tree, "message", NULL,
 				    NULL, MXML_DESCEND);
 	     node != NULL && count < index;
@@ -96,6 +97,8 @@ GetMessageByIndex(const char *xml, int index)
 	sds retval = sdsnew("<?xml?>");
 	retval = sdscat(retval, node_data);
 	free(node_data);
+	mxmlDelete(node);
+	mxmlDelete(tree);
 
 	return retval;
 }
@@ -111,6 +114,7 @@ GetMessageAttribute(const char *message, const char *attribute)
 
 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
+		mxmlDelete(xml);
 		return NULL;
 	}
 
@@ -120,6 +124,69 @@ GetMessageAttribute(const char *message, const char *attribute)
 
 	sds retval = sdsnew(value);
 
-	free((char *)value);
+	mxmlDelete(node);
+	mxmlDelete(xml);
+
 	return retval;
 }
+
+int
+xml_hasHeader(const char* message)
+{ // Returns true if <command> header exists
+
+	if (!message) return kInvalid;
+
+	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	if (!xml) return false;
+
+	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	if (node) {
+		mxmlDelete(node);
+		mxmlDelete(xml);
+		return true;
+	}
+
+	mxmlDelete(xml);
+	return false;
+}
+
+IdAck
+ParseXmlIdAndRetval(const char* xml)
+{  // Extract the id and return value into a struct
+
+	IdAck reply = {kInvalid, kFailure, NULL};
+
+	if (!xml_hasHeader(xml))
+		return reply;
+
+	reply.id = GetMessageId(xml);
+	sds xmldata = GetCdata(xml);
+	reply.retval = atoi(xmldata);
+	sdsfree(xmldata);
+
+	return reply;
+}
+
+sds
+GetCdata(const char* string)
+{ // Returns the pcdata contained by the command node
+
+	if (!string)
+		return NULL;
+	if (!strlen(string))
+		return NULL;
+
+	mxml_node_t *xml = mxmlLoadString(NULL, string, MXML_OPAQUE_CALLBACK);
+	if (!xml) return false;
+
+	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	if (node) {
+		sds cdata = sdsnew(mxmlGetCDATA(node));
+		mxmlDelete(node);
+		mxmlDelete(xml);
+		return cdata;
+	}
+
+	return NULL;
+}
+
