@@ -35,6 +35,7 @@ RANLIB = llvm-ranlib
 # Compiler flags
 debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror
+# debug_build:	CPPFLAGS += -O0 -g3
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
 # debug_build:	CC        = zig cc # Doesn't work with bear

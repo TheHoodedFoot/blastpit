@@ -169,7 +169,7 @@ Lmos::LoadXML(const QString& xml)
 	lmos_actx->ShowMarkingArea();
 	return result;
 #else
-	(void)xml;
+	emit log(kLvlDebug, __func__, xml);
 	return false;
 #endif
 }

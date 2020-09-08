@@ -535,7 +535,7 @@ BpQueueCommand(t_Blastpit* self, int command)
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
 	int result = BpQueueMessage(self, "type", "command",
-				    "command", command_str);
+				    "command", command_str, NULL);
 
 	sdsfree(command_str);
 
@@ -584,7 +584,6 @@ BpQueueMessage(t_Blastpit* self, ...)
 	}
 
 	message = sdscatprintf(message, "</message>");
-	// LOG(kLvlDebug, "message3: %s\n", message);
 
 	if (self->message_queue) {
 		xml = self->message_queue;
@@ -594,6 +593,7 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	xml = sdscat(xml, message);
 
+	LOG(kLvlDebug, "(BpQueueMessage) Adding message: %s\n", message);
 	LOG(kLvlDebug, "(BpQueueMessage) New queue: %s\n", xml);
 
 	va_end(args);
@@ -609,10 +609,11 @@ BpUploadQueuedMessages(t_Blastpit* self)
 {  // Uploads the queued message and frees the sds string
 
 	LOG(kLvlDebug, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
+	IdAck result = bp_sendMessage(self, self->message_queue);
 	sdsfree(self->message_queue);
 	self->message_queue = NULL;
 
-	return (IdAck){kInvalid, kFailure, NULL};
+	return result;
 }
 
 int
@@ -644,6 +645,30 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 	sdsfree(frequency_str);
 	sdsfree(speed_str);
 	sdsfree(current_str);
+	sdsfree(command_str);
+
+	return result;
+}
+
+int
+BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char* val1, const char* attr2, const char* val2, const char* attr3, const char* val3, const char* attr4, const char* val4, const char* payload)
+{  // Queue a command with four attributes and payload
+	// This is a fix for lack of swig support for variadic functions
+	// Supply dummy command/value pairs for unneeded values or payload
+
+	if (!self)
+		return kInvalid;
+
+	sds command_str = sdscatprintf(sdsempty(), "%d", command);
+
+	int result = BpQueueMessage(self, "type", "command",
+				    "command", command_str,
+				    attr1, val1,
+				    attr2, val2,
+				    attr3, val3,
+				    attr4, val4,
+				    payload, NULL);
+
 	sdsfree(command_str);
 
 	return result;

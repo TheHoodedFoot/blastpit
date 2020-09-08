@@ -388,17 +388,15 @@ class Laser(inkex.Effect):
             if result != blastpy.kSuccess:
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
-            blastpy.SendCommand(blast, blastpy.kClearLog)
-            result = blastpy.bp_sendCommandAndWait( blast, blastpy.kClearQpSets, SHORT_TIMEOUT)
-            if result.retval != blastpy.kSuccess:
-                print("Cannot clear Qpsets (is lmos running?)", file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
-                sys.exit()
 
-            print(qpsets, file=sys.stderr)
+
+
+
+            blastpy.BpQueueCommand(blast, blastpy.kClearLog)
+            blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
             for qpset in qpsets:
                 blastpy.BpQueueQpSet(blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3]))
-            blastpy.BpUploadQueuedMessages(blast)
+            result = blastpy.BpUploadQueuedMessages(blast)
 
             if result.retval != blastpy.kSuccess:
                 print("Cannot add Qpsets", file=sys.stderr)
@@ -406,21 +404,25 @@ class Laser(inkex.Effect):
                 print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
                 sys.exit()
 
-            xml.setCommand(blastpy.kImportXML)
-            result = blastpy.bp_sendMessageAndWait( blast, str(xml.xml()), LONG_TIMEOUT)
+            # blastpy.BpQueueMessage(blast, "type", "command", "command", str(blastpy.kImportXML), str(xml.xml()), 0)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, "a", "a", "b", "b", "c", "c", "d", "d", str(xml.xml()))
+            # print(blast.message_queue, file=sys.stderr)
+            result = blastpy.BpUploadQueuedMessages(blast)
+
             if result.retval != blastpy.kSuccess:
                 print("Can't send the drawing XML", file=sys.stderr)
                 print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
                 sys.exit()
-            result = blastpy.LayerSetLaserable(blast, "RofinStandard", False)
-            if result.retval != blastpy.kSuccess:
-                print("Can't set RofinStandard layer as not laserable", file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
-                sys.exit()
-            blastpy.LayerSetHeight(blast, "RofinStandard", 120)
-            blastpy.LayerSetHeight(blast, "RofinBackground", 120)
+
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", "a", "a", "b", "b", "")
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "120", "a", "a", "b", "b", "")
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "120", "a", "a", "b", "b", "")
             for layer in layers:
-                blastpy.LayerSetHeight(blast, 0, str(layer[0]), float(layer[1]))
+                blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), "a", "a", "b", "b", "")
+            print(blast.message_queue, file=sys.stderr)
+            result = blastpy.BpUploadQueuedMessages(blast)
+
+            return
             if self.filename is not None and self.customer is not None:
                 # print("saving as customer/filename", file=sys.stderr)
                 blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" +
@@ -447,6 +449,7 @@ class Laser(inkex.Effect):
                     "</command>",
                     SHORT_TIMEOUT)
             blastpy.disconnectFromServer(blast)
+            print("Saving complete", file=sys.stderr)
 
         if self.mode == "position":
             blast = blastpy.t_Blastpit()

@@ -325,6 +325,7 @@ int BpQueueCommand(t_Blastpit *self, int command);
 int BpQueueMessage(t_Blastpit *self, ...);
 // Uploads a message to the server without touching it
 IdAck BpUploadQueuedMessages(t_Blastpit *self);
+int BpQueueCommandArgs(t_Blastpit *self, int command, const char *attr1, const char *val1, const char *attr2, const char *val2, const char *attr3, const char *val3, const char *attr4, const char *val4, const char *payload);
 
 char *SdsEmpty();
 void SdsFree(char *string);

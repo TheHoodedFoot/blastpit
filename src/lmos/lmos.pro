@@ -19,11 +19,11 @@ CONFIG += debug_and_release build_all c++11
 QMAKE_CXXFLAGS_RELEASE += -DDEBUG_LEVEL=0
 QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=9
 
-#linux {
-#	QMAKE_CC = "zig cc"
-#	QMAKE_CXX = "zig c++"
-#	QMAKE_LINK = "zig c++"
-#}
+linux {
+	#QMAKE_CC = "ccache clang"
+	#QMAKE_CXX = "ccache clang++"
+	#QMAKE_LINK = "ccache clang++"
+}
 
 INCLUDEPATH += $$PWD/../libblastpit
 INCLUDEPATH += $$PWD/../submodules/pugixml/src
