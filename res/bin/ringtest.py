@@ -108,12 +108,12 @@ for shadow in range(numSegments):
     print("Starting marking...")
     bp_sendCommandAndWait(self, id, "lmos", kStartMarking, SHORT_DELAY)
 
-    if bp_waitForSignal(self, kIdImageEnd, LONG_DELAY) == kIdImageEnd:
-        # not waiting the ten seconds
-        print("Got ImageEnd signal")
-    else:
-        print("Failed to receive ImageEnd signal")
-        break
+    # if bp_waitForSignal(self, kIdImageEnd, LONG_DELAY) == kIdImageEnd:
+    #     # not waiting the ten seconds
+    #     print("Got ImageEnd signal")
+    # else:
+    #     print("Failed to receive ImageEnd signal")
+    #     break
 
     id = id + 1
     print("Cancelling job...")

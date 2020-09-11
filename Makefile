@@ -58,7 +58,7 @@ profile: 	CPPFLAGS += -pg --coverage
 LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
 LIBMXML_OBJS        := $(patsubst %.c,%.o,$(LIBMXML_SRCS))
 LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml.c
-LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) xml_old.o pugixml.o sds.o mongoose.o
+LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) sds.o mongoose.o
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES)) $(SUBMODULES_DIR)/sds/sds.c
 LIBBLASTPIT_TARGETS := libblastpit.a _blastpy.so blastpy.py 
 
@@ -78,7 +78,7 @@ PYTHON_INCS = $(shell python-config --includes)
 LIBS  = -lm
 
 # Blastpy
-BLASTPY_FILES  = blastpy_wrap.o xml_old.o pugixml.o
+BLASTPY_FILES  = blastpy_wrap.o 
 # BLASTPY_SRCS   = $(patsubst %.o,$(SRCDIR)/%.c,$(BLASTPY_FILES))
 BLASTPY_FILES += libblastpit.a
 BLASTPY_LIBS   = 
@@ -141,12 +141,6 @@ emcc:
 	@if [[ ! $$(command -v emcc) ]]; then echo -e "\n\e[31mYou need to source the emscripten environment setup script. Use:\e[39m\n\n	pushd src/submodules/emsdk && source emsdk_env.sh && popd\n\n"; exit 255; fi
 
 # Libblastpit Recipes
-xml_old.o:	$(PROJECT_ROOT)/src/libblastpit/xml_old.cpp
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) -I$(SUBMODULES_DIR)/pugixml/src -c -fPIC $^ -o $@
-
-pugixml.o:	$(SUBMODULES_DIR)/pugixml/src/pugixml.cpp
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
-
 sds.o:	$(SUBMODULES_DIR)/sds/sds.c
 	$(CC) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
 
@@ -204,7 +198,7 @@ blastmine:	$(BLASTMINE_DIR)/blastmine.zig
 # Webapp Recipes
 webapp: 	$(WEBAPP_TARGETS)
 
-$(PROJECT).html:	$(WEBAPP_DIR)/$(PROJECT).c
+$(PROJECT).html:	$(WEBAPP_DIR)/webapp.c
 	@if [[ ! $$(command -v emcc) ]]; then echo -e "\n\n\e[31mYou need to source ~/usr/src/SDK/emsdk/emsdk_env.sh to setup the Emscripten environment\e[39m\n\n"; exit 255; else emcc $^ -o $@; fi
 
 $(PROJECT).js $(PROJECT).wasm: $(PROJECT).html
@@ -450,7 +444,7 @@ websocketwin:	$(BUILD_DIR)
 		-c src/submodules/mongoose/mongoose.c \
 		-lwsock32
 
-win.exe:	test.cpp src/libblastpit/linkedlist.c src/libblastpit/blastpit.c src/libblastpit/parser.c src/libblastpit/message.c src/libblastpit/new.c src/libblastpit/xml_old.cpp sub/pugixml/src/pugixml.cpp
+win.exe:	test.cpp src/libblastpit/linkedlist.c src/libblastpit/blastpit.c src/libblastpit/parser.c src/libblastpit/message.c src/libblastpit/new.c
 	env WINEPREFIX="$(WINE_PREFIX)" \
 		WINEARCH="$(WINE_ARCH)" \
 		PATH="/usr/bin" \

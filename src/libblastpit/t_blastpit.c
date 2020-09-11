@@ -215,7 +215,7 @@ TEST(BlastpitGroup, SendCommand)
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
 	const char *msg1 = popMessage(bp2);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message type=\"command\" command=\"34\" id=\"1\" />\n", msg1);
+	TEST_ASSERT_EQUAL_STRING("<message type=\"command\" command=\"34\" id=\"1\" />\n", msg1);
 
 	disconnectFromServer(bp1);
 	disconnectFromServer(bp2);

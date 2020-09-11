@@ -1,9 +1,8 @@
 #include <stdlib.h>
-#include <string.h>
 #include "unity_fixture.h" /* MUST be before <stdlib.h> */
 
+#include "blastpit.h"
 #include "xml.h"
-#include "xml_old.hpp"
 
 TEST_GROUP(XmlGroup);
 
@@ -13,87 +12,88 @@ TEST_TEAR_DOWN(XmlGroup) {}
 
 TEST(XmlGroup, AddRemoveIdTest)
 {
-	TEST_ASSERT_EQUAL(kInvalid, GetMessageId("Hello, world!"));
+	sds attr = XmlGetAttribute("Hello, world!", "id");
+	TEST_ASSERT_NULL(attr);
+	sdsfree(attr);
 
-	TEST_ASSERT_EQUAL(33, GetMessageId("<?xml?><message id=\"33\"/>"));
+	attr = XmlGetAttribute("<?xml?><message id=\"33\"/>", "id");
+	TEST_ASSERT_EQUAL_STRING("33", attr);
+	sdsfree(attr);
 
-	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
-	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
-	TEST_ASSERT_NOT_NULL(messageRemoved);
-	TEST_ASSERT_EQUAL(kInvalid, GetMessageId(messageRemoved));
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message />\n", messageRemoved);
+	sds message_removed = sdsnew("<message id=\"33\"/>");
+	message_removed = XmlDeleteAttribute(message_removed, "id");
+	TEST_ASSERT_NOT_NULL(message_removed);
+	TEST_ASSERT_EQUAL(NULL, XmlGetAttribute(message_removed, "id"));
+	TEST_ASSERT_EQUAL_STRING("<message />\n", message_removed);
 
-	char *messageAdded = xml_setId(123, messageRemoved);
-	TEST_ASSERT_NOT_NULL(messageAdded);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message id=\"123\" />\n", messageAdded);
+	sds message_added = XmlSetAttribute(message_removed, "id", "123");
+	TEST_ASSERT_NOT_NULL(message_added);
+	TEST_ASSERT_EQUAL_STRING("<message id=\"123\" />\n", message_added);
 
-	char *messageReplaced = xml_setId(124, messageAdded);
-	TEST_ASSERT_NOT_NULL(messageReplaced);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message id=\"124\" />\n", messageReplaced);
+	sds message_replaced = XmlSetAttribute(message_added, "id", "124");
+	TEST_ASSERT_NOT_NULL(message_replaced);
+	TEST_ASSERT_EQUAL_STRING("<message id=\"124\" />\n", message_replaced);
 
-	/* fprintf(stderr, "messageRemoved: %p\n", messageRemoved); */
-	free(messageRemoved);
-	free(messageAdded);
-	free(messageReplaced);
+	/* fprintf(stderr, "message_removed: %p\n", message_removed); */
+	sdsfree(message_replaced);
 }
 
-TEST(XmlGroup, AddHeaderTest)
-{
-	char *addHeader = xml_addHeader("foo");
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message>foo</message>\n", addHeader);
-	free(addHeader);
-}
+// TEST(XmlGroup, AddHeaderTest)
+// {
+// 	sds addHeader = xml_addHeader("foo");
+// 	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?>\n<message>foo</message>\n", addHeader);
+// 	sdsfree(addHeader);
+// }
 
 TEST(XmlGroup, CommandStringTest)
 {
-	char *message = xml_getCommandString("<message>Teststring</message>");
+	sds cdata = XmlNewCdata("ARse");
+	printf("\ncdata: %s\n", cdata);
+
+	sds message = XmlGetCdata("<message><![CDATA[Teststring]]></message>");
 	TEST_ASSERT_EQUAL_STRING("Teststring", message);
 
-	char *badmessage = xml_getCommandString("<feck>Teststring</feck>");
-	TEST_ASSERT_NULL(badmessage);
+	// sds badmessage = XmlGetCdata("<feck>Teststring</feck>");
+	// TEST_ASSERT_NULL(badmessage);
 
-	free(message);
-	free(badmessage);
+	sdsfree(message);
+	// sdsfree(badmessage);
 }
 
-TEST(XmlGroup, OverflowTest)
+TEST(XmlGroup, DeleteAttributeTest)
 {
-	char *messageRemoved = xml_removeId("<message id=\"33\"/>");
-	free(messageRemoved);
+	sds messageRemoved = XmlDeleteAttribute("<message id=\"33\"/>", "id");
+	TEST_ASSERT_EQUAL_STRING("<message />", messageRemoved);
+	sdsfree(messageRemoved);
 }
 
-TEST(XmlGroup, XmlRetvalTest)
-{
-	// What are the requirements to test 'x'?
-	// 	What does the object do?
-	// 	How does it interact with the data or hardware it controls?
-	// 	How can we make it testable?
+// TEST(XmlGroup, XmlRetvalTest)
+// {
+// 	// Replies are in the format:
+// 	// <xml><command id="1">3</command>
+// 	// or
+// 	// <xml><command id="1">string</command>
 
-	// Replies are in the format:
-	// <xml><command id="1">3</command>
-	// or
-	// <xml><command id="1">string</command>
+// 	// Tests whether getValuesFromXml() can parse return values
+// 	const char *xml = "<?xml?><message id=\"73\" retval=\"6\" />";
+// 	IdAck reply = ParseXmlIdAndRetval(xml);
+// 	TEST_ASSERT_EQUAL(73, reply.id);
+// 	TEST_ASSERT_EQUAL(992, reply.retval);
 
-	// Tests whether getValuesFromXml() can parse return values
-	const char *xml = "<?xml?><message id=\"73\">992</message>";
-	XmlReply reply = ParseXmlIdAndRetval(xml);
-	TEST_ASSERT_EQUAL(73, reply.id);
-	TEST_ASSERT_EQUAL(992, reply.retval);
+// 	// Invalid or missing id should return kInvalid
+// 	xml = "<?xml?><message>123</message>";
+// 	reply = ParseXmlIdAndRetval(xml);
+// 	TEST_ASSERT_EQUAL(kInvalid, reply.id);
+// 	TEST_ASSERT_EQUAL(123, reply.retval);
 
-	// Invalid or missing id should return kInvalid
-	xml = "<?xml?><message>123</message>";
-	reply = ParseXmlIdAndRetval(xml);
-	TEST_ASSERT_EQUAL(kInvalid, reply.id);
-	TEST_ASSERT_EQUAL(123, reply.retval);
+// 	// Invalid retvals should return zero (kFailure)
+// 	xml = "<?xml?><message id=\"39\"></message>";
+// 	reply = ParseXmlIdAndRetval(xml);
+// 	TEST_ASSERT_EQUAL(39, reply.id);
+// 	TEST_ASSERT_EQUAL(kFailure, reply.retval);
 
-	// Invalid retvals should return zero (kFailure)
-	xml = "<?xml?><message id=\"39\"></message>";
-	reply = ParseXmlIdAndRetval(xml);
-	TEST_ASSERT_EQUAL(39, reply.id);
-	TEST_ASSERT_EQUAL(kFailure, reply.retval);
-
-	// Warn if no values found
-}
+// 	// Warn if no values found
+// }
 
 TEST(XmlGroup, MultipleMessageTest)
 {
@@ -103,26 +103,26 @@ TEST(XmlGroup, MultipleMessageTest)
 	// 	How can we make it testable?
 
 	// Must load XML and detect error
-	TEST_ASSERT_EQUAL(0, HasMultipleMessages("Feck!"));
+	TEST_ASSERT_EQUAL(0, XmlGetMessageCount("Feck!"));
 
 	// Must count number of <message> blocks
 	const char *xml1 =
 		"<?xml?><message id=\"1\" command=\"1\"></message>";
-	TEST_ASSERT_EQUAL(1, HasMultipleMessages(xml1));
+	TEST_ASSERT_EQUAL(1, XmlGetMessageCount(xml1));
 	const char *xml2 =
 		"<?xml?><message id=\"1\" command=\"1\"></message>"
 		"<message id=\"2\" command=\"2\"></message>";
-	TEST_ASSERT_EQUAL(2, HasMultipleMessages(xml2));
+	TEST_ASSERT_EQUAL(2, XmlGetMessageCount(xml2));
 
 	// Must be able to retrieve specific messages
 	const char *xml3 =
 		"<?xml?><message id=\"1\" command=\"1\"></message>"
 		"<message id=\"2\" command=\"2\"></message>"
 		"<message id=\"3\" command=\"3\"></message>";
-	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"1\" command=\"1\" />\n", GetMessageByIndex(xml3, 0));
-	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"2\" command=\"2\" />\n", GetMessageByIndex(xml3, 1));
-	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"3\" command=\"3\" />\n", GetMessageByIndex(xml3, 2));
-	TEST_ASSERT_NULL(GetMessageByIndex(xml3, 3));
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"1\" command=\"1\" />\n", XmlGetMessageByIndex(xml3, 0));
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"2\" command=\"2\" />\n", XmlGetMessageByIndex(xml3, 1));
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"3\" command=\"3\" />\n", XmlGetMessageByIndex(xml3, 2));
+	TEST_ASSERT_NULL(XmlGetMessageByIndex(xml3, 3));
 }
 
 TEST(XmlGroup, AttributeTest)
@@ -135,8 +135,8 @@ TEST(XmlGroup, AttributeTest)
 	// Get attribute value or NULL from node
 	const char *xml =
 		"<?xml?><message id=\"1\" command=\"1\" lorem=\"ipsum\"></message>";
-	TEST_ASSERT_EQUAL_STRING("ipsum", GetMessageAttribute(xml, "lorem"));
-	TEST_ASSERT_NULL(GetMessageAttribute(xml, "missing"));
+	TEST_ASSERT_EQUAL_STRING("ipsum", XmlGetAttribute((char *)xml, "lorem"));
+	TEST_ASSERT_NULL(XmlGetAttribute((char *)xml, "missing"));
 }
 
 TEST_GROUP_RUNNER(XmlGroup)
@@ -145,10 +145,11 @@ TEST_GROUP_RUNNER(XmlGroup)
 	RUN_TEST_CASE(XmlGroup, AttributeTest);
 	RUN_TEST_CASE(XmlGroup, MultipleMessageTest);
 	RUN_TEST_CASE(XmlGroup, AddRemoveIdTest);
-	RUN_TEST_CASE(XmlGroup, AddHeaderTest);
 	RUN_TEST_CASE(XmlGroup, CommandStringTest);
-	RUN_TEST_CASE(XmlGroup, OverflowTest);
-	RUN_TEST_CASE(XmlGroup, XmlRetvalTest);
+
+	// RUN_TEST_CASE(XmlGroup, AddHeaderTest);
+	// RUN_TEST_CASE(XmlGroup, OverflowTest);
+	// RUN_TEST_CASE(XmlGroup, XmlRetvalTest);
 }
 
 static void

@@ -23,138 +23,138 @@
 // 	return id ? id : kInvalid;
 // }
 
-int
-xml_hasHeader(const char* message)
-{ /* Returns true if <command> header exists */
+// int
+// xml_hasHeader(const char* message)
+// { /* Returns true if <command> header exists */
 
-	pugi::xml_document xml;
+// 	pugi::xml_document xml;
 
-	xml.load_string(message);
-	return (xml.child("message") != nullptr);
-}
+// 	xml.load_string(message);
+// 	return (xml.child("message") != nullptr);
+// }
 
 /* The id modification functions below all produce dynamic copies of the input
  * string, which will need to be freed by the caller */
 
-char*
-xml_getCommandString(const char* string)
-{ /* Returns the pcdata contained by the command node */
+// char*
+// xml_getCommandString(const char* string)
+// { /* Returns the pcdata contained by the command node */
 
-	pugi::xml_document xml;
+// 	pugi::xml_document xml;
 
-	if (!string)
-		return nullptr;
-	if (!strlen(string))
-		return nullptr;
-	xml.load_string(string);
-	pugi::xml_node command = xml.child("message");
-	if (!command)
-		return nullptr;
+// 	if (!string)
+// 		return nullptr;
+// 	if (!strlen(string))
+// 		return nullptr;
+// 	xml.load_string(string);
+// 	pugi::xml_node command = xml.child("message");
+// 	if (!command)
+// 		return nullptr;
 
-	return xml_mallocCopy(command.child_value());
-}
+// 	return xml_mallocCopy(command.child_value());
+// }
 
-char*
-xml_mallocCopy(const char* string)
-{ /* Creates a dynamic memory copy of a string */
+// char*
+// xml_mallocCopy(const char* string)
+// { /* Creates a dynamic memory copy of a string */
 
-	char* copiedString = (char*)calloc(1, strlen(string) + 1);
-	if (!copiedString)
-		return nullptr;
+// 	char* copiedString = (char*)calloc(1, strlen(string) + 1);
+// 	if (!copiedString)
+// 		return nullptr;
 
-	strncpy(copiedString, string, strlen(string));
-	return copiedString;
-}
+// 	strncpy(copiedString, string, strlen(string));
+// 	return copiedString;
+// }
 
-char*
-xml_setId(const int id, const char* message_const)
-{ /* Adds or replaces id and returns (realloc)ed string */
+// char*
+// xml_setId(const int id, const char* message_const)
+// { /* Adds or replaces id and returns (realloc)ed string */
 
-	if (!xml_hasHeader(message_const)) {
-		char* msgWithHeader = xml_addHeader(message_const);
-		char* msgWithId = xml_addId(id, msgWithHeader);
-		free(msgWithHeader);
-		return msgWithId;
-	}
+// 	if (!xml_hasHeader(message_const)) {
+// 		char* msgWithHeader = xml_addHeader(message_const);
+// 		char* msgWithId = xml_addId(id, msgWithHeader);
+// 		free(msgWithHeader);
+// 		return msgWithId;
+// 	}
 
-	if (GetMessageId(message_const)) {
-		char* msgWithoutId = xml_removeId(message_const);
-		char* msgWithId = xml_addId(id, msgWithoutId);
-		free(msgWithoutId);
-		return msgWithId;
-	}
+// 	if (GetMessageId(message_const)) {
+// 		char* msgWithoutId = xml_removeId(message_const);
+// 		char* msgWithId = xml_addId(id, msgWithoutId);
+// 		free(msgWithoutId);
+// 		return msgWithId;
+// 	}
 
-	char* withId = xml_addId(id, message_const);
-	return withId;
-}
+// 	char* withId = xml_addId(id, message_const);
+// 	return withId;
+// }
 
-char*
-xml_addHeader(const char* message)
-{ /* Adds the <command> header to a string */
+// char*
+// xml_addHeader(const char* message)
+// { /* Adds the <command> header to a string */
 
-	(void)message;
-	std::stringstream xmlstream;
-	pugi::xml_document xml;
+// 	(void)message;
+// 	std::stringstream xmlstream;
+// 	pugi::xml_document xml;
 
-	pugi::xml_node command = xml.append_child("message");
-	pugi::xml_node data = command.append_child(pugi::node_pcdata);
-	data.set_value(message);
-	xml.save(xmlstream);
+// 	pugi::xml_node command = xml.append_child("message");
+// 	pugi::xml_node data = command.append_child(pugi::node_pcdata);
+// 	data.set_value(message);
+// 	xml.save(xmlstream);
 
-	const std::string stdstring = xmlstream.str();
-	const char* cstring = stdstring.c_str();
-	return xml_mallocCopy(cstring);
-}
+// 	const std::string stdstring = xmlstream.str();
+// 	const char* cstring = stdstring.c_str();
+// 	return xml_mallocCopy(cstring);
+// }
 
-char*
-xml_addId(const int id, const char* message)
-{ /* Helper function for xml_setId */
+// char*
+// xml_addId(const int id, const char* message)
+// { /* Helper function for xml_setId */
 
-	std::stringstream xmlstream;
-	pugi::xml_document xml;
+// 	std::stringstream xmlstream;
+// 	pugi::xml_document xml;
 
-	xml.load_string(message);
-	pugi::xml_node command = xml.child("message");
-	if (!command)
-		return nullptr;
-	command.append_attribute("id");
-	command.attribute("id") = id;
-	xml.save(xmlstream);
+// 	xml.load_string(message);
+// 	pugi::xml_node command = xml.child("message");
+// 	if (!command)
+// 		return nullptr;
+// 	command.append_attribute("id");
+// 	command.attribute("id") = id;
+// 	xml.save(xmlstream);
 
-	const std::string stdstring = xmlstream.str();
-	const char* cstring = stdstring.c_str();
-	return xml_mallocCopy(cstring);
-}
+// 	const std::string stdstring = xmlstream.str();
+// 	const char* cstring = stdstring.c_str();
+// 	return xml_mallocCopy(cstring);
+// }
 
-char*
-xml_removeId(const char* message)
-{ /* Return an allocated string with the id removed */
+// char*
+// xml_removeId(const char* message)
+// { /* Return an allocated string with the id removed */
 
-	std::stringstream xmlstream;
-	pugi::xml_document xml;
+// 	std::stringstream xmlstream;
+// 	pugi::xml_document xml;
 
-	xml.load_string(message);
-	xml.child("message").remove_attribute("id");
-	xml.save(xmlstream);
+// 	xml.load_string(message);
+// 	xml.child("message").remove_attribute("id");
+// 	xml.save(xmlstream);
 
-	const std::string stdstring = xmlstream.str();
-	const char* cstring = stdstring.c_str();
-	return xml_mallocCopy(cstring);
-}
+// 	const std::string stdstring = xmlstream.str();
+// 	const char* cstring = stdstring.c_str();
+// 	return xml_mallocCopy(cstring);
+// }
 
-XmlReply
-ParseXmlIdAndRetval(const char* xml)
-{  // Extract the id and return value into a struct
+// XmlReply
+// ParseXmlIdAndRetval(const char* xml)
+// {  // Extract the id and return value into a struct
 
-	XmlReply reply = {kInvalid, kInvalid};
+// 	XmlReply reply = {kInvalid, kInvalid};
 
-	if (!xml_hasHeader(xml))
-		return reply;
+// 	if (!xml_hasHeader(xml))
+// 		return reply;
 
-	reply.id = GetMessageId(xml);
-	char* xmldata = xml_getCommandString(xml);
-	reply.retval = atoi(xmldata);
-	free(xmldata);
+// 	reply.id = GetMessageId(xml);
+// 	char* xmldata = xml_getCommandString(xml);
+// 	reply.retval = atoi(xmldata);
+// 	free(xmldata);
 
-	return reply;
-}
+// 	return reply;
+// }
