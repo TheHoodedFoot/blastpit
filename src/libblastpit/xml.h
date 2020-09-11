@@ -7,13 +7,14 @@ extern "C" {
 
 #include <sds.h>
 
-int HasMultipleMessages(const char* xml);
-int GetMessageId(const char* message);
-int GetParentId(const char* message);
-char* GetMessageByIndex(const char* xml, int index);
-char* GetMessageAttribute(const char* message, const char* attribute);
-int xml_hasHeader(const char* message);
-sds GetCdata(const char* string);
+int XmlGetMessageCount(const char *xml);
+sds XmlDeleteAttribute(sds message, const char *attribute);
+sds XmlGetAttribute(const char *message, const char *attribute);
+sds XmlGetCdata(const char *message);
+sds XmlGetMessageByIndex(const char *xml, int index);
+sds XmlSetAttribute(sds message, const char *attribute, const char *value);
+sds XmlNewCdata(const char *message);
+void XmlAddXmlHeader(sds *message);
 
 #ifdef __cplusplus
 }

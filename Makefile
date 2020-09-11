@@ -197,7 +197,7 @@ blastmine:	$(BLASTMINE_DIR)/blastmine.zig
 # Webapp Recipes
 webapp: 	$(WEBAPP_TARGETS)
 
-$(PROJECT).html:	$(WEBAPP_DIR)/$(PROJECT).c
+$(PROJECT).html:	$(WEBAPP_DIR)/webapp.c
 	@if [[ ! $$(command -v emcc) ]]; then echo -e "\n\n\e[31mYou need to source ~/usr/src/SDK/emsdk/emsdk_env.sh to setup the Emscripten environment\e[39m\n\n"; exit 255; else emcc $^ -o $@; fi
 
 $(PROJECT).js $(PROJECT).wasm: $(PROJECT).html

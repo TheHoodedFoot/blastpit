@@ -177,23 +177,28 @@ IdAck
 bp_sendMessage(t_Blastpit* self, const char* message)
 {
 	int id;
-	char* id_message = NULL;
+	sds id_message = NULL;
 
-	if (HasMultipleMessages(message) < 1) {
+	if (XmlGetMessageCount(message) < 1) {
 		return (IdAck){kInvalid, kBadXml, NULL};
 	}
 
-	if (HasMultipleMessages(message) == 1) {
+	if (XmlGetMessageCount(message) == 1) {
 		id = AutoGenerateId(self);
 		UpdateHighestId(self, id);
-		id_message = xml_setId(id, message);
+		sds id_str = sdsfromlonglong(id);
+
+		// We duplicate the message since XmlSetAttribute is destructive
+		sds orig_message = sdsnew(message);
+		id_message = XmlSetAttribute((char*)orig_message, "id", id_str);
+		sdsfree(id_str);
 
 		if (!id_message) {
 			return (IdAck){kInvalid, kSetterFailure, NULL};
 		}
 	} else {
 		id = kMultipleCommands;
-		id_message = xml_mallocCopy(message);
+		id_message = sdsnew(message);
 	}
 
 	if (((t_Websocket*)self->ws)->isServer) {
@@ -207,7 +212,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	}
 
 	LOG(kLvlDebug, "bp_sendMessage: %s\n", id_message);
-	free(id_message);
+	sdsfree(id_message);
 
 	return (IdAck){id, kSuccess, NULL};
 }
@@ -244,7 +249,7 @@ IdAck
 bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 { /* Return the message data as a string, or NULL */
 
-	LOG(kLvlDebug, "bp_waitForXml: Waiting for parent id %d\n", id);
+	// TODO: Clean up the logic in this
 
 	for (int i = 0; i < timeout; i++) {
 		if (getMessageCount(self) > 0) {
@@ -253,20 +258,20 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 				char* message = readMessageAt(self, j);
 
 				if (message) {
-					LOG(kLvlDebug, "bp_waitForXml: found id %d\n", GetParentId(message));
-					/* fprintf(stderr, "(bp_waitForString)
-					 * Checking message\n"); */
-					if (GetParentId(message) == id) {
-						/* fprintf(stderr,
-						 * "(bp_waitForString) message
-						 * id matched\n"); */
+					sds parentid = XmlGetAttribute(message, "parentid");
+					sds id_str = sdsfromlonglong(id);
+					if (strcmp(parentid, id_str)) {
 						if (del) {
 							popMessageAt(self, j);
 						} else {
 							readMessageAt(self, j);
 						}
+						sdsfree(parentid);
+						sdsfree(id_str);
 						return (IdAck){id, kSuccess, message};
 					}
+					sdsfree(parentid);
+					sdsfree(id_str);
 				}
 			}
 		}
@@ -277,17 +282,31 @@ bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
 	return (IdAck){id, kFailure, NULL};
 }
 
+char*
+BpSdsToString(sds string)
+{  // Helper function to copy an sds string to a standard char string
+
+	int len = sdslen(string);
+	char* cstring = (char*)malloc(len + 1);
+	strncpy(cstring, string, len);
+	return cstring;
+}
+
 IdAck
 bp_waitForString(t_Blastpit* self, int id, int timeout)
-{
-	char* string = xml_getCommandString(bp_waitForXml(self, id, timeout, true).string);
-	LOG(kLvlDebug, "bp_waitForString:\n\n%s\n\n", string);
+{  // Waits for CDATA reply, with timeout
+	// Note: The returned IdAck string must be freed by the caller
+
+	const char* message = bp_waitForXml(self, id, timeout, true).string;
+	sds string = XmlGetCdata(message);
 
 	IdAck result;
 	if (string) {
-		result = (IdAck){id, kSuccess, string};
+		char* cdata = BpSdsToString(string);
+		sdsfree(string);
+		result = (IdAck){id, kSuccess, cdata};
 	} else {
-		result = (IdAck){id, kFailure, BP_EMPTY_STRING};
+		result = (IdAck){id, kFailure, NULL};
 	};
 
 	return result;
@@ -412,14 +431,6 @@ bp_isConnected(t_Blastpit* self)
 	return ((t_Websocket*)self->ws)->isConnected;
 }
 
-int
-bp_waitForSignal(t_Blastpit* self, int signal, int timeout)
-{ /* Waits for an Lmos signal */
-
-	int result = GetMessageId(bp_waitForXml(self, signal, timeout, true).string);
-	return result ? result : false;
-}
-
 char*
 popMessage(t_Blastpit* self)
 {  // Pop a message from the stack
@@ -506,24 +517,24 @@ SdsFree(char* string)
 }
 
 int
-BpHasMultipleMessages(const char* xml)
-{  // C++ wrapper for HasMultipleMessages
+BpGetMessageCount(const char* xml)
+{  // C++ wrapper for XmlGetMessageCount
 
-	return HasMultipleMessages(xml);
+	return XmlGetMessageCount(xml);
 }
 
 char*
 BpGetMessageByIndex(const char* xml, int index)
 {  // Wrapper for GetMessageByIndex
 
-	return (char*)GetMessageByIndex(xml, index);
+	return (char*)XmlGetMessageByIndex(xml, index);
 }
 
 char*
 BpGetMessageAttribute(const char* message, const char* attribute)
 {  // Wrapper for GetMessageAttribute
 
-	return (char*)GetMessageAttribute(message, attribute);
+	return (char*)XmlGetAttribute(message, attribute);
 }
 
 int

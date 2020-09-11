@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <time.h>
 
 // Constants fixed by Rofin hardware
 #define LMOS_CURRENT_MIN 0
@@ -280,7 +281,7 @@ bool bp_isConnected(t_Blastpit *self);
 IdAck bp_sendCommandAndWait(t_Blastpit *self, int command, int timeout);
 IdAck bp_sendMessage(t_Blastpit *self, const char *message);
 IdAck bp_sendMessageAndWait(t_Blastpit *self, const char *message, int timeout);
-int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
+// int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
 void clearQPSets(t_Blastpit *);
 int connectToServer(t_Blastpit *, const char *server, int timeout_ms);
 int serverCreate(t_Blastpit *self, const char *address);
@@ -314,9 +315,10 @@ void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
 IdAck SendMessageBp(t_Blastpit *self, ...);
 IdAck SendCommand(t_Blastpit *self, int command);
 IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
-int BpHasMultipleMessages(const char *xml);
+int BpGetMessageCount(const char *xml);
 char *BpGetMessageByIndex(const char *xml, int index);
 char *BpGetMessageAttribute(const char *message, const char *attribute);
+char *BpSdsToString(char *string);
 
 int BpQueueQpSet(t_Blastpit *self, char *name, int current, int speed, int frequency);
 // Appends a command to an xml string for bulk upload
