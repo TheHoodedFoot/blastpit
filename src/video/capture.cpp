@@ -22,7 +22,7 @@ main(int, char**)
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, CAPTURE_X_RESOLUTION);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, CAPTURE_Y_RESOLUTION);
 
-	String windowName = "The Guitar";  //Name of the window
+	String windowName = "The Guitar";  // Name of the window
 	namedWindow(windowName);	   // Create a window
 
 	for (;;) {
@@ -31,12 +31,12 @@ main(int, char**)
 
 		if (frame.empty()) {
 			cout << "Could not open or find the image" << endl;
-			cin.get();  //wait for any key press
+			cin.get();  // wait for any key press
 			return -1;
 		}
 
 		Mat colourframe = frame;
-		//change the color image to grayscale image
+		// change the color image to grayscale image
 		cvtColor(frame, frame, COLOR_BGR2GRAY);
 
 		Mat dst, hist;
@@ -74,7 +74,7 @@ main(int, char**)
 
 
 				imwrite(filename, colourframe);
-				destroyWindow(windowName);  //destroy the created window
+				destroyWindow(windowName);  // destroy the created window
 
 				return 0;
 			}

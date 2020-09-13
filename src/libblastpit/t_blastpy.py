@@ -52,16 +52,21 @@ class Testbp(unittest.TestCase):
     def test_MultipleCommands(self):
         self.client1 = bp.blastpitNew()
         self.client2 = bp.blastpitNew()
+
+        # These next lines will give a timeout error because we don't poll
         bp.connectToServer(self.client1, myconfig.SERVER, 0)
         bp.connectToServer(self.client2, myconfig.SERVER, 0)
+
         PollUntilConnected(self.client1, self.server)
         PollUntilConnected(self.client2, self.server)
+        # sys.exit()
 
         xml = "<?xml?><message id=\"1\" command=\"98\"></message>"
         xml = xml + "<message id=\"2\" command=\"99\"></message>"
 
         result = bp.bp_sendMessage(self.client1, xml)
-        PollUntilMessageCount(self.client2, self.server)
+        bp.pollMessages(self.client1)
+        PollUntilMessageCount(self.client2, self.server, 1, 100)
         print("Message count: %d" % bp.getMessageCount(self.client2))
 
         bp.disconnectFromServer(self.client1)

@@ -18,14 +18,14 @@ messageReceivedCallback(void *ev_data, void *object)
 {
 	(void)object;
 
+	callbackCount++;
+	fprintf(stderr, "messageReceivedCallback was called %d times\n", callbackCount);
+
 	if (verbose_flag) {
 		WsMessage data = ConvertCallbackData(ev_data);
 		// This string may not be null terminated, so we supply a max length.
 		printf("%.*s\n", data.size, data.data);
 	}
-
-	callbackCount++;
-	printf("messageReceivedCallback was called %d times\n", callbackCount);
 }
 
 void
@@ -111,20 +111,18 @@ main(int argc, char **argv)
 	int c;
 
 	while (1) {
-		static struct option long_options[] = {
-			/* These options set a flag. */
-			{"verbose", no_argument, &verbose_flag, 1},
-			{"brief", no_argument, &verbose_flag, 0},
-			/* These options don't set a flag.
-			   We distinguish them by their indices. */
-			{"server", no_argument, 0, 's'},
-			{"client", required_argument, 0, 'c'},
-			{0, 0, 0, 0}};
+		static struct option long_options[] = {/* These options set a flag. */
+						       {"verbose", no_argument, &verbose_flag, 1},
+						       {"brief", no_argument, &verbose_flag, 0},
+						       /* These options don't set a flag.
+							  We distinguish them by their indices. */
+						       {"server", no_argument, 0, 's'},
+						       {"client", required_argument, 0, 'c'},
+						       {0, 0, 0, 0}};
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
 
-		c = getopt_long(argc, argv, "s:c:", long_options,
-				&option_index);
+		c = getopt_long(argc, argv, "s:c:", long_options, &option_index);
 
 		/* Detect the end of the options. */
 		if (c == -1)
@@ -150,7 +148,8 @@ main(int argc, char **argv)
 				break;
 
 			case '?':
-				printf("wscli usage:\n-s <port> Run listening server on localhost\n-c <address> Connect to server at address, e.g. ws://127.0.0.1:8000\n");
+				printf("wscli usage:\n-s <port> Run listening server on localhost\n-c <address> "
+				       "Connect to server at address, e.g. ws://127.0.0.1:8000\n");
 				/* getopt_long already printed an error message. */
 				break;
 		}

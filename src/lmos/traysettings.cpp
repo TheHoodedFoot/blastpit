@@ -2,8 +2,7 @@
 #include <QSettings>
 #include "ui_traysettings.h"
 
-traysettings::traysettings(QWidget *parent)
-	: QDialog(parent), ui(new Ui::traysettings)
+traysettings::traysettings(QWidget *parent) : QDialog(parent), ui(new Ui::traysettings)
 {
 	ui->setupUi(this);
 

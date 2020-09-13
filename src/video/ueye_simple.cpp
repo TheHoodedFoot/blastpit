@@ -125,7 +125,8 @@ snapshot()
 	ImageFileParams.nFileType = IS_IMG_PNG;
 
 	// Saves the image file
-	if (is_ImageFile(hCam, IS_IMAGE_FILE_CMD_SAVE, (void *)&ImageFileParams, sizeof(ImageFileParams)) == IS_SUCCESS) {
+	if (is_ImageFile(hCam, IS_IMAGE_FILE_CMD_SAVE, (void *)&ImageFileParams, sizeof(ImageFileParams)) ==
+	    IS_SUCCESS) {
 		cout << "An Image was saved" << endl;
 		// should_exit = true;
 	} else {
@@ -186,15 +187,14 @@ main()
 	}
 
 	UINT nPixelClockDefault;
-	nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_GET_DEFAULT,
-			     (void *)&nPixelClockDefault, sizeof(nPixelClockDefault));
+	nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_GET_DEFAULT, (void *)&nPixelClockDefault,
+			     sizeof(nPixelClockDefault));
 
 	if (nRet == IS_SUCCESS) {
 		// Set this pixel clock
 		cout << "Setting pixel clock" << endl;
 		UINT nPixelClock = 7;
-		nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_SET,
-				     (void *)&nPixelClock, sizeof(nPixelClock));
+		nRet = is_PixelClock(hCam, IS_PIXELCLOCK_CMD_SET, (void *)&nPixelClock, sizeof(nPixelClock));
 		if (nRet != IS_SUCCESS)
 			cout << "Setting clock failed with retval: " << nRet;
 	} else {

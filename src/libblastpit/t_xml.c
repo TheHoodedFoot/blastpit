@@ -47,11 +47,8 @@ TEST(XmlGroup, AddRemoveIdTest)
 
 TEST(XmlGroup, CommandStringTest)
 {
-	sds cdata = XmlNewCdata("ARse");
-	printf("\ncdata: %s\n", cdata);
-
-	sds message = XmlGetCdata("<message><![CDATA[Teststring]]></message>");
-	TEST_ASSERT_EQUAL_STRING("Teststring", message);
+	sds message = XmlGetChildNodeAsString("<message>Teststring</message>", "message");
+	TEST_ASSERT_EQUAL_STRING("<message>Teststring</message>\n", message);
 
 	// sds badmessage = XmlGetCdata("<feck>Teststring</feck>");
 	// TEST_ASSERT_NULL(badmessage);
@@ -106,8 +103,7 @@ TEST(XmlGroup, MultipleMessageTest)
 	TEST_ASSERT_EQUAL(0, XmlGetMessageCount("Feck!"));
 
 	// Must count number of <message> blocks
-	const char *xml1 =
-		"<?xml?><message id=\"1\" command=\"1\"></message>";
+	const char *xml1 = "<?xml?><message id=\"1\" command=\"1\"></message>";
 	TEST_ASSERT_EQUAL(1, XmlGetMessageCount(xml1));
 	const char *xml2 =
 		"<?xml?><message id=\"1\" command=\"1\"></message>"
@@ -133,8 +129,7 @@ TEST(XmlGroup, AttributeTest)
 	// 	How can we make it testable?
 
 	// Get attribute value or NULL from node
-	const char *xml =
-		"<?xml?><message id=\"1\" command=\"1\" lorem=\"ipsum\"></message>";
+	const char *xml = "<?xml?><message id=\"1\" command=\"1\" lorem=\"ipsum\"></message>";
 	TEST_ASSERT_EQUAL_STRING("ipsum", XmlGetAttribute((char *)xml, "lorem"));
 	TEST_ASSERT_NULL(XmlGetAttribute((char *)xml, "missing"));
 }

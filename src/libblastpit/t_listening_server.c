@@ -9,11 +9,11 @@ TEST_SETUP(ListeningServerGroup) {}
 TEST_TEAR_DOWN(ListeningServerGroup) {}
 
 /***********************
-*  Write a test list  *
-***********************/
+ *  Write a test list  *
+ ***********************/
 
 /* What is the set of tests which, when passes, demonstrates that the code
-* works correctly? */
+ * works correctly? */
 
 /* When writing a test, imagine the perfect interface for that function */
 

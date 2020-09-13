@@ -57,7 +57,8 @@ main(void)
 		octave_value_list out = octave::feval("gcd", in, 1);
 
 		if (out.length() > 0)
-			std::cout << "GCD of [" << in(0).int_value() << ", " << in(1).int_value() << "] is " << out(0).int_value() << std::endl;
+			std::cout << "GCD of [" << in(0).int_value() << ", " << in(1).int_value() << "] is "
+				  << out(0).int_value() << std::endl;
 		else
 			std::cout << "invalid\n";
 	} catch (const octave::exit_exception& ex) {

@@ -3,112 +3,20 @@
 #include "blastpit.h"
 #include "sds.h"
 
-// int
-// GetMessageId(const char *message)
-// {  // Returns message id, or kInvalid if nonexistent
-
-// 	if (!message)
-// 		return kInvalid;
-
-// 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
-// 	if (!xml) return kInvalid;
-
-// 	// Zero is considered an invalid id because atoi() returns 0
-// 	// for invalid inputs.
-// 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-// 	if (!node) {
-// 		// fprintf(stderr, "Failed with message %s\n", message);
-// 		mxmlDelete(xml);
-// 		return kInvalid;
-// 	}
-
-// 	const char *value = mxmlElementGetAttr(node, "id");
-
-// 	int id = 0;
-// 	if (value)
-// 		id = atoi(value);
-// 	mxmlDelete(xml);
-// 	return id ? id : kInvalid;
-// }
-
-// int
-// GetParentId(const char *message)
-// {  // Returns parent id, or kInvalid if nonexistent
-
-// 	if (!message)
-// 		return kInvalid;
-
-// 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
-// 	if (!xml) return kInvalid;
-
-// 	// Zero is considered an invalid id because atoi() returns 0
-// 	// for invalid inputs.
-// 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-// 	if (!node) {
-// 		// fprintf(stderr, "Failed with message %s\n", message);
-// 		mxmlDelete(xml);
-// 		return kInvalid;
-// 	}
-
-// 	const char *value = mxmlElementGetAttr(node, "parentid");
-
-// 	int id = 0;
-// 	if (value)
-// 		id = atoi(value);
-// 	mxmlDelete(xml);
-// 	return id ? id : kInvalid;
-// }
-
-// int
-// xml_hasHeader(const char* message)
-// { // Returns true if <command> header exists
-
-// 	if (!message) return kInvalid;
-
-// 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
-// 	if (!xml) return false;
-
-// 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-// 	if (node) {
-// 		mxmlDelete(xml);
-// 		return true;
-// 	}
-
-// 	mxmlDelete(xml);
-// 	return false;
-// }
-
-// IdAck
-// ParseXmlIdAndRetval(const char* xml)
-// {  // Extract the id and return value into a struct
-
-// 	IdAck reply = {kInvalid, kFailure, NULL};
-
-// 	if (!xml_hasHeader(xml))
-// 		return reply;
-
-// 	reply.id = GetMessageId(xml);
-// 	sds xmldata = GetCdata(xml);
-// 	reply.retval = atoi(xmldata);
-// 	sdsfree(xmldata);
-
-// 	return reply;
-// }
-
 int
 XmlGetMessageCount(const char *xml)
 {  // Returns count of <message> elements or kInvalid on bad xml
+
+	if (!xml)
+		return 0;
 
 	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
 
 	mxml_node_t *node;
 	int count = 0;
 
-	for (node = mxmlFindElement(tree, tree, "message", NULL,
-				    NULL, MXML_DESCEND);
-	     node != NULL;
-	     node = mxmlFindElement(node, tree, "message", NULL,
-				    NULL, MXML_DESCEND)) {
+	for (node = mxmlFindElement(tree, tree, "message", NULL, NULL, MXML_DESCEND); node != NULL;
+	     node = mxmlFindElement(node, tree, "message", NULL, NULL, MXML_DESCEND)) {
 		count++;
 	}
 
@@ -143,31 +51,33 @@ XmlGetAttribute(const char *message, const char *attribute)
 }
 
 sds
-XmlGetCdata(const char *string)
-{  // Returns the pcdata contained by the command node
+XmlGetChildNodeAsString(const char *message_str, const char *child)
+{  // Returns the child node tree as a string
 
-	if (!string)
+	if (!message_str) {
+		LOG(kLvlDebug, "%s: Invalid message string supplied\n", __func__);
 		return NULL;
-	if (!strlen(string))
+	}
+	if (!strlen(message_str)) {
+		LOG(kLvlDebug, "%s: Invalid message string length\n", __func__);
 		return NULL;
+	}
 
-	sds message = sdsnew(string);
+	sds message = sdsnew(message_str);
 	XmlAddXmlHeader(&message);
-	printf("looing fior message in: %s\n", message);
 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 	if (!xml) {
+		LOG(kLvlDebug, "%s: Couldn't add xml header\n", __func__);
 		sdsfree(message);
 		return NULL;
 	}
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	mxml_node_t *node = mxmlFindElement(xml, xml, child, NULL, NULL, MXML_DESCEND);
 	if (node) {
-		node = mxmlFindElement(node, node, NULL, NULL, NULL, MXML_DESCEND);
-		printf("element name: %s\n", mxmlGetElement(node));
-		printf("cdata from node: %s\n", mxmlGetCDATA(node));
-		sds cdata = sdsnew(mxmlGetCDATA(node));
+		LOG(kLvlDebug, "%s: Converting tree to string\n", __func__);
+		sds node_data = sdsnew(mxmlSaveAllocString(node, MXML_NO_CALLBACK));
 		mxmlDelete(xml);
-		return cdata;
+		return node_data;
 	}
 
 	LOG(kLvlDebug, "%s: Couldn't find the message element\n", __func__);
@@ -185,11 +95,8 @@ XmlGetMessageByIndex(const char *xml, int index)
 	int count = 0;
 
 	// TODO: Memory leaks here
-	for (node = mxmlFindElement(tree, tree, "message", NULL,
-				    NULL, MXML_DESCEND);
-	     node != NULL && count < index;
-	     node = mxmlFindElement(node, tree, "message", NULL,
-				    NULL, MXML_DESCEND)) {
+	for (node = mxmlFindElement(tree, tree, "message", NULL, NULL, MXML_DESCEND); node != NULL && count < index;
+	     node = mxmlFindElement(node, tree, "message", NULL, NULL, MXML_DESCEND)) {
 		count++;
 	}
 
@@ -238,7 +145,6 @@ XmlAddXmlHeader(sds *message)
 	sds header_added = sdsnew("<?xml?>");
 	header_added = sdscatsds(header_added, *message);
 	sdsfree(*message);
-	printf("message should now be %s\n", header_added);
 	*message = header_added;
 }
 
@@ -247,7 +153,6 @@ XmlDeleteAttribute(sds message, const char *attribute)
 {  // Deletes an attribute value. Invalidates original message.
 
 	if (!message || !attribute) {
-		printf("neight mess");
 		return NULL;
 	}
 
@@ -320,3 +225,25 @@ XmlNewCdata(const char *message)
 
 // 	return retval;
 // }
+
+sds
+XmlDrawingToMessage(sds drawing)
+{  // Rewrites Xml.
+
+	if (!drawing) {
+		return NULL;
+	}
+
+	// XmlAddXmlHeader(&message);
+	mxml_node_t *xml = mxmlLoadString(NULL, drawing, MXML_OPAQUE_CALLBACK);
+	mxml_node_t *tidy = mxmlNewXML("1.0");
+	mxml_node_t *message = mxmlNewElement(tidy, "message");
+	mxmlAdd(message, MXML_ADD_AFTER, NULL, xml);
+	char *tree = mxmlSaveAllocString(tidy, MXML_NO_CALLBACK);
+	sds retval = sdsnew(tree);
+	free(tree);
+	mxmlDelete(xml);
+	mxmlDelete(tidy);
+
+	return retval;
+}

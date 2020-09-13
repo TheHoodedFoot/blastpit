@@ -134,7 +134,7 @@ sendClientMessage(t_Blastpit* self, const char* message)
 	if (!message)
 		return;
 
-	LOG(kLvlDebug, "sendClientMessage: %s\n", message);
+	LOG(kLvlEverything, "sendClientMessage: %s\n", message);
 	wsClientSendMessage((t_Websocket*)self->ws, (char*)message);
 }
 
@@ -176,6 +176,10 @@ UpdateHighestId(t_Blastpit* self, int id)
 IdAck
 bp_sendMessage(t_Blastpit* self, const char* message)
 {
+	assert(self);
+	assert(message);
+
+	// LOG(kLvlDebug, "%s: start\n", __func__);
 	int id;
 	sds id_message = NULL;
 
@@ -184,14 +188,23 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	}
 
 	if (XmlGetMessageCount(message) == 1) {
-		id = AutoGenerateId(self);
-		UpdateHighestId(self, id);
-		sds id_str = sdsfromlonglong(id);
+		// Does this message already have an id?
+		sds existing_id = XmlGetAttribute(message, "id");
+		if (existing_id) {
+			id = atoi(existing_id);
+			sdsfree(existing_id);
+			id_message = sdsnew(message);
+		} else {
+			id = AutoGenerateId(self);
+			UpdateHighestId(self, id);
+			sds id_str = sdsfromlonglong(id);
 
-		// We duplicate the message since XmlSetAttribute is destructive
-		sds orig_message = sdsnew(message);
-		id_message = XmlSetAttribute((char*)orig_message, "id", id_str);
-		sdsfree(id_str);
+			// We duplicate the message since XmlSetAttribute is destructive
+			sds orig_message = sdsnew(message);
+			id_message = XmlSetAttribute((char*)orig_message, "id", id_str);
+			XmlAddXmlHeader(&id_message);
+			sdsfree(id_str);
+		}
 
 		if (!id_message) {
 			return (IdAck){kInvalid, kSetterFailure, NULL};
@@ -211,9 +224,10 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 		sendClientMessage(self, id_message);
 	}
 
-	LOG(kLvlDebug, "bp_sendMessage: %s\n", id_message);
+	// LOG(kLvlDebug, "bp_sendMessage: %s\n", id_message);
 	sdsfree(id_message);
 
+	// LOG(kLvlDebug, "%s: end\n", __func__);
 	return (IdAck){id, kSuccess, NULL};
 }
 
@@ -228,58 +242,64 @@ bp_sendMessageAndWait(t_Blastpit* self, const char* message, int timeout)
 		return result;
 	}
 
-	result = bp_waitForXml(self, result.id, timeout, true);
+	result = BpWaitForReplyOrTimeout(self, result.id, timeout);
 
 	return result;
 }
 
+// IdAck
+// bp_sendMessageAndWaitForString(t_Blastpit* self, const char* message, int timeout)
+// { /* Sends message and waits. Returns xml of reply with matching id */
+
+// 	IdAck result = bp_sendMessage(self, message);
+// 	if (result.retval != kSuccess) {
+// 		return result;
+// 	}
+
+// 	return bp_waitForString(self, result.id, timeout);
+// }
+
 IdAck
-bp_sendMessageAndWaitForString(t_Blastpit* self, const char* message, int timeout)
-{ /* Sends message and waits. Returns xml of reply with matching id */
+BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
+{  // Continually polls the network until reply received or timeout
 
-	IdAck result = bp_sendMessage(self, message);
-	if (result.retval != kSuccess) {
-		return result;
-	}
-
-	return bp_waitForString(self, result.id, timeout);
-}
-
-IdAck
-bp_waitForXml(t_Blastpit* self, int id, int timeout, int del)
-{ /* Return the message data as a string, or NULL */
+	// TODO: This doesn't work if the replies are queued, since it only
+	// looks at the first message. We need a function to break multiple replies
+	// up into individals for processing
 
 	// TODO: Clean up the logic in this
 
 	for (int i = 0; i < timeout; i++) {
-		if (getMessageCount(self) > 0) {
-			/* Test every message with getMessageAt() */
-			for (int j = 0; j < getMessageCount(self); j++) {
-				char* message = readMessageAt(self, j);
+		pollMessages(self);
+		usleep(1000);
 
-				if (message) {
-					sds parentid = XmlGetAttribute(message, "parentid");
-					sds id_str = sdsfromlonglong(id);
-					if (strcmp(parentid, id_str)) {
-						if (del) {
-							popMessageAt(self, j);
-						} else {
-							readMessageAt(self, j);
-						}
-						sdsfree(parentid);
-						sdsfree(id_str);
-						return (IdAck){id, kSuccess, message};
-					}
-					sdsfree(parentid);
-					sdsfree(id_str);
+		if (getMessageCount(self) == 0)
+			continue;
+
+		/* Test every message with getMessageAt() */
+		for (int j = 0; j < getMessageCount(self); j++) {
+			char* message = readMessageAt(self, j);
+
+			if (message) {
+				sds parentid_str = XmlGetAttribute(message, "parentid");
+				sds retval_str = XmlGetAttribute(message, "retval");
+				sds id_str = sdsfromlonglong(id);
+				int do_strings_match = strcmp(parentid_str, id_str);
+				int retval = atoi(retval_str);
+				sdsfree(parentid_str);
+				sdsfree(id_str);
+				sdsfree(retval_str);
+				if (do_strings_match == 0) {
+					popMessageAt(self, j);
+					return (IdAck){id, retval, NULL};
 				}
 			}
 		}
-		usleep(1000);
-		if (!(i % 10))
-			pollMessages(self);
 	}
-	return (IdAck){id, kFailure, NULL};
+
+
+	LOG(kLvlDebug, "%s: Reply timeout\n", __func__);
+	return (IdAck){id, kReplyTimeout, NULL};
 }
 
 char*
@@ -292,25 +312,25 @@ BpSdsToString(sds string)
 	return cstring;
 }
 
-IdAck
-bp_waitForString(t_Blastpit* self, int id, int timeout)
-{  // Waits for CDATA reply, with timeout
-	// Note: The returned IdAck string must be freed by the caller
+// IdAck
+// bp_waitForString(t_Blastpit* self, int id, int timeout)
+// {  // Waits for CDATA reply, with timeout
+// 	// Note: The returned IdAck string must be freed by the caller
 
-	const char* message = bp_waitForXml(self, id, timeout, true).string;
-	sds string = XmlGetCdata(message);
+// 	const char* message = BpWaitForReplyOrTimeout(self, id, timeout, true).string;
+// 	sds string = XmlGetString(message);
 
-	IdAck result;
-	if (string) {
-		char* cdata = BpSdsToString(string);
-		sdsfree(string);
-		result = (IdAck){id, kSuccess, cdata};
-	} else {
-		result = (IdAck){id, kFailure, NULL};
-	};
+// 	IdAck result;
+// 	if (string) {
+// 		char* cdata = BpSdsToString(string);
+// 		sdsfree(string);
+// 		result = (IdAck){id, kSuccess, cdata};
+// 	} else {
+// 		result = (IdAck){id, kFailure, NULL};
+// 	};
 
-	return result;
-}
+// 	return result;
+// }
 
 // IdAck
 // sendCommand(t_Blastpit* self, int command)
@@ -329,11 +349,24 @@ SendAckRetval(t_Blastpit* self, int id, int retval)
 
 	sds id_str = sdsfromlonglong(id);
 	sds retval_str = sdsfromlonglong(retval);
-	IdAck result = SendMessageBp(self, "type", "reply", "parentid", id_str, retval_str, NULL);
+	IdAck result = SendMessageBp(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
 	sdsfree(retval_str);
 	sdsfree(id_str);
 
 	return result;
+}
+
+IdAck
+QueueAckRetval(t_Blastpit* self, int id, int retval)
+{  // Sends a message acknowledgement with return value
+
+	sds id_str = sdsfromlonglong(id);
+	sds retval_str = sdsfromlonglong(retval);
+	int result = BpQueueMessage(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
+	sdsfree(retval_str);
+	sdsfree(id_str);
+
+	return (IdAck){result, kMessageQueued, NULL};
 }
 
 IdAck
@@ -385,7 +418,6 @@ SendMessageBp(t_Blastpit* self, ...)
 
 	xml = sdscatprintf(xml, "</message>");
 
-	printf("xml is: %s\n", xml);
 	IdAck result = bp_sendMessage(self, xml);
 
 	va_end(args);
@@ -415,7 +447,7 @@ bp_sendCommandAndWait(t_Blastpit* self, int command, int timeout)
 		result = (IdAck){kInvalid, kCommandFailed, NULL};
 		return result;
 	}
-	result = bp_waitForXml(self, result.id, timeout, true);
+	result = BpWaitForReplyOrTimeout(self, result.id, timeout);
 	if (result.retval != kSuccess) {
 		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
 		result = (IdAck){kInvalid, kReplyTimeout, NULL};
@@ -484,9 +516,8 @@ clearQPSets(t_Blastpit* self)
 void
 LayerSetLaserable(t_Blastpit* self, const char* layer, bool laserable)
 {
-	sds message = sdscatprintf(sdsempty(),
-				   "<command layer=\"%s\" laserable=\"%d\">%d</command>",
-				   layer, (int)laserable, kLayerSetLaserable);
+	sds message = sdscatprintf(sdsempty(), "<command layer=\"%s\" laserable=\"%d\">%d</command>", layer,
+				   (int)laserable, kLayerSetLaserable);
 	bp_sendMessage(self, message);
 	sdsfree(message);
 }
@@ -494,9 +525,8 @@ LayerSetLaserable(t_Blastpit* self, const char* layer, bool laserable)
 void
 LayerSetHeight(t_Blastpit* self, const char* layer, int height)
 {
-	sds message = sdscatprintf(sdsempty(),
-				   "<command layer=\"%s\" height=\"%d\">%d</command>",
-				   layer, height, kLayerSetHeight);
+	sds message = sdscatprintf(sdsempty(), "<command layer=\"%s\" height=\"%d\">%d</command>", layer, height,
+				   kLayerSetHeight);
 	bp_sendMessage(self, message);
 	sdsfree(message);
 }
@@ -537,6 +567,13 @@ BpGetMessageAttribute(const char* message, const char* attribute)
 	return (char*)XmlGetAttribute(message, attribute);
 }
 
+char*
+BpGetChildNodeAsString(const char* message, const char* child_name)
+{  // Wrapper for XmlGetString
+
+	return (char*)XmlGetChildNodeAsString(message, child_name);
+}
+
 int
 BpQueueCommand(t_Blastpit* self, int command)
 {
@@ -545,8 +582,7 @@ BpQueueCommand(t_Blastpit* self, int command)
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
-	int result = BpQueueMessage(self, "type", "command",
-				    "command", command_str, NULL);
+	int result = BpQueueMessage(self, "type", "command", "command", command_str, NULL);
 
 	sdsfree(command_str);
 
@@ -604,8 +640,7 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	xml = sdscat(xml, message);
 
-	LOG(kLvlDebug, "(BpQueueMessage) Adding message: %s\n", message);
-	LOG(kLvlDebug, "(BpQueueMessage) New queue: %s\n", xml);
+	LOG(kLvlEverything, "(BpQueueMessage) New queue: %s\n", xml);
 
 	va_end(args);
 	sdsfree(message);
@@ -619,7 +654,10 @@ IdAck
 BpUploadQueuedMessages(t_Blastpit* self)
 {  // Uploads the queued message and frees the sds string
 
-	LOG(kLvlDebug, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
+	if (!self->message_queue)
+		return (IdAck){kInvalid, kFailure, NULL};
+
+	LOG(kLvlEverything, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
 	IdAck result = bp_sendMessage(self, self->message_queue);
 	sdsfree(self->message_queue);
 	self->message_queue = NULL;
@@ -645,13 +683,8 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 	sds speed_str = sdscatprintf(sdsempty(), "%d", speed);
 	sds frequency_str = sdscatprintf(sdsempty(), "%d", frequency);
 
-	int result = BpQueueMessage(self, "type", "command",
-				    "command", command_str,
-				    "name", name,
-				    "current", current_str,
-				    "speed", speed_str,
-				    "frequency", frequency_str,
-				    NULL);
+	int result = BpQueueMessage(self, "type", "command", "command", command_str, "name", name, "current",
+				    current_str, "speed", speed_str, "frequency", frequency_str, NULL);
 
 	sdsfree(frequency_str);
 	sdsfree(speed_str);
@@ -662,7 +695,9 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 }
 
 int
-BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char* val1, const char* attr2, const char* val2, const char* attr3, const char* val3, const char* attr4, const char* val4, const char* payload)
+BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char* val1, const char* attr2,
+		   const char* val2, const char* attr3, const char* val3, const char* attr4, const char* val4,
+		   const char* payload)
 {  // Queue a command with four attributes and payload
 	// This is a fix for lack of swig support for variadic functions
 	// Supply dummy command/value pairs for unneeded values or payload
@@ -672,15 +707,37 @@ BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char*
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
-	int result = BpQueueMessage(self, "type", "command",
-				    "command", command_str,
-				    attr1, val1,
-				    attr2, val2,
-				    attr3, val3,
-				    attr4, val4,
-				    payload, NULL);
+	int result = BpQueueMessage(self, "type", "command", "command", command_str, attr1, val1, attr2, val2, attr3,
+				    val3, attr4, val4, payload, NULL);
 
 	sdsfree(command_str);
 
 	return result;
+}
+
+// void
+// BpQueueDrawing(t_Blastpit *self, char *drawing)
+// { // Rewrites xml
+
+// 	sds dirty = sdsnew(drawing);
+// 	sds tidy = XmlDrawingToMessage(dirty);
+// 	sds command_str = sdscatprintf(sdsempty(), "%d", kImportXML);
+
+// 	int id = AutoGenerateId(self);
+// 	IdAck result = bp_sendMessage(self, self->message_queue);
+// 	printf("\n\n%s\n\n", tidy);
+// 	BpQueueMessage(self, "type", "command",
+// 				    "command", command_str,
+// 				    tidy,
+// 				    NULL);
+
+// 	sdsfree(command_str);
+// 	sdsfree(tidy);
+// 	sdsfree(dirty);
+// }
+
+void
+BpPrintQueue(t_Blastpit* self)
+{
+	printf("\n\nMessage Queue\n-------------\n\n%s\n\n", self->message_queue);
 }

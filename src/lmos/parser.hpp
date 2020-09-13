@@ -4,7 +4,6 @@
 #include <QObject>
 #include "../libblastpit/blastpit.h"
 #include "lmos.hpp"
-#include "pugixml.hpp"
 
 #define MIN_SERVER_STRING_LEN 5
 
@@ -31,7 +30,7 @@ class Parser : public QObject {
 	void log(int, const char *, QString);
 
       private:
-	void parseCommand(int id, int command, pugi::xml_document &xml);
+	void parseCommand(const char *message);
 	void wsConnect();
 
       private slots:
@@ -41,6 +40,7 @@ class Parser : public QObject {
 	Lmos lmos;
 	t_Blastpit *blast;
 	QTimer *timer;
+	int mutex;
 };
 
 

@@ -166,11 +166,11 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 			LOG(kLvlDebug, "%s: MG_EV_WEBSOCKET_HANDSHAKE_DONE\n", __func__);
 			struct http_message *hm = (struct http_message *)ev_data;
 			if (hm->resp_code == 101) {
-				// printf("-- Connected\n");
 				LOG(kLvlInfo, "%s: Connected\n", __func__);
 				((t_Websocket *)nc->user_data)->isConnected = true;
 			} else {
-				LOG(kLvlError, "client_event_handler: Connection failed with HTTP code %d\n", hm->resp_code);
+				LOG(kLvlError, "client_event_handler: Connection failed with HTTP code %d\n",
+				    hm->resp_code);
 				// printf("-- Connection failed! HTTP code %d\n", hm->resp_code);
 				/* Connection will be closed after this. */
 			}
@@ -191,7 +191,7 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 				LOG(kLvlDebug, "%s: Calling messageReceivedCpp callback\n", __func__);
 				ws->messageReceived(ev_data, ws->object);
 			} else {
-				LOG(kLvlError, "%s: Client WEBSOCKET_FRAME callback is unset.\n", __func__);
+				LOG(kLvlDebug, "%s: Client WEBSOCKET_FRAME callback is unset.\n", __func__);
 			}
 
 			// Store message
@@ -251,7 +251,8 @@ wsServerCreate(t_Websocket *self, const char *port)
 	self->connection->user_data = self;
 
 	mg_set_protocol_http_websocket(self->connection);
-	s_http_server_opts.document_root = "src/submodules/mongoose/examples/websocket_chat";  // Serve current directory
+	s_http_server_opts.document_root =
+		"src/submodules/mongoose/examples/websocket_chat";  // Serve current directory
 	s_http_server_opts.enable_directory_listing = "yes";
 
 	return kSuccess;
@@ -347,7 +348,7 @@ wsClientSendMessage(t_Websocket *self, char *data)
 	LOG(kLvlDebug, "%s: Sending message to server\n", __func__);
 	LOG(kLvlDebug, "Message size: %ld\n", strlen(data));
 	broadcastClient(self->connection, mg_mk_str(data));
-	wsPoll(self);
+	// wsPoll(self);
 
 	return kSuccess;
 }

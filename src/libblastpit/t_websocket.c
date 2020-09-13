@@ -1,8 +1,8 @@
+#include <openssl/evp.h>
+
 #include "blastpit.h"
-
-#include "websocket.h"
-
 #include "unity_fixture.h"  // MUST be before <stdlib.h>
+#include "websocket.h"
 
 static t_Websocket *server;
 
@@ -104,15 +104,6 @@ TEST(WebsocketGroup, wsListen)
 	websocketDelete(ws_server);
 }
 
-TEST(WebsocketGroup, wsIgnore)
-{
-	// Should refuse new requests
-	// Should close port
-	// Should free port for reuse
-
-	// TEST_FAIL();
-}
-
 TEST(WebsocketGroup, wsBroadcastToClients)
 {
 	// Should reject invalid message
@@ -167,19 +158,91 @@ TEST(WebsocketGroup, StackTest)
 	TEST_ASSERT_EQUAL(2, wsGetMessageCount(ws));
 	const char *text = (const char *)wsPopMessage(ws);
 	TEST_ASSERT_EQUAL(ipsum, text);
-	fprintf(stderr, "Popped text: <%s>\n", text);
 	TEST_ASSERT_EQUAL(1, wsGetMessageCount(ws));
 	text = (const char *)wsPopMessage(ws);
 	TEST_ASSERT_EQUAL(lorem, text);
-	fprintf(stderr, "Popped text: <%s>\n", text);
+}
+
+void
+updateHash(void *ev_data, void *object)
+{  // Add the message data to the existing hash
+
+	(void)object;
+	(void)ev_data;
+
+	// struct websocket_message *wm = (struct websocket_message *)ev_data;
+	testval = true;
+	// retval.size = (int)wm->size;
+	// retval.data = wm->data;
+}
+
+TEST(WebsocketGroup, DataTransferTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	// Should be able to transfer large amount of data between two clients
+
+	// Data should not be corrupted
+
+	// Create clients
+	t_Websocket *ws_client_sender = websocketNew();
+	t_Websocket *ws_client_receiver = websocketNew();
+	wsClientCreate(ws_client_sender, "ws://localhost:8001");
+	ws_client_receiver->messageReceived = &updateHash;
+	wsClientCreate(ws_client_receiver, "ws://localhost:8001");
+
+	// Wait for connection
+	for (int i = 0; i < 100; i++) {
+		wsPoll(ws_client_sender);
+		wsPoll(ws_client_receiver);
+		wsPoll(server);
+		if (ws_client_sender->isConnected && ws_client_receiver->isConnected)
+			break;
+	}
+	TEST_ASSERT_EQUAL(true, ws_client_sender->isConnected);
+	TEST_ASSERT_EQUAL(true, ws_client_receiver->isConnected);
+
+	// Send a client message
+	// This has been tested successfully up to 5000000
+#define BSIZE 10000
+	char *string = (char *)alloca(BSIZE);
+	TEST_ASSERT_NOT_NULL(string);
+	for (int i = 0; i < BSIZE; i++)
+		*(string + i) = 'A';
+	*(string + BSIZE) = 0;
+	broadcastClient(ws_client_sender->connection, mg_mk_str(string));
+
+	// Fake event loop
+	testval = false;
+	for (int i = 0; i < 100; i++) {
+		wsPoll(server);
+		wsPoll(ws_client_sender);
+		wsPoll(ws_client_receiver);
+		if (testval)
+			break;
+		usleep(1000);
+	}
+
+	TEST_ASSERT_EQUAL(true, testval);
+
+	wsClientDestroy(ws_client_sender);
+	wsClientDestroy(ws_client_receiver);
+	websocketDelete(ws_client_sender);
+	websocketDelete(ws_client_receiver);
 }
 
 TEST_GROUP_RUNNER(WebsocketGroup)
 {  // Add a line below for each unit test
 
+	RUN_TEST_CASE(WebsocketGroup, DataTransferTest);
 	RUN_TEST_CASE(WebsocketGroup, wsListen);
 	RUN_TEST_CASE(WebsocketGroup, wsBroadcastToClients);
 	RUN_TEST_CASE(WebsocketGroup, StackTest);
+	RUN_TEST_CASE(WebsocketGroup, wsServerNew);
+	RUN_TEST_CASE(WebsocketGroup, PortInUse);
 }
 
 static void

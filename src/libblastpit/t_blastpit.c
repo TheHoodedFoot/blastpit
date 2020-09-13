@@ -18,10 +18,7 @@ TEST_SETUP(BlastpitGroup)
 	assert(serverCreate(server, "8223") == kSuccess);
 }
 
-TEST_TEAR_DOWN(BlastpitGroup)
-{
-	serverDestroy(server);
-}
+TEST_TEAR_DOWN(BlastpitGroup) { serverDestroy(server); }
 
 int testval;
 
@@ -215,7 +212,7 @@ TEST(BlastpitGroup, SendCommand)
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
 	const char *msg1 = popMessage(bp2);
-	TEST_ASSERT_EQUAL_STRING("<message type=\"command\" command=\"34\" id=\"1\" />\n", msg1);
+	TEST_ASSERT_EQUAL_STRING("<?xml?><message type=\"command\" command=\"34\" id=\"1\" />\n", msg1);
 
 	disconnectFromServer(bp1);
 	disconnectFromServer(bp2);
@@ -228,17 +225,27 @@ TEST(BlastpitGroup, QueueQpsetTest)
 	t_Blastpit *bp = blastpitNew();
 
 	// Should reject invalid current, speed, and frequency
-	TEST_ASSERT_EQUAL(kInvalid, BpQueueQpSet(bp, "Low current", LMOS_CURRENT_MIN - 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid, BpQueueQpSet(bp, "High current", LMOS_CURRENT_MAX + 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid, BpQueueQpSet(bp, "Low speed", LMOS_CURRENT_MIN, LMOS_SPEED_MIN - 1, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid, BpQueueQpSet(bp, "High speed", LMOS_CURRENT_MIN, LMOS_SPEED_MAX + 1, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid, BpQueueQpSet(bp, "Low frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN - 1));
-	TEST_ASSERT_EQUAL(kInvalid, BpQueueQpSet(bp, "High frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MAX + 1));
+	TEST_ASSERT_EQUAL(kInvalid,
+			  BpQueueQpSet(bp, "Low current", LMOS_CURRENT_MIN - 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN));
+	TEST_ASSERT_EQUAL(kInvalid,
+			  BpQueueQpSet(bp, "High current", LMOS_CURRENT_MAX + 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN));
+	TEST_ASSERT_EQUAL(kInvalid,
+			  BpQueueQpSet(bp, "Low speed", LMOS_CURRENT_MIN, LMOS_SPEED_MIN - 1, LMOS_FREQUENCY_MIN));
+	TEST_ASSERT_EQUAL(kInvalid,
+			  BpQueueQpSet(bp, "High speed", LMOS_CURRENT_MIN, LMOS_SPEED_MAX + 1, LMOS_FREQUENCY_MIN));
+	TEST_ASSERT_EQUAL(kInvalid,
+			  BpQueueQpSet(bp, "Low frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN - 1));
+	TEST_ASSERT_EQUAL(kInvalid,
+			  BpQueueQpSet(bp, "High frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MAX + 1));
 
 	// Should generate correct xml
 	TEST_ASSERT_EQUAL(1, BpQueueQpSet(bp, "Qpset1", 50, 50, 20000));
 	TEST_ASSERT_EQUAL(2, BpQueueQpSet(bp, "Qpset2", 60, 60, 30000));
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"1\" name=\"Qpset1\" current=\"50\" speed=\"50\" frequency=\"20000\" ></message><message id=\"2\" type=\"command\" command=\"1\" name=\"Qpset2\" current=\"60\" speed=\"60\" frequency=\"30000\" ></message>", bp->message_queue);
+	TEST_ASSERT_EQUAL_STRING(
+		"<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"1\" name=\"Qpset1\" "
+		"current=\"50\" speed=\"50\" frequency=\"20000\" ></message><message id=\"2\" type=\"command\" "
+		"command=\"1\" name=\"Qpset2\" current=\"60\" speed=\"60\" frequency=\"30000\" ></message>",
+		bp->message_queue);
 
 	blastpitDelete(bp);
 }

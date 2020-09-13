@@ -13,11 +13,11 @@ TARGET = lmosgui
 TEMPLATE = app
 CONFIG += widgets
 
-#CONFIG += debug c++11
-CONFIG += debug_and_release build_all c++11
+CONFIG += debug c++11
+#CONFIG += debug_and_release build_all c++11
 
 QMAKE_CXXFLAGS_RELEASE += -DDEBUG_LEVEL=0
-QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=9
+QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=9 -Og -g3
 
 linux {
 	#QMAKE_CC = "ccache clang"
@@ -26,7 +26,6 @@ linux {
 }
 
 INCLUDEPATH += $$PWD/../libblastpit
-INCLUDEPATH += $$PWD/../submodules/pugixml/src
 INCLUDEPATH += $$PWD/../submodules/mongoose
 INCLUDEPATH += $$PWD/../submodules/sds
 INCLUDEPATH += $$PWD/../submodules/mxml
@@ -36,7 +35,6 @@ INCLUDEPATH += $$PWD/../submodules/mxml
 SOURCES += main.cpp \
 	../libblastpit/blastpit.c \
 	../libblastpit/websocket.c \
-	../libblastpit/xml_old.cpp \
 	../libblastpit/xml.c \
 	../submodules/mongoose/mongoose.c \
 	../submodules/mxml/mxml-attr.c \
@@ -49,7 +47,6 @@ SOURCES += main.cpp \
 	../submodules/mxml/mxml-search.c \
 	../submodules/mxml/mxml-set.c \
 	../submodules/mxml/mxml-string.c \
-	../submodules/pugixml/src/pugixml.cpp \
 	../submodules/sds/sds.c \
 	lmos-tray.cpp \
 	lmos.cpp \
@@ -60,10 +57,8 @@ HEADERS += \
 	../libblastpit/blastpit.h \
 	../libblastpit/websocket.h \
 	../libblastpit/xml.h \
-	../libblastpit/xml_old.hpp \
 	../submodules/mongoose/mongoose.h \
 	../submodules/mxml/mxml.h \
-	../submodules/pugixml/src/pugixml.hpp \
 	../submodules/sds/sds.h \
 	lmos-tray.hpp \
 	lmos.hpp \

@@ -124,6 +124,7 @@ extern "C" {
 	RETVAL(kQueued)            \
 	RETVAL(kReplyTimeout)      \
 	RETVAL(kSetterFailure)     \
+	RETVAL(kMessageQueued)     \
 	RETVAL(kInvalid = -1)      \
 	RETVAL(kMultipleCommands = -2)
 
@@ -272,53 +273,51 @@ typedef struct {  // Decoded websocket_message
 	unsigned char *data;
 } WsMessage;
 
-/* Methods */
-IdAck bp_sendMessageAndWaitForString(t_Blastpit *self, const char *message, int timeout);
-IdAck bp_waitForString(t_Blastpit *self, int id, int timeout);
-IdAck bp_waitForXml(t_Blastpit *self, int id, int timeout, int del);
-t_Blastpit *blastpitNew();
+// Methods
+
+// IdAck sendCommand(t_Blastpit *self, int command);
+// char *BpGetMessageString(const char* message);
+// int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
+// void debugInfo(t_Blastpit *bp);
+int AutoGenerateId(t_Blastpit *self);
+int BpGetMessageCount(const char *xml);
+int connectToServer(t_Blastpit *, const char *server, int timeout_ms);
+int getMessageCount(t_Blastpit *self);
+int serverCreate(t_Blastpit *self, const char *address);
+int waitForConnection(t_Blastpit *self, int timeout);
+void blastpitDelete(t_Blastpit *);
 bool bp_isConnected(t_Blastpit *self);
+void clearQPSets(t_Blastpit *);
+void disconnectFromServer(t_Blastpit *);
+void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
+void LayerSetLaserable(t_Blastpit *self, const char *layer, bool laserable);
+void pollMessages(t_Blastpit *self);
+void registerCallback(t_Blastpit *, void (*)(void *, void *));
+void registerObject(t_Blastpit *, void *);
+void sendClientMessage(t_Blastpit *self, const char *message);
+void sendServerMessage(t_Blastpit *self, const char *message);
+void serverDestroy(t_Blastpit *self);
+void startLMOS(t_Blastpit *self);
+void stopLMOS(t_Blastpit *self);
 IdAck bp_sendCommandAndWait(t_Blastpit *self, int command, int timeout);
 IdAck bp_sendMessage(t_Blastpit *self, const char *message);
 IdAck bp_sendMessageAndWait(t_Blastpit *self, const char *message, int timeout);
-// int bp_waitForSignal(t_Blastpit *self, int signal, int timeout); /* Waits for an Lmos signal */
-void clearQPSets(t_Blastpit *);
-int connectToServer(t_Blastpit *, const char *server, int timeout_ms);
-int serverCreate(t_Blastpit *self, const char *address);
-void serverDestroy(t_Blastpit *self);
-void blastpitDelete(t_Blastpit *);
-void disconnectFromServer(t_Blastpit *);
-void registerCallback(t_Blastpit *, void (*)(void *, void *));
-void registerObject(t_Blastpit *, void *);
-WsMessage ConvertCallbackData(void *ev_data);
-
-// IdAck sendCommand(t_Blastpit *self, int command);
-
-void pollMessages(t_Blastpit *self);
-void sendClientMessage(t_Blastpit *self, const char *message);
-void sendServerMessage(t_Blastpit *self, const char *message);
-int waitForConnection(t_Blastpit *self, int timeout);
-// void debugInfo(t_Blastpit *bp);
-char *popMessage(t_Blastpit *self);
-char *popMessageAt(t_Blastpit *self, int index);
-int getMessageCount(t_Blastpit *self);
-char *popMessageAt(t_Blastpit *self, int index);
-char *readMessageAt(t_Blastpit *self, int index);
+char *BpGetChildNodeAsString(const char *message, const char *child_name);
+char *BpGetMessageAttribute(const char *message, const char *attribute);
+char *BpGetMessageByIndex(const char *xml, int index);
+char *BpSdsToString(char *string);
+IdAck BpWaitForReplyOrTimeout(t_Blastpit *self, int id, int timeout);
 const char *bpCommandName(int command);
 const char *bpRetvalName(int retval);
-void stopLMOS(t_Blastpit *self);
-void startLMOS(t_Blastpit *self);
-int AutoGenerateId(t_Blastpit *self);
-void LayerSetLaserable(t_Blastpit *self, const char *layer, bool laserable);
-void LayerSetHeight(t_Blastpit *self, const char *layer, int height);
-
-IdAck SendMessageBp(t_Blastpit *self, ...);
+char *popMessage(t_Blastpit *self);
+char *popMessageAt(t_Blastpit *self, int index);
+IdAck QueueAckRetval(t_Blastpit *self, int id, int retval);
+char *readMessageAt(t_Blastpit *self, int index);
 IdAck SendCommand(t_Blastpit *self, int command);
+IdAck SendMessageBp(t_Blastpit *self, ...);
+WsMessage ConvertCallbackData(void *ev_data);
+t_Blastpit *blastpitNew();
 IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
-int BpGetMessageCount(const char *xml);
-char *BpGetMessageByIndex(const char *xml, int index);
-char *BpGetMessageAttribute(const char *message, const char *attribute);
-char *BpSdsToString(char *string);
 
 int BpQueueQpSet(t_Blastpit *self, char *name, int current, int speed, int frequency);
 // Appends a command to an xml string for bulk upload
@@ -327,10 +326,14 @@ int BpQueueCommand(t_Blastpit *self, int command);
 int BpQueueMessage(t_Blastpit *self, ...);
 // Uploads a message to the server without touching it
 IdAck BpUploadQueuedMessages(t_Blastpit *self);
-int BpQueueCommandArgs(t_Blastpit *self, int command, const char *attr1, const char *val1, const char *attr2, const char *val2, const char *attr3, const char *val3, const char *attr4, const char *val4, const char *payload);
+int BpQueueCommandArgs(t_Blastpit *self, int command, const char *attr1, const char *val1, const char *attr2,
+		       const char *val2, const char *attr3, const char *val3, const char *attr4, const char *val4,
+		       const char *payload);
 
 char *SdsEmpty();
 void SdsFree(char *string);
+// void BpQueueDrawing(t_Blastpit *self, char *drawing);
+void BpPrintQueue(t_Blastpit *self);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

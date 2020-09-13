@@ -2,13 +2,12 @@
 #include <QSettings>
 #include <QTime>
 #include <QtCore>
-#include "blastpit.h"
-#include "pugixml.hpp"
-// #include <math.h>
 #include <sstream>
+#include "blastpit.h"
 
-Parser::Parser(QObject *parent)
-	: QObject(parent)
+#define MUTEX_COUNT 10	// How many cycles to allow mutex to stay locked
+
+Parser::Parser(QObject *parent) : QObject(parent)
 {
 	QObject::connect(&lmos, SIGNAL(log(QString)), this, SLOT(log(QString)));
 	QObject::connect(&lmos, SIGNAL(log(int, const char *, QString)), this, SLOT(log(int, const char *, QString)));
@@ -22,11 +21,15 @@ Parser::Parser(QObject *parent)
 	// void (*func)(void *
 	registerCallback(blast, &messageReceivedCallback);
 	registerObject(blast, (void *)this);
+	mutex = 0;
 
 	wsConnect();
 
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+
+	// TODO: The timer amount has a huge effect on the responsiveness
+	// when running under Wine. Find out why.
 	timer->start(100);
 }
 
@@ -58,57 +61,42 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 {
 	Parser *psr = (Parser *)object;
 
+	psr->mutex = MUTEX_COUNT;
+
+	// This is not null terminated
 	WsMessage msg_data = ConvertCallbackData(ev_data);
 
-	// psr->log("Received a message");
+	char *msg_data_string = (char *)alloca(msg_data.size + 1);
+	strncpy(msg_data_string, (const char *)msg_data.data, msg_data.size);
+	*(msg_data_string + msg_data.size + 1) = 0;
 
 	char *message = SdsEmpty();
-	char *id = SdsEmpty();
-	char *cmd_string = SdsEmpty();
-	int msg_count = BpHasMultipleMessages((const char *)msg_data.data);
+	int msg_count = BpGetMessageCount((const char *)msg_data_string);
 
+	// psr->log("RAW DATA");
+	// psr->log((const char *)msg_data_string);
+	psr->log("Processing " + QString::number(msg_count) + " messages");
 	for (int i = 0; i < msg_count; i++) {
-		// psr->log("Examining xml");
-		message = BpGetMessageByIndex((const char *)msg_data.data, i);
-		// psr->log("Message:");
+		message = BpGetMessageByIndex((const char *)msg_data_string, i);
+		// psr->log("Recieved Message:");
 		// psr->log(message);
-		id = BpGetMessageAttribute(message, "id");
-		cmd_string = BpGetMessageAttribute(message, "command");
-		if (!cmd_string) {
-			psr->log("Couldn't find a command attribute");
-			break;
-		}
-
-		int command = atoi(cmd_string);
-		if (command) {
-			// psr->log("Found a command");
-			// If the message is a command, is it dependent?
-			// If so, did the parent command complete successfully?
-
-			// If yes, run command
-			// If no, proceed with remaining commands, if any.
-			pugi::xml_document xml;
-			xml.load_buffer(msg_data.data, msg_data.size);
-			psr->parseCommand(QString((char *)id).toInt(), command, xml);
-
-			// printf("Found command: %d\n", command);
-			// printf("id: %d\n", atoi(xml.child("message").attribute("id").value()));
-			// psr->log(QString((const char *)wm->data));
-			// psr->parseCommand(QString(xml.child("message").attribute("id").value()).toInt(), command, xml);
-		} else {
-			psr->log("Couldn't parse xml (shown below)");
-			psr->log(QString(message));
-		}
+		// psr->log("Parsing Message:");
+		psr->parseCommand(message);
 	}
+	psr->log("Finished Parsing Messages");
 
-	SdsFree(cmd_string);
-	SdsFree(id);
 	SdsFree(message);
+	psr->mutex = 0;
 }
 
 void
 Parser::update()
 {  // Poll for messages
+
+	if (mutex) {
+		mutex--;
+		return;
+	}
 
 	// laserStatus:
 	// 0 = no network, 1 = network no lmos loaded, 2 = net and lmos
@@ -148,11 +136,12 @@ Parser::update()
 		}
 	}
 
-
-	pollMessages(blast);
-
-	// This works
-	// bp_sendMessage(blast, 0, "test message");
+	if (blast->message_queue) {
+		// This will automatically poll messages as well
+		BpUploadQueuedMessages(blast);
+	} else {
+		pollMessages(blast);
+	}
 }
 
 void
@@ -182,8 +171,12 @@ void
 Parser::ackReturn(int id, int retval)
 { /* Send a network acknowledgment */
 
+	// TODO: We can't currently queue these, since the retval
+	// parser only looks at the first one.
+
 	QString message = QString::number(retval);
 	log("[ackReturn] (" + QString::number(id) + ") " + QString(bpRetvalName(retval)));
+	// QueueAckRetval(blast, id, retval);
 	SendAckRetval(blast, id, retval);
 	// bp_sendMessage(blast, message.toStdString().c_str());
 }
@@ -204,33 +197,31 @@ Parser::ackMessage(int id, QString message)
 	log(message_string);
 	// log("[ackMessage] id: " + QString::number(id) + "  " + message);
 	// std::string stdString = std::string(bArray.constData(), bArray.length());
-	// SendMessageBp(blast, "type", "event", "id", QString::number(id).toStdString().c_str(), message.toStdString().c_str());
+	// SendMessageBp(blast, "type", "event", "id", QString::number(id).toStdString().c_str(),
+	// message.toStdString().c_str());
 }
 
 void
-Parser::parseCommand(int id, int command, pugi::xml_document &xml)
+Parser::parseCommand(const char *xml)
 {
-	// printf("Parser::parseCommand\n");
+	char *id_string = BpGetMessageAttribute(xml, "id");
+	int id = atoi(id_string);
+	char *command_string = BpGetMessageAttribute(xml, "command");
+	int command = atoi(command_string);
+	char *message_string;
+	char *attr1, *attr2, *attr3, *attr4;
 
-	if (command >= BPCOMMAND_MAX) {
-		log("Bad command number");
-		ackReturn(id, kBadCommand);
-		return;
-	}
-
-	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") #" + QString::number(id) + ": " + QString(bpCommandString[command]));
+	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") #" + QString::number(id) + ": " +
+	    QString(bpCommandString[command]));
 
 	std::stringstream out;
 	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");
-	pugi::xml_node cmd = xml.child("message");
+	// pugi::xml_node cmd = xml.child("message");
 	QPixmap pixmap;
 	QByteArray bArray;
 	QBuffer buffer(&bArray);
 	std::string stdString;
 
-	/* Have to do this outside of switch because????? */
-
-	// printf("Switching on command\n");
 	switch (command) {
 		case kGetVersion:
 			/* Create an XML with the git version inside */
@@ -253,12 +244,12 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			ackReturn(id, lmos.CancelJob());
 			break;
 		case kImportXML:
-			/* xml.child("DRAWING").remove_child("COMMAND"); */
-			xml.child("message").child("DRAWING").print(out, "", pugi::format_raw);
-			/* xml.save(out); */
-			/* qInfo() << "Drawing string: " */
-			/* 	<< QString::fromStdString(out.str()); */
-			ackReturn(id, lmos.LoadXML(QString::fromStdString(out.str())) ? kSuccess : kFailure);
+			// qInfo() << "xml is " << xml;
+			message_string = BpGetChildNodeAsString(xml, "DRAWING");
+			// qInfo() << "Drawing string: "
+			// 	<< QString::fromStdString(message_string);
+			ackReturn(id, lmos.LoadXML(QString::fromStdString(message_string)) ? kSuccess : kFailure);
+			SdsFree(message_string);
 			break;
 		case kStopPosHelp:
 			lmos.StopPosHelp();
@@ -275,7 +266,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kMOSetLaserable:
-			lmos.SetLaserable(cmd.attribute("object").value(), true);
+			// lmos.SetLaserable(cmd.attribute("object").value(), true);
 			ackReturn(id, kSuccess);
 			break;
 		case kMOUnsetLaserable:
@@ -287,7 +278,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kStartPosHelp:
-			lmos.StartPosHelp(cmd.attribute("object").value());
+			// lmos.StartPosHelp(cmd.attribute("object").value());
 			ackReturn(id, kSuccess);
 			break;
 		case kExit:
@@ -299,35 +290,46 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kSetMOLayer:
-			lmos.StartPosHelp(cmd.attribute("object").value());
+			// lmos.StartPosHelp(cmd.attribute("object").value());
 			ackReturn(id, kSuccess);
 			break;
 		case kLayerSetHeight:
-			lmos.LayerSetHeightZAxis(cmd.attribute("layer").value(), QString(cmd.attribute("height").value()).toFloat());
+			// lmos.LayerSetHeightZAxis(cmd.attribute("layer").value(),
+			// QString(cmd.attribute("height").value()).toFloat());
 			ackReturn(id, kSuccess);
 			break;
 		case kLayerSetLaserable:
-			lmos.LayerSetLaserable(cmd.attribute("layer").value(), QString(cmd.attribute("laserable").value()).toInt());
+			// lmos.LayerSetLaserable(cmd.attribute("layer").value(),
+			// QString(cmd.attribute("laserable").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
 		case kLayerSetVisible:
-			lmos.LayerSetVisible(cmd.attribute("layer").value(), QString(cmd.attribute("visible").value()).toInt());
+			// lmos.LayerSetVisible(cmd.attribute("layer").value(),
+			// QString(cmd.attribute("visible").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
 		case kLayerSetExportable:
-			lmos.LayerSetExportable(cmd.attribute("layer").value(), QString(cmd.attribute("exportable").value()).toInt());
+			// lmos.LayerSetExportable(cmd.attribute("layer").value(),
+			// QString(cmd.attribute("exportable").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
 		case kSetDimension:
-			lmos.SetDimension(cmd.attribute("object").value(), QString(cmd.attribute("x").value()).toDouble(), QString(cmd.attribute("y").value()).toDouble());
+			// lmos.SetDimension(cmd.attribute("object").value(),
+			// QString(cmd.attribute("x").value()).toDouble(),
+			// QString(cmd.attribute("y").value()).toDouble());
 			ackReturn(id, kSuccess);
 			break;
 		case kSetPosValues:
-			lmos.SetPosValues(cmd.attribute("object").value(), QString(cmd.attribute("x").value()).toDouble(), QString(cmd.attribute("y").value()).toDouble(), QString(cmd.attribute("r").value()).toDouble());
+			// lmos.SetPosValues(cmd.attribute("object").value(),
+			// QString(cmd.attribute("x").value()).toDouble(),
+			// QString(cmd.attribute("y").value()).toDouble(),
+			// QString(cmd.attribute("r").value()).toDouble());
 			ackReturn(id, kSuccess);
 			break;
 		case kZoomWindow:
-			lmos.ZoomWindow(QString(cmd.attribute("x1").value()).toInt(), QString(cmd.attribute("y1").value()).toInt(), QString(cmd.attribute("x2").value()).toInt(), QString(cmd.attribute("y2").value()).toInt());
+			// lmos.ZoomWindow(QString(cmd.attribute("x1").value()).toInt(),
+			// QString(cmd.attribute("y1").value()).toInt(), QString(cmd.attribute("x2").value()).toInt(),
+			// QString(cmd.attribute("y2").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
 		case kShowMarkingArea:
@@ -335,44 +337,53 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kAddQpSet:
-			/* qInfo() << "Parsing qpsets"; */
-			for (pugi::xml_node qpset = xml.child("message").child("qpset"); qpset; qpset = qpset.next_sibling("qpset")) {
-				lmos.AddQPSet(qpset.attribute("name").value(), QString(qpset.attribute("current").value()).toDouble(), QString(qpset.attribute("speed").value()).toInt(), QString(qpset.attribute("frequency").value()).toInt());
-			}
-			/* qInfo() << "Finished parsing qpsets"; */
+			attr1 = BpGetMessageAttribute(xml, "name");
+			attr2 = BpGetMessageAttribute(xml, "current");
+			attr3 = BpGetMessageAttribute(xml, "speed");
+			attr4 = BpGetMessageAttribute(xml, "frequency");
+			lmos.AddQPSet(attr1, atoi(attr2), atoi(attr3), atoi(attr4));
 			lmos.SaveQPSets();
 			ackReturn(id, kSuccess);
+			SdsFree(attr4);
+			SdsFree(attr3);
+			SdsFree(attr2);
+			SdsFree(attr1);
 			break;
 		case kWriteIoBit:
-			lmos.WriteIOBit(cmd.attribute("bitfunction").value(), QString(cmd.attribute("value").value()).toInt());
+			// lmos.WriteIOBit(cmd.attribute("bitfunction").value(),
+			// QString(cmd.attribute("value").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
 		case kReadByte:
-			lmos.ReadByte(QString(cmd.attribute("port").value()).toInt(), QString(cmd.attribute("mask").value()).toInt());
+			// lmos.ReadByte(QString(cmd.attribute("port").value()).toInt(),
+			// QString(cmd.attribute("mask").value()).toInt());
 			break;
 		case kReadIOBit:
-			lmos.ReadIOBit(QString(cmd.attribute("bitfunction").value()));
+			// lmos.ReadIOBit(QString(cmd.attribute("bitfunction").value()));
 			break;
 		case kSaveVLM:
-			if (lmos.SaveVLM(cmd.attribute("filename").value())) {
-				emit settray(
-					"Saved as " +
-					QString(cmd.attribute("filename").value()));
-				ackReturn(id, kSuccess);
-			} else {
-				ackReturn(id, kFailure);
+			attr1 = BpGetMessageAttribute(xml, "filename");
+			BpGetChildNodeAsString(xml, "DRAWING");
+			if (attr1) {
+				if (lmos.SaveVLM(attr1)) {
+					emit settray("Saved as " + QString(attr1));
+					ackReturn(id, kSuccess);
+				} else {
+					ackReturn(id, kFailure);
+				}
+				SdsFree(attr1);
 			}
 			break;
 		case kLoadVLM:
-			lmos.LoadVLM(QString(cmd.attribute("filename").value()));
+			// lmos.LoadVLM(QString(cmd.attribute("filename").value()));
 			ackReturn(id, kSuccess);
 			break;
 		case kMoveZ:
-			lmos.MoveZ(QString(cmd.attribute("height").value()).toFloat());
+			// lmos.MoveZ(QString(cmd.attribute("height").value()).toFloat());
 			ackReturn(id, kSuccess);
 			break;
 		case kMoveW:
-			lmos.MoveW(QString(cmd.attribute("rotation").value()).toDouble());
+			// lmos.MoveW(QString(cmd.attribute("rotation").value()).toDouble());
 			ackReturn(id, kSuccess);
 			break;
 		case kGetPng:
@@ -401,7 +412,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			/* #endif */
 			break;
 		case kSuppressRedraw:
-			lmos.SuppressRedraw(QString(cmd.attribute("redraw").value()).toInt());
+			// lmos.SuppressRedraw(QString(cmd.attribute("redraw").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
 		case kForceRedraw:
@@ -441,4 +452,7 @@ Parser::parseCommand(int id, int command, pugi::xml_document &xml)
 			log("Warning: default case label reached in Parser::parseCommand");
 			ackReturn(id, kFailure);
 	}
+
+	SdsFree(command_string);
+	SdsFree(id_string);
 }

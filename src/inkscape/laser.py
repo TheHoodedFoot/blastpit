@@ -373,15 +373,6 @@ class Laser(inkex.Effect):
                     geo = None
                     group = None
 
-        if self.mode == "engraveclean":
-            bp.init(997)
-            bp.upload(2, xml.xml())
-            bp.layerSetLaserable(999, "RofinStandard", 0)
-            # bp.stopMarking(998)
-            bp.setDimension(992, "GalvoGroupShadow101", SECTOR_WIDTH, 120)
-            bp.setPosValues(991, "GalvoGroupShadow101", 0, 0, 0)
-            bp.startMarking(3)
-
         if self.mode == "save":
             blast = blastpy.blastpitNew()
             result = blastpy.connectToServer( blast, self.server, SHORT_TIMEOUT)
@@ -389,67 +380,38 @@ class Laser(inkex.Effect):
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
 
-
-
-
             blastpy.BpQueueCommand(blast, blastpy.kClearLog)
             blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
+
             for qpset in qpsets:
                 blastpy.BpQueueQpSet(blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3]))
-            result = blastpy.BpUploadQueuedMessages(blast)
+            blastpy.BpUploadQueuedMessages(blast)
 
-            if result.retval != blastpy.kSuccess:
-                print("Cannot add Qpsets", file=sys.stderr)
-                print("num messages: %d" % blastpy.getMessageCount(blast), file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
-                sys.exit()
+            id = blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, str(xml.xml()), None, None, None, None, None, None, None, None)
+            blastpy.BpUploadQueuedMessages(blast)
+            blastpy.BpWaitForReplyOrTimeout(blast, id, 10000)
 
-            # blastpy.BpQueueMessage(blast, "type", "command", "command", str(blastpy.kImportXML), str(xml.xml()), 0)
-            blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, "a", "a", "b", "b", "c", "c", "d", "d", str(xml.xml()))
-            # print(blast.message_queue, file=sys.stderr)
-            result = blastpy.BpUploadQueuedMessages(blast)
 
-            if result.retval != blastpy.kSuccess:
-                print("Can't send the drawing XML", file=sys.stderr)
-                print("Error: %s" % blastpy.bpRetvalName(result.retval), file=sys.stderr)
-                sys.exit()
-
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", "a", "a", "b", "b", "")
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "120", "a", "a", "b", "b", "")
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "120", "a", "a", "b", "b", "")
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "120", None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "120", None, None, None, None, None)
             for layer in layers:
-                blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), "a", "a", "b", "b", "")
-            print(blast.message_queue, file=sys.stderr)
-            result = blastpy.BpUploadQueuedMessages(blast)
+                blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), None, None, None, None, None)
 
-            return
+            result = blastpy.BpUploadQueuedMessages(blast)
+            blastpy.pollMessages(blast)
+
+
             if self.filename is not None and self.customer is not None:
-                # print("saving as customer/filename", file=sys.stderr)
-                blastpy.bp_sendMessageAndWait(blast, id, "<command id=\"" +
-                                              str(id) +
-                                              "\" filename=\"Z:\\drawings\\" +
-                                              str(datetime.date.today().year) +
-                                              "\\" +
-                                              self.customer +
-                                              "\\" +
-                                              self.filename +
-                                              ".VLM\">" +
-                                              str(blastpy.kSaveVLM) +
-                                              "</command>", SHORT_TIMEOUT)
+                filename = "Z:\\drawings\\" + str(datetime.date.today().year) + "\\" + self.customer + "\\" + self.filename + ".VLM"
             else:
-                # print("saving default", file=sys.stderr)
-                blastpy.bp_sendMessageAndWait(
-                    blast,
-                    id,
-                    "<command id=\"" +
-                    str(id) +
-                    "\" filename=\"C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM\">" +
-                    str(
-                        blastpy.kSaveVLM) +
-                    "</command>",
-                    SHORT_TIMEOUT)
+                filename = "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
+
+            id = blastpy.BpQueueCommandArgs(blast, blastpy.kSaveVLM, "filename", filename, None, None, None, None, None, None, None)
+            blastpy.BpUploadQueuedMessages(blast)
+            blastpy.BpWaitForReplyOrTimeout(blast, id, 10000)
+
             blastpy.disconnectFromServer(blast)
-            print("Saving complete", file=sys.stderr)
 
         if self.mode == "position":
             blast = blastpy.t_Blastpit()

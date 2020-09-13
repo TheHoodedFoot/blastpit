@@ -71,14 +71,14 @@
 #include "parser.hpp"
 #include "traysettings.h"
 
-LmosTray::LmosTray(QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::MainWindow)
+LmosTray::LmosTray(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 
 	createActions();
 	initTray();
-	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this,
+		SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 	setIcon("noconnection");
 	trayIcon->show();
 
