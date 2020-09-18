@@ -383,7 +383,7 @@ class Laser(inkex.Effect):
             blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
             blastpy.BpUploadQueuedMessages(blast)
 
-            blastpy.BpQueueCommand(blast, blastpy.kClearLog)
+            # blastpy.BpQueueCommand(blast, blastpy.kClearLog)
             blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
 
             for qpset in qpsets:
@@ -406,9 +406,8 @@ class Laser(inkex.Effect):
                 filename = "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
 
             id = blastpy.BpQueueCommandArgs(blast, blastpy.kSaveVLM, "filename", filename, None, None, None, None, None, None, None)
-            print("Id of final command: " + str(id.id), file=sys.stderr)
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(blast, id.id, 10000)
+            blastpy.BpWaitForReplyOrTimeout(blast, id.id, LONG_TIMEOUT)
 
             blastpy.disconnectFromServer(blast)
 
@@ -431,6 +430,10 @@ if __name__ == '__main__':
     e = Laser()
     e.run()
 
+# If any items are selected, export only those items
+# If no objects are selected, export all items on visible layers
+
+# inkscape --pipe --export-id-only --export-text-to-path --vacuum-defs --export-plain-svg -i text1085 -o - < drawing.svg
 
 # for id_, node in self.selected.iteritems():
 #     # get value of attribute 'inkscape:label' from current node

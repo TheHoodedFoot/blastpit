@@ -379,6 +379,17 @@ QueueAckRetval(t_Blastpit* self, int id, int retval)
 	return result;
 }
 
+IdAck
+QueueReplyPayload(t_Blastpit* self, int id, char* payload)
+{  // Sends a reply payload
+
+	sds id_str = sdsfromlonglong(id);
+	IdAck result = BpQueueMessage(self, "type", "reply", "parentid", id_str, payload, NULL);
+	sdsfree(id_str);
+
+	return result;
+}
+
 // IdAck
 // SendCommand(t_Blastpit* self, int command)
 // {
@@ -547,6 +558,13 @@ SdsEmpty()
 	// Avoids c++ code needing to know anything about sds
 
 	return (char*)sdsempty();
+}
+
+char*
+SdsFromLong(long number)
+{  // Helper function to create sds string from an int
+
+	return (char*)sdsfromlonglong(number);
 }
 
 void

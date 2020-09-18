@@ -449,22 +449,22 @@ Lmos::LayerSetExportable(const QString& layer, const bool is_exportable)
 #endif
 }
 
-void
+int
 Lmos::ReadByte(const int port, const int mask)
 {
 #if defined(Q_OS_WIN32)
 	int byte;
 	emit log(kLvlDebug, __func__, "port: " + QString::number(port));
 	emit log(kLvlDebug, __func__, "mask: " + QString::number(mask));
-	emit retval(__func__, lmos_actx->ReadByte(static_cast<LMOSACTXLib::InPortConstants>(port), mask, byte));
-	emit retval(__func__, byte);
+	return lmos_actx->ReadByte(static_cast<LMOSACTXLib::InPortConstants>(port), mask, byte);
 #else
 	(void)port;
 	(void)mask;
+	return kInvalid;
 #endif
 }
 
-void
+int
 Lmos::ReadIOBit(const QString& bitfunction)
 {
 #if defined(Q_OS_WIN32)
@@ -474,12 +474,16 @@ Lmos::ReadIOBit(const QString& bitfunction)
 		bool result = res.Bool;
 		if (result) {
 			emit log(kLvlDebug, __func__, "Result: True");
+			return true;
 		} else {
 			emit log(kLvlDebug, __func__, "Result: False");
+			return false;
 		}
 	}
+	return kInvalid;
 #else
 	(void)bitfunction;
+	return kInvalid;
 #endif
 }
 

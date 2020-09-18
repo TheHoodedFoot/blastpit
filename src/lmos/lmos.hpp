@@ -72,7 +72,7 @@ class Lmos : public QObject {
 	void MoveW(double);
 	void MoveZ(float);
 	void ReadByte(const int, const int);
-	void ReadIOBit(const QString&);
+	int ReadIOBit(const QString&);
 	void Reference();
 	void SaveQPSets();
 	bool SaveVLM(const QString&);

@@ -12,7 +12,6 @@ class Parser : public QObject {
       public:
 	Parser(QObject *parent = nullptr);
 	~Parser();
-	// void listLog();
 	static void messageReceivedCallback(void *ev_data, void *object);
 
       signals:
@@ -32,6 +31,7 @@ class Parser : public QObject {
       private:
 	void parseCommand(const char *message);
 	void wsConnect();
+	void ProcessMessageBlock(const char *msg_data_string);
 
       private slots:
 	void update();
@@ -42,6 +42,5 @@ class Parser : public QObject {
 	QTimer *timer;
 	int mutex;
 };
-
 
 #endif	// PARSER_H

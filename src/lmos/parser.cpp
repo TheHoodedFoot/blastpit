@@ -2,7 +2,10 @@
 #include <QSettings>
 #include <QTime>
 #include <QtCore>
+#include <cstring>
+#include <iostream>
 #include <sstream>
+#include <string>
 #include "blastpit.h"
 
 #define MUTEX_COUNT 10	// How many cycles to allow mutex to stay locked
@@ -70,34 +73,42 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 	strncpy(msg_data_string, (const char *)msg_data.data, msg_data.size);
 	*(msg_data_string + msg_data.size + 1) = 0;
 
+	psr->ProcessMessageBlock(msg_data_string);
+
+	psr->mutex = 0;
+}
+
+void
+Parser::ProcessMessageBlock(const char *msg_data_string)
+{  // Extract and process individual messages from a string
+
 	char *message = SdsEmpty();
 	int msg_count = BpGetMessageCount((const char *)msg_data_string);
 
-	// psr->log("RAW DATA");
-	// psr->log((const char *)msg_data_string);
-	psr->log("Processing " + QString::number(msg_count) + " messages");
+	log("Processing " + QString::number(msg_count) + " messages");
+	log(msg_data_string);
+
 	for (int i = 0; i < msg_count; i++) {
 		message = BpGetMessageByIndex((const char *)msg_data_string, i);
 
 		// TODO: Loop through all depends comma-separated dependencies
 		char *depends = BpGetMessageAttribute(message, "depends");
-		if (!depends || BpQueryRetvalDb(psr->blast, atoi(depends)) == kSuccess) {
-			psr->parseCommand(message);
+		if (!depends || BpQueryRetvalDb(blast, atoi(depends)) == kSuccess) {
+			parseCommand(message);
 		} else {
 			char *id = BpGetMessageAttribute(message, "id");
-			psr->log("Message with id ");
-			psr->log(id);
-			psr->log(" has failed dependency ");
-			psr->log(depends);
-			psr->ackReturn(atoi(id), kFailure);
+			log("Message with id ");
+			log(id);
+			log(" has failed dependency ");
+			log(depends);
+			ackReturn(atoi(id), kFailure);
 			SdsFree(id);
 		};
 		SdsFree(depends);
 	}
-	psr->log("Finished Parsing Messages");
+	log("Finished Parsing Messages");
 
 	SdsFree(message);
-	psr->mutex = 0;
 }
 
 void
@@ -180,15 +191,21 @@ Parser::ack(QString message)
 
 void
 Parser::ackReturn(int id, int retval)
-{ /* Send a network acknowledgment */
-
-	// TODO: We can't currently queue these, since the retval
-	// parser only looks at the first one.
+{  // Send a network acknowledgment
 
 	QString message = QString::number(retval);
 	log("[ackReturn] (" + QString::number(id) + ") " + QString(bpRetvalName(retval)));
 	BpAddRetvalToDb(this->blast, (IdAck){id, retval, NULL});
 	QueueAckRetval(blast, id, retval);
+	BpUploadQueuedMessages(blast);
+}
+
+void
+Parser::ReplyWithPayload(int id, char *payload)
+{  // Reply to a commmand with a payload string
+
+	log("[ReplyWithPayload] #" + QString::number(id) + " : " + QString(payload));
+	QueueReplyPayload(blast, id, payload);
 	BpUploadQueuedMessages(blast);
 }
 
@@ -221,13 +238,14 @@ Parser::parseCommand(const char *xml)
 	int command = atoi(command_string);
 	char *message_string;
 	char *attr1, *attr2, *attr3, *attr4;
+	int retval_num;
+	char *payload;
 
 	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") #" + QString::number(id) + ": " +
 	    QString(bpCommandName(command)));
 
 	std::stringstream out;
 	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");
-	// pugi::xml_node cmd = xml.child("message");
 	QPixmap pixmap;
 	QByteArray bArray;
 	QBuffer buffer(&bArray);
@@ -255,10 +273,7 @@ Parser::parseCommand(const char *xml)
 			ackReturn(id, lmos.CancelJob());
 			break;
 		case kImportXML:
-			// qInfo() << "xml is " << xml;
 			message_string = BpGetChildNodeAsString(xml, "DRAWING");
-			// qInfo() << "Drawing string: "
-			// 	<< QString::fromStdString(message_string);
 			ackReturn(id, lmos.LoadXML(QString::fromStdString(message_string)) ? kSuccess : kFailure);
 			SdsFree(message_string);
 			break;
@@ -362,16 +377,33 @@ Parser::parseCommand(const char *xml)
 			SdsFree(attr1);
 			break;
 		case kWriteIoBit:
-			// lmos.WriteIOBit(cmd.attribute("bitfunction").value(),
-			// QString(cmd.attribute("value").value()).toInt());
+			attr1 = BpGetMessageAttribute(xml, "bitfunction");
+			attr2 = BpGetMessageAttribute(xml, "value");
+			lmos.WriteIOBit(attr1, atoi(attr2));
 			ackReturn(id, kSuccess);
 			break;
 		case kReadByte:
-			// lmos.ReadByte(QString(cmd.attribute("port").value()).toInt(),
-			// QString(cmd.attribute("mask").value()).toInt());
+			attr1 = BpGetMessageAttribute(xml, "port");
+			attr2 = BpGetMessageAttribute(xml, "mask");
+			retval = lmos.ReadByte(QString(attr1).toInt(), QString(attr2).toInt());
+			if (retval == kInvalid) {
+				ackReturn(id, kFailure);
+			} else {
+				ackReturn(id, kSuccess);
+				payload = SdsFromLong(retval);
+				ReplyWithPayload(id, payload);
+				SdsFree(payload);
+			}
 			break;
 		case kReadIOBit:
-			// lmos.ReadIOBit(QString(cmd.attribute("bitfunction").value()));
+			attr1 = BpGetMessageAttribute(xml, "bitfunction");
+			retval = lmos.ReadIOBit(QString(attr1));
+			if (retval == kInvalid) {
+				ackReturn(id, kFailure);
+			} else {
+				ackReturn(id, kSuccess);
+				ReplyWithPayload(id, retval == 1 ? "1" : "0");
+			}
 			break;
 		case kSaveVLM:
 			attr1 = BpGetMessageAttribute(xml, "filename");
