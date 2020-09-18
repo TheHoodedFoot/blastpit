@@ -78,10 +78,20 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 	psr->log("Processing " + QString::number(msg_count) + " messages");
 	for (int i = 0; i < msg_count; i++) {
 		message = BpGetMessageByIndex((const char *)msg_data_string, i);
-		// psr->log("Recieved Message:");
-		// psr->log(message);
-		// psr->log("Parsing Message:");
-		psr->parseCommand(message);
+
+		// TODO: Loop through all depends comma-separated dependencies
+		char *depends = BpGetMessageAttribute(message, "depends");
+		if (!depends || BpQueryRetvalDb(psr->blast, atoi(depends)) == kSuccess) {
+			psr->parseCommand(message);
+		} else {
+			char *id = BpGetMessageAttribute(message, "id");
+			psr->log("Message with id ");
+			psr->log(id);
+			psr->log(" has failed dependency ");
+			psr->log(depends);
+			SdsFree(id);
+		};
+		SdsFree(depends);
 	}
 	psr->log("Finished Parsing Messages");
 
@@ -176,9 +186,9 @@ Parser::ackReturn(int id, int retval)
 
 	QString message = QString::number(retval);
 	log("[ackReturn] (" + QString::number(id) + ") " + QString(bpRetvalName(retval)));
-	// QueueAckRetval(blast, id, retval);
-	SendAckRetval(blast, id, retval);
-	// bp_sendMessage(blast, message.toStdString().c_str());
+	BpAddRetvalToDb(this->blast, (IdAck){id, retval, NULL});
+	QueueAckRetval(blast, id, retval);
+	BpUploadQueuedMessages(blast);
 }
 
 void
@@ -328,7 +338,8 @@ Parser::parseCommand(const char *xml)
 			break;
 		case kZoomWindow:
 			// lmos.ZoomWindow(QString(cmd.attribute("x1").value()).toInt(),
-			// QString(cmd.attribute("y1").value()).toInt(), QString(cmd.attribute("x2").value()).toInt(),
+			// QString(cmd.attribute("y1").value()).toInt(),
+			// QString(cmd.attribute("x2").value()).toInt(),
 			// QString(cmd.attribute("y2").value()).toInt());
 			ackReturn(id, kSuccess);
 			break;
@@ -400,7 +411,7 @@ Parser::parseCommand(const char *xml)
 
 			// TODO: Encode the id into the message
 			// bp_sendMessage(blast, stdString.c_str());
-			SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), stdString.c_str());
+			// SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), stdString.c_str());
 			/* #if DEBUG_LEVEL == 3 */
 			/* log(stdString.c_str()); */
 			qDebug() << "bArray size: " << bArray.size();
@@ -445,6 +456,10 @@ Parser::parseCommand(const char *xml)
 			break;
 		case kClearLog:
 			emit ClearLog();
+			ackReturn(id, kSuccess);
+			break;
+		case kResetRetvalDb:
+			BpFreeRetvalDb(this->blast);
 			ackReturn(id, kSuccess);
 			break;
 		default:

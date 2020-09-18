@@ -93,40 +93,42 @@ extern "C" {
 	COMMAND(kTermMachine)        \
 	COMMAND(kWriteByte)          \
 	COMMAND(kWriteIoBit)         \
+	COMMAND(kResetRetvalDb)      \
 	COMMAND(kZoomWindow)
 
-#define FOREACH_RETVAL(RETVAL)     \
-	RETVAL(kFailure)           \
-	RETVAL(kSuccess)           \
-	RETVAL(kAlarm)             \
-	RETVAL(kAllocationFailure) \
-	RETVAL(kAlreadyInUse)      \
-	RETVAL(kBadCommand)        \
-	RETVAL(kBadLogic)          \
-	RETVAL(kBadVariadicParam)  \
-	RETVAL(kBadXml)            \
-	RETVAL(kCommandFailed)     \
-	RETVAL(kConnectionFailure) \
-	RETVAL(kCurrentChanged)    \
-	RETVAL(kException)         \
-	RETVAL(kFreqChanged)       \
-	RETVAL(kImageBegin)        \
-	RETVAL(kImageEnd)          \
-	RETVAL(kImageEnd2)         \
-	RETVAL(kInfo)              \
-	RETVAL(kJobBegin)          \
-	RETVAL(kJobEnd)            \
-	RETVAL(kMessageMap)        \
-	RETVAL(kMoBegin)           \
-	RETVAL(kMoEnd)             \
-	RETVAL(kNullResource)      \
-	RETVAL(kPlcEvent)          \
-	RETVAL(kQueued)            \
-	RETVAL(kReplyTimeout)      \
-	RETVAL(kSetterFailure)     \
-	RETVAL(kMessageQueued)     \
-	RETVAL(kInvalid = -1)      \
-	RETVAL(kMultipleCommands = -2)
+#define FOREACH_RETVAL(RETVAL)         \
+	RETVAL(kFailure)               \
+	RETVAL(kSuccess)               \
+	RETVAL(kAlarm)                 \
+	RETVAL(kAllocationFailure)     \
+	RETVAL(kAlreadyInUse)          \
+	RETVAL(kBadCommand)            \
+	RETVAL(kBadLogic)              \
+	RETVAL(kBadVariadicParam)      \
+	RETVAL(kBadXml)                \
+	RETVAL(kCommandFailed)         \
+	RETVAL(kConnectionFailure)     \
+	RETVAL(kCurrentChanged)        \
+	RETVAL(kException)             \
+	RETVAL(kFreqChanged)           \
+	RETVAL(kImageBegin)            \
+	RETVAL(kImageEnd)              \
+	RETVAL(kImageEnd2)             \
+	RETVAL(kInfo)                  \
+	RETVAL(kJobBegin)              \
+	RETVAL(kJobEnd)                \
+	RETVAL(kMessageMap)            \
+	RETVAL(kMoBegin)               \
+	RETVAL(kMoEnd)                 \
+	RETVAL(kNullResource)          \
+	RETVAL(kPlcEvent)              \
+	RETVAL(kQueued)                \
+	RETVAL(kReplyTimeout)          \
+	RETVAL(kSetterFailure)         \
+	RETVAL(kMessageQueued)         \
+	RETVAL(kInvalid = -1)          \
+	RETVAL(kMultipleCommands = -2) \
+	RETVAL(kNotFound = -3)
 
 #define FOREACH_DEBUGLEVEL(LEVEL) \
 	LEVEL(kLvlOff)            \
@@ -220,15 +222,6 @@ enum BpJustificationType {
 	justifyCentre,
 };
 
-// struct BpPacket {
-// 	uint32_t id;
-// 	uint32_t size;
-// 	uint32_t command;
-// 	uint32_t parentid;
-// 	uint32_t dataChecksum;
-// 	uint32_t packetChecksum;
-// };
-
 struct BpLogEntry {
 	uint32_t id;
 	uint32_t command;
@@ -245,22 +238,18 @@ struct BpHID {
 	union BpHIDVal value;
 };
 
-// union psHeader {
-// 	unsigned char bytes[sizeof(struct BpPacket)];
-// 	struct BpPacket header;
-// };
+typedef struct t_RetvalDb {
+	int id;
+	int retval;
+	struct t_RetvalDb *next;
+} RetvalDb;
 
 typedef struct Blastpit {
-	// t_Websocket *ws;
-	void *ws;
+	void *ws;	      // Our websocket (void* to avoid depending on websocket.h)
 	int highest_id;	      // Highest id used (for auto generation)
 	char *message_queue;  // Pointer to sds string holding queued messages
+	RetvalDb *retval_db;  // List of all completed jobs
 } t_Blastpit;
-
-typedef struct bp_message {
-	int length;
-	char *data;
-} t_bp_message;
 
 typedef struct {  // Acknowledgement of send plus generated id
 	int id;
@@ -299,7 +288,7 @@ void sendServerMessage(t_Blastpit *self, const char *message);
 void serverDestroy(t_Blastpit *self);
 void startLMOS(t_Blastpit *self);
 void stopLMOS(t_Blastpit *self);
-IdAck bp_sendCommandAndWait(t_Blastpit *self, int command, int timeout);
+// IdAck bp_sendCommandAndWait(t_Blastpit *self, int command, int timeout);
 IdAck bp_sendMessage(t_Blastpit *self, const char *message);
 IdAck bp_sendMessageAndWait(t_Blastpit *self, const char *message, int timeout);
 char *BpGetChildNodeAsString(const char *message, const char *child_name);
@@ -313,27 +302,30 @@ char *popMessage(t_Blastpit *self);
 char *popMessageAt(t_Blastpit *self, int index);
 IdAck QueueAckRetval(t_Blastpit *self, int id, int retval);
 char *readMessageAt(t_Blastpit *self, int index);
-IdAck SendCommand(t_Blastpit *self, int command);
-IdAck SendMessageBp(t_Blastpit *self, ...);
+// IdAck SendCommand(t_Blastpit *self, int command);
+// IdAck SendMessageBp(t_Blastpit *self, ...);
 WsMessage ConvertCallbackData(void *ev_data);
 t_Blastpit *blastpitNew();
-IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
+int BpAddRetvalToDb(t_Blastpit *self, IdAck record);
+// IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
 
-int BpQueueQpSet(t_Blastpit *self, char *name, int current, int speed, int frequency);
+IdAck BpQueueQpSet(t_Blastpit *self, char *name, int current, int speed, int frequency);
 // Appends a command to an xml string for bulk upload
-int BpQueueCommand(t_Blastpit *self, int command);
+IdAck BpQueueCommand(t_Blastpit *self, int command);
 // Appends a multi-attribute message to an xml string
-int BpQueueMessage(t_Blastpit *self, ...);
+IdAck BpQueueMessage(t_Blastpit *self, ...);
 // Uploads a message to the server without touching it
 IdAck BpUploadQueuedMessages(t_Blastpit *self);
-int BpQueueCommandArgs(t_Blastpit *self, int command, const char *attr1, const char *val1, const char *attr2,
-		       const char *val2, const char *attr3, const char *val3, const char *attr4, const char *val4,
-		       const char *payload);
+IdAck BpQueueCommandArgs(t_Blastpit *self, int command, const char *attr1, const char *val1, const char *attr2,
+			 const char *val2, const char *attr3, const char *val3, const char *attr4, const char *val4,
+			 const char *payload);
+int BpQueryRetvalDb(t_Blastpit *self, int id);
 
 char *SdsEmpty();
 void SdsFree(char *string);
 // void BpQueueDrawing(t_Blastpit *self, char *drawing);
 void BpPrintQueue(t_Blastpit *self);
+void BpFreeRetvalDb(t_Blastpit *self);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

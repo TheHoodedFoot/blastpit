@@ -197,35 +197,6 @@ XmlNewCdata(const char *message)
 	return retval;
 }
 
-// sds
-// xml_setId(sds message, const int id)
-// { // Add or change the id on a message
-//   // Returns null on error, or modified message
-//   // Deletes original message upon success
-
-// 	if (!message) return NULL;
-
-// 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
-// 	if (!xml) return false;
-
-// 	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-// 	if (!node) {
-// 		mxmlDelete(xml);
-// 		return NULL;
-// 	}
-
-// 	sds id_str = sdsfromlonglong(id);
-// 	mxmlElementSetAttr(node, "id", id_str);
-
-// 	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
-// 	sds retval = sdsnew(node_data);
-// 	free(node_data);
-// 	mxmlDelete(xml);
-// 	sdsfree(message); // Caller must treat existing message as deleted
-
-// 	return retval;
-// }
-
 sds
 XmlDrawingToMessage(sds drawing)
 {  // Rewrites Xml.

@@ -1,7 +1,8 @@
 #include <unistd.h>
 #include "blastpit.h"
+#include "sds.h"
 #include "websocket.h"
-#include "xml_old.hpp"
+#include "xml.h"
 
 #include "unity_fixture.h"
 
@@ -198,7 +199,9 @@ TEST(BlastpitGroup, SendCommand)
 	}
 	TEST_ASSERT_EQUAL(true, bp_isConnected(bp1));
 
-	IdAck result = SendCommand(bp1, kSelfTest);
+	IdAck result = BpQueueCommand(bp1, kSelfTest);
+	TEST_ASSERT_EQUAL(kSuccess, result.retval);
+	result = BpUploadQueuedMessages(bp1);
 	TEST_ASSERT_EQUAL(kSuccess, result.retval);
 	TEST_ASSERT_EQUAL(1, result.id);
 
@@ -212,7 +215,8 @@ TEST(BlastpitGroup, SendCommand)
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
 	const char *msg1 = popMessage(bp2);
-	TEST_ASSERT_EQUAL_STRING("<?xml?><message type=\"command\" command=\"34\" id=\"1\" />\n", msg1);
+	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"34\" ></message>",
+				 msg1);
 
 	disconnectFromServer(bp1);
 	disconnectFromServer(bp2);
@@ -225,34 +229,102 @@ TEST(BlastpitGroup, QueueQpsetTest)
 	t_Blastpit *bp = blastpitNew();
 
 	// Should reject invalid current, speed, and frequency
-	TEST_ASSERT_EQUAL(kInvalid,
-			  BpQueueQpSet(bp, "Low current", LMOS_CURRENT_MIN - 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid,
-			  BpQueueQpSet(bp, "High current", LMOS_CURRENT_MAX + 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid,
-			  BpQueueQpSet(bp, "Low speed", LMOS_CURRENT_MIN, LMOS_SPEED_MIN - 1, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid,
-			  BpQueueQpSet(bp, "High speed", LMOS_CURRENT_MIN, LMOS_SPEED_MAX + 1, LMOS_FREQUENCY_MIN));
-	TEST_ASSERT_EQUAL(kInvalid,
-			  BpQueueQpSet(bp, "Low frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN - 1));
-	TEST_ASSERT_EQUAL(kInvalid,
-			  BpQueueQpSet(bp, "High frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MAX + 1));
+	TEST_ASSERT_EQUAL(
+		kInvalid,
+		BpQueueQpSet(bp, "Low current", LMOS_CURRENT_MIN - 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN).retval);
+	TEST_ASSERT_EQUAL(
+		kInvalid,
+		BpQueueQpSet(bp, "High current", LMOS_CURRENT_MAX + 1, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN).retval);
+	TEST_ASSERT_EQUAL(
+		kInvalid,
+		BpQueueQpSet(bp, "Low speed", LMOS_CURRENT_MIN, LMOS_SPEED_MIN - 1, LMOS_FREQUENCY_MIN).retval);
+	TEST_ASSERT_EQUAL(
+		kInvalid,
+		BpQueueQpSet(bp, "High speed", LMOS_CURRENT_MIN, LMOS_SPEED_MAX + 1, LMOS_FREQUENCY_MIN).retval);
+	TEST_ASSERT_EQUAL(
+		kInvalid,
+		BpQueueQpSet(bp, "Low frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MIN - 1).retval);
+	TEST_ASSERT_EQUAL(
+		kInvalid,
+		BpQueueQpSet(bp, "High frequency", LMOS_CURRENT_MIN, LMOS_SPEED_MIN, LMOS_FREQUENCY_MAX + 1).retval);
 
 	// Should generate correct xml
-	TEST_ASSERT_EQUAL(1, BpQueueQpSet(bp, "Qpset1", 50, 50, 20000));
-	TEST_ASSERT_EQUAL(2, BpQueueQpSet(bp, "Qpset2", 60, 60, 30000));
+	TEST_ASSERT_EQUAL(1, BpQueueQpSet(bp, "Qpset1", 50, 50, 20000).id);
+	TEST_ASSERT_EQUAL(2, BpQueueQpSet(bp, "Qpset2", 60, 60, 30000).id);
 	TEST_ASSERT_EQUAL_STRING(
 		"<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"1\" name=\"Qpset1\" "
-		"current=\"50\" speed=\"50\" frequency=\"20000\" ></message><message id=\"2\" type=\"command\" "
+		"current=\"50\" speed=\"50\" frequency=\"20000\" ></message><message id=\"2\" depends=\"1\" "
+		"type=\"command\" "
 		"command=\"1\" name=\"Qpset2\" current=\"60\" speed=\"60\" frequency=\"30000\" ></message>",
 		bp->message_queue);
 
 	blastpitDelete(bp);
 }
 
+TEST(BlastpitGroup, DependentChildTest)
+{  // Checks that queued messages rely on parent
+
+	// Queued messages should have 'depends' attribute added
+	// containing the previous messages in the queue, if any
+
+	// 'depends' attribute should be comma separated and sorted numerically.
+
+	// HasNoDependencies() should return true if all of the
+	// message dependencies are recorded as successful.
+	// Should return false if any dependency failed.
+
+	t_Blastpit *bp = blastpitNew();
+
+	IdAck message1_id = BpQueueMessage(bp, "payload");
+	// This should have an automatic dependency on message1
+	IdAck message2_id = BpQueueMessage(bp, "loadpay");
+	// This should depend on both
+	IdAck message3_id = BpQueueMessage(bp, "loadpayload");
+
+	(void)message1_id;
+	(void)message2_id;
+	(void)message3_id;
+
+	sds message3_data = XmlGetMessageByIndex(bp->message_queue, 2);
+	TEST_ASSERT_EQUAL_STRING("2", XmlGetAttribute(message3_data, "depends"));
+
+	sdsfree(message3_data);
+	blastpitDelete(bp);
+}
+
+TEST(BlastpitGroup, RetvalDbTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	// Must return null if no record of id
+	// Must return stored id if present
+
+	t_Blastpit *bp = blastpitNew();
+	RetvalDb db3 = {0, kInvalid, NULL};
+	RetvalDb db2 = {0, kInvalid, &db3};
+	RetvalDb db1 = {0, kInvalid, &db2};
+	bp->retval_db = &db1;
+
+	BpAddRetvalToDb(bp, (IdAck){4, kBadLogic, NULL});
+	BpAddRetvalToDb(bp, (IdAck){5, kBadXml, NULL});
+	// We need to rig the check against the highest id
+	bp->highest_id = 5;
+
+	// Should return kNotFound
+	TEST_ASSERT_EQUAL(kNotFound, BpQueryRetvalDb(bp, 1));
+
+	TEST_ASSERT_EQUAL(kBadLogic, BpQueryRetvalDb(bp, 4));
+	TEST_ASSERT_EQUAL(kBadXml, BpQueryRetvalDb(bp, 5));
+}
+
 TEST_GROUP_RUNNER(BlastpitGroup)
 { /* Add a line below for each unit test */
 
+	RUN_TEST_CASE(BlastpitGroup, RetvalDbTest);
+	RUN_TEST_CASE(BlastpitGroup, DependentChildTest);
 	RUN_TEST_CASE(BlastpitGroup, QueueQpsetTest);
 	RUN_TEST_CASE(BlastpitGroup, SendCommand);
 	RUN_TEST_CASE(BlastpitGroup, simpleServerTest);

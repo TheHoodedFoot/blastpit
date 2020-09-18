@@ -46,9 +46,6 @@
 ; [submodule "apriltags"]
 ; 	path = src/submodules/apriltags
 ; 	url = https://bitbucket.org/kaess/apriltags.git
-[submodule "pugixml"]
-	path = src/submodules/pugixml
-	url = https://github.com/zeux/pugixml.git
 [submodule "unity"]
 	path = src/submodules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git

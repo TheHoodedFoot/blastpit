@@ -380,17 +380,20 @@ class Laser(inkex.Effect):
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
 
+            blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
+            blastpy.BpUploadQueuedMessages(blast)
+
+            # blastpy.BpQueueCommand(blast, 99)
             blastpy.BpQueueCommand(blast, blastpy.kClearLog)
             blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
 
             for qpset in qpsets:
                 blastpy.BpQueueQpSet(blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3]))
-            blastpy.BpUploadQueuedMessages(blast)
+            # blastpy.BpUploadQueuedMessages(blast)
 
             id = blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, str(xml.xml()), None, None, None, None, None, None, None, None)
-            blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(blast, id, 10000)
-
+            # blastpy.BpUploadQueuedMessages(blast)
+            # blastpy.BpWaitForReplyOrTimeout(blast, id.id, 10000)
 
             blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", None, None, None, None, None)
             blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "120", None, None, None, None, None)
@@ -398,8 +401,17 @@ class Laser(inkex.Effect):
             for layer in layers:
                 blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), None, None, None, None, None)
 
-            result = blastpy.BpUploadQueuedMessages(blast)
-            blastpy.pollMessages(blast)
+            # result = blastpy.BpUploadQueuedMessages(blast)
+
+            # blastpy.BpUploadQueuedMessages(blast)
+            # blastpy.pollMessages(blast)
+            # blastpy.pollMessages(blast)
+            # blastpy.pollMessages(blast)
+            # blastpy.pollMessages(blast)
+            # blastpy.pollMessages(blast)
+            # blastpy.pollMessages(blast)
+            # sys.exit()
+            
 
 
             if self.filename is not None and self.customer is not None:
@@ -409,7 +421,7 @@ class Laser(inkex.Effect):
 
             id = blastpy.BpQueueCommandArgs(blast, blastpy.kSaveVLM, "filename", filename, None, None, None, None, None, None, None)
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(blast, id, 10000)
+            blastpy.BpWaitForReplyOrTimeout(blast, id.id, 10000)
 
             blastpy.disconnectFromServer(blast)
 

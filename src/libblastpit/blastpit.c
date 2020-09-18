@@ -21,6 +21,7 @@ blastpitNew()
 		bp->ws = (void*)websocketNew();
 		bp->highest_id = 0;
 		bp->message_queue = NULL;
+		bp->retval_db = NULL;
 	}
 
 	return bp;
@@ -343,18 +344,18 @@ BpSdsToString(sds string)
 // 	return bp_sendMessage(self, message);
 // }
 
-IdAck
-SendAckRetval(t_Blastpit* self, int id, int retval)
-{  // Sends a message acknowledgement with return value
+// IdAck
+// SendAckRetval(t_Blastpit* self, int id, int retval)
+// {  // Sends a message acknowledgement with return value
 
-	sds id_str = sdsfromlonglong(id);
-	sds retval_str = sdsfromlonglong(retval);
-	IdAck result = SendMessageBp(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
-	sdsfree(retval_str);
-	sdsfree(id_str);
+// 	sds id_str = sdsfromlonglong(id);
+// 	sds retval_str = sdsfromlonglong(retval);
+// 	IdAck result = SendMessageBp(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
+// 	sdsfree(retval_str);
+// 	sdsfree(id_str);
 
-	return result;
-}
+// 	return result;
+// }
 
 IdAck
 QueueAckRetval(t_Blastpit* self, int id, int retval)
@@ -362,69 +363,69 @@ QueueAckRetval(t_Blastpit* self, int id, int retval)
 
 	sds id_str = sdsfromlonglong(id);
 	sds retval_str = sdsfromlonglong(retval);
-	int result = BpQueueMessage(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
+	IdAck result = BpQueueMessage(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
 	sdsfree(retval_str);
 	sdsfree(id_str);
 
-	return (IdAck){result, kMessageQueued, NULL};
-}
-
-IdAck
-SendCommand(t_Blastpit* self, int command)
-{
-	sds cmd = sdsfromlonglong(command);
-	IdAck result = SendMessageBp(self, "type", "command", "command", cmd, NULL);
-	sdsfree(cmd);
 	return result;
 }
 
-IdAck
-SendMessageBp(t_Blastpit* self, ...)
-{  // Sends single command with optional attributes
-	// If there are an odd number of optional parameters,
-	// the final parameter is used as the message CDATA
+// IdAck
+// SendCommand(t_Blastpit* self, int command)
+// {
+// 	sds cmd = sdsfromlonglong(command);
+// 	IdAck result = SendMessageBp(self, "type", "command", "command", cmd, NULL);
+// 	sdsfree(cmd);
+// 	return result;
+// }
 
-	va_list args;
-	va_start(args, self);
-	char *attrib, *value;
-	sds xml = sdsnew("<?xml version=\"1.0\"?><message ");
-	bool first_attribute = true;
+// IdAck
+// SendMessageBp(t_Blastpit* self, ...)
+// {  // Sends single command with optional attributes
+// 	// If there are an odd number of optional parameters,
+// 	// the final parameter is used as the message CDATA
 
-	while (true) {
-		// Get the attribute name
-		attrib = va_arg(args, char*);  // Pop the next argument (a char*)
-		if (!attrib)
-			break;
+// 	va_list args;
+// 	va_start(args, self);
+// 	char *attrib, *value;
+// 	sds xml = sdsnew("<?xml version=\"1.0\"?><message ");
+// 	bool first_attribute = true;
 
-		// Get the attribute value
-		value = va_arg(args, char*);  // Pop the next argument (a char*)
-		if (!value)
-			break;
+// 	while (true) {
+// 		// Get the attribute name
+// 		attrib = va_arg(args, char*);  // Pop the next argument (a char*)
+// 		if (!attrib)
+// 			break;
 
-		// Append the attribute to the XML
-		if (first_attribute) {
-			xml = sdscatprintf(xml, "%s=\"%s\"", attrib, value);
-			first_attribute = false;
-		} else {
-			xml = sdscatprintf(xml, " %s=\"%s\"", attrib, value);
-		}
-	}
+// 		// Get the attribute value
+// 		value = va_arg(args, char*);  // Pop the next argument (a char*)
+// 		if (!value)
+// 			break;
 
-	xml = sdscatprintf(xml, ">");
+// 		// Append the attribute to the XML
+// 		if (first_attribute) {
+// 			xml = sdscatprintf(xml, "%s=\"%s\"", attrib, value);
+// 			first_attribute = false;
+// 		} else {
+// 			xml = sdscatprintf(xml, " %s=\"%s\"", attrib, value);
+// 		}
+// 	}
 
-	if (attrib) {  // Payload
-		xml = sdscatprintf(xml, "%s", attrib);
-	}
+// 	xml = sdscatprintf(xml, ">");
 
-	xml = sdscatprintf(xml, "</message>");
+// 	if (attrib) {  // Payload
+// 		xml = sdscatprintf(xml, "%s", attrib);
+// 	}
 
-	IdAck result = bp_sendMessage(self, xml);
+// 	xml = sdscatprintf(xml, "</message>");
 
-	va_end(args);
-	sdsfree(xml);
+// 	IdAck result = bp_sendMessage(self, xml);
 
-	return result;
-}
+// 	va_end(args);
+// 	sdsfree(xml);
+
+// 	return result;
+// }
 
 int
 AutoGenerateId(t_Blastpit* self)
@@ -434,28 +435,28 @@ AutoGenerateId(t_Blastpit* self)
 	return self->highest_id;
 }
 
-IdAck
-bp_sendCommandAndWait(t_Blastpit* self, int command, int timeout)
-{
-	IdAck result;
+// IdAck
+// bp_sendCommandAndWait(t_Blastpit* self, int command, int timeout)
+// {
+// 	IdAck result;
 
-	result = SendCommand(self, command);
-	LOG(kLvlDebug, "bp_sendCommandAndWait: id = %d\n", result.id);
-	LOG(kLvlDebug, "bp_sendCommandAndWait: retval = %d\n", result.retval);
-	if (result.retval != kSuccess) {
-		LOG(kLvlDebug, "%s: Failed to send command", __func__);
-		result = (IdAck){kInvalid, kCommandFailed, NULL};
-		return result;
-	}
-	result = BpWaitForReplyOrTimeout(self, result.id, timeout);
-	if (result.retval != kSuccess) {
-		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
-		result = (IdAck){kInvalid, kReplyTimeout, NULL};
-		return result;
-	}
+// 	result = SendCommand(self, command);
+// 	LOG(kLvlDebug, "bp_sendCommandAndWait: id = %d\n", result.id);
+// 	LOG(kLvlDebug, "bp_sendCommandAndWait: retval = %d\n", result.retval);
+// 	if (result.retval != kSuccess) {
+// 		LOG(kLvlDebug, "%s: Failed to send command", __func__);
+// 		result = (IdAck){kInvalid, kCommandFailed, NULL};
+// 		return result;
+// 	}
+// 	result = BpWaitForReplyOrTimeout(self, result.id, timeout);
+// 	if (result.retval != kSuccess) {
+// 		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
+// 		result = (IdAck){kInvalid, kReplyTimeout, NULL};
+// 		return result;
+// 	}
 
-	return result;
-}
+// 	return result;
+// }
 
 bool
 bp_isConnected(t_Blastpit* self)
@@ -496,21 +497,21 @@ void
 startLMOS(t_Blastpit* self)
 {  // Send a message to LMOS to unload the ActiveX control
 
-	SendCommand(self, kCreateLMOS);
+	BpQueueCommand(self, kCreateLMOS);
 }
 
 void
 stopLMOS(t_Blastpit* self)
 {  // Send a message to LMOS to unload the ActiveX control
 
-	SendCommand(self, kDestroyLMOS);
+	BpQueueCommand(self, kDestroyLMOS);
 }
 
 void
 clearQPSets(t_Blastpit* self)
 {  // Tell Lmos to erase all existing QPsets
 
-	SendCommand(self, kClearQpSets);
+	BpQueueCommand(self, kClearQpSets);
 }
 
 void
@@ -574,22 +575,22 @@ BpGetChildNodeAsString(const char* message, const char* child_name)
 	return (char*)XmlGetChildNodeAsString(message, child_name);
 }
 
-int
+IdAck
 BpQueueCommand(t_Blastpit* self, int command)
 {
 	if (!self)
-		return kInvalid;
+		return (IdAck){kInvalid, kFailure, NULL};
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
-	int result = BpQueueMessage(self, "type", "command", "command", command_str, NULL);
+	IdAck result = BpQueueMessage(self, "type", "command", "command", command_str, NULL);
 
 	sdsfree(command_str);
 
 	return result;
 }
 
-int
+IdAck
 BpQueueMessage(t_Blastpit* self, ...)
 {  // REMEMBER THE NULL
 	// Append message to global queue for bulk upload
@@ -598,9 +599,20 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	va_list args;
 	va_start(args, self);
-	char *attrib, *value;
+	char *attrib, *value = NULL;
 	int id = AutoGenerateId(self);
-	sds message = sdscatprintf(sdsempty(), "<message id=\"%d\" ", id);
+	sds message;
+
+	if (self->message_queue) {  // Find parent dependencies and add them
+		sds parent = XmlGetMessageByIndex(self->message_queue, BpGetMessageCount(self->message_queue) - 1);
+		sds parent_id = BpGetMessageAttribute(parent, "id");
+		message = sdscatprintf(sdsempty(), "<message id=\"%d\" depends=\"%s\" ", id, parent_id);
+		sdsfree(parent_id);
+		sdsfree(parent);
+	} else {
+		message = sdscatprintf(sdsempty(), "<message id=\"%d\" ", id);
+	}
+
 	sds xml;
 
 	// LOG(kLvlDebug, "message: %s\n", message);
@@ -612,22 +624,21 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 		// Get the attribute value
 		value = va_arg(args, char*);  // Pop the next argument (a char*)
-		if (!value)
+		if (!value || strcmp(value, "") == 0)
 			break;
 
 		// Append the attribute to the message
 		message = sdscatprintf(message, "%s=\"%s\" ", attrib, value);
-		// LOG(kLvlDebug, "found attribute %s\n", attrib);
-		// LOG(kLvlDebug, "found value %s\n", value);
-		// LOG(kLvlDebug, "message: %s\n", message);
 	}
+	LOG(kLvlDebug, "found attribute %s\n", attrib);
+	LOG(kLvlDebug, "found value %s\n", value);
 
 	message = sdscatprintf(message, ">");
-	// LOG(kLvlDebug, "message1: %s\n", message);
+	LOG(kLvlDebug, "message: %s\n", message);
 
 	if (attrib) {  // Payload
+		LOG(kLvlDebug, "payload: %s\n", attrib);
 		message = sdscatprintf(message, "%s", attrib);
-		// LOG(kLvlDebug, "message2: %s\n", message);
 	}
 
 	message = sdscatprintf(message, "</message>");
@@ -647,7 +658,7 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	self->message_queue = xml;
 
-	return id;
+	return (IdAck){id, kSuccess, NULL};
 }
 
 IdAck
@@ -665,26 +676,26 @@ BpUploadQueuedMessages(t_Blastpit* self)
 	return result;
 }
 
-int
+IdAck
 BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency)
 {  // Queue a qp set for upload
 
 	if (!self)
-		return kInvalid;
+		return (IdAck){kInvalid, kInvalid, NULL};
 	if (current < LMOS_CURRENT_MIN || current > LMOS_CURRENT_MAX)
-		return kInvalid;
+		return (IdAck){kInvalid, kInvalid, NULL};
 	if (speed < LMOS_SPEED_MIN || speed > LMOS_SPEED_MAX)
-		return kInvalid;
+		return (IdAck){kInvalid, kInvalid, NULL};
 	if (frequency < LMOS_FREQUENCY_MIN || frequency > LMOS_FREQUENCY_MAX)
-		return kInvalid;
+		return (IdAck){kInvalid, kInvalid, NULL};
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", kAddQpSet);
 	sds current_str = sdscatprintf(sdsempty(), "%d", current);
 	sds speed_str = sdscatprintf(sdsempty(), "%d", speed);
 	sds frequency_str = sdscatprintf(sdsempty(), "%d", frequency);
 
-	int result = BpQueueMessage(self, "type", "command", "command", command_str, "name", name, "current",
-				    current_str, "speed", speed_str, "frequency", frequency_str, NULL);
+	IdAck result = BpQueueMessage(self, "type", "command", "command", command_str, "name", name, "current",
+				      current_str, "speed", speed_str, "frequency", frequency_str, NULL);
 
 	sdsfree(frequency_str);
 	sdsfree(speed_str);
@@ -694,7 +705,7 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 	return result;
 }
 
-int
+IdAck
 BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char* val1, const char* attr2,
 		   const char* val2, const char* attr3, const char* val3, const char* attr4, const char* val4,
 		   const char* payload)
@@ -703,12 +714,12 @@ BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char*
 	// Supply dummy command/value pairs for unneeded values or payload
 
 	if (!self)
-		return kInvalid;
+		return (IdAck){kInvalid, kFailure, NULL};
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
-	int result = BpQueueMessage(self, "type", "command", "command", command_str, attr1, val1, attr2, val2, attr3,
-				    val3, attr4, val4, payload, NULL);
+	IdAck result = BpQueueMessage(self, "type", "command", "command", command_str, attr1, val1, attr2, val2, attr3,
+				      val3, attr4, val4, payload, NULL);
 
 	sdsfree(command_str);
 
@@ -740,4 +751,61 @@ void
 BpPrintQueue(t_Blastpit* self)
 {
 	printf("\n\nMessage Queue\n-------------\n\n%s\n\n", self->message_queue);
+}
+
+int
+BpQueryRetvalDb(t_Blastpit* self, int id)
+{  // Returns retval of completed commands or kInvalid if not found
+
+	if (!self)
+		return kInvalid;
+
+	RetvalDb* item = self->retval_db;
+
+	// LOG(kLvlDebug, "BpQueryRetvalDb: highest id = %d\n", self->highest_id);
+	while (item) {
+		LOG(kLvlDebug, "BpQueryRetvalDb: id = %d\n", item->id);
+		if (item->id == id)
+			return item->retval;
+		if (item->id > self->highest_id)
+			return kBadLogic;  // Detect a corrupt list
+		item = item->next;
+	}
+
+	return kNotFound;
+}
+
+int
+BpAddRetvalToDb(t_Blastpit* self, IdAck record)
+{
+	if (!self)
+		return kInvalid;
+
+	RetvalDb* new_record = (RetvalDb*)malloc(sizeof(RetvalDb));
+	new_record->id = record.id;
+	new_record->retval = record.retval;
+	new_record->next = self->retval_db;
+	self->retval_db = new_record;
+
+	return kSuccess;
+}
+
+void
+BpFreeRetvalDb(t_Blastpit* self)
+{  // Free all memory used by the return value database
+
+	if (!self)
+		return;
+
+	RetvalDb* record = self->retval_db;
+
+	while (record) {
+		// A simple sanity check
+		assert(record->id <= self->highest_id);
+		RetvalDb* next = record->next;
+		free(record);
+		record = next;
+	}
+
+	self->retval_db = NULL;
 }
