@@ -75,6 +75,7 @@ extern "C" {
 	COMMAND(kReadIOBit)          \
 	COMMAND(kReference)          \
 	COMMAND(kReply)              \
+	COMMAND(kResetRetvalDb)      \
 	COMMAND(kSaveVLM)            \
 	COMMAND(kSelfTest)           \
 	COMMAND(kSetDimension)       \
@@ -93,7 +94,6 @@ extern "C" {
 	COMMAND(kTermMachine)        \
 	COMMAND(kWriteByte)          \
 	COMMAND(kWriteIoBit)         \
-	COMMAND(kResetRetvalDb)      \
 	COMMAND(kZoomWindow)
 
 #define FOREACH_RETVAL(RETVAL)         \
@@ -118,6 +118,7 @@ extern "C" {
 	RETVAL(kJobBegin)              \
 	RETVAL(kJobEnd)                \
 	RETVAL(kMessageMap)            \
+	RETVAL(kMessageQueued)         \
 	RETVAL(kMoBegin)               \
 	RETVAL(kMoEnd)                 \
 	RETVAL(kNullResource)          \
@@ -125,7 +126,6 @@ extern "C" {
 	RETVAL(kQueued)                \
 	RETVAL(kReplyTimeout)          \
 	RETVAL(kSetterFailure)         \
-	RETVAL(kMessageQueued)         \
 	RETVAL(kInvalid = -1)          \
 	RETVAL(kMultipleCommands = -2) \
 	RETVAL(kNotFound = -3)

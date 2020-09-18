@@ -89,6 +89,7 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 			psr->log(id);
 			psr->log(" has failed dependency ");
 			psr->log(depends);
+			psr->ackReturn(atoi(id), kFailure);
 			SdsFree(id);
 		};
 		SdsFree(depends);
@@ -222,7 +223,7 @@ Parser::parseCommand(const char *xml)
 	char *attr1, *attr2, *attr3, *attr4;
 
 	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") #" + QString::number(id) + ": " +
-	    QString(bpCommandString[command]));
+	    QString(bpCommandName(command)));
 
 	std::stringstream out;
 	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");

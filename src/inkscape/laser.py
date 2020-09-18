@@ -383,7 +383,6 @@ class Laser(inkex.Effect):
             blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
             blastpy.BpUploadQueuedMessages(blast)
 
-            # blastpy.BpQueueCommand(blast, 99)
             blastpy.BpQueueCommand(blast, blastpy.kClearLog)
             blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
 
@@ -401,25 +400,13 @@ class Laser(inkex.Effect):
             for layer in layers:
                 blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), None, None, None, None, None)
 
-            # result = blastpy.BpUploadQueuedMessages(blast)
-
-            # blastpy.BpUploadQueuedMessages(blast)
-            # blastpy.pollMessages(blast)
-            # blastpy.pollMessages(blast)
-            # blastpy.pollMessages(blast)
-            # blastpy.pollMessages(blast)
-            # blastpy.pollMessages(blast)
-            # blastpy.pollMessages(blast)
-            # sys.exit()
-            
-
-
             if self.filename is not None and self.customer is not None:
                 filename = "Z:\\drawings\\" + str(datetime.date.today().year) + "\\" + self.customer + "\\" + self.filename + ".VLM"
             else:
                 filename = "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
 
             id = blastpy.BpQueueCommandArgs(blast, blastpy.kSaveVLM, "filename", filename, None, None, None, None, None, None, None)
+            print("Id of final command: " + str(id.id), file=sys.stderr)
             blastpy.BpUploadQueuedMessages(blast)
             blastpy.BpWaitForReplyOrTimeout(blast, id.id, 10000)
 

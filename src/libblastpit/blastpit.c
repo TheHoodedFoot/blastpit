@@ -41,12 +41,21 @@ blastpitDelete(t_Blastpit* bp)
 const char*
 bpCommandName(int command)
 {
-	return bpCommandString[command];
+	if (command <= BPCOMMAND_MAX) {
+		return bpCommandString[command];
+	} else {
+		return BP_EMPTY_STRING;
+	}
 }
+
 const char*
 bpRetvalName(int retval)
 {
-	return bpRetvalString[retval];
+	if (retval <= RETVAL_MAX) {
+		return bpRetvalString[retval];
+	} else {
+		return BP_EMPTY_STRING;
+	}
 }
 
 int
