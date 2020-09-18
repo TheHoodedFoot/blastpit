@@ -301,7 +301,7 @@ const char *bpRetvalName(int retval);
 char *popMessage(t_Blastpit *self);
 char *popMessageAt(t_Blastpit *self, int index);
 IdAck QueueAckRetval(t_Blastpit *self, int id, int retval);
-IdAck QueueReplyPayload(t_Blastpit *self, int id, char *payload);
+IdAck QueueReplyPayload(t_Blastpit *self, int id, const char *payload);
 char *readMessageAt(t_Blastpit *self, int index);
 // IdAck SendCommand(t_Blastpit *self, int command);
 // IdAck SendMessageBp(t_Blastpit *self, ...);

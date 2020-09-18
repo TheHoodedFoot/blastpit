@@ -201,7 +201,7 @@ Parser::ackReturn(int id, int retval)
 }
 
 void
-Parser::ReplyWithPayload(int id, char *payload)
+Parser::ReplyWithPayload(int id, const char *payload)
 {  // Reply to a commmand with a payload string
 
 	log("[ReplyWithPayload] #" + QString::number(id) + " : " + QString(payload));
@@ -385,24 +385,24 @@ Parser::parseCommand(const char *xml)
 		case kReadByte:
 			attr1 = BpGetMessageAttribute(xml, "port");
 			attr2 = BpGetMessageAttribute(xml, "mask");
-			retval = lmos.ReadByte(QString(attr1).toInt(), QString(attr2).toInt());
-			if (retval == kInvalid) {
+			retval_num = lmos.ReadByte(QString(attr1).toInt(), QString(attr2).toInt());
+			if (retval_num == kInvalid) {
 				ackReturn(id, kFailure);
 			} else {
 				ackReturn(id, kSuccess);
-				payload = SdsFromLong(retval);
+				payload = SdsFromLong(retval_num);
 				ReplyWithPayload(id, payload);
 				SdsFree(payload);
 			}
 			break;
 		case kReadIOBit:
 			attr1 = BpGetMessageAttribute(xml, "bitfunction");
-			retval = lmos.ReadIOBit(QString(attr1));
-			if (retval == kInvalid) {
+			retval_num = lmos.ReadIOBit(QString(attr1));
+			if (retval_num == kInvalid) {
 				ackReturn(id, kFailure);
 			} else {
 				ackReturn(id, kSuccess);
-				ReplyWithPayload(id, retval == 1 ? "1" : "0");
+				ReplyWithPayload(id, retval_num == 1 ? "1" : "0");
 			}
 			break;
 		case kSaveVLM:

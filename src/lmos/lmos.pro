@@ -13,15 +13,15 @@ TARGET = lmosgui
 TEMPLATE = app
 CONFIG += widgets
 
-CONFIG += debug c++11
-#CONFIG += debug_and_release build_all c++11
+#CONFIG += debug c++11
+CONFIG += debug_and_release build_all c++11
 
 QMAKE_CXXFLAGS_RELEASE += -DDEBUG_LEVEL=0
-QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=9 -Og -g3
+QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=5 -Og -g3
 
 linux {
-	#QMAKE_CC = "ccache clang"
-	#QMAKE_CXX = "ccache clang++"
+	QMAKE_CC = "ccache clang"
+	QMAKE_CXX = "ccache clang++"
 	#QMAKE_LINK = "ccache clang++"
 }
 

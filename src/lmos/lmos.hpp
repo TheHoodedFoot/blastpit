@@ -71,7 +71,7 @@ class Lmos : public QObject {
 	void LoadVLM(const QString&);
 	void MoveW(double);
 	void MoveZ(float);
-	void ReadByte(const int, const int);
+	int ReadByte(const int, const int);
 	int ReadIOBit(const QString&);
 	void Reference();
 	void SaveQPSets();

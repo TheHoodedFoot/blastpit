@@ -27,6 +27,7 @@ class Parser : public QObject {
 	void ackReturn(int id, int retval);
 	void ackMessage(int id, QString message);
 	void log(int, const char *, QString);
+	void ReplyWithPayload(int id, const char *payload);
 
       private:
 	void parseCommand(const char *message);

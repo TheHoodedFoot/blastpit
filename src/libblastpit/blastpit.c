@@ -380,7 +380,7 @@ QueueAckRetval(t_Blastpit* self, int id, int retval)
 }
 
 IdAck
-QueueReplyPayload(t_Blastpit* self, int id, char* payload)
+QueueReplyPayload(t_Blastpit* self, int id, const char* payload)
 {  // Sends a reply payload
 
 	sds id_str = sdsfromlonglong(id);
