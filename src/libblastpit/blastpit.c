@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include "blastpit.h"
@@ -35,6 +36,8 @@ blastpitDelete(t_Blastpit* bp)
 		websocketDelete((t_Websocket*)bp->ws);
 	if (bp->message_queue)
 		sdsfree(bp->message_queue);
+	if (bp->retval_db)
+		BpFreeRetvalDb(bp);
 	free(bp);
 }
 
@@ -127,8 +130,7 @@ waitForConnection(t_Blastpit* self, int timeout)
 void
 disconnectFromServer(t_Blastpit* self)
 {
-	// TODO
-	(void)self;
+	wsClientDestroy((t_Websocket*)self->ws);
 }
 
 void
@@ -279,10 +281,18 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 
 	// TODO: Clean up the logic in this
 
-	for (int i = 0; i < timeout; i++) {
-		pollMessages(self);
-		usleep(1000);
+	struct timeval start_time, current_time;
+	if (gettimeofday(&start_time, NULL) == -1) {
+		LOG(kLvlError, "%s: Cannot access system time\n", __func__);
+		return (IdAck){id, kFailure, NULL};
+	}
 
+	for (int i = 0; i < timeout; i++) {
+		gettimeofday(&current_time, NULL);
+		if (current_time.tv_usec - start_time.tv_usec > timeout * 1000)
+			break;
+
+		pollMessages(self);
 		if (getMessageCount(self) == 0)
 			continue;
 
@@ -300,7 +310,8 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 				sdsfree(id_str);
 				sdsfree(retval_str);
 				if (do_strings_match == 0) {
-					popMessageAt(self, j);
+					void* msg_data = popMessageAt(self, j);
+					free(msg_data);
 					return (IdAck){id, retval, NULL};
 				}
 			}
@@ -386,6 +397,17 @@ QueueReplyPayload(t_Blastpit* self, int id, const char* payload)
 	sds id_str = sdsfromlonglong(id);
 	IdAck result = BpQueueMessage(self, "type", "reply", "parentid", id_str, payload, NULL);
 	sdsfree(id_str);
+
+	return result;
+}
+
+IdAck
+QueueSignal(t_Blastpit* self, int signal, const char* payload)
+{  // Sends an lmos signal
+
+	sds signal_str = sdsfromlonglong(signal);
+	IdAck result = BpQueueMessage(self, "type", "signal", "signal", signal_str, payload, NULL);
+	sdsfree(signal_str);
 
 	return result;
 }
@@ -651,7 +673,10 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 		// Get the attribute value
 		value = va_arg(args, char*);  // Pop the next argument (a char*)
-		if (!value || strcmp(value, "") == 0)
+		if (!value)
+			break;
+		// assert(value > 0xffff);
+		if (*value == 0)
 			break;
 
 		// Append the attribute to the message
@@ -835,4 +860,22 @@ BpFreeRetvalDb(t_Blastpit* self)
 	}
 
 	self->retval_db = NULL;
+}
+
+int
+BpIsLmosUp(t_Blastpit* self)
+{  // Fast dedicated check to see if lmos controller is running
+   // Note that this will return false if lmos is busy.
+
+	// We don't want any queued messages before the test
+	char* existing_queue = self->message_queue;
+	self->message_queue = NULL;
+
+	IdAck lmos = BpQueueCommand(self, kIsLmosRunning);
+	BpUploadQueuedMessages(self);
+	IdAck timeout = BpWaitForReplyOrTimeout(self, lmos.id, BP_ISLMOSUP_TIMEOUT);
+
+	self->message_queue = existing_queue;
+
+	return (timeout.retval == kSuccess);
 }

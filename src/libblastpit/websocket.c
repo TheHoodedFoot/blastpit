@@ -37,7 +37,19 @@ void
 websocketDelete(t_Websocket *ws)
 {  // Destructor
 
-	(void)ws;
+	wsFlushMessages(ws);
+	free(ws);
+}
+
+void
+wsFlushMessages(t_Websocket *ws)
+{  // Drop all messages
+
+	if (!ws)
+		return;
+	while (wsGetMessageCount(ws) > 0) {
+		free(wsPopMessage(ws));
+	}
 }
 
 // static int
@@ -201,6 +213,7 @@ client_event_handler(struct mg_connection *nc, int ev, void *ev_data)
 
 			// We could use calloc here, but we only need to zero the last byte
 			void *message = malloc((int)wm->size + 1);  // Allow null terminator
+			LOG(kLvlDebug, "Message pointer: %p\n", message);
 			*((char *)message + (int)wm->size) = 0;
 
 			memcpy(message, wm->data, (int)wm->size);
@@ -244,6 +257,7 @@ wsServerCreate(t_Websocket *self, const char *port)
 	self->connection = mg_bind(&self->mongoose, port, server_event_handler);
 	if (!self->connection) {
 		LOG(kLvlError, "%s: mg_bind failed", __func__);
+		mg_mgr_free(&self->mongoose);
 		return kAllocationFailure;
 	}
 
@@ -273,6 +287,7 @@ wsServerDestroy(t_Websocket *self)
 	self->evloopIsRunning = false;
 	self->connection = NULL;
 
+	// wsFlushMessages(self);
 	return true;
 }
 
@@ -310,6 +325,8 @@ wsClientDestroy(t_Websocket *self)
 	self->evloopIsRunning = false;
 	self->connection = NULL;
 
+	// wsFlushMessages(self);
+	// self = NULL;
 	return true;
 }
 
@@ -358,6 +375,7 @@ wsPushMessage(t_Websocket *self, void *data)
 {  // Add a message to the start of the message stack
 
 	t_Node *message = (t_Node *)malloc(sizeof(t_Node));
+	LOG(kLvlDebug, "Pushing message pointer: %p\n", (void *)message);
 	message->data = data;
 	message->next = self->messageStack;
 	self->messageStack = message;
@@ -366,17 +384,6 @@ wsPushMessage(t_Websocket *self, void *data)
 void *
 wsPopMessage(t_Websocket *self)
 {  // Remove newest message from stack
-
-	// if (!self)
-	// 	return NULL;
-	// if (!self->messageStack)
-	// 	return NULL;
-
-	// void *retval = self->messageStack->data;
-	// void *newHead = self->messageStack->next;
-	// free(self->messageStack);
-	// self->messageStack = newHead;
-	// return retval;
 
 	return wsPopMessageAt(self, 0);
 }
@@ -415,6 +422,8 @@ wsPopMessageAt(t_Websocket *self, int index)
 
 	void *retval = node->data;
 	void *newHead = node->next;
+	LOG(kLvlDebug, "Freeing message pointer: %p\n", (void *)node);
+	LOG(kLvlDebug, "which points to data: %p\n", (void *)node->data);
 	free(node);
 
 	if (!prev) {

@@ -22,8 +22,7 @@ extern "C" {
 #define LMOS_FREQUENCY_MIN 20000
 #define LMOS_FREQUENCY_MAX 60000
 
-// #define BP_PACKET_CHECKSUM_SIZE 5 * sizeof(uint32_t)
-// #define BP_DATA_CHECKSUM_SIZE sizeof(struct BpPacket)
+#define BP_ISLMOSUP_TIMEOUT 500
 
 #define BP_EMPTY_STRING "<empty string>"
 
@@ -60,6 +59,7 @@ extern "C" {
 	COMMAND(kHideLMOS)           \
 	COMMAND(kImportXML)          \
 	COMMAND(kInitMachine)        \
+	COMMAND(kIsLmosRunning)      \
 	COMMAND(kLayerSetExportable) \
 	COMMAND(kLayerSetHeight)     \
 	COMMAND(kLayerSetLaserable)  \
@@ -302,6 +302,7 @@ char *popMessage(t_Blastpit *self);
 char *popMessageAt(t_Blastpit *self, int index);
 IdAck QueueAckRetval(t_Blastpit *self, int id, int retval);
 IdAck QueueReplyPayload(t_Blastpit *self, int id, const char *payload);
+IdAck QueueSignal(t_Blastpit *self, int signal, const char *payload);
 char *readMessageAt(t_Blastpit *self, int index);
 // IdAck SendCommand(t_Blastpit *self, int command);
 // IdAck SendMessageBp(t_Blastpit *self, ...);
@@ -328,6 +329,7 @@ void SdsFree(char *string);
 // void BpQueueDrawing(t_Blastpit *self, char *drawing);
 void BpPrintQueue(t_Blastpit *self);
 void BpFreeRetvalDb(t_Blastpit *self);
+int BpIsLmosUp(t_Blastpit *self);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

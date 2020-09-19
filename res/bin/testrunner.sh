@@ -91,13 +91,14 @@ do
 	then
 		echo -e "${MAGENTA}\n[t_${TEST}.py]${WHITE}"
 		echo
-		PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
+		ASAN_OPTIONS=detect_leaks=0 LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
+		# ASAN_OPTIONS=suppressions=${PROJECT_ROOT}/.asan_suppressions LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
 		if [ $? -ne 0 ]
 		then
 			set_colour $RED
 			print_large "FAILED" "Bloody"
 			set_colour $WHITE
-			exit 1
+			# exit 1
 		fi
 	fi
 done

@@ -15,7 +15,7 @@ Parser::Parser(QObject *parent) : QObject(parent)
 	QObject::connect(&lmos, SIGNAL(log(QString)), this, SLOT(log(QString)));
 	QObject::connect(&lmos, SIGNAL(log(int, const char *, QString)), this, SLOT(log(int, const char *, QString)));
 	QObject::connect(&lmos, SIGNAL(ack(QString)), this, SLOT(ack(QString)));
-	QObject::connect(&lmos, SIGNAL(sendEvent(int, QString)), this, SLOT(ackMessage(int, QString)));
+	QObject::connect(&lmos, SIGNAL(sendEvent(int, QString)), this, SLOT(SendSignal(int, QString)));
 
 	blast = blastpitNew();
 	assert(blast);
@@ -86,7 +86,6 @@ Parser::ProcessMessageBlock(const char *msg_data_string)
 	int msg_count = BpGetMessageCount((const char *)msg_data_string);
 
 	log("Processing " + QString::number(msg_count) + " messages");
-	log(msg_data_string);
 
 	for (int i = 0; i < msg_count; i++) {
 		message = BpGetMessageByIndex((const char *)msg_data_string, i);
@@ -210,23 +209,22 @@ Parser::ReplyWithPayload(int id, const char *payload)
 }
 
 void
-Parser::ackMessage(int id, QString message)
-{  // Used by Lmos to send an event
+Parser::SendSignal(int signal, QString message)
+{  // Used by Lmos to send a signal
 	// Assume that message is not null terminated
 
-	char *id_string = (char *)alloca(4);
-	snprintf(id_string, 4, "%d", id);
+	char *signal_string = (char *)alloca(4);
+	snprintf(signal_string, 4, "%d", signal);
 	char *message_string = (char *)alloca(message.size() + 1);
 	strncpy(message_string, message.toStdString().c_str(), message.size());
 	*(message_string + message.size()) = 0;
 
-	log("Parser::ackMessage");
-	log(id_string);
+	log("Parser::SendSignal");
+	log(signal_string);
 	log(message_string);
-	// log("[ackMessage] id: " + QString::number(id) + "  " + message);
-	// std::string stdString = std::string(bArray.constData(), bArray.length());
-	// SendMessageBp(blast, "type", "event", "id", QString::number(id).toStdString().c_str(),
-	// message.toStdString().c_str());
+	QueueSignal(blast, signal, message_string);
+	// QueueSignal(blast, signal, "TEST SIGNAL");
+	BpUploadQueuedMessages(blast);
 }
 
 void
@@ -252,6 +250,9 @@ Parser::parseCommand(const char *xml)
 	std::string stdString;
 
 	switch (command) {
+		case kIsLmosRunning:
+			ackReturn(id, kSuccess);
+			break;
 		case kGetVersion:
 			/* Create an XML with the git version inside */
 			// free(versionString);
@@ -443,6 +444,7 @@ Parser::parseCommand(const char *xml)
 			// ackReturn(id, kSuccess);
 
 			// TODO: Encode the id into the message
+			ReplyWithPayload(id, stdString.c_str());
 			// bp_sendMessage(blast, stdString.c_str());
 			// SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), stdString.c_str());
 			/* #if DEBUG_LEVEL == 3 */

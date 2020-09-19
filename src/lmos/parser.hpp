@@ -25,7 +25,7 @@ class Parser : public QObject {
 	void log(QString);
 	void ack(QString);
 	void ackReturn(int id, int retval);
-	void ackMessage(int id, QString message);
+	void SendSignal(int signal, QString message);
 	void log(int, const char *, QString);
 	void ReplyWithPayload(int id, const char *payload);
 

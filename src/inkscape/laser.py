@@ -380,6 +380,10 @@ class Laser(inkex.Effect):
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
 
+            if blastpy.BpIsLmosUp(blast) != blastpy.kSuccess:
+                print("Lmos client could not be reached", file=sys.stderr)
+                sys.exit()
+
             blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
             blastpy.BpUploadQueuedMessages(blast)
 
@@ -410,6 +414,7 @@ class Laser(inkex.Effect):
             blastpy.BpWaitForReplyOrTimeout(blast, id.id, LONG_TIMEOUT)
 
             blastpy.disconnectFromServer(blast)
+            blastpy.blastpitDelete(blast)
 
         if self.mode == "position":
             blast = blastpy.t_Blastpit()
@@ -432,8 +437,11 @@ if __name__ == '__main__':
 
 # If any items are selected, export only those items
 # If no objects are selected, export all items on visible layers
+# Convert text to paths
+# Merge any paths whose bounding boxes overlap
 
 # inkscape --pipe --export-id-only --export-text-to-path --vacuum-defs --export-plain-svg -i text1085 -o - < drawing.svg
+# REMEMBER TO MERGE TEXT
 
 # for id_, node in self.selected.iteritems():
 #     # get value of attribute 'inkscape:label' from current node

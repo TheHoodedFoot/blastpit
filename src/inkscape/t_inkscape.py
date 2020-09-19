@@ -42,17 +42,23 @@ if result != blastpy.kSuccess:
     print("Can't connect to server (%d)" % result, file=sys.stderr)
     sys.exit()
 
+if blastpy.BpIsLmosUp(blast) != blastpy.kSuccess:
+    print("Lmos client could not be reached", file=sys.stderr)
+    sys.exit()
+
 blastpy.BpQueueCommand(blast, blastpy.kClearLog)
 blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
-for qpset in qpsets:
-    blastpy.BpQueueQpSet(blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3]))
+# for qpset in qpsets:
+#     blastpy.BpQueueQpSet(blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3]))
+for qpset in range(100):
+    blastpy.BpQueueQpSet(blast, "bp_" + str(qpset), qpset, 500, 60000)
 blastpy.BpUploadQueuedMessages(blast)
 Poll(blast)
 
 for i in range(100):
-    id = blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, GenerateXml(10000), None, None, None, None, None, None, None, None)
+    id = blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, GenerateXml(500), None, None, None, None, None, None, None, None)
     blastpy.BpUploadQueuedMessages(blast)
-    blastpy.BpWaitForReplyOrTimeout(blast, id, 10000)
+    blastpy.BpWaitForReplyOrTimeout(blast, id.id, 2000)
 
 # print(result.id, result.retval, result.string)
 blastpy.disconnectFromServer(blast)

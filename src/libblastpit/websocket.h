@@ -43,6 +43,7 @@ void *wsPopMessage(t_Websocket *self);
 int wsGetMessageCount(t_Websocket *self);
 void *wsPopMessageAt(t_Websocket *self, int index);
 void *wsReadMessageAt(t_Websocket *self, int index);
+void wsFlushMessages(t_Websocket *ws);
 
 // Server functions
 int wsServerCreate(t_Websocket *i, const char *port);

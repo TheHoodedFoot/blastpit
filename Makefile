@@ -34,7 +34,7 @@ RANLIB = llvm-ranlib
 
 # Compiler flags
 debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
-debug_build:	CPPFLAGS += -Werror
+debug_build:	CPPFLAGS += -Werror -Wfatal-errors
 # debug_build:	CPPFLAGS += -O0 -g3
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
@@ -44,7 +44,8 @@ debug_build:	CC        = ccache clang
 debug_build:	CXX       = ccache clang++
 # Swig does not work correctly with the undefined behaviour sanitizer settings below
 # debug_build: 	CPPFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer -fno-omit-frame-pointer
-# debug_build: 	CPPFLAGS += -fsanitize=address
+debug_build: 	SANFLAGS += -fsanitize=address
+debug_build: 	SHARED_SANFLAGS += -shared-libsan
 
 release_build:	CPPFLAGS += -Ofast
 
@@ -142,7 +143,7 @@ emcc:
 
 # Libblastpit Recipes
 sds.o:	$(SUBMODULES_DIR)/sds/sds.c
-	$(CC) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
+	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
 
 libblastpit.a: $(LIBBLASTPIT_OBJS) $(LIBMXML_OBJS)
 	$(AR) -crs $@ $^
@@ -157,13 +158,13 @@ blastpy_wrap.o:	blastpy_wrap.c
 	$(CC) -fPIC -I$(PROJECT_ROOT)/src/libblastpit -I$(SUBMODULES_DIR)/mongoose -o $@ -c $^ $(PYTHON_INCS)
 
 _blastpy.so:	blastpy_wrap.o $(BLASTPY_FILES)
-	$(CXX) $(CPPFLAGS) -shared $(BLASTPY_FILES) -o $@ $(BLASTPY_LIBS)
+	$(CXX) $(CPPFLAGS) -shared $(SANFLAGS) $(SHARED_SANFLAGS) $(BLASTPY_FILES) -o $@ $(BLASTPY_LIBS)
 
 unity_fixture.o: $(UNITY_FIXTURE_DIR)/unity_fixture.c
-	$(CC) $(CPPFLAGS) $(UNITY_DEFS) $(CPPFLAGS) $(INCFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(SANFLAGS) $(UNITY_DEFS) $(INCFLAGS) -c $< -o $@
 
 unity.o:	$(UNITY_DIR)/unity.c
-	$(CC) $(CPPFLAGS) $(UNITY_DEFS) $(CPPFLAGS) $(INCFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(SANFLAGS) $(UNITY_DEFS) $(INCFLAGS) -c $< -o $@
 
 t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(SANFLAGS) $(UNITY_OBJS) $< -L. -o $@ $(LIBS) $(BUILD_DIR)/libblastpit.a
@@ -185,7 +186,7 @@ t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
 	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
 
 %.o:	%.cpp
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
+	$(CXX) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
 
 
 
@@ -226,6 +227,10 @@ test_run:
 	@# zig test $(PROJECT_ROOT)/src/libblastpit/websocket.zig --cache-dir $(BUILD_DIR) -I $(LIBBLASTPIT_DIR) --library libblastpit.a -lc --color on || failed
 	@UBSAN_OPTIONS=print_stacktrace=1 sh -c $(PROJECT_ROOT)/res/bin/testrunner.sh
 	passed
+
+inkscape:
+	# Allows us to detect memory leaks in the python extensions
+	ASAN_OPTIONS=new_delete_type_mismatch=0 LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) inkscape
 
 dbug:
 	$(DEBUG_COMMAND) $(DEBUG_TARGET)
@@ -498,14 +503,14 @@ wscli.exe:
 # 	$(MAKE) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile wscli
 
 wscli:	libblastpit.a
-	$(CXX) $(CPPFLAGS) \
+	$(CXX) $(CPPFLAGS) $(SANFLAGS)\
 		-c \
 		-I ../src/libblastpit \
 		-I ../src/submodules/mongoose \
 		-o wscli.o \
 		-x c \
 		../src/libblastpit/wscli.c
-	$(CXX) $(CPPFLAGS) \
+	$(CXX) $(CPPFLAGS) $(SANFLAGS) \
 		-o wscli \
 		wscli.o libblastpit.a
 		# -L /usr/lib64 \

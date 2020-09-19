@@ -48,6 +48,7 @@ class Testbp(unittest.TestCase):
     def setUp(self):
         self.server = bp.blastpitNew()
         self.assertEqual(bp.kSuccess, bp.serverCreate(self.server, myconfig.PORT))
+        print("Creating server")
 
     def test_MultipleCommands(self):
         self.client1 = bp.blastpitNew()
@@ -94,8 +95,10 @@ class Testbp(unittest.TestCase):
         bp.disconnectFromServer(self.client)
         bp.blastpitDelete(self.client)
 
-def tearDown(self):
-    self.assertEqual(bp.kSuccess, bp.serverDestroy(self.server))
+    def tearDown(self):
+        bp.serverDestroy(self.server)
+        bp.blastpitDelete(self.server)
+        print("Destroying server")
 
 
 if __name__ == '__main__':

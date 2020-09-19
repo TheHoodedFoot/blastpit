@@ -28,6 +28,8 @@ TEST(ListeningServerGroup, CreateServer)
 
 	t_Blastpit *server = blastpitNew();
 	TEST_ASSERT_EQUAL(true, serverCreate(server, "8003"));
+	serverDestroy(server);
+	blastpitDelete(server);
 }
 
 

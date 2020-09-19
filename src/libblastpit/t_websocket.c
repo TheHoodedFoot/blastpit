@@ -44,6 +44,7 @@ TEST(WebsocketGroup, PortInUse)
 	int result = wsServerCreate(ws_server, "8001");
 	TEST_ASSERT_EQUAL(kAllocationFailure, result);
 
+	wsServerDestroy(ws_server);
 	websocketDelete(ws_server);
 }
 
@@ -99,6 +100,7 @@ TEST(WebsocketGroup, wsListen)
 
 	TEST_ASSERT_EQUAL(1, testval);
 
+	wsClientDestroy(ws_client);
 	wsServerDestroy(ws_server);
 	websocketDelete(ws_client);
 	websocketDelete(ws_server);
@@ -161,6 +163,8 @@ TEST(WebsocketGroup, StackTest)
 	TEST_ASSERT_EQUAL(1, wsGetMessageCount(ws));
 	text = (const char *)wsPopMessage(ws);
 	TEST_ASSERT_EQUAL(lorem, text);
+
+	websocketDelete(ws);
 }
 
 void
@@ -178,11 +182,6 @@ updateHash(void *ev_data, void *object)
 
 TEST(WebsocketGroup, DataTransferTest)
 {
-	// What are the requirements to test 'x'?
-	// 	What does the object do?
-	// 	How does it interact with the data or hardware it controls?
-	// 	How can we make it testable?
-
 	// Should be able to transfer large amount of data between two clients
 
 	// Data should not be corrupted
@@ -207,13 +206,15 @@ TEST(WebsocketGroup, DataTransferTest)
 
 	// Send a client message
 	// This has been tested successfully up to 5000000
+	{
 #define BSIZE 10000
-	char *string = (char *)alloca(BSIZE);
-	TEST_ASSERT_NOT_NULL(string);
-	for (int i = 0; i < BSIZE; i++)
-		*(string + i) = 'A';
-	*(string + BSIZE) = 0;
-	broadcastClient(ws_client_sender->connection, mg_mk_str(string));
+		char *string = (char *)alloca(BSIZE);
+		TEST_ASSERT_NOT_NULL(string);
+		// for (int i = 0; i < BSIZE; i++)
+		// 	*(string + i) = 'A';
+		// *(string + BSIZE) = 0;
+		broadcastClient(ws_client_sender->connection, mg_mk_str(string));
+	}
 
 	// Fake event loop
 	testval = false;

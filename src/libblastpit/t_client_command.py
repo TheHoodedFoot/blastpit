@@ -35,3 +35,5 @@ pit = bp.blastpitNew()
 # print("Result of getReply is %s" % result)
 
 # bp.disconnectFromServer(pit)
+
+bp.blastpitDelete(pit)

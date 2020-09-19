@@ -19,7 +19,11 @@ TEST_SETUP(BlastpitGroup)
 	assert(serverCreate(server, "8223") == kSuccess);
 }
 
-TEST_TEAR_DOWN(BlastpitGroup) { serverDestroy(server); }
+TEST_TEAR_DOWN(BlastpitGroup)
+{
+	serverDestroy(server);
+	blastpitDelete(server);
+}
 
 int testval;
 
@@ -103,6 +107,7 @@ TEST(BlastpitGroup, SendAndWaitTest)
 	// Send a message
 	sendClientMessage(client, "test");
 
+	disconnectFromServer(client);
 	blastpitDelete(client);
 }
 
@@ -159,6 +164,8 @@ TEST(BlastpitGroup, MessageTest)
 	const char *msg2 = popMessage(client2);
 	TEST_ASSERT_EQUAL_STRING("client2", msg1);
 	TEST_ASSERT_EQUAL_STRING("client1", msg2);
+	free((void *)msg1);
+	free((void *)msg2);
 
 	// Tidy up
 	disconnectFromServer(client1);
@@ -179,6 +186,8 @@ TEST(BlastpitGroup, AutoGenId)
 	bp->highest_id = 123;
 	TEST_ASSERT_EQUAL(124, AutoGenerateId(bp));
 	TEST_ASSERT_EQUAL(125, AutoGenerateId(bp));
+
+	blastpitDelete(bp);
 }
 
 TEST(BlastpitGroup, SendCommand)
@@ -215,9 +224,17 @@ TEST(BlastpitGroup, SendCommand)
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
 	const char *msg1 = popMessage(bp2);
-	TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"35\" ></message>",
-				 msg1);
+	sds selftest = sdscatprintf(
+		sdsempty(), "<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"%d\" ></message>",
+		kSelfTest);
+	TEST_ASSERT_EQUAL_STRING(selftest, msg1);
+	sdsfree(selftest);
+	free((void *)msg1);
+	// TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"35\"
+	// ></message>", msg1);
 
+	TEST_ASSERT_EQUAL(0, getMessageCount(bp1));
+	TEST_ASSERT_EQUAL(0, getMessageCount(bp2));
 	disconnectFromServer(bp1);
 	disconnectFromServer(bp2);
 	blastpitDelete(bp1);
@@ -275,19 +292,21 @@ TEST(BlastpitGroup, DependentChildTest)
 
 	t_Blastpit *bp = blastpitNew();
 
-	IdAck message1_id = BpQueueMessage(bp, "payload");
+	IdAck message1_id = BpQueueMessage(bp, "payload", NULL);
 	// This should have an automatic dependency on message1
-	IdAck message2_id = BpQueueMessage(bp, "loadpay");
+	IdAck message2_id = BpQueueMessage(bp, "loadpay", NULL);
 	// This should depend on both
-	IdAck message3_id = BpQueueMessage(bp, "loadpayload");
+	IdAck message3_id = BpQueueMessage(bp, "loadpayload", NULL);
 
 	(void)message1_id;
 	(void)message2_id;
 	(void)message3_id;
 
 	sds message3_data = XmlGetMessageByIndex(bp->message_queue, 2);
-	TEST_ASSERT_EQUAL_STRING("2", XmlGetAttribute(message3_data, "depends"));
+	sds attr = XmlGetAttribute(message3_data, "depends");
+	TEST_ASSERT_EQUAL_STRING("2", attr);
 
+	sdsfree(attr);
 	sdsfree(message3_data);
 	blastpitDelete(bp);
 }
@@ -303,10 +322,10 @@ TEST(BlastpitGroup, RetvalDbTest)
 	// Must return stored id if present
 
 	t_Blastpit *bp = blastpitNew();
-	RetvalDb db3 = {0, kInvalid, NULL};
-	RetvalDb db2 = {0, kInvalid, &db3};
-	RetvalDb db1 = {0, kInvalid, &db2};
-	bp->retval_db = &db1;
+	// RetvalDb db3 = {0, kInvalid, NULL};
+	// RetvalDb db2 = {0, kInvalid, &db3};
+	// RetvalDb db1 = {0, kInvalid, &db2};
+	// bp->retval_db = &db1;
 
 	BpAddRetvalToDb(bp, (IdAck){4, kBadLogic, NULL});
 	BpAddRetvalToDb(bp, (IdAck){5, kBadXml, NULL});
@@ -318,11 +337,40 @@ TEST(BlastpitGroup, RetvalDbTest)
 
 	TEST_ASSERT_EQUAL(kBadLogic, BpQueryRetvalDb(bp, 4));
 	TEST_ASSERT_EQUAL(kBadXml, BpQueryRetvalDb(bp, 5));
+
+	BpFreeRetvalDb(bp);
+	blastpitDelete(bp);
+}
+
+TEST(BlastpitGroup, ConnectivityTest)
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	t_Blastpit *client = blastpitNew();
+
+	// Connect to the server
+	connectToServer(client, "ws://127.0.0.1:8223", 0);
+	for (int i = 0; i < 100; i++) {
+		pollMessages(server);
+		pollMessages(client);
+		if (((t_Websocket *)client->ws)->isConnected)
+			break;
+	}
+
+	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
+	TEST_ASSERT_EQUAL(false, BpIsLmosUp(client));
+
+	disconnectFromServer(client);
+	blastpitDelete(client);
 }
 
 TEST_GROUP_RUNNER(BlastpitGroup)
 { /* Add a line below for each unit test */
 
+	RUN_TEST_CASE(BlastpitGroup, ConnectivityTest);
 	RUN_TEST_CASE(BlastpitGroup, RetvalDbTest);
 	RUN_TEST_CASE(BlastpitGroup, DependentChildTest);
 	RUN_TEST_CASE(BlastpitGroup, QueueQpsetTest);

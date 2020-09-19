@@ -40,8 +40,10 @@ XmlGetAttribute(const char *message, const char *attribute)
 	}
 
 	const char *value = mxmlElementGetAttr(node, attribute);
-	if (!value)
+	if (!value) {
+		mxmlDelete(xml);
 		return NULL;
+	}
 
 	sds retval = sdsnew(value);
 
