@@ -35,17 +35,17 @@ RANLIB = llvm-ranlib
 # Compiler flags
 debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror -Wfatal-errors
-# debug_build:	CPPFLAGS += -O0 -g3
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
 # debug_build:	CC        = zig cc # Doesn't work with bear
 # debug_build:	CXX       = zig c++
 debug_build:	CC        = ccache clang
 debug_build:	CXX       = ccache clang++
-# Swig does not work correctly with the undefined behaviour sanitizer settings below
 # debug_build: 	CPPFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer -fno-omit-frame-pointer
-debug_build: 	SANFLAGS += -fsanitize=address
-debug_build: 	SHARED_SANFLAGS += -shared-libsan
+
+# debug_build: 	CPPFLAGS += -fsanitize=undefined,nullability -fno-omit-frame-pointer
+# debug_build: 	SANFLAGS += -fsanitize=address
+# debug_build: 	SHARED_SANFLAGS += -shared-libsan
 
 release_build:	CPPFLAGS += -Ofast
 
