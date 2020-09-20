@@ -319,7 +319,7 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 				if (do_strings_match == 0) {
 					void* msg_data = popMessageAt(self, j);
 					// free(msg_data);
-					if (!msg_data)
+					if (msg_data)
 						LOG(kLvlDebug, "BpWaitForReplyOrTimeout: Message had payload %p\n",
 						    msg_data);
 					return (IdAck){id, retval, (char*)msg_data};
@@ -886,7 +886,7 @@ BpIsLmosUp(t_Blastpit* self)
 	IdAck lmos = BpQueueCommand(self, kIsLmosRunning);
 	BpUploadQueuedMessages(self);
 	IdAck timeout = BpWaitForReplyOrTimeout(self, lmos.id, BP_ISLMOSUP_TIMEOUT);
-	assert(!timeout.string);
+	if (timeout.string) LOG(kLvlDebug, "BpIsLmosUp: string = %s\n", timeout.string);
 
 	self->message_queue = existing_queue;
 
