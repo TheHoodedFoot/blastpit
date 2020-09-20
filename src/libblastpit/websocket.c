@@ -285,7 +285,7 @@ wsServerDestroy(t_Websocket *self)
 
 	// Invalidate
 	self->evloopIsRunning = false;
-	self->connection = NULL;
+	self->connection      = NULL;
 
 	// wsFlushMessages(self);
 	return true;
@@ -323,7 +323,7 @@ wsClientDestroy(t_Websocket *self)
 
 	// Invalidate
 	self->evloopIsRunning = false;
-	self->connection = NULL;
+	self->connection      = NULL;
 
 	// wsFlushMessages(self);
 	// self = NULL;
@@ -376,8 +376,8 @@ wsPushMessage(t_Websocket *self, void *data)
 
 	t_Node *message = (t_Node *)malloc(sizeof(t_Node));
 	LOG(kLvlDebug, "Pushing message pointer: %p\n", (void *)message);
-	message->data = data;
-	message->next = self->messageStack;
+	message->data	   = data;
+	message->next	   = self->messageStack;
 	self->messageStack = message;
 }
 
@@ -392,7 +392,7 @@ int
 wsGetMessageCount(t_Websocket *self)
 {  // Returns the count of the message stack
 
-	int i = 0;
+	int	i    = 0;
 	t_Node *node = self->messageStack;
 	for (; node; i++)
 		node = node->next;
@@ -420,7 +420,7 @@ wsPopMessageAt(t_Websocket *self, int index)
 	if (!node)
 		return NULL;
 
-	void *retval = node->data;
+	void *retval  = node->data;
 	void *newHead = node->next;
 	LOG(kLvlDebug, "Freeing message pointer: %p\n", (void *)node);
 	LOG(kLvlDebug, "which points to data: %p\n", (void *)node->data);
@@ -465,8 +465,8 @@ ExtractWsMessageData(void *ev_data)
 	WsMessage retval;
 
 	struct websocket_message *wm = (struct websocket_message *)ev_data;
-	retval.size = (int)wm->size;
-	retval.data = wm->data;
+	retval.size		     = (int)wm->size;
+	retval.data		     = wm->data;
 
 	return retval;
 }

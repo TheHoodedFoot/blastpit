@@ -151,7 +151,7 @@ void
 Lmos::LoadVLM(const QString& filename)
 {
 	QString vlm = QDir::toNativeSeparators(filename);
-	emit log(kLvlDebug, __func__, "Loading " + vlm);
+	emit	log(kLvlDebug, __func__, "Loading " + vlm);
 #if defined(Q_OS_WIN32)
 	lmos_actx->FileName2(vlm);
 #endif
@@ -184,9 +184,9 @@ Lmos::ClearQPSets()
 	*/
 	emit log(kLvlDebug, __func__, "Clearing QP Sets");
 #if defined(Q_OS_WIN32)
-	QVariant qpNames = lmos_actx->GetGlobalQPSetNames();
+	QVariant    qpNames	= lmos_actx->GetGlobalQPSetNames();
 	QStringList qpNamesList = qpNames.toStringList();
-	QString qpName;
+	QString	    qpName;
 	for (int i = 0; i < qpNamesList.count(); i++) {
 		if (!QString::compare("bp_", qpNamesList[i].left(3), Qt::CaseInsensitive)) {
 			emit log(kLvlDebug, __func__, "Deleting " + qpNamesList[i]);
@@ -202,7 +202,7 @@ Lmos::ImportXML(QTemporaryFile* XMLFile)
 {
 	// Qt may be happy with path separators, but LMOS isn't
 	QString winXML = QDir::toNativeSeparators(XMLFile->fileName());
-	emit log(kInfo, __func__, "bplImportXML: Importing " + winXML);
+	emit	log(kInfo, __func__, "bplImportXML: Importing " + winXML);
 
 	// LMOS fails to import the file if it is still owned by us,
 	// so we have to close it, read it then delete it.
@@ -283,7 +283,7 @@ Lmos::StopMarking()
 	// stopMarking: End the marking operation
 	emit log(kLvlDebug, __func__, "Calling lmos.StopMarking()");
 #if defined(Q_OS_WIN32)
-	bool stop = lmos_actx->StopMarking();
+	bool stop   = lmos_actx->StopMarking();
 	bool cancel = lmos_actx->CancelJob();
 	emit retval(__func__, stop && cancel);
 #endif
@@ -453,7 +453,7 @@ int
 Lmos::ReadByte(const int port, const int mask)
 {
 #if defined(Q_OS_WIN32)
-	int byte;
+	int  byte;
 	emit log(kLvlDebug, __func__, "port: " + QString::number(port));
 	emit log(kLvlDebug, __func__, "mask: " + QString::number(mask));
 	return lmos_actx->ReadByte(static_cast<LMOSACTXLib::InPortConstants>(port), mask, byte);
@@ -469,7 +469,7 @@ Lmos::ReadIOBit(const QString& bitfunction)
 {
 #if defined(Q_OS_WIN32)
 	QVariant res;
-	emit retval(__func__, lmos_actx->ReadIOBit(bitfunction, res));
+	emit	 retval(__func__, lmos_actx->ReadIOBit(bitfunction, res));
 	if (res.canConvert<bool>()) {
 		bool result = res.Bool;
 		if (result) {
@@ -542,9 +542,9 @@ Lmos::WriteIOBit(const QString& bitfunction, const bool value)
 	emit log(kLvlDebug, __func__, "bitfunction: " + bitfunction);
 	emit log(kLvlDebug, __func__, "value: " + QString::number(value));
 #if defined(Q_OS_WIN32)
-	QVariant bf = bitfunction;
+	QVariant bf  = bitfunction;
 	QVariant val = value;
-	emit retval(__func__, lmos_actx->WriteIOBit(bf, value));
+	emit	 retval(__func__, lmos_actx->WriteIOBit(bf, value));
 	// emit retval(__func__, lmos_actx->WriteIOBit(bitfunction, value));
 #endif
 }
@@ -566,10 +566,10 @@ Lmos::CancelJob()
 {
 #if defined(Q_OS_WIN32)
 	emit log(kLvlDebug, __func__, "Cancelling job...");
-	int cancelret = lmos_actx->CancelJob();
+	int  cancelret = lmos_actx->CancelJob();
 	emit retval(__func__, cancelret);
 	emit log(kLvlDebug, __func__, "Clearing layout...");
-	int clearret = lmos_actx->ClearLayout();
+	int  clearret = lmos_actx->ClearLayout();
 	emit retval(__func__, clearret);
 	return cancelret || clearret;
 #else
@@ -631,7 +631,7 @@ Lmos::Test()
 	// 	log(kLvlDebug, __func__, "Moname: " + moNamesList[i]);
 	// }
 
-	QVariant bf = (QString) "Light";
+	QVariant bf  = (QString) "Light";
 	QVariant val = (bool)true;
 
 	// QVariant result;
@@ -707,8 +707,8 @@ Lmos::jobEnd()
 void
 Lmos::imageEnd2(double time, ImageResultConstants result)
 {
-	emit log(kLvlDebug, __func__, "signal issued");
-	emit sigImageEnd2(time, static_cast<int>(result));
+	emit	log(kLvlDebug, __func__, "signal issued");
+	emit	sigImageEnd2(time, static_cast<int>(result));
 	QString message = "imageEnd2: " + QString::number(result);
 	sendIdEvent(message, kImageEnd2);
 }
@@ -740,10 +740,10 @@ Lmos::mOEndName(QString& moName)
 void
 Lmos::plcEvent(QString& a, QString& b, QString& c)
 {
-	emit log(kLvlDebug, __func__, "signal issued");
-	emit log(kLvlDebug, __func__, "param1: " + a);
-	emit log(kLvlDebug, __func__, "param2: " + b);
-	emit log(kLvlDebug, __func__, "param3: " + c);
+	emit	log(kLvlDebug, __func__, "signal issued");
+	emit	log(kLvlDebug, __func__, "param1: " + a);
+	emit	log(kLvlDebug, __func__, "param2: " + b);
+	emit	log(kLvlDebug, __func__, "param3: " + c);
 	QString message = "plcEvent: " + a + ", " + b + ", " + c;
 	sendIdEvent(message, kPlcEvent);
 }
@@ -753,7 +753,7 @@ Lmos::alarm(int alarmNum, QString description, QString moName, int moID)
 {
 	QString message = QString("(Alarm) " + QString::number(alarmNum) + ", " + description + ", " + moName + ", " +
 				  QString::number(moID));
-	emit log(message);
+	emit	log(message);
 	sendIdEvent(message, kAlarm);
 }
 
@@ -780,8 +780,8 @@ Lmos::sendIdEvent(QString string, int event)
 	// To distinguish events from other return values,
 	// they are all negatives of the enums they represent.
 	QString message = string;  // + QChar::Null;
-	emit log(kLvlDebug, __func__, QString("sendIdEvent: (") + QString::number(event) + QString(") ") + message);
-	emit sendEvent(-event, message);
+	emit	log(kLvlDebug, __func__, QString("sendIdEvent: (") + QString::number(event) + QString(") ") + message);
+	emit	sendEvent(-event, message);
 }
 
 void
@@ -801,7 +801,7 @@ Lmos::UnsetLaserableAllObjects()
 { /* Sets all marking objects to non-laserable */
 
 #if defined(Q_OS_WIN32)
-	QVariant moNames = lmos_actx->GetMONames();
+	QVariant    moNames	= lmos_actx->GetMONames();
 	QStringList moNamesList = moNames.toStringList();
 	for (int i = 0; i < moNamesList.count(); i++) {
 		SetLaserable(moNamesList[i], false);

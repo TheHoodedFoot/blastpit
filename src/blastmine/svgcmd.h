@@ -10,7 +10,7 @@ class SvgTest : public CppUnit::TestFixture {
 
       public:
 	void OutputXml();
-	int RunTests();
+	int  RunTests();
 
 	void setUp();
 	void tearDown();

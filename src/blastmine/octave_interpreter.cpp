@@ -48,7 +48,7 @@ main(void)
 			return status;
 		}
 
-		octave_idx_type n = 2;
+		octave_idx_type	  n = 2;
 		octave_value_list in;
 
 		for (octave_idx_type i = 0; i < n; i++)

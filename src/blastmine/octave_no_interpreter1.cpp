@@ -6,7 +6,7 @@ main(void)
 {
 	std::cout << "Hello Octave world!\n";
 
-	int n = 2;
+	int    n	= 2;
 	Matrix a_matrix = Matrix(n, n);
 
 	for (octave_idx_type i = 0; i < n; i++)

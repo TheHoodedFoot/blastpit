@@ -36,13 +36,13 @@
 
 using namespace std;
 
-HIDS hCam = 0;	// 0 for the next available camera. 1-254 to access by ID
+HIDS	   hCam = 0;  // 0 for the next available camera. 1-254 to access by ID
 SENSORINFO sInfo;
-HWND hWndDisplay;
+HWND	   hWndDisplay;
 
-int nMemoryId;
+int   nMemoryId;
 char *pcImageMemory;
-int DisplayWidth, DisplayHeight;
+int   DisplayWidth, DisplayHeight;
 
 int should_exit = false;
 
@@ -66,7 +66,7 @@ const char b64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 char *
 b64_encode(const unsigned char *in, size_t len)
 {
-	char *out;
+	char * out;
 	size_t elen;
 	size_t i;
 	size_t j;
@@ -75,8 +75,8 @@ b64_encode(const unsigned char *in, size_t len)
 	if (in == NULL || len == 0)
 		return NULL;
 
-	elen = b64_encoded_size(len);
-	out = (char *)malloc(elen + 1);
+	elen	  = b64_encoded_size(len);
+	out	  = (char *)malloc(elen + 1);
 	out[elen] = '\0';
 
 	for (i = 0, j = 0; i < len; i += 3, j += 4) {
@@ -84,7 +84,7 @@ b64_encode(const unsigned char *in, size_t len)
 		v = i + 1 < len ? v << 8 | in[i + 1] : v << 8;
 		v = i + 2 < len ? v << 8 | in[i + 2] : v << 8;
 
-		out[j] = b64chars[(v >> 18) & 0x3F];
+		out[j]	   = b64chars[(v >> 18) & 0x3F];
 		out[j + 1] = b64chars[(v >> 12) & 0x3F];
 		if (i + 1 < len) {
 			out[j + 2] = b64chars[(v >> 6) & 0x3F];
@@ -119,10 +119,10 @@ snapshot()
 	// Parameter definition for saving the image file
 	IMAGE_FILE_PARAMS ImageFileParams;
 	ImageFileParams.pwchFileName = L"/tmp/ueye_capture.png";  /// <-- Insert name and location of the image
-	ImageFileParams.pnImageID = NULL;
-	ImageFileParams.ppcImageMem = NULL;
-	ImageFileParams.nQuality = 100;
-	ImageFileParams.nFileType = IS_IMG_PNG;
+	ImageFileParams.pnImageID    = NULL;
+	ImageFileParams.ppcImageMem  = NULL;
+	ImageFileParams.nQuality     = 100;
+	ImageFileParams.nFileType    = IS_IMG_PNG;
 
 	// Saves the image file
 	if (is_ImageFile(hCam, IS_IMAGE_FILE_CMD_SAVE, (void *)&ImageFileParams, sizeof(ImageFileParams)) ==
@@ -208,7 +208,7 @@ main()
 	// is_SetHWGainFactor(hCam, IS_SET_MASTER_GAIN_FACTOR, 100);
 
 	// Saving the information about the max. image proportions in variables
-	DisplayWidth = sInfo.nMaxWidth;
+	DisplayWidth  = sInfo.nMaxWidth;
 	DisplayHeight = sInfo.nMaxHeight;
 
 	// Need to find out the memory size of the pixel and the colour mode
@@ -219,9 +219,9 @@ main()
 
 	IS_RECT rectAOI;
 
-	rectAOI.s32X = 500;
-	rectAOI.s32Y = 400;
-	rectAOI.s32Width = 320;
+	rectAOI.s32X	  = 500;
+	rectAOI.s32Y	  = 400;
+	rectAOI.s32Width  = 320;
 	rectAOI.s32Height = 240;
 
 	nRet = is_AOI(hCam, IS_AOI_IMAGE_SET_AOI, (void *)&rectAOI, sizeof(rectAOI));

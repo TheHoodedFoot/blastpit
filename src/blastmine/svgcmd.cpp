@@ -22,7 +22,7 @@ static int verbose_flag;
 void
 OutputXml()
 {
-	Svg test;
+	Svg	    test;
 	std::string xml;
 	test.ExportXml(xml);
 

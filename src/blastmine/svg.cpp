@@ -56,7 +56,7 @@ Svg::ExportXml(std::string &svgxml)
 {
 	// Preamble
 	pugi::xml_document xml;
-	pugi::xml_node drawing = xml.append_child("DRAWING");
+	pugi::xml_node	   drawing = xml.append_child("DRAWING");
 	drawing.append_attribute("UNIT").set_value("MM");
 	pugi::xml_node root = drawing.append_child("ROOT");
 	root.append_attribute("ID").set_value("Blastpit_Export");
@@ -277,8 +277,8 @@ Svg::NanoTest(const std::string filename)
 	printf("size: %f x %f\n", image->width, image->height);
 	// Use...
 	NSVGshape *shape;
-	NSVGpath *path;
-	int i;
+	NSVGpath * path;
+	int	   i;
 	for (shape = image->shapes; shape != NULL; shape = shape->next) {
 		for (path = shape->paths; path != NULL; path = path->next) {
 			for (i = 0; i < path->npts - 1; i += 3) {

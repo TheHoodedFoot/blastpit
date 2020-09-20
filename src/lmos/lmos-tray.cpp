@@ -215,7 +215,7 @@ LmosTray::alert(const QString &name, int argc, void *argv)
 void
 LmosTray::log(int level, const char *function, QString entry)
 {
-	QString log = QString::number(level);
+	QString log	= QString::number(level);
 	QString logFunc = QString(function);
 	ui->teLog->append(log + ": (" + logFunc + ") " + entry);
 }

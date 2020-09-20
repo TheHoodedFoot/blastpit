@@ -223,8 +223,8 @@ TEST(BlastpitGroup, SendCommand)
 	}
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
-	const char *msg1 = popMessage(bp2);
-	sds selftest = sdscatprintf(
+	const char *msg1     = popMessage(bp2);
+	sds	    selftest = sdscatprintf(
 		sdsempty(), "<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"%d\" ></message>",
 		kSelfTest);
 	TEST_ASSERT_EQUAL_STRING(selftest, msg1);
@@ -303,7 +303,7 @@ TEST(BlastpitGroup, DependentChildTest)
 	(void)message3_id;
 
 	sds message3_data = XmlGetMessageByIndex(bp->message_queue, 2);
-	sds attr = XmlGetAttribute(message3_data, "depends");
+	sds attr	  = XmlGetAttribute(message3_data, "depends");
 	TEST_ASSERT_EQUAL_STRING("2", attr);
 
 	sdsfree(attr);

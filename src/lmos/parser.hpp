@@ -27,7 +27,7 @@ class Parser : public QObject {
 	void ackReturn(int id, int retval);
 	void SendSignal(int signal, QString message);
 	void log(int, const char *, QString);
-	void ReplyWithPayload(int id, const char *payload);
+	void ReplyWithPayload(int id, int retval, const char *payload);
 
       private:
 	void parseCommand(const char *message);
@@ -38,10 +38,10 @@ class Parser : public QObject {
 	void update();
 
       private:
-	Lmos lmos;
+	Lmos	    lmos;
 	t_Blastpit *blast;
-	QTimer *timer;
-	int mutex;
+	QTimer *    timer;
+	int	    mutex;
 };
 
 #endif	// PARSER_H

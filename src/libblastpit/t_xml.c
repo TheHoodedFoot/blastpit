@@ -21,7 +21,7 @@ TEST(XmlGroup, AddRemoveIdTest)
 	sdsfree(attr);
 
 	sds message_removed = sdsnew("<message id=\"33\"/>");
-	message_removed = XmlDeleteAttribute(message_removed, "id");
+	message_removed	    = XmlDeleteAttribute(message_removed, "id");
 	TEST_ASSERT_NOT_NULL(message_removed);
 	TEST_ASSERT_EQUAL(NULL, XmlGetAttribute(message_removed, "id"));
 	TEST_ASSERT_EQUAL_STRING("<message />\n", message_removed);

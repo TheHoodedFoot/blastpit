@@ -19,10 +19,10 @@ blastpitNew()
 
 	t_Blastpit* bp = (t_Blastpit*)malloc(sizeof(t_Blastpit));
 	if (bp) {
-		bp->ws = (void*)websocketNew();
-		bp->highest_id = 0;
+		bp->ws		  = (void*)websocketNew();
+		bp->highest_id	  = 0;
 		bp->message_queue = NULL;
-		bp->retval_db = NULL;
+		bp->retval_db	  = NULL;
 	}
 
 	return bp;
@@ -213,7 +213,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 
 			// We duplicate the message since XmlSetAttribute is destructive
 			sds orig_message = sdsnew(message);
-			id_message = XmlSetAttribute((char*)orig_message, "id", id_str);
+			id_message	 = XmlSetAttribute((char*)orig_message, "id", id_str);
 			XmlAddXmlHeader(&id_message);
 			sdsfree(id_str);
 		}
@@ -222,7 +222,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 			return (IdAck){kInvalid, kSetterFailure, NULL};
 		}
 	} else {
-		id = kMultipleCommands;
+		id	   = kMultipleCommands;
 		id_message = sdsnew(message);
 	}
 
@@ -245,7 +245,8 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 
 IdAck
 bp_sendMessageAndWait(t_Blastpit* self, const char* message, int timeout)
-{ /* Sends message and waits. Returns xml of reply with matching id */
+{ /* Sends messageL and waits. Returns xml of reply with matching id */
+	// Caller must free the result.string, if any
 
 	IdAck result;
 
@@ -274,6 +275,7 @@ bp_sendMessageAndWait(t_Blastpit* self, const char* message, int timeout)
 IdAck
 BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 {  // Continually polls the network until reply received or timeout
+	// If the IdAck contains a string the caller must free it after use
 
 	// TODO: This doesn't work if the replies are queued, since it only
 	// looks at the first message. We need a function to break multiple replies
@@ -301,18 +303,26 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 			char* message = readMessageAt(self, j);
 
 			if (message) {
-				sds parentid_str = XmlGetAttribute(message, "parentid");
-				sds retval_str = XmlGetAttribute(message, "retval");
-				sds id_str = sdsfromlonglong(id);
+				sds parentid_str     = XmlGetAttribute(message, "parentid");
+				sds retval_str	     = XmlGetAttribute(message, "retval");
+				sds id_str	     = sdsfromlonglong(id);
 				int do_strings_match = strcmp(parentid_str, id_str);
-				int retval = atoi(retval_str);
+				int retval;
+				if (retval_str) {
+					retval = atoi(retval_str);
+				} else {
+					retval = kInvalid;
+				}
 				sdsfree(parentid_str);
 				sdsfree(id_str);
 				sdsfree(retval_str);
 				if (do_strings_match == 0) {
 					void* msg_data = popMessageAt(self, j);
-					free(msg_data);
-					return (IdAck){id, retval, NULL};
+					// free(msg_data);
+					if (!msg_data)
+						LOG(kLvlDebug, "BpWaitForReplyOrTimeout: Message had payload %p\n",
+						    msg_data);
+					return (IdAck){id, retval, (char*)msg_data};
 				}
 			}
 		}
@@ -327,7 +337,7 @@ char*
 BpSdsToString(sds string)
 {  // Helper function to copy an sds string to a standard char string
 
-	int len = sdslen(string);
+	int   len     = sdslen(string);
 	char* cstring = (char*)malloc(len + 1);
 	strncpy(cstring, string, len);
 	return cstring;
@@ -381,9 +391,9 @@ IdAck
 QueueAckRetval(t_Blastpit* self, int id, int retval)
 {  // Sends a message acknowledgement with return value
 
-	sds id_str = sdsfromlonglong(id);
-	sds retval_str = sdsfromlonglong(retval);
-	IdAck result = BpQueueMessage(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
+	sds   id_str	 = sdsfromlonglong(id);
+	sds   retval_str = sdsfromlonglong(retval);
+	IdAck result	 = BpQueueMessage(self, "type", "reply", "parentid", id_str, "retval", retval_str, NULL);
 	sdsfree(retval_str);
 	sdsfree(id_str);
 
@@ -391,11 +401,13 @@ QueueAckRetval(t_Blastpit* self, int id, int retval)
 }
 
 IdAck
-QueueReplyPayload(t_Blastpit* self, int id, const char* payload)
+QueueReplyPayload(t_Blastpit* self, int id, int retval, const char* payload)
 {  // Sends a reply payload
 
-	sds id_str = sdsfromlonglong(id);
-	IdAck result = BpQueueMessage(self, "type", "reply", "parentid", id_str, payload, NULL);
+	sds   id_str	 = sdsfromlonglong(id);
+	sds   retval_str = sdsfromlonglong(retval);
+	IdAck result = BpQueueMessage(self, "type", "reply", "parentid", id_str, "retval", retval_str, payload, NULL);
+	sdsfree(retval_str);
 	sdsfree(id_str);
 
 	return result;
@@ -405,8 +417,8 @@ IdAck
 QueueSignal(t_Blastpit* self, int signal, const char* payload)
 {  // Sends an lmos signal
 
-	sds signal_str = sdsfromlonglong(signal);
-	IdAck result = BpQueueMessage(self, "type", "signal", "signal", signal_str, payload, NULL);
+	sds   signal_str = sdsfromlonglong(signal);
+	IdAck result	 = BpQueueMessage(self, "type", "signal", "signal", signal_str, payload, NULL);
 	sdsfree(signal_str);
 
 	return result;
@@ -649,13 +661,13 @@ BpQueueMessage(t_Blastpit* self, ...)
 	va_list args;
 	va_start(args, self);
 	char *attrib, *value = NULL;
-	int id = AutoGenerateId(self);
-	sds message;
+	int   id = AutoGenerateId(self);
+	sds   message;
 
 	if (self->message_queue) {  // Find parent dependencies and add them
-		sds parent = XmlGetMessageByIndex(self->message_queue, BpGetMessageCount(self->message_queue) - 1);
+		sds parent    = XmlGetMessageByIndex(self->message_queue, BpGetMessageCount(self->message_queue) - 1);
 		sds parent_id = BpGetMessageAttribute(parent, "id");
-		message = sdscatprintf(sdsempty(), "<message id=\"%d\" depends=\"%s\" ", id, parent_id);
+		message	      = sdscatprintf(sdsempty(), "<message id=\"%d\" depends=\"%s\" ", id, parent_id);
 		sdsfree(parent_id);
 		sdsfree(parent);
 	} else {
@@ -741,9 +753,9 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 	if (frequency < LMOS_FREQUENCY_MIN || frequency > LMOS_FREQUENCY_MAX)
 		return (IdAck){kInvalid, kInvalid, NULL};
 
-	sds command_str = sdscatprintf(sdsempty(), "%d", kAddQpSet);
-	sds current_str = sdscatprintf(sdsempty(), "%d", current);
-	sds speed_str = sdscatprintf(sdsempty(), "%d", speed);
+	sds command_str	  = sdscatprintf(sdsempty(), "%d", kAddQpSet);
+	sds current_str	  = sdscatprintf(sdsempty(), "%d", current);
+	sds speed_str	  = sdscatprintf(sdsempty(), "%d", speed);
 	sds frequency_str = sdscatprintf(sdsempty(), "%d", frequency);
 
 	IdAck result = BpQueueMessage(self, "type", "command", "command", command_str, "name", name, "current",
@@ -834,10 +846,10 @@ BpAddRetvalToDb(t_Blastpit* self, IdAck record)
 		return kInvalid;
 
 	RetvalDb* new_record = (RetvalDb*)malloc(sizeof(RetvalDb));
-	new_record->id = record.id;
-	new_record->retval = record.retval;
-	new_record->next = self->retval_db;
-	self->retval_db = new_record;
+	new_record->id	     = record.id;
+	new_record->retval   = record.retval;
+	new_record->next     = self->retval_db;
+	self->retval_db	     = new_record;
 
 	return kSuccess;
 }
@@ -869,13 +881,65 @@ BpIsLmosUp(t_Blastpit* self)
 
 	// We don't want any queued messages before the test
 	char* existing_queue = self->message_queue;
-	self->message_queue = NULL;
+	self->message_queue  = NULL;
 
 	IdAck lmos = BpQueueCommand(self, kIsLmosRunning);
 	BpUploadQueuedMessages(self);
 	IdAck timeout = BpWaitForReplyOrTimeout(self, lmos.id, BP_ISLMOSUP_TIMEOUT);
+	assert(!timeout.string);
 
 	self->message_queue = existing_queue;
 
 	return (timeout.retval == kSuccess);
+}
+
+void
+BpToggleLight(t_Blastpit* self)
+{  // Toggles the light in the laser enclosure
+
+	char* existing_queue = self->message_queue;
+	self->message_queue  = NULL;
+
+	// Get the current light status
+	sds   command_str = sdsfromlonglong(kReadIOBit);
+	IdAck light = BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", NULL);
+	BpUploadQueuedMessages(self);
+
+	IdAck timeout = BpWaitForReplyOrTimeout(self, light.id, BP_SHORT_TIMEOUT);
+
+	if (timeout.retval != kSuccess || !timeout.string) {
+		sdsfree(command_str);
+		self->message_queue = existing_queue;
+		return;
+	}
+
+	sds payload = XmlExtractMessagePayload(timeout.string);
+	if (!payload) {
+		sdsfree(command_str);
+		self->message_queue = existing_queue;
+		return;
+	}
+
+	// Send the inverse
+	command_str = sdsfromlonglong(kWriteIoBit);
+	LOG(kLvlDebug, "BpToggleLight: return string is %s\n", payload);
+	if (strncmp(payload, "1", 1) == 0) {
+		// Light is on
+		LOG(kLvlDebug, "%s: Turning liight off\n", __func__);
+		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "0",
+			       NULL);
+	} else {
+		// Light is off
+		LOG(kLvlDebug, "%s: Turning light on\n", __func__);
+		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "1",
+			       NULL);
+	}
+	BpUploadQueuedMessages(self);
+
+	sdsfree(command_str);
+	sdsfree(payload);
+	free(timeout.string);
+
+	// Restore
+	self->message_queue = existing_queue;
 }

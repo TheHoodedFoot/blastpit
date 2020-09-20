@@ -88,8 +88,8 @@ client(const char *server, const char *message)
 	printf("%d\n", waitForConnection(client, 10000));
 
 	// Send lines from STDIN as xml messages, ctrl-c to exit
-	char *line = NULL;
-	size_t len = 0;
+	char * line = NULL;
+	size_t len  = 0;
 
 	// signal(SIGINT, SignalHandler);
 

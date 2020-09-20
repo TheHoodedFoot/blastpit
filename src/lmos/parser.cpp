@@ -48,12 +48,12 @@ Parser::wsConnect()
 {  // (Re)try connection to server
 
 	QSettings traySettings("Rfbevanco", "lmos-tray");
-	QString wsserver = traySettings.value("wsServer").toString();
+	QString	  wsserver = traySettings.value("wsServer").toString();
 
 	if (wsserver.size() < MIN_SERVER_STRING_LEN)
 		return;
 
-	QByteArray ba = wsserver.toLocal8Bit();
+	QByteArray  ba	   = wsserver.toLocal8Bit();
 	const char *c_str2 = ba.data();
 
 	connectToServer(blast, c_str2, 1000);
@@ -82,8 +82,8 @@ void
 Parser::ProcessMessageBlock(const char *msg_data_string)
 {  // Extract and process individual messages from a string
 
-	char *message = SdsEmpty();
-	int msg_count = BpGetMessageCount((const char *)msg_data_string);
+	char *message	= SdsEmpty();
+	int   msg_count = BpGetMessageCount((const char *)msg_data_string);
 
 	log("Processing " + QString::number(msg_count) + " messages");
 
@@ -146,9 +146,9 @@ Parser::update()
 		if (laserStatus < 1) {
 			log("Parser::update : Connected.");
 			QSettings traySettings("Rfbevanco", "lmos-tray");
-			QString wsserver = "Connected to server " + traySettings.value("wsServer").toString();
-			emit settray(wsserver);
-			emit seticon("nolaser");
+			QString	  wsserver = "Connected to server " + traySettings.value("wsServer").toString();
+			emit	  settray(wsserver);
+			emit	  seticon("nolaser");
 			laserStatus = 1;
 
 			lmos.CreateControl();
@@ -174,10 +174,10 @@ Parser::log(QString string)
 void
 Parser::log(int level, const char *function, QString entry)
 {
-	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");
-	QString log = QString::number(level);
+	QString time	= QTime::currentTime().toString("hh:mm:ss.zzz");
+	QString log	= QString::number(level);
 	QString logFunc = QString(function);
-	emit sendlog(time + ": (" + log + ") [" + logFunc + "] " + entry);
+	emit	sendlog(time + ": (" + log + ") [" + logFunc + "] " + entry);
 }
 
 void
@@ -200,11 +200,11 @@ Parser::ackReturn(int id, int retval)
 }
 
 void
-Parser::ReplyWithPayload(int id, const char *payload)
+Parser::ReplyWithPayload(int id, int retval, const char *payload)
 {  // Reply to a commmand with a payload string
 
 	log("[ReplyWithPayload] #" + QString::number(id) + " : " + QString(payload));
-	QueueReplyPayload(blast, id, payload);
+	QueueReplyPayload(blast, id, retval, payload);
 	BpUploadQueuedMessages(blast);
 }
 
@@ -230,24 +230,24 @@ Parser::SendSignal(int signal, QString message)
 void
 Parser::parseCommand(const char *xml)
 {
-	char *id_string = BpGetMessageAttribute(xml, "id");
-	int id = atoi(id_string);
+	char *id_string	     = BpGetMessageAttribute(xml, "id");
+	int   id	     = atoi(id_string);
 	char *command_string = BpGetMessageAttribute(xml, "command");
-	int command = atoi(command_string);
+	int   command	     = atoi(command_string);
 	char *message_string;
 	char *attr1, *attr2, *attr3, *attr4;
-	int retval_num;
+	int   retval_num;
 	char *payload;
 
 	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") #" + QString::number(id) + ": " +
 	    QString(bpCommandName(command)));
 
 	std::stringstream out;
-	QString time = QTime::currentTime().toString("hh:mm:ss.zzz");
-	QPixmap pixmap;
-	QByteArray bArray;
-	QBuffer buffer(&bArray);
-	std::string stdString;
+	QString		  time = QTime::currentTime().toString("hh:mm:ss.zzz");
+	QPixmap		  pixmap;
+	QByteArray	  bArray;
+	QBuffer		  buffer(&bArray);
+	std::string	  stdString;
 
 	switch (command) {
 		case kIsLmosRunning:
@@ -384,26 +384,24 @@ Parser::parseCommand(const char *xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kReadByte:
-			attr1 = BpGetMessageAttribute(xml, "port");
-			attr2 = BpGetMessageAttribute(xml, "mask");
+			attr1	   = BpGetMessageAttribute(xml, "port");
+			attr2	   = BpGetMessageAttribute(xml, "mask");
 			retval_num = lmos.ReadByte(QString(attr1).toInt(), QString(attr2).toInt());
 			if (retval_num == kInvalid) {
 				ackReturn(id, kFailure);
 			} else {
-				ackReturn(id, kSuccess);
 				payload = SdsFromLong(retval_num);
-				ReplyWithPayload(id, payload);
+				ReplyWithPayload(id, kSuccess, payload);
 				SdsFree(payload);
 			}
 			break;
 		case kReadIOBit:
-			attr1 = BpGetMessageAttribute(xml, "bitfunction");
+			attr1	   = BpGetMessageAttribute(xml, "bitfunction");
 			retval_num = lmos.ReadIOBit(QString(attr1));
 			if (retval_num == kInvalid) {
 				ackReturn(id, kFailure);
 			} else {
-				ackReturn(id, kSuccess);
-				ReplyWithPayload(id, retval_num == 1 ? "1" : "0");
+				ReplyWithPayload(id, kSuccess, retval_num == 1 ? "1" : "0");
 			}
 			break;
 		case kSaveVLM:
@@ -444,7 +442,7 @@ Parser::parseCommand(const char *xml)
 			// ackReturn(id, kSuccess);
 
 			// TODO: Encode the id into the message
-			ReplyWithPayload(id, stdString.c_str());
+			ReplyWithPayload(id, kSuccess, stdString.c_str());
 			// bp_sendMessage(blast, stdString.c_str());
 			// SendMessageBp(blast, "id", QString::number(id).toStdString().c_str(), stdString.c_str());
 			/* #if DEBUG_LEVEL == 3 */

@@ -59,7 +59,7 @@ profile: 	CPPFLAGS += -pg --coverage
 LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
 LIBMXML_OBJS        := $(patsubst %.c,%.o,$(LIBMXML_SRCS))
 LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml.c
-LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) sds.o mongoose.o
+LIBBLASTPIT_OBJS    := $(patsubst %.c,%.o,$(LIBBLASTPIT_SOURCES)) sds.o mongoose.o steamcontroller_feedback.o steamcontroller_linux.o steamcontroller_setup.o steamcontroller_state.o steamcontroller_wireless.o
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES)) $(SUBMODULES_DIR)/sds/sds.c
 LIBBLASTPIT_TARGETS := libblastpit.a _blastpy.so blastpy.py 
 
@@ -70,7 +70,7 @@ UNITY_OBJS        = unity.o unity_fixture.o
 UNITY_DEFS        = -DUNITY_OUTPUT_COLOR -DUNITY_FIXTURE_NO_EXTRAS
 
 # Includes
-INCFLAGS = -I. -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR) -I$(LIBBLASTPIT_DIR) -I$(SUBMODULES_DIR)/mongoose -I$(SUBMODULES_DIR)/sds -I$(SUBMODULES_DIR)/mxml
+INCFLAGS = -I. -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR) -I$(LIBBLASTPIT_DIR) -I$(SUBMODULES_DIR)/mongoose -I$(SUBMODULES_DIR)/sds -I$(SUBMODULES_DIR)/mxml -I$(BLASTMINE_DIR)
 
 # Python inclues for SWIG
 PYTHON_INCS = $(shell python-config --includes)
@@ -85,7 +85,7 @@ BLASTPY_FILES += libblastpit.a
 BLASTPY_LIBS   = 
 
 # Blastmine
-BLASTMINE_TARGETS = blastmine
+BLASTMINE_TARGETS = blastmine steamtest
 
 # Webapp
 WEBAPP_TARGETS = $(PROJECT).html $(PROJECT).js $(PROJECT).wasm
@@ -94,7 +94,7 @@ WEBAPP_TARGETS = $(PROJECT).html $(PROJECT).js $(PROJECT).wasm
 DEBUG_COMMAND ?= $(shell head -n1 .debugcmd)
 DEBUG_TARGET  ?= $(shell tail -n1 .debugcmd)
 
-FORMAT_FILES        = src/libblastpit/*.{h,c,cpp} src/blastmine/*.{h,cpp} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.cpp
+FORMAT_FILES        = src/libblastpit/*.{h,c,cpp} src/blastmine/*.{c,h,cpp} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.cpp
 FORMAT_FILES_PYTHON = res/bin/*.py src/libblastpit/*.py src/inkscape/*.py
 FORMAT_FILES_XML    = src/inkscape/*.inx
 FORMAT_FILES_HTML   = doc/reference_manuals/lmos.html
@@ -120,7 +120,7 @@ debug: 		$(BUILD_DIR) .tags
 release:	$(BUILD_DIR)
 		$(MAKE) -j$(MAXJOBS) -C $(BUILD_DIR) -f $(PROJECT_ROOT)/Makefile release_build 
 
-targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES) cli images
+targets:	$(BUILD_DIR) $(LIBBLASTPIT_TARGETS) _blastpy.so blastmine $(UNITY_OBJS) $(TEST_BINARIES) cli images steamtest
 
 debug_build:	targets
 
@@ -178,6 +178,12 @@ t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
 %.o:	$(SUBMODULES_DIR)/mxml/%.c
 	$(CC) $(INCFLAGS) -c -fPIC $^ -o $@
 
+%.o:	$(BLASTMINE_DIR)/%.c
+	$(CC) $(INCFLAGS) -c -fPIC $^ -o $@
+
+%.o:	$(SUBMODULES_DIR)/steamcontroller/%.c
+	$(CC) $(INCFLAGS) -c -fPIC $^ -o $@
+
 # $(LIBMXML_OBJS):
 # 	pushd $(SUBMODULES_DIR)/mxml && ./configure && make -j$(MAXJOBS)
 # 	cp $(SUBMODULES_DIR)/mxml/libmxml.a .
@@ -194,6 +200,8 @@ t_%_x:	t_%.o $(UNITY_OBJS) libblastpit.a
 blastmine:	$(BLASTMINE_DIR)/blastmine.zig
 	zig build-exe $^ --cache-dir $(BUILD_DIR) --color on -femit-docs -dynamic
 
+steamtest:	steamtest.o libblastpit.a
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $< -L. -o $@ $(LIBS) $(BUILD_DIR)/libblastpit.a
 
 
 # Webapp Recipes

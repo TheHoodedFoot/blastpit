@@ -68,7 +68,7 @@ class LmosTray : public QMainWindow {
 	QAction *settingsAction;
 
 	QSystemTrayIcon *trayIcon;
-	QMenu *trayIconMenu;
+	QMenu *		 trayIconMenu;
 
 	Parser *parser;
 	// LMOS *lwrap;

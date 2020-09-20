@@ -67,3 +67,6 @@
 [submodule "src/submodules/nanosvg"]
 	path = src/submodules/nanosvg
 	url = https://github.com/memononen/nanosvg.git
+[submodule "src/submodules/steamcontroller"]
+	path = src/submodules/steamcontroller
+	url = https://github.com/kolrabi/steamcontroller.git

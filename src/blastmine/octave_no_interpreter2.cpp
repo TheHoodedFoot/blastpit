@@ -5,7 +5,7 @@
 int
 main(void)
 {
-	int n = 2;
+	int    n	= 2;
 	Matrix a_matrix = Matrix(n, n);
 
 	for (octave_idx_type i = 0; i < n; i++)
@@ -17,8 +17,8 @@ main(void)
 	octave_value_list in;
 	in(0) = a_matrix;
 
-	octave_value_list out = Fnorm(in, 1);
-	double norm_of_the_matrix = out(0).double_value();
+	octave_value_list out		     = Fnorm(in, 1);
+	double		  norm_of_the_matrix = out(0).double_value();
 
 	std::cout << "This is the norm of the matrix:" << std::endl << norm_of_the_matrix << std::endl;
 

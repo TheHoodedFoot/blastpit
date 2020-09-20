@@ -14,11 +14,11 @@ using namespace cv;
 Mat src, src_gray;
 Mat dst, detected_edges;
 
-int lowThreshold = 0;
-const int max_lowThreshold = 100;
-const int ratio = 3;
-const int kernel_size = 3;
-const char* window_name = "Edge Map";
+int	    lowThreshold     = 0;
+const int   max_lowThreshold = 100;
+const int   ratio	     = 3;
+const int   kernel_size	     = 3;
+const char* window_name	     = "Edge Map";
 //![variables]
 
 /**

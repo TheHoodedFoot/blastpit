@@ -41,7 +41,7 @@ TEST(WebsocketGroup, PortInUse)
 {
 	// Should fail with port in use by &server;
 	t_Websocket *ws_server = websocketNew();
-	int result = wsServerCreate(ws_server, "8001");
+	int	     result    = wsServerCreate(ws_server, "8001");
 	TEST_ASSERT_EQUAL(kAllocationFailure, result);
 
 	wsServerDestroy(ws_server);
@@ -72,7 +72,7 @@ TEST(WebsocketGroup, wsListen)
 
 	// Create a client
 	t_Websocket *ws_client = websocketNew();
-	result = wsClientCreate(ws_client, "ws://localhost:8002");
+	result		       = wsClientCreate(ws_client, "ws://localhost:8002");
 	TEST_ASSERT_EQUAL(kSuccess, result);
 
 	ws_client->messageReceived = &testcallback;
@@ -187,7 +187,7 @@ TEST(WebsocketGroup, DataTransferTest)
 	// Data should not be corrupted
 
 	// Create clients
-	t_Websocket *ws_client_sender = websocketNew();
+	t_Websocket *ws_client_sender	= websocketNew();
 	t_Websocket *ws_client_receiver = websocketNew();
 	wsClientCreate(ws_client_sender, "ws://localhost:8001");
 	ws_client_receiver->messageReceived = &updateHash;
