@@ -10,14 +10,17 @@ main(int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	int light = 0;
+	int  light	    = 0;
+	int  door	    = 0;
+	bool light_is_on    = 1;
+	bool door_is_closed = 1;
 
 	printf("Starting steam controller test...\n");
 
 	t_Blastpit *client = blastpitNew();
 
 	// Connect to the server
-	connectToServer(client, "ws://10.47.1.30:8000", 0);
+	connectToServer(client, "ws://192.168.1.40:8000", 0);
 
 	SteamControllerDeviceEnum *pEnum = SteamController_EnumControllerDevices();
 	while (pEnum) {
@@ -47,11 +50,28 @@ main(int argc, char *argv[])
 						return 0;
 					if (event.update.buttons & 64) {
 						if (light == 0) {
-							BpToggleLight(client);
+							light_is_on = !light_is_on;
+							BpSetLightState(client, light_is_on);
 							light = 1;
 						}
 					} else {
 						light = 0;
+					}
+					if (event.update.buttons & 16) {
+						if (door == 0) {
+							BpSetDoorState(client, 0);
+							door = 1;
+						}
+					} else {
+						door = 0;
+					}
+					if (event.update.buttons & 128) {
+						if (door == 0) {
+							BpSetDoorState(client, 1);
+							door = 1;
+						}
+					} else {
+						door = 0;
 					}
 					if (abs(event.update.orientation.x - previous_event.update.orientation.x) > 5) {
 						// just print the value of the left touch pad / stick position

@@ -246,10 +246,12 @@ typedef struct t_RetvalDb {
 } RetvalDb;
 
 typedef struct Blastpit {
-	void *	  ws;		  // Our websocket (void* to avoid depending on websocket.h)
-	int	  highest_id;	  // Highest id used (for auto generation)
-	char *	  message_queue;  // Pointer to sds string holding queued messages
-	RetvalDb *retval_db;	  // List of all completed jobs
+	void *	  ws;		   // Our websocket (void* to avoid depending on websocket.h)
+	int	  highest_id;	   // Highest id used (for auto generation)
+	char *	  message_queue;   // Pointer to sds string holding queued messages
+	RetvalDb *retval_db;	   // List of all completed jobs
+	bool	  light_is_on;	   // Last known light state
+	int	  door_is_closed;  // Last known door state
 } t_Blastpit;
 
 typedef struct {  // Acknowledgement of send plus generated id
@@ -331,7 +333,8 @@ void  SdsFree(char *string);
 void BpPrintQueue(t_Blastpit *self);
 void BpFreeRetvalDb(t_Blastpit *self);
 int  BpIsLmosUp(t_Blastpit *self);
-void BpToggleLight(t_Blastpit *self);
+void BpSetLightState(t_Blastpit *self, bool state);
+void BpSetDoorState(t_Blastpit *self, bool state);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

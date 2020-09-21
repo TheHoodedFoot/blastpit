@@ -19,10 +19,12 @@ blastpitNew()
 
 	t_Blastpit* bp = (t_Blastpit*)malloc(sizeof(t_Blastpit));
 	if (bp) {
-		bp->ws		  = (void*)websocketNew();
-		bp->highest_id	  = 0;
-		bp->message_queue = NULL;
-		bp->retval_db	  = NULL;
+		bp->ws		   = (void*)websocketNew();
+		bp->highest_id	   = 0;
+		bp->message_queue  = NULL;
+		bp->retval_db	   = NULL;
+		bp->light_is_on	   = 1;	 // Assume default state of laser at startup
+		bp->door_is_closed = 1;
 	}
 
 	return bp;
@@ -895,52 +897,67 @@ BpIsLmosUp(t_Blastpit* self)
 }
 
 void
-BpToggleLight(t_Blastpit* self)
-{  // Toggles the light in the laser enclosure
+BpSetLightState(t_Blastpit* self, bool state)
+{  // Sets the light state
+
+	if (state == self->light_is_on) {
+		LOG(kLvlDebug, "(%s) Light is already in requested state\n", __func__);
+		return;
+	}
 
 	char* existing_queue = self->message_queue;
 	self->message_queue  = NULL;
 
-	// Get the current light status
-	sds   command_str = sdsfromlonglong(kReadIOBit);
-	IdAck light = BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", NULL);
-	BpUploadQueuedMessages(self);
-
-	IdAck timeout = BpWaitForReplyOrTimeout(self, light.id, BP_SHORT_TIMEOUT);
-
-	if (timeout.retval != kSuccess || !timeout.string) {
-		sdsfree(command_str);
-		self->message_queue = existing_queue;
-		return;
-	}
-
-	sds payload = XmlExtractMessagePayload(timeout.string);
-	if (!payload) {
-		sdsfree(command_str);
-		self->message_queue = existing_queue;
-		return;
-	}
-
-	// Send the inverse
-	command_str = sdsfromlonglong(kWriteIoBit);
-	LOG(kLvlDebug, "BpToggleLight: return string is %s\n", payload);
-	if (strncmp(payload, "1", 1) == 0) {
-		// Light is on
+	sds command_str = sdsfromlonglong(kWriteIoBit);
+	if (self->light_is_on == 1) {
 		LOG(kLvlDebug, "%s: Turning liight off\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "0",
 			       NULL);
+		self->light_is_on = 0;
 	} else {
-		// Light is off
 		LOG(kLvlDebug, "%s: Turning light on\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "1",
 			       NULL);
+		self->light_is_on = 1;
 	}
 	BpUploadQueuedMessages(self);
 
 	sdsfree(command_str);
-	sdsfree(payload);
-	free(timeout.string);
 
-	// Restore
+	self->message_queue = existing_queue;
+}
+
+void
+BpSetDoorState(t_Blastpit* self, bool state)
+{  // Toggles the door state
+	// Write to 'OpenDoor' or 'CloseDoor', hold, then clear
+
+	if (state == self->door_is_closed) {
+		LOG(kLvlDebug, "(%s) Door is already in requested state\n", __func__);
+		return;
+	}
+
+	char* existing_queue = self->message_queue;
+	self->message_queue  = NULL;
+
+	sds command_str = sdsfromlonglong(kWriteIoBit);
+	if (self->door_is_closed == 1) {
+		LOG(kLvlDebug, "%s: Opening door\n", __func__);
+		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "1",
+			       NULL);
+		self->door_is_closed = 0;
+	} else {
+		LOG(kLvlDebug, "%s: Turning light on\n", __func__);
+		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value",
+			       "1", NULL);
+		self->door_is_closed = 1;
+	}
+	BpUploadQueuedMessages(self);
+	BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "0", NULL);
+	BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value", "0", NULL);
+	BpUploadQueuedMessages(self);
+
+	sdsfree(command_str);
+
 	self->message_queue = existing_queue;
 }
