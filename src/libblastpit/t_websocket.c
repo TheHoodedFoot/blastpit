@@ -208,12 +208,13 @@ TEST(WebsocketGroup, DataTransferTest)
 	// This has been tested successfully up to 5000000
 	{
 #define BSIZE 10000
-		char *string = (char *)alloca(BSIZE);
+		char *string = (char *)calloc(BSIZE, 1);
 		TEST_ASSERT_NOT_NULL(string);
 		// for (int i = 0; i < BSIZE; i++)
 		// 	*(string + i) = 'A';
 		// *(string + BSIZE) = 0;
 		broadcastClient(ws_client_sender->connection, mg_mk_str(string));
+		free(string);
 	}
 
 	// Fake event loop

@@ -900,6 +900,7 @@ void
 BpSetLightState(t_Blastpit* self, bool state)
 {  // Sets the light state
 
+	// We have no way of requesting the actual light status
 	if (state == self->light_is_on) {
 		LOG(kLvlDebug, "(%s) Light is already in requested state\n", __func__);
 		return;
@@ -910,7 +911,7 @@ BpSetLightState(t_Blastpit* self, bool state)
 
 	sds command_str = sdsfromlonglong(kWriteIoBit);
 	if (self->light_is_on == 1) {
-		LOG(kLvlDebug, "%s: Turning liight off\n", __func__);
+		LOG(kLvlDebug, "%s: Turning light off\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "0",
 			       NULL);
 		self->light_is_on = 0;
@@ -932,31 +933,55 @@ BpSetDoorState(t_Blastpit* self, bool state)
 {  // Toggles the door state
 	// Write to 'OpenDoor' or 'CloseDoor', hold, then clear
 
-	if (state == self->door_is_closed) {
+	char* existing_queue = self->message_queue;
+	self->message_queue  = NULL;
+
+	// Get the current door status
+	// We can read either 'DoorOpen' or 'DoorClosed'. I assume that they are
+	// the names of the sensors at the top and bottom of the door.
+	sds   command_str = sdsfromlonglong(kReadIOBit);
+	IdAck light = BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "DoorOpen", NULL);
+	BpUploadQueuedMessages(self);
+
+	IdAck timeout = BpWaitForReplyOrTimeout(self, light.id, BP_SHORT_TIMEOUT);
+
+	if (timeout.retval != kSuccess || !timeout.string) {
+		sdsfree(command_str);
+		self->message_queue = existing_queue;
+		return;
+	}
+
+	sds payload = XmlExtractMessagePayload(timeout.string);
+	if (!payload) {
+		sdsfree(command_str);
+		self->message_queue = existing_queue;
+		return;
+	}
+
+	int dooropen = strncmp(payload, "1", 1);
+
+	if (state == dooropen) {
 		LOG(kLvlDebug, "(%s) Door is already in requested state\n", __func__);
 		return;
 	}
 
-	char* existing_queue = self->message_queue;
-	self->message_queue  = NULL;
-
-	sds command_str = sdsfromlonglong(kWriteIoBit);
-	if (self->door_is_closed == 1) {
+	command_str = sdsfromlonglong(kWriteIoBit);
+	if (state) {
 		LOG(kLvlDebug, "%s: Opening door\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "1",
 			       NULL);
-		self->door_is_closed = 0;
 	} else {
-		LOG(kLvlDebug, "%s: Turning light on\n", __func__);
+		LOG(kLvlDebug, "%s: Closing door\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value",
 			       "1", NULL);
-		self->door_is_closed = 1;
 	}
 	BpUploadQueuedMessages(self);
+
 	BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "0", NULL);
 	BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value", "0", NULL);
 	BpUploadQueuedMessages(self);
 
+	sdsfree(payload);
 	sdsfree(command_str);
 
 	self->message_queue = existing_queue;

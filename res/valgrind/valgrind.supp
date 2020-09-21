@@ -9,3 +9,10 @@ src:unity.c
 Memcheck:Cond
 src:pugixml.cpp
 }
+
+{
+   <mg_mk_str>
+   Memcheck:Cond
+   fun:__strlen_sse2
+   fun:mg_mk_str
+}

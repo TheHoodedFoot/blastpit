@@ -62,7 +62,7 @@ TESTS="${CTESTS} ${PYTESTS}"
 TESTS=$(echo -e "${TESTS// /\\n}" | sort -u)
 popd > /dev/null
 
-if [[ "$1" == "-valgrind" ]]
+if [[ "$2" == "-valgrind" ]]
 then
 	VALGRIND="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --expensive-definedness-checks=yes --gen-suppressions=all --error-exitcode=1 --exit-on-first-error=yes --suppressions=res/valgrind/valgrind.supp"
 fi
