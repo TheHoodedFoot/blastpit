@@ -43,9 +43,9 @@ debug_build:	CC        = ccache clang
 debug_build:	CXX       = ccache clang++
 # debug_build: 	CPPFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer -fno-omit-frame-pointer
 
-debug_build: 	CPPFLAGS += -fsanitize=undefined,nullability -fno-omit-frame-pointer -fno-optimize-sibling-calls
-debug_build: 	SANFLAGS += -fsanitize=address
-debug_build: 	SHARED_SANFLAGS += -shared-libsan
+# debug_build: 	CPPFLAGS += -fsanitize=undefined,nullability -fno-omit-frame-pointer -fno-optimize-sibling-calls
+# debug_build: 	SANFLAGS += -fsanitize=address
+# debug_build: 	SHARED_SANFLAGS += -shared-libsan
 
 release_build:	CPPFLAGS += -Ofast
 

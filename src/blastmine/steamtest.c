@@ -1,9 +1,18 @@
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "../../.git/untracked/t_common.h"
 #include "../libblastpit/blastpit.h"
 #include "steamcontroller.h"
-#include "../../.git/untracked/t_common.h"
+
+int
+roundNear(double num, int multiple)
+{
+	assert(multiple);
+	return (((int)num + (multiple / 2)) / multiple) * multiple;
+}
 
 int
 main(int argc, char *argv[])
@@ -16,6 +25,7 @@ main(int argc, char *argv[])
 	int  doorb	    = 0;
 	bool light_is_on    = 1;
 	bool door_is_closed = 1;
+	int  angle	    = 0;
 
 	printf("Starting steam controller test...\n");
 
@@ -75,20 +85,35 @@ main(int argc, char *argv[])
 					} else {
 						doorb = 0;
 					}
-					if (abs(event.update.orientation.x - previous_event.update.orientation.x) > 5) {
+					if (abs(event.update.orientation.x - previous_event.update.orientation.x) > 1) {
 						// just print the value of the left touch pad / stick position
-						fprintf(stderr,
-							"% 8d % 6d % 6d % 6d % 6d % 6d % 6d % 6hd % 6hd % 6hd % 6hd % "
-							"6hd % 6hd % 6hd % 6hd % 6hd\n",
-							event.update.buttons, event.update.leftTrigger,
-							event.update.rightTrigger, event.update.leftXY.x,
-							event.update.leftXY.y, event.update.rightXY.x,
-							event.update.rightXY.y, event.update.acceleration.x,
-							event.update.acceleration.y, event.update.acceleration.z,
-							event.update.orientation.x, event.update.orientation.y,
-							event.update.orientation.z, event.update.angularVelocity.x,
-							event.update.angularVelocity.y, event.update.angularVelocity.z);
+						// fprintf(stderr,
+						// 	"% 8d % 6d % 6d % 6d % 6d % 6d % 6d % 6hd % 6hd % 6hd % 6hd % "
+						// 	"6hd % 6hd % 6hd % 6hd % 6hd\n",
+						// 	event.update.buttons, event.update.leftTrigger,
+						// 	event.update.rightTrigger, event.update.leftXY.x,
+						// 	event.update.leftXY.y, event.update.rightXY.x,
+						// 	event.update.rightXY.y, event.update.acceleration.x,
+						// 	event.update.acceleration.y, event.update.acceleration.z,
+						// 	event.update.orientation.x, event.update.orientation.y,
+						// 	event.update.orientation.z, event.update.angularVelocity.x,
+						// 	event.update.angularVelocity.y, event.update.angularVelocity.z);
 						previous_event = event;
+						double r       = sqrt(event.update.rightXY.x * event.update.rightXY.x +
+								      event.update.rightXY.y * event.update.rightXY.y);
+						if (r > 25000) {
+							double t = atan2((double)event.update.rightXY.x,
+									 (double)event.update.rightXY.y) *
+								   (180 / M_PI);
+							if (t < 0)
+								t = 180 + (180 - (t * -1));
+							int tr = roundNear(t, 5);
+							if (tr != angle) {
+								BpMoveW(client, tr);
+								fprintf(stderr, "% 8f % 8d\n", r, roundNear(tr, 5));
+								angle = tr;
+							}
+						}
 						// 16 open 128 close 64 light 32 exit
 					}
 				}

@@ -986,3 +986,13 @@ BpSetDoorState(t_Blastpit* self, bool state)
 
 	self->message_queue = existing_queue;
 }
+
+void
+BpMoveW(t_Blastpit* self, int angle)
+{  // Sets the rotary axis
+
+	sds command_str = sdsfromlonglong(kMoveW);
+	sds rotation	= sdsfromlonglong(angle);
+	BpQueueMessage(self, "type", "command", "command", command_str, "rotation", rotation, NULL);
+	BpUploadQueuedMessages(self);
+}

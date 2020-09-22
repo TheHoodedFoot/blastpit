@@ -335,6 +335,7 @@ void BpFreeRetvalDb(t_Blastpit *self);
 int  BpIsLmosUp(t_Blastpit *self);
 void BpSetLightState(t_Blastpit *self, bool state);
 void BpSetDoorState(t_Blastpit *self, bool state);
+void BpMoveW(t_Blastpit *self, int angle);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

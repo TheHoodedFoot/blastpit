@@ -426,8 +426,14 @@ Parser::parseCommand(const char *xml)
 			ackReturn(id, kSuccess);
 			break;
 		case kMoveW:
-			// lmos.MoveW(QString(cmd.attribute("rotation").value()).toDouble());
-			ackReturn(id, kSuccess);
+			attr1 = BpGetMessageAttribute(xml, "rotation");
+			if (attr1) {
+				lmos.MoveW(strtod(attr1, NULL));
+				SdsFree(attr1);
+				ackReturn(id, kSuccess);
+			} else {
+				ackReturn(id, kFailure);
+			}
 			break;
 		case kGetPng:
 			pixmap = lmos.GrabWindow();

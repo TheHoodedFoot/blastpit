@@ -25,7 +25,7 @@ import blastpy as bp
 
 
 # Helper functions needed due to lack of running event loop
-def PollUntilConnected(client, server, timeout=myconfig.NET_TIMEOUT):
+def PollUntilConnected(client, server, timeout=myconfig.WS_TEST_TIMEOUT):
     for i in range(timeout):
         bp.pollMessages(client)
         bp.pollMessages(server)
@@ -34,7 +34,7 @@ def PollUntilConnected(client, server, timeout=myconfig.NET_TIMEOUT):
         time.sleep(0.001)
 
 
-def PollUntilMessageCount(client, server, count=1, timeout=myconfig.NET_TIMEOUT):
+def PollUntilMessageCount(client, server, count=1, timeout=myconfig.WS_TEST_TIMEOUT):
     for i in range(timeout):
         bp.pollMessages(client)
         bp.pollMessages(server)
@@ -47,7 +47,7 @@ class Testbp(unittest.TestCase):
 
     def setUp(self):
         self.server = bp.blastpitNew()
-        self.assertEqual(bp.kSuccess, bp.serverCreate(self.server, myconfig.PORT))
+        self.assertEqual(bp.kSuccess, bp.serverCreate(self.server, myconfig.WS_PORT))
         print("Creating server")
 
     def test_MultipleCommands(self):
@@ -55,8 +55,8 @@ class Testbp(unittest.TestCase):
         self.client2 = bp.blastpitNew()
 
         # These next lines will give a timeout error because we don't poll
-        bp.connectToServer(self.client1, myconfig.SERVER, 0)
-        bp.connectToServer(self.client2, myconfig.SERVER, 0)
+        bp.connectToServer(self.client1, myconfig.WS_SERVER_LOCAL, 0)
+        bp.connectToServer(self.client2, myconfig.WS_SERVER_LOCAL, 0)
 
         PollUntilConnected(self.client1, self.server)
         PollUntilConnected(self.client2, self.server)
@@ -77,8 +77,7 @@ class Testbp(unittest.TestCase):
 
     def test_QueueCommands(self):
         self.client = bp.blastpitNew()
-        self.assertEqual(bp.kSuccess, bp.connectToServer(self.client, myconfig.SERVER, 2000))
-
+        bp.connectToServer(self.client, myconfig.WS_SERVER_LOCAL, myconfig.WS_TEST_TIMEOUT)
         PollUntilConnected(self.client, self.client)
 
         bp.BpQueueCommand(self.client, 99)

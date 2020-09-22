@@ -306,7 +306,7 @@ Lmos::MoveZ(const float z)
 void
 Lmos::MoveW(const double w)
 {
-	emit log(kLvlDebug, __func__, "Moving W axis...");
+	emit log(kLvlDebug, __func__, "Moving W axis to " + QString::number(w));
 #if defined(Q_OS_WIN32)
 	LMOSACTXLib::Axis myaxis(lmos_actx->Axis());
 	myaxis.NewPos(LMOSACTXLib::W_AXIS, w, true);

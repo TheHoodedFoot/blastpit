@@ -21,7 +21,7 @@ sys.path.append(os.path.expanduser("~")
                 + "/projects/blastpit/build")
 
 import blastpy as bp
-from myconfig import NET_TIMEOUT
+from myconfig import WS_TEST_TIMEOUT
 
 # The main Blastpit object
 pit = bp.blastpitNew()
