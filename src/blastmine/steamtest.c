@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "../libblastpit/blastpit.h"
 #include "steamcontroller.h"
+#include "../../.git/untracked/t_common.h"
 
 int
 main(int argc, char *argv[])
@@ -21,7 +22,7 @@ main(int argc, char *argv[])
 	t_Blastpit *client = blastpitNew();
 
 	// Connect to the server
-	connectToServer(client, "ws://10.47.1.30:8000", 0);
+	connectToServer(client, WS_SERVER, 0);
 
 	SteamControllerDeviceEnum *pEnum = SteamController_EnumControllerDevices();
 	while (pEnum) {

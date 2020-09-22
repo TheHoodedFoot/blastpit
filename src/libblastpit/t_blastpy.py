@@ -75,9 +75,9 @@ class Testbp(unittest.TestCase):
         bp.blastpitDelete(self.client1)
         bp.blastpitDelete(self.client2)
 
-    def test_MultipleCommands(self):
+    def test_QueueCommands(self):
         self.client = bp.blastpitNew()
-        self.assertEqual(bp.kSuccess, bp.connectToServer(self.client, "ws://10.47.1.30:8000", 2000))
+        self.assertEqual(bp.kSuccess, bp.connectToServer(self.client, myconfig.SERVER, 2000))
 
         PollUntilConnected(self.client, self.client)
 
