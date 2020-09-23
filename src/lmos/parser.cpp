@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include <QDateTime>
 #include <QSettings>
 #include <QTime>
 #include <QtCore>
@@ -47,6 +48,11 @@ void
 Parser::wsConnect()
 {  // (Re)try connection to server
 
+	static QDateTime last_connection_attempt = QDateTime::currentDateTime().addSecs(-10);
+	if (QDateTime::currentDateTime() < last_connection_attempt.addSecs(3))
+		return;
+	last_connection_attempt = QDateTime::currentDateTime();
+
 	QSettings traySettings("Rfbevanco", "lmos-tray");
 	QString	  wsserver = traySettings.value("wsServer").toString();
 
@@ -56,6 +62,7 @@ Parser::wsConnect()
 	QByteArray  ba	   = wsserver.toLocal8Bit();
 	const char *c_str2 = ba.data();
 
+	log("Parser::wsConnect : Trying to connect to server " + traySettings.value("wsServer").toString());
 	connectToServer(blast, c_str2, 1000);
 }
 
@@ -135,12 +142,10 @@ Parser::update()
 		}
 
 		// disconnectFromServer(blast);
-		QSettings traySettings("Rfbevanco", "lmos-tray");
-		log("Parser::update : Trying to connect to server " + traySettings.value("wsServer").toString());
 		this->wsConnect();
 
 		// This is a static member function of QThread
-		QThread::sleep(1);
+		// QThread::sleep(1);
 
 	} else {
 		if (laserStatus < 1) {
@@ -152,7 +157,7 @@ Parser::update()
 			laserStatus = 1;
 
 			lmos.CreateControl();
-			lmos.ShowWindow();
+			// lmos.ShowWindow();
 			lmos.ConnectSignals();
 		}
 	}

@@ -43,6 +43,10 @@ from os.path import expanduser
 sys.path.append(expanduser("~") + "/projects/blastpit/build")
 import blastpy
 
+# Get our machine-specific constants
+sys.path.append(expanduser("~") + "/projects/blastpit/.git/untracked")
+import myconfig
+
 # This disables stderr to prevent popup window when debugging
 # os.close(sys.stderr.fileno())
 
@@ -132,7 +136,7 @@ class Laser(inkex.Effect):
         self.frequency = 60000
         self.freqstep = 0
         self.speed = 500
-        self.server = "ws://192.168.1.20:8000"
+        self.server = myconfig.WS_SERVER_REMOTE
         self.filename = None
         self.customer = None
 
@@ -383,6 +387,8 @@ class Laser(inkex.Effect):
             if blastpy.BpIsLmosUp(blast) != blastpy.kSuccess:
                 print("Lmos client could not be reached", file=sys.stderr)
                 sys.exit()
+
+            blastpy.BpDisplayLmosWindow(blast, 1)
 
             blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
             blastpy.BpUploadQueuedMessages(blast)

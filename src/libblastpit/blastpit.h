@@ -338,6 +338,7 @@ void BpSetDoorState(t_Blastpit *self, bool state);
 void BpMoveW(t_Blastpit *self, int angle);
 void BpInitMachine(t_Blastpit *self);
 void BpTermMachine(t_Blastpit *self);
+void BpDisplayLmosWindow(t_Blastpit *self, int visibility);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

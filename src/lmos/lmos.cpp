@@ -119,7 +119,9 @@ Lmos::GrabWindow()
 
 bool
 Lmos::InitMachine()
-{
+{  // Initialise the hardware
+
+	emit log(kLvlDebug, __func__, "Initialising hardware...");
 #if defined(Q_OS_WIN32)
 	try {
 		return lmos_actx->InitMachine();
@@ -247,9 +249,9 @@ Lmos::StartPosHelp(const QString& object)
 
 void
 Lmos::TermMachine()
-{
-	// termMachine: Shuts down the laser system
-	emit log(kLvlDebug, __func__, "Calling lmos.TermMachine()");
+{  // Release control of hardare
+
+	emit log(kLvlDebug, __func__, "Releasing hardware...");
 #if defined(Q_OS_WIN32)
 	emit retval(__func__, lmos_actx->TermMachine());
 #endif
@@ -467,6 +469,8 @@ Lmos::ReadByte(const int port, const int mask)
 int
 Lmos::ReadIOBit(const QString& bitfunction)
 {
+	emit log(kLvlDebug, __func__, "Running ReadIOBit with bitfunction: " + bitfunction);
+
 #if defined(Q_OS_WIN32)
 	QVariant res;
 	emit	 retval(__func__, lmos_actx->ReadIOBit(bitfunction, res));
@@ -480,9 +484,11 @@ Lmos::ReadIOBit(const QString& bitfunction)
 			return false;
 		}
 	}
+	emit log(kLvlDebug, __func__, "Could not convert return value to bool");
 	return kInvalid;
 #else
 	(void)bitfunction;
+	emit log(kLvlDebug, __func__, "This function is only available on Win32");
 	return kInvalid;
 #endif
 }

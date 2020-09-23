@@ -27,4 +27,5 @@ traysettings::storesettings()
 
 	/* Store settings */
 	traySettings.setValue("wsServer", ui->wsServer->text());
+	emit(serverChanged());
 }

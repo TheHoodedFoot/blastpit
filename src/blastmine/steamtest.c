@@ -88,17 +88,17 @@ main(int argc, char *argv[])
 					}
 					if (abs(event.update.orientation.x - previous_event.update.orientation.x) > 1) {
 						// just print the value of the left touch pad / stick position
-						// fprintf(stderr,
-						// 	"% 8d % 6d % 6d % 6d % 6d % 6d % 6d % 6hd % 6hd % 6hd % 6hd % "
-						// 	"6hd % 6hd % 6hd % 6hd % 6hd\n",
-						// 	event.update.buttons, event.update.leftTrigger,
-						// 	event.update.rightTrigger, event.update.leftXY.x,
-						// 	event.update.leftXY.y, event.update.rightXY.x,
-						// 	event.update.rightXY.y, event.update.acceleration.x,
-						// 	event.update.acceleration.y, event.update.acceleration.z,
-						// 	event.update.orientation.x, event.update.orientation.y,
-						// 	event.update.orientation.z, event.update.angularVelocity.x,
-						// 	event.update.angularVelocity.y, event.update.angularVelocity.z);
+						fprintf(stderr,
+							"% 8d % 6d % 6d % 6d % 6d % 6d % 6d % 6hd % 6hd % 6hd % 6hd % "
+							"6hd % 6hd % 6hd % 6hd % 6hd\n",
+							event.update.buttons, event.update.leftTrigger,
+							event.update.rightTrigger, event.update.leftXY.x,
+							event.update.leftXY.y, event.update.rightXY.x,
+							event.update.rightXY.y, event.update.acceleration.x,
+							event.update.acceleration.y, event.update.acceleration.z,
+							event.update.orientation.x, event.update.orientation.y,
+							event.update.orientation.z, event.update.angularVelocity.x,
+							event.update.angularVelocity.y, event.update.angularVelocity.z);
 						previous_event = event;
 						double r       = sqrt(event.update.rightXY.x * event.update.rightXY.x +
 								      event.update.rightXY.y * event.update.rightXY.y);
@@ -108,8 +108,8 @@ main(int argc, char *argv[])
 								   (180 / M_PI);
 							if (t < 0)
 								t = 180 + (180 - (t * -1));
-							int tr = roundNear(t, 5);
-							if (tr != angle) {
+							int tr = roundNear(t, 10);
+							if ((tr != angle) && (event.update.buttons & 262144)) {
 								BpMoveW(client, tr);
 								fprintf(stderr, "% 8f % 8d\n", r, roundNear(tr, 5));
 								angle = tr;

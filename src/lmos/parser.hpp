@@ -28,10 +28,10 @@ class Parser : public QObject {
 	void SendSignal(int signal, QString message);
 	void log(int, const char *, QString);
 	void ReplyWithPayload(int id, int retval, const char *payload);
+	void wsConnect();
 
       private:
 	void parseCommand(const char *message);
-	void wsConnect();
 	void ProcessMessageBlock(const char *msg_data_string);
 
       private slots:

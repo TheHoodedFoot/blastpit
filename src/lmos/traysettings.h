@@ -14,6 +14,9 @@ class traysettings : public QDialog {
 	explicit traysettings(QWidget *parent = nullptr);
 	~traysettings();
 
+signals:
+	void serverChanged();
+
       public slots:
 	void storesettings();
 

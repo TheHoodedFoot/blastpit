@@ -37,8 +37,6 @@ debug_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug_build:	CPPFLAGS += -Werror -Wfatal-errors
 debug_build:	CPPFLAGS += -Og -g3
 debug_build:	CPPFLAGS += -DDEBUG_LEVEL=5
-# debug_build:	CC        = zig cc # Doesn't work with bear
-# debug_build:	CXX       = zig c++
 debug_build:	CC        = ccache clang
 debug_build:	CXX       = ccache clang++
 # debug_build: 	CPPFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer -fno-omit-frame-pointer
@@ -47,8 +45,10 @@ debug_build:	CXX       = ccache clang++
 # debug_build: 	SANFLAGS += -fsanitize=address
 # debug_build: 	SHARED_SANFLAGS += -shared-libsan
 
-release_build:	CPPFLAGS += -Ofast
-release_build:	CPPFLAGS += -march=core2
+# release_build:	CPPFLAGS += -Ofast
+release_build:	CC        = zig cc
+release_build:	CXX       = zig c++
+# release_build:	CPPFLAGS += -march=core2
 
 ebuild:		CC = zig cc -target x86_64-linux-gnu
 ebuild:		CXX = zig c++ -target x86_64-linux-gnu

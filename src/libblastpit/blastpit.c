@@ -958,12 +958,13 @@ BpSetDoorState(t_Blastpit* self, bool state)
 		return;
 	}
 
-	int dooropen = strncmp(payload, "1", 1);
+	LOG(kLvlDebug, "BpSetDoorState: The return value from kReadIOBit(DoorOpen) is %s\n", payload);
 
-	if (state == dooropen) {
-		LOG(kLvlDebug, "(%s) Door is already in requested state\n", __func__);
-		return;
-	}
+	// int dooropen = strncmp(payload, "1", 1);
+	// if (state == dooropen) {
+	// 	LOG(kLvlDebug, "(%s) Door is already in requested state\n", __func__);
+	// 	// return;
+	// }
 
 	command_str = sdsfromlonglong(kWriteIoBit);
 	if (state) {
@@ -1014,6 +1015,16 @@ BpTermMachine(t_Blastpit* self)
 {  // Release the laser hardware
 
 	sds command_str = sdsfromlonglong(kTermMachine);
+	BpQueueMessage(self, "type", "command", "command", command_str, NULL);
+	BpUploadQueuedMessages(self);
+	sdsfree(command_str);
+}
+
+void
+BpDisplayLmosWindow(t_Blastpit* self, int visibility)
+{  // Show or hide the Lmos ActiveX window
+
+	sds command_str = sdsfromlonglong(visibility == 1 ? kShowLMOS : kHideLMOS);
 	BpQueueMessage(self, "type", "command", "command", command_str, NULL);
 	BpUploadQueuedMessages(self);
 	sdsfree(command_str);

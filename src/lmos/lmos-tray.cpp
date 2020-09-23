@@ -139,6 +139,8 @@ LmosTray::showSettings()
 {
 	/* Show the settings window */
 	traysettings *ts = new traysettings;
+	if (parser)
+		connect(ts, SIGNAL(serverChanged()), parser, SLOT(wsConnect()));
 	ts->setAttribute(Qt::WA_DeleteOnClose);
 	ts->show();
 }
