@@ -47,8 +47,8 @@ import blastpy
 # os.close(sys.stderr.fileno())
 
 # Server timeouts
-SHORT_TIMEOUT=2000
-LONG_TIMEOUT=60000
+WS_TIMEOUT_SHORT=2000
+WS_TIMEOUT_LONG=60000
 
 # Laser constants
 SAGITTA = 0.5  # Focal range
@@ -132,7 +132,7 @@ class Laser(inkex.Effect):
         self.frequency = 60000
         self.freqstep = 0
         self.speed = 500
-        self.server = "ws://10.47.1.30:8000"
+        self.server = "ws://192.168.1.20:8000"
         self.filename = None
         self.customer = None
 
@@ -375,7 +375,7 @@ class Laser(inkex.Effect):
 
         if self.mode == "save":
             blast = blastpy.blastpitNew()
-            result = blastpy.connectToServer( blast, self.server, SHORT_TIMEOUT)
+            result = blastpy.connectToServer( blast, self.server, WS_TIMEOUT_SHORT)
             if result != blastpy.kSuccess:
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 sys.exit()
@@ -395,12 +395,12 @@ class Laser(inkex.Effect):
             # blastpy.BpUploadQueuedMessages(blast)
 
             id = blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, str(xml.xml()), None, None, None, None, None, None, None, None)
-            # blastpy.BpUploadQueuedMessages(blast)
-            # blastpy.BpWaitForReplyOrTimeout(blast, id.id, 10000)
+            blastpy.BpUploadQueuedMessages(blast)
+            blastpy.BpWaitForReplyOrTimeout(blast, id.id, WS_TIMEOUT_LONG)
 
             blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", None, None, None, None, None)
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "120", None, None, None, None, None)
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "120", None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "119", None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "119", None, None, None, None, None)
             for layer in layers:
                 blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), None, None, None, None, None)
 
@@ -411,7 +411,7 @@ class Laser(inkex.Effect):
 
             id = blastpy.BpQueueCommandArgs(blast, blastpy.kSaveVLM, "filename", filename, None, None, None, None, None, None, None)
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(blast, id.id, LONG_TIMEOUT)
+            blastpy.BpWaitForReplyOrTimeout(blast, id.id, WS_TIMEOUT_LONG)
 
             blastpy.disconnectFromServer(blast)
             blastpy.blastpitDelete(blast)

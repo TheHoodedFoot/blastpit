@@ -995,4 +995,26 @@ BpMoveW(t_Blastpit* self, int angle)
 	sds rotation	= sdsfromlonglong(angle);
 	BpQueueMessage(self, "type", "command", "command", command_str, "rotation", rotation, NULL);
 	BpUploadQueuedMessages(self);
+	sdsfree(command_str);
+	sdsfree(rotation);
+}
+
+void
+BpInitMachine(t_Blastpit* self)
+{  // Initialise the laser hardware
+
+	sds command_str = sdsfromlonglong(kInitMachine);
+	BpQueueMessage(self, "type", "command", "command", command_str, NULL);
+	BpUploadQueuedMessages(self);
+	sdsfree(command_str);
+}
+
+void
+BpTermMachine(t_Blastpit* self)
+{  // Release the laser hardware
+
+	sds command_str = sdsfromlonglong(kTermMachine);
+	BpQueueMessage(self, "type", "command", "command", command_str, NULL);
+	BpUploadQueuedMessages(self);
+	sdsfree(command_str);
 }

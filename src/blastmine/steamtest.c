@@ -33,6 +33,7 @@ main(int argc, char *argv[])
 
 	// Connect to the server
 	connectToServer(client, WS_SERVER, 0);
+	BpInitMachine(client);
 
 	SteamControllerDeviceEnum *pEnum = SteamController_EnumControllerDevices();
 	while (pEnum) {
@@ -125,6 +126,7 @@ main(int argc, char *argv[])
 		pEnum = SteamController_NextControllerDevice(pEnum);
 	}
 
+	BpTermMachine(client);
 	disconnectFromServer(client);
 	blastpitDelete(client);
 

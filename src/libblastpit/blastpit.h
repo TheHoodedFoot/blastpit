@@ -22,7 +22,7 @@ extern "C" {
 #define LMOS_FREQUENCY_MIN 20000
 #define LMOS_FREQUENCY_MAX 60000
 
-#define BP_ISLMOSUP_TIMEOUT 500
+#define BP_ISLMOSUP_TIMEOUT 750
 #define BP_SHORT_TIMEOUT    1000
 
 #define BP_EMPTY_STRING "<empty string>"
@@ -336,6 +336,8 @@ int  BpIsLmosUp(t_Blastpit *self);
 void BpSetLightState(t_Blastpit *self, bool state);
 void BpSetDoorState(t_Blastpit *self, bool state);
 void BpMoveW(t_Blastpit *self, int angle);
+void BpInitMachine(t_Blastpit *self);
+void BpTermMachine(t_Blastpit *self);
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 
