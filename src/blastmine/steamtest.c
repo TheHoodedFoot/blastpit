@@ -72,7 +72,7 @@ main(int argc, char *argv[])
 					}
 					if (event.update.buttons & 16) {
 						if (doora == 0) {
-							BpSetDoorState(client, 0);
+							BpSetDoorState(client, 1);
 							doora = 1;
 						}
 					} else {
@@ -80,7 +80,7 @@ main(int argc, char *argv[])
 					}
 					if (event.update.buttons & 128) {
 						if (doorb == 0) {
-							BpSetDoorState(client, 1);
+							BpSetDoorState(client, 0);
 							doorb = 1;
 						}
 					} else {
@@ -108,7 +108,7 @@ main(int argc, char *argv[])
 								   (180 / M_PI);
 							if (t < 0)
 								t = 180 + (180 - (t * -1));
-							int tr = roundNear(t, 10);
+							int tr = 360 - roundNear(t, 10);
 							if ((tr != angle) && (event.update.buttons & 262144)) {
 								BpMoveW(client, tr);
 								fprintf(stderr, "% 8f % 8d\n", r, roundNear(tr, 5));

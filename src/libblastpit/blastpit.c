@@ -945,20 +945,20 @@ BpSetDoorState(t_Blastpit* self, bool state)
 
 	IdAck timeout = BpWaitForReplyOrTimeout(self, light.id, BP_SHORT_TIMEOUT);
 
-	if (timeout.retval != kSuccess || !timeout.string) {
-		sdsfree(command_str);
-		self->message_queue = existing_queue;
-		return;
-	}
+	// if (timeout.retval != kSuccess || !timeout.string) {
+	// 	sdsfree(command_str);
+	// 	self->message_queue = existing_queue;
+	// 	return;
+	// }
 
-	sds payload = XmlExtractMessagePayload(timeout.string);
-	if (!payload) {
-		sdsfree(command_str);
-		self->message_queue = existing_queue;
-		return;
-	}
+	// sds payload = XmlExtractMessagePayload(timeout.string);
+	// if (!payload) {
+	// 	sdsfree(command_str);
+	// 	self->message_queue = existing_queue;
+	// 	return;
+	// }
 
-	LOG(kLvlDebug, "BpSetDoorState: The return value from kReadIOBit(DoorOpen) is %s\n", payload);
+	// LOG(kLvlDebug, "BpSetDoorState: The return value from kReadIOBit(DoorOpen) is %s\n", payload);
 
 	// int dooropen = strncmp(payload, "1", 1);
 	// if (state == dooropen) {
@@ -982,7 +982,7 @@ BpSetDoorState(t_Blastpit* self, bool state)
 	BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value", "0", NULL);
 	BpUploadQueuedMessages(self);
 
-	sdsfree(payload);
+	// sdsfree(payload);
 	sdsfree(command_str);
 
 	self->message_queue = existing_queue;

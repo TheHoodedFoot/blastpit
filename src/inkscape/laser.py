@@ -52,7 +52,7 @@ import myconfig
 
 # Server timeouts
 WS_TIMEOUT_SHORT=2000
-WS_TIMEOUT_LONG=60000
+WS_TIMEOUT_LONG=10000
 
 # Laser constants
 SAGITTA = 0.5  # Focal range
@@ -404,11 +404,12 @@ class Laser(inkex.Effect):
             blastpy.BpUploadQueuedMessages(blast)
             blastpy.BpWaitForReplyOrTimeout(blast, id.id, WS_TIMEOUT_LONG)
 
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", None, None, None, None, None)
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "119", None, None, None, None, None)
-            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "119", None, None, None, None, None)
             for layer in layers:
                 blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", str(layer[0]), "height", str(layer[1]), None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetLaserable, "layer", "RofinStandard", "laserable", "0", None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinStandard", "height", "118.0", None, None, None, None, None)
+            blastpy.BpQueueCommandArgs(blast, blastpy.kLayerSetHeight, "layer", "RofinBackground", "height", "117.0", None, None, None, None, None)
+            blastpy.BpUploadQueuedMessages(blast)
 
             if self.filename is not None and self.customer is not None:
                 filename = "Z:\\drawings\\" + str(datetime.date.today().year) + "\\" + self.customer + "\\" + self.filename + ".VLM"

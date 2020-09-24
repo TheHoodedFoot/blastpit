@@ -45,10 +45,9 @@ debug_build:	CXX       = ccache clang++
 # debug_build: 	SANFLAGS += -fsanitize=address
 # debug_build: 	SHARED_SANFLAGS += -shared-libsan
 
-# release_build:	CPPFLAGS += -Ofast
-release_build:	CC        = zig cc
-release_build:	CXX       = zig c++
-# release_build:	CPPFLAGS += -march=core2
+release_build:	CPPFLAGS += -Ofast
+# release_build:	CC        = zig cc
+# release_build:	CXX       = zig c++
 
 ebuild:		CC = zig cc -target x86_64-linux-gnu
 ebuild:		CXX = zig c++ -target x86_64-linux-gnu
