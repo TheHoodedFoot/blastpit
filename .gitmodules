@@ -1,55 +1,22 @@
-; [submodule "libsvgtiny"]
-; 	path = src/submodules/libsvgtiny
-; 	url = git://git.netsurf-browser.org/libsvgtiny.git
-; [submodule "simplify-cpp"]
-; 	path = src/submodules/simplify-cpp
-; 	url = git://github.com/FishingCactus/simplify-cpp.git
-; [submodule "simplify.py"]
-; 	path = src/submodules/simplify.py
-; 	url = git://github.com/omarestrella/simplify.py.git
-; [submodule "python-svg"]
-; 	path = src/submodules/svg
-; 	url = git://github.com/cjlano/svg.git
-; [submodule "svg.path"]
-; 	path = src/submodules/svg.path
-; 	url = git://github.com/regebro/svg.path.git
-; [submodule "CRCpp"]
-; 	path = src/submodules/CRCpp
-; 	url = https://github.com/d-bahr/CRCpp.git
-; [submodule "python-qrcode"]
-; 	path = src/submodules/python-qrcode
-; 	url = https://github.com/lincolnloop/python-qrcode
-; [submodule "CException"]
-; 	path = src/submodules/CException
-; 	url = https://github.com/ThrowTheSwitch/CException
-; [submodule "tinyspline"]
-; 	path = src/submodules/tinyspline
-; 	url = https://github.com/msteinbeck/tinyspline.git
-[submodule "apriltag"]
+[submodule "src/submodules/apriltag"]
 	path = src/submodules/apriltag
 	url = https://github.com/AprilRobotics/apriltag.git
-[submodule "apriltag-imgs"]
+[submodule "src/submodules/apriltag-imgs"]
 	path = src/submodules/apriltag-imgs
 	url = https://github.com/AprilRobotics/apriltag-imgs.git
-; [submodule "apriltag-generation"]
-; 	path = src/submodules/apriltag-generation
-; 	url = https://github.com/AprilRobotics/apriltag-generation.git
-; [submodule "apriltags"]
-; 	path = src/submodules/apriltags
-; 	url = https://bitbucket.org/kaess/apriltags.git
-[submodule "unity"]
+[submodule "src/submodules/unity"]
 	path = src/submodules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
-[submodule "mongoose"]
+[submodule "src/submodules/mongoose"]
 	path = src/submodules/mongoose
 	url = https://github.com/cesanta/mongoose.git
-[submodule "tracy"]
+[submodule "src/submodules/tracy"]
 	path = src/submodules/tracy
 	url = https://github.com/wolfpld/tracy.git
 [submodule "src/submodules/emsdk"]
 	path = src/submodules/emsdk
 	url = https://github.com/emscripten-core/emsdk.git
-[submodule "sds"]
+[submodule "src/submodules/sds"]
 	path = src/submodules/sds
 	url = https://github.com/antirez/sds.git
 [submodule "src/submodules/mxml"]

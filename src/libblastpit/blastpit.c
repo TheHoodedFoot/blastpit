@@ -103,7 +103,7 @@ connectToServer(t_Blastpit* self, const char* server, int timeout_ms)
 		usleep(100000);
 		timeout_ms -= 100;
 		if (timeout_ms <= 0) {
-			LOG(kLvlDebug, "%s: Timed out connecting to server\n", __func__);
+			BPLOG(kLvlDebug, "%s: Timed out connecting to server\n", __func__);
 			return kConnectionFailure;
 		}
 	}
@@ -154,7 +154,7 @@ sendClientMessage(t_Blastpit* self, const char* message)
 	if (!message)
 		return;
 
-	LOG(kLvlEverything, "sendClientMessage: %s\n", message);
+	BPLOG(kLvlEverything, "sendClientMessage: %s\n", message);
 	wsClientSendMessage((t_Websocket*)self->ws, (char*)message);
 }
 
@@ -199,7 +199,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	assert(self);
 	assert(message);
 
-	// LOG(kLvlDebug, "%s: start\n", __func__);
+	// BPLOG(kLvlDebug, "%s: start\n", __func__);
 	int id;
 	sds id_message = NULL;
 
@@ -245,10 +245,10 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 		sendClientMessage(self, id_message);
 	}
 
-	// LOG(kLvlDebug, "bp_sendMessage: %s\n", id_message);
+	// BPLOG(kLvlDebug, "bp_sendMessage: %s\n", id_message);
 	sdsfree(id_message);
 
-	// LOG(kLvlDebug, "%s: end\n", __func__);
+	// BPLOG(kLvlDebug, "%s: end\n", __func__);
 	return (IdAck){id, kSuccess, NULL};
 }
 
@@ -294,7 +294,7 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 
 	struct timeval start_time, current_time;
 	if (gettimeofday(&start_time, NULL) == -1) {
-		LOG(kLvlError, "%s: Cannot access system time\n", __func__);
+		BPLOG(kLvlError, "%s: Cannot access system time\n", __func__);
 		return (IdAck){id, kFailure, NULL};
 	}
 
@@ -329,7 +329,7 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 					void* msg_data = popMessageAt(self, j);
 					// free(msg_data);
 					if (msg_data)
-						LOG(kLvlDebug, "BpWaitForReplyOrTimeout: Message had payload %p\n",
+						BPLOG(kLvlDebug, "BpWaitForReplyOrTimeout: Message had payload %p\n",
 						    msg_data);
 					return (IdAck){id, retval, (char*)msg_data};
 				}
@@ -338,7 +338,7 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 	}
 
 
-	LOG(kLvlDebug, "%s: Reply timeout\n", __func__);
+	BPLOG(kLvlDebug, "%s: Reply timeout\n", __func__);
 	return (IdAck){id, kReplyTimeout, NULL};
 }
 
@@ -505,16 +505,16 @@ AutoGenerateId(t_Blastpit* self)
 // 	IdAck result;
 
 // 	result = SendCommand(self, command);
-// 	LOG(kLvlDebug, "bp_sendCommandAndWait: id = %d\n", result.id);
-// 	LOG(kLvlDebug, "bp_sendCommandAndWait: retval = %d\n", result.retval);
+// 	BPLOG(kLvlDebug, "bp_sendCommandAndWait: id = %d\n", result.id);
+// 	BPLOG(kLvlDebug, "bp_sendCommandAndWait: retval = %d\n", result.retval);
 // 	if (result.retval != kSuccess) {
-// 		LOG(kLvlDebug, "%s: Failed to send command", __func__);
+// 		BPLOG(kLvlDebug, "%s: Failed to send command", __func__);
 // 		result = (IdAck){kInvalid, kCommandFailed, NULL};
 // 		return result;
 // 	}
 // 	result = BpWaitForReplyOrTimeout(self, result.id, timeout);
 // 	if (result.retval != kSuccess) {
-// 		LOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
+// 		BPLOG(kLvlDebug, "%s: Timed out waiting for XML", __func__);
 // 		result = (IdAck){kInvalid, kReplyTimeout, NULL};
 // 		return result;
 // 	}
@@ -694,7 +694,7 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	sds xml;
 
-	// LOG(kLvlDebug, "message: %s\n", message);
+	// BPLOG(kLvlDebug, "message: %s\n", message);
 	while (true) {
 		// Get the attribute name
 		attrib = va_arg(args, char*);  // Pop the next argument (a char*)
@@ -712,14 +712,14 @@ BpQueueMessage(t_Blastpit* self, ...)
 		// Append the attribute to the message
 		message = sdscatprintf(message, "%s=\"%s\" ", attrib, value);
 	}
-	LOG(kLvlDebug, "found attribute %s\n", attrib);
-	LOG(kLvlDebug, "found value %s\n", value);
+	BPLOG(kLvlDebug, "found attribute %s\n", attrib);
+	BPLOG(kLvlDebug, "found value %s\n", value);
 
 	message = sdscatprintf(message, ">");
-	LOG(kLvlDebug, "message: %s\n", message);
+	BPLOG(kLvlDebug, "message: %s\n", message);
 
 	if (attrib) {  // Payload
-		LOG(kLvlDebug, "payload: %s\n", attrib);
+		BPLOG(kLvlDebug, "payload: %s\n", attrib);
 		message = sdscatprintf(message, "%s", attrib);
 	}
 
@@ -733,7 +733,7 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	xml = sdscat(xml, message);
 
-	LOG(kLvlEverything, "(BpQueueMessage) New queue: %s\n", xml);
+	BPLOG(kLvlEverything, "(BpQueueMessage) New queue: %s\n", xml);
 
 	va_end(args);
 	sdsfree(message);
@@ -750,7 +750,7 @@ BpUploadQueuedMessages(t_Blastpit* self)
 	if (!self->message_queue)
 		return (IdAck){kInvalid, kFailure, NULL};
 
-	LOG(kLvlEverything, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
+	BPLOG(kLvlEverything, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
 	IdAck result = bp_sendMessage(self, self->message_queue);
 	sdsfree(self->message_queue);
 	self->message_queue = NULL;
@@ -844,9 +844,9 @@ BpQueryRetvalDb(t_Blastpit* self, int id)
 
 	RetvalDb* item = self->retval_db;
 
-	// LOG(kLvlDebug, "BpQueryRetvalDb: highest id = %d\n", self->highest_id);
+	// BPLOG(kLvlDebug, "BpQueryRetvalDb: highest id = %d\n", self->highest_id);
 	while (item) {
-		LOG(kLvlDebug, "BpQueryRetvalDb: id = %d\n", item->id);
+		BPLOG(kLvlDebug, "BpQueryRetvalDb: id = %d\n", item->id);
 		if (item->id == id)
 			return item->retval;
 		if (item->id > self->highest_id)
@@ -905,7 +905,7 @@ BpIsLmosUp(t_Blastpit* self)
 	BpUploadQueuedMessages(self);
 	IdAck timeout = BpWaitForReplyOrTimeout(self, lmos.id, BP_ISLMOSUP_TIMEOUT);
 	if (timeout.string)
-		LOG(kLvlDebug, "BpIsLmosUp: string = %s\n", timeout.string);
+		BPLOG(kLvlDebug, "BpIsLmosUp: string = %s\n", timeout.string);
 
 	self->message_queue = existing_queue;
 
@@ -918,7 +918,7 @@ BpSetLightState(t_Blastpit* self, bool state)
 
 	// We have no way of requesting the actual light status
 	if (state == self->light_is_on) {
-		LOG(kLvlDebug, "(%s) Light is already in requested state\n", __func__);
+		BPLOG(kLvlDebug, "(%s) Light is already in requested state\n", __func__);
 		return;
 	}
 
@@ -927,12 +927,12 @@ BpSetLightState(t_Blastpit* self, bool state)
 
 	sds command_str = sdsfromlonglong(kWriteIoBit);
 	if (self->light_is_on == 1) {
-		LOG(kLvlDebug, "%s: Turning light off\n", __func__);
+		BPLOG(kLvlDebug, "%s: Turning light off\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "0",
 			       NULL);
 		self->light_is_on = 0;
 	} else {
-		LOG(kLvlDebug, "%s: Turning light on\n", __func__);
+		BPLOG(kLvlDebug, "%s: Turning light on\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "1",
 			       NULL);
 		self->light_is_on = 1;
@@ -983,21 +983,21 @@ BpSetDoorState(t_Blastpit* self, bool state)
 	// 	return;
 	// }
 
-	// LOG(kLvlDebug, "BpSetDoorState: The return value from kReadIOBit(DoorOpen) is %s\n", payload);
+	// BPLOG(kLvlDebug, "BpSetDoorState: The return value from kReadIOBit(DoorOpen) is %s\n", payload);
 
 	// int dooropen = strncmp(payload, "1", 1);
 	// if (state == dooropen) {
-	// 	LOG(kLvlDebug, "(%s) Door is already in requested state\n", __func__);
+	// 	BPLOG(kLvlDebug, "(%s) Door is already in requested state\n", __func__);
 	// 	// return;
 	// }
 
 	command_str = sdsfromlonglong(kWriteIoBit);
 	if (state) {
-		LOG(kLvlDebug, "%s: Opening door\n", __func__);
+		BPLOG(kLvlDebug, "%s: Opening door\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "1",
 			       NULL);
 	} else {
-		LOG(kLvlDebug, "%s: Closing door\n", __func__);
+		BPLOG(kLvlDebug, "%s: Closing door\n", __func__);
 		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value",
 			       "1", NULL);
 	}

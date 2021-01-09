@@ -57,11 +57,11 @@ XmlGetChildNodeAsString(const char *message_str, const char *child)
 {  // Returns the child node tree as a string
 
 	if (!message_str) {
-		LOG(kLvlDebug, "%s: Invalid message string supplied\n", __func__);
+		BPLOG(kLvlDebug, "%s: Invalid message string supplied\n", __func__);
 		return NULL;
 	}
 	if (!strlen(message_str)) {
-		LOG(kLvlDebug, "%s: Invalid message string length\n", __func__);
+		BPLOG(kLvlDebug, "%s: Invalid message string length\n", __func__);
 		return NULL;
 	}
 
@@ -69,14 +69,14 @@ XmlGetChildNodeAsString(const char *message_str, const char *child)
 	XmlAddXmlHeader(&message);
 	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 	if (!xml) {
-		LOG(kLvlDebug, "%s: Couldn't add xml header\n", __func__);
+		BPLOG(kLvlDebug, "%s: Couldn't add xml header\n", __func__);
 		sdsfree(message);
 		return NULL;
 	}
 
 	mxml_node_t *node = mxmlFindElement(xml, xml, child, NULL, NULL, MXML_DESCEND);
 	if (node) {
-		LOG(kLvlDebug, "%s: Converting tree to string\n", __func__);
+		BPLOG(kLvlDebug, "%s: Converting tree to string\n", __func__);
 		char *mxmlString = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
 		sds   node_data	 = sdsnew(mxmlString);
 		free(mxmlString);
@@ -85,7 +85,7 @@ XmlGetChildNodeAsString(const char *message_str, const char *child)
 		return node_data;
 	}
 
-	LOG(kLvlDebug, "%s: Couldn't find the message element\n", __func__);
+	BPLOG(kLvlDebug, "%s: Couldn't find the message element\n", __func__);
 	sdsfree(message);
 	return NULL;
 }

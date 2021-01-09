@@ -160,7 +160,7 @@ static const char *    bpDebugLevelString[] = {FOREACH_DEBUGLEVEL(GENERATE_STRIN
 
 #ifdef DEBUG_LEVEL
 #ifdef __linux__
-#define LOG(level, fmt, ...)                                                                                           \
+#define BPLOG(level, fmt, ...)                                                                                           \
 	do                                                                                                             \
 		if (DEBUG_LEVEL >= level) {                                                                            \
 			{                                                                                              \
@@ -174,7 +174,7 @@ static const char *    bpDebugLevelString[] = {FOREACH_DEBUGLEVEL(GENERATE_STRIN
 		}                                                                                                      \
 	while (0)
 #else
-#define LOG(level, fmt, ...)                                                                                           \
+#define BPLOG(level, fmt, ...)                                                                                           \
 	do                                                                                                             \
 		if (DEBUG_LEVEL >= level) {                                                                            \
 			{                                                                                              \
@@ -186,7 +186,7 @@ static const char *    bpDebugLevelString[] = {FOREACH_DEBUGLEVEL(GENERATE_STRIN
 	while (0)
 #endif
 #else
-#define LOG(ignore, these, arguments) ((void)0)
+#define BPLOG(ignore, these, arguments) ((void)0)
 #endif
 
 enum BpPolyPoint {

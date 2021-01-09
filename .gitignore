@@ -69,7 +69,6 @@ res/cfg/myconfig.py
 res/cfg/t_common.h
 src/libblastpit/blastpy.py
 src/lmos/Makefile
-src/submodules
 src/video/eakins
 src/video/veho
 src/webapp/hello.html

@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <assert.h>
 #include "blastpit.h"
 #include "sds.h"
 #include "websocket.h"

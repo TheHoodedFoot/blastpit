@@ -36,11 +36,16 @@ git clone --recursive https://github.com/TheHoodedFoot/blastpit.git
 ### Prerequisites for building
 
 A standard POSIX development environment (shell, compiler, linker).
+
 [Git](https://git-scm.com)
+
 [SWIG](https://www.swig.org) is needed to create the Python language bindings.
+
 [Zig](https://ziglang.org) is used for cross-compiling.
+
 [Mongoose](https://github.com/cesanta/mongoose) is used for the WebSockets
 server and client code.
+
 [Qt](https://www.qt.io) with ActiveQt is required for the Rofin LMOS ActiveX
 control, either running natively on Windows or under emulation using Wine or a
 virtual machine.
