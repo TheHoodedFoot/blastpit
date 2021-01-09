@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>lmos-tray.png</file>
+	<file alias="noconnection.png">../../res/img/noconnection.png</file>
+	<file alias="nolaser.png">../../res/img/nolaser.png</file>
+	<file alias="laseractive.png">../../res/img/laseractive.png</file>
+    </qresource>
+</RCC>
