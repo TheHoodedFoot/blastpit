@@ -2,26 +2,25 @@
 
 import os.path
 import sys
+
 # import unittest
 
 # Configuration variables
-if not os.path.isfile(os.path.expanduser("~")
-                      + "/projects/blastpit/res/cfg/myconfig.py"):
+if not os.path.isfile(
+    os.path.expanduser("~") + "/projects/blastpit/contrib/cfg/myconfig.py"
+):
     print("The blastpit myconfig.py file is not available.")
     exit(1)
-sys.path.append(os.path.expanduser("~")
-                + "/projects/blastpit/res/cfg")
+sys.path.append(os.path.expanduser("~") + "/projects/blastpit/contrib/cfg")
 import myconfig
 
-if not os.path.isfile(os.path.expanduser("~")
-                      + "/projects/blastpit/build/_blastpy.so"):
+if not os.path.isfile(os.path.expanduser("~") + "/projects/blastpit/build/_blastpy.so"):
     print("The blastpit library is not available.")
     exit(1)
-sys.path.append(os.path.expanduser("~")
-                + "/projects/blastpit/build")
+sys.path.append(os.path.expanduser("~") + "/projects/blastpit/build")
 
 import blastpy as bp
-from myconfig import WS_TEST_TIMEOUT
+from myconfig import WS_TIMEOUT_SHORT
 
 # The main Blastpit object
 pit = bp.blastpitNew()

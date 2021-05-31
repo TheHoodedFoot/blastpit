@@ -46,6 +46,7 @@
 *vcproj.*
 *~
 .breakpoints
+.ccls-cache
 .depend
 .env
 .tags*
@@ -65,8 +66,6 @@ doc/tex/snip.pdf
 doc/theory
 gdb.txt
 res/bin/wscli
-res/cfg/myconfig.py
-res/cfg/t_common.h
 src/libblastpit/blastpy.py
 src/lmos/Makefile
 src/video/eakins
@@ -78,3 +77,6 @@ sub
 t_*_x
 worktree
 zig-cache
+.gdb_history
+untracked
+contrib/img/*.png

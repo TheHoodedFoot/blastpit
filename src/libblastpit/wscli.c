@@ -16,7 +16,7 @@ static int exit_client_loop = false;
 int callbackCount = 0;
 
 void
-messageReceivedCallback(void *ev_data, void *object)
+messageReceivedCallback(void* ev_data, void* object)
 {
 	(void)object;
 
@@ -31,10 +31,10 @@ messageReceivedCallback(void *ev_data, void *object)
 }
 
 void
-server(const char *port)
+server(const char* port)
 {  // Start a server at localhost:8000
 
-	t_Blastpit *simpleserver = blastpitNew();
+	t_Blastpit* simpleserver = blastpitNew();
 
 	printf("wscli: Running listening server on port %s\n", port);
 
@@ -65,13 +65,13 @@ SignalHandler(int dummy)
 }
 
 void
-client(const char *server, const char *message)
+client(const char* server, const char* message)
 {  // Connect to running server
 
 	(void)message;
 
 	// Create a client
-	t_Blastpit *client = blastpitNew();
+	t_Blastpit* client = blastpitNew();
 
 	printf("wscli: Connecting to server at address %s\n", server);
 
@@ -89,7 +89,7 @@ client(const char *server, const char *message)
 	printf("%d\n", waitForConnection(client, 10000));
 
 	// Send lines from STDIN as xml messages, ctrl-c to exit
-	char * line = NULL;
+	char*  line = NULL;
 	size_t len  = 0;
 
 	// signal(SIGINT, SignalHandler);
@@ -107,19 +107,20 @@ client(const char *server, const char *message)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
 	int c;
 
 	while (1) {
-		static struct option long_options[] = {/* These options set a flag. */
-						       {"verbose", no_argument, &verbose_flag, 1},
-						       {"brief", no_argument, &verbose_flag, 0},
-						       /* These options don't set a flag.
-							  We distinguish them by their indices. */
-						       {"server", no_argument, 0, 's'},
-						       {"client", required_argument, 0, 'c'},
-						       {0, 0, 0, 0}};
+		static struct option long_options[] = { /* These options set a flag. */
+							{ "verbose", no_argument, &verbose_flag, 1 },
+							{ "brief", no_argument, &verbose_flag, 0 },
+							/* These options don't set a flag.
+							   We distinguish them by their indices. */
+							{ "server", no_argument, 0, 's' },
+							{ "client", required_argument, 0, 'c' },
+							{ 0, 0, 0, 0 }
+		};
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
 

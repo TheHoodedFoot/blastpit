@@ -6,8 +6,10 @@ FIGLET_FONTS_DIR=${HOME}/usr/share/fonts/figlet-fonts
 if [ -z ${1+x} ]
 then
 	SRCDIR=${PROJECT_ROOT}/src/libblastpit
+	BUILDDIR=${PROJECT_ROOT}/build
 else
 	SRCDIR=$1
+	BUILDDIR=$1
 fi
 
 VERBOSE="-v"
@@ -58,9 +60,10 @@ echo -e "\nChecking for unit tests in ${SRCDIR}..."
 pushd ${SRCDIR} > /dev/null
 CTESTS=$(ls -1t t_*.c* | sed -e 's/t_//' -e 's/\.c.*$//')
 PYTESTS=$(ls -1t t_*.py | sed -e 's/t_//' -e 's/\.py$//')
+popd > /dev/null
+
 TESTS="${CTESTS} ${PYTESTS}"
 TESTS=$(echo -e "${TESTS// /\\n}" | sort -u)
-popd > /dev/null
 
 if [[ "$2" == "-valgrind" ]]
 then
@@ -69,15 +72,15 @@ fi
 
 for TEST in ${TESTS}
 do
-	if [[ -x "t_${TEST}_x" ]]
+	if [[ -x "${BUILDDIR}/t_${TEST}_x" ]]
 	then
 		echo -e "${BLUE}\nRunning [t_${TEST}_x] ${VERBOSE}${WHITE}"
 		echo
 		if [ -z "${VALGRIND}" ]
 		then
-			./t_${TEST}_x ${VERBOSE}
+			${BUILDDIR}/t_${TEST}_x ${VERBOSE}
 		else
-			${VALGRIND} ./t_${TEST}_x ${VERBOSE}
+			${VALGRIND} ${BUILDDIR}/t_${TEST}_x ${VERBOSE}
 		fi
 		if [ $? -ne 0 ]
 		then

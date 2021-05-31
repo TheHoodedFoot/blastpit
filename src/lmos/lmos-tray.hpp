@@ -26,11 +26,12 @@ namespace Ui {
 class MainWindow;
 }
 
-class LmosTray : public QMainWindow {
+class LmosTray : public QMainWindow
+{
 	Q_OBJECT
 
       public:
-	explicit LmosTray(QWidget *parent = 0);
+	explicit LmosTray(QWidget* parent = 0);
 	~LmosTray();
 
       public slots:
@@ -38,16 +39,16 @@ class LmosTray : public QMainWindow {
 	void setIcon(QString png);
 	// void loadgeos( size_t size, char *data );
 	void log(QString entry);
-	void alert(const QString &name, int argc, void *argv);
-	void log(int, const char *, QString);
-	void retval(const char *function, bool value);
-	void retval(const char *function, int value);
+	void alert(const QString& name, int argc, void* argv);
+	void log(int, const char*, QString);
+	void retval(const char* function, bool value);
+	void retval(const char* function, int value);
 
       signals:
 	void bptest();
 
       protected:
-	void closeEvent(QCloseEvent *event);
+	void closeEvent(QCloseEvent* event);
 
       private slots:
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -59,18 +60,18 @@ class LmosTray : public QMainWindow {
 	void createActions();
 	void initTray();
 
-	Ui::MainWindow *ui;
+	Ui::MainWindow* ui;
 
-	QAction *minimizeAction;
-	QAction *restoreAction;
-	QAction *quitAction;
-	QAction *clearLogAction;
-	QAction *settingsAction;
+	QAction* minimizeAction;
+	QAction* restoreAction;
+	QAction* quitAction;
+	QAction* clearLogAction;
+	QAction* settingsAction;
 
-	QSystemTrayIcon *trayIcon;
-	QMenu *		 trayIconMenu;
+	QSystemTrayIcon* trayIcon;
+	QMenu*		 trayIconMenu;
 
-	Parser *parser;
+	Parser* parser;
 	// LMOS *lwrap;
 
 	// void createLMOS();

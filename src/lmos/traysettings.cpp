@@ -1,8 +1,10 @@
 #include "traysettings.h"
-#include <QSettings>
 #include "ui_traysettings.h"
+#include <QSettings>
 
-traysettings::traysettings(QWidget *parent) : QDialog(parent), ui(new Ui::traysettings)
+traysettings::traysettings(QWidget* parent)
+	: QDialog(parent)
+	, ui(new Ui::traysettings)
 {
 	ui->setupUi(this);
 
@@ -18,7 +20,10 @@ traysettings::traysettings(QWidget *parent) : QDialog(parent), ui(new Ui::trayse
 	connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(storesettings()));
 }
 
-traysettings::~traysettings() { delete ui; }
+traysettings::~traysettings()
+{
+	delete ui;
+}
 
 void
 traysettings::storesettings()

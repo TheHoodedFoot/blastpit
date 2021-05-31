@@ -64,20 +64,24 @@
 #include "lmos-tray.hpp"
 #include "ui_lmos-tray.h"
 
+#include "parser.hpp"
+#include "traysettings.h"
 #include <QMenu>
 #include <QMessageBox>
 #include <QtGui>
 #include <sstream>
-#include "parser.hpp"
-#include "traysettings.h"
 
-LmosTray::LmosTray(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+LmosTray::LmosTray(QWidget* parent)
+	: QMainWindow(parent)
+	, ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 
 	createActions();
 	initTray();
-	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this,
+	connect(trayIcon,
+		SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+		this,
 		SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 	setIcon("noconnection");
 	trayIcon->show();
@@ -88,7 +92,7 @@ LmosTray::LmosTray(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow
 	listen();
 
 #ifdef DEBUG
-	// Until tripmine is stable, always show the log window
+	// Always show the log window when debugging
 	show();
 #endif
 }
@@ -140,7 +144,7 @@ void
 LmosTray::showSettings()
 {
 	/* Show the settings window */
-	traysettings *ts = new traysettings;
+	traysettings* ts = new traysettings;
 	if (parser)
 		connect(ts, SIGNAL(serverChanged()), parser, SLOT(wsConnect()));
 	ts->setAttribute(Qt::WA_DeleteOnClose);
@@ -157,7 +161,7 @@ LmosTray::setIcon(QString png)
 	setWindowIcon(icon);
 }
 void
-LmosTray::closeEvent(QCloseEvent *event)
+LmosTray::closeEvent(QCloseEvent* event)
 {
 	if (trayIcon->isVisible()) {
 		hide();
@@ -208,7 +212,7 @@ LmosTray::log(QString entry)
 }
 
 void
-LmosTray::alert(const QString &name, int argc, void *argv)
+LmosTray::alert(const QString& name, int argc, void* argv)
 {
 	(void)argc;
 	(void)argv;
@@ -217,7 +221,7 @@ LmosTray::alert(const QString &name, int argc, void *argv)
 }
 
 void
-LmosTray::log(int level, const char *function, QString entry)
+LmosTray::log(int level, const char* function, QString entry)
 {
 	QString log	= QString::number(level);
 	QString logFunc = QString(function);
@@ -225,7 +229,7 @@ LmosTray::log(int level, const char *function, QString entry)
 }
 
 void
-LmosTray::retval(const char *function, bool value)
+LmosTray::retval(const char* function, bool value)
 {
 	QString logFunc = QString(function);
 	QString retbool = value ? "True" : "False";
@@ -233,7 +237,7 @@ LmosTray::retval(const char *function, bool value)
 }
 
 void
-LmosTray::retval(const char *function, int value)
+LmosTray::retval(const char* function, int value)
 {
 	QString logFunc = QString(function);
 	ui->teLog->append("retval (" + logFunc + "): " + QString::number(value));

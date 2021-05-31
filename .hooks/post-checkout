@@ -1,7 +1,4 @@
 #!/bin/sh
 
-rm .git/tags{,extra}
-.hooks/ctags > /dev/null 2>&1 &
-
-# Remove generated Makefiles to force GITVERSION redefine
-rm -vf build/lmos-tray/Makefile.*
+rm -f .git/tags{,extra}
+.hooks/updatetags

@@ -1,2 +1,2 @@
-lldb
+gdb
 -- build/t_websocket_x -v

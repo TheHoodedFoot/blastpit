@@ -32,10 +32,6 @@ INCLUDEPATH += $$PWD/../submodules/mongoose
 INCLUDEPATH += $$PWD/../submodules/sds
 INCLUDEPATH += $$PWD/../submodules/mxml
 
-win32 {
-	LIBS += -L $$PWD/../../build/win32 -lblastpit -lwsock32
-}
-
 SOURCES += main.cpp \
 	lmos-tray.cpp \
 	lmos.cpp \
@@ -51,10 +47,29 @@ HEADERS += \
 	parser.hpp \
 	traysettings.h
 
+LIBS += \
+	$$OUT_PWD/blastpit.o \
+	$$OUT_PWD/mongoose.o \
+	$$OUT_PWD/sds.o \
+	$$OUT_PWD/websocket.o \
+	$$OUT_PWD/xml.o \
+	$$OUT_PWD/mxml-attr.o \
+	$$OUT_PWD/mxml-entity.o \
+	$$OUT_PWD/mxml-file.o \
+	$$OUT_PWD/mxml-get.o \
+	$$OUT_PWD/mxml-index.o \
+	$$OUT_PWD/mxml-node.o \
+	$$OUT_PWD/mxml-private.o \
+	$$OUT_PWD/mxml-search.o \
+	$$OUT_PWD/mxml-set.o \
+	$$OUT_PWD/mxml-string.o \
+
 win32 {
 	SOURCES += lmosactxlib.cpp
 	HEADERS += lmosactxlib.h
+	LIBS += -L $$PWD/../../build -lwsock32
 }
+
 
 FORMS += \
     lmos-tray.ui \

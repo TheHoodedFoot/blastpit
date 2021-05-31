@@ -1,29 +1,35 @@
-#include <unistd.h>
-#include <assert.h>
 #include "blastpit.h"
 #include "sds.h"
 #include "websocket.h"
 #include "xml.h"
+#include <assert.h>
+#include <unistd.h>
 
 #include "unity_fixture.h"
 
 // This uncontrolled file defines SERVER and MQTT_TIMEOUT
-#include "../../res/cfg/t_common.h"
+#include "../../contrib/cfg/t_common.h"
 
 TEST_GROUP(BlastpitGroup);
 
-t_Blastpit *server;
+t_Blastpit* server;
 
 TEST_SETUP(BlastpitGroup)
 {
-	server = blastpitNew();
-	assert(serverCreate(server, WS_PORT) == kSuccess);
+	BPLOG(kLvlDebug, "%s: Creating server\n", __func__);
+	server	   = blastpitNew();
+	int result = serverCreate(server, WS_SERVER_TEST) == kSuccess;
+	assert(result);
+	BPLOG(kLvlDebug, "%s: Server created\n", __func__);
+	BPLOG(kLvlDebug, "Server nc: %p\n", (void*)((t_Websocket*)server->ws)->connection);
 }
 
 TEST_TEAR_DOWN(BlastpitGroup)
 {
+	BPLOG(kLvlDebug, "%s: Destroying server\n", __func__);
 	serverDestroy(server);
 	blastpitDelete(server);
+	BPLOG(kLvlDebug, "%s: Server destroyed\n", __func__);
 }
 
 int testval;
@@ -42,17 +48,17 @@ TEST(BlastpitGroup, simpleServerTest)
 	/* 	How can we make it testable? */
 
 	// Allocates memory for t_Blastpit and t_Websocket
-	t_Blastpit *simpleserver = blastpitNew();
+	t_Blastpit* simpleserver = blastpitNew();
 
 	// Set the callback
 	registerCallback(simpleserver, &testcallback);
 
 	// Sets the t_Websocket address via serverCreate()
-	int result = serverCreate(simpleserver, "8124");
+	int result = serverCreate(simpleserver, "ws://127.0.0.1:8124");
 	TEST_ASSERT_EQUAL(kSuccess, result);
 
 	// Create a client
-	t_Blastpit *client = blastpitNew();
+	t_Blastpit* client = blastpitNew();
 
 	// Try connecting to non-existent server
 	// result = connectToServer(client, "ws://localhost:8999", "simpleServerTest", 100);
@@ -60,7 +66,8 @@ TEST(BlastpitGroup, simpleServerTest)
 
 	// Connect to the server
 	// We can't test for timeout because the server is not polling
-	connectToServer(client, "ws://localhost:8124", 0);
+	BPLOG(kLvlDebug, "%s: TIMEOUT EXPECTED SINCE EVENT LOOP IS NOT RUNNING\n", __func__);
+	connectToServer(client, "ws://127.0.0.1:8124", 0);
 
 	// Wait for handshake
 	for (int i = 0; i < 100; i++) {
@@ -93,17 +100,17 @@ TEST(BlastpitGroup, simpleServerTest)
 TEST(BlastpitGroup, SendAndWaitTest)
 {
 	// Create a client
-	t_Blastpit *client = blastpitNew();
+	t_Blastpit* client = blastpitNew();
 
 	// Connect to the server
-	connectToServer(client, WS_SERVER_LOCAL, 0);
+	connectToServer(client, WS_SERVER_TEST, 0);
 	for (int i = 0; i < 100; i++) {
 		pollMessages(server);
 		pollMessages(client);
-		if (((t_Websocket *)client->ws)->isConnected)
+		if (((t_Websocket*)client->ws)->isConnected)
 			break;
 	}
-	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket*)client->ws)->isConnected);
 
 	// Send a message
 	sendClientMessage(client, "test");
@@ -120,15 +127,15 @@ TEST(BlastpitGroup, MessageTest)
 	// 	How can we make it testable?
 
 	// Allocates memory for t_Blastpit and t_Websocket
-	t_Blastpit *simpleserver = blastpitNew();
+	t_Blastpit* simpleserver = blastpitNew();
 
 	// Sets the t_Websocket address via serverCreate()
-	int result = serverCreate(simpleserver, "8129");
+	int result = serverCreate(simpleserver, "ws://127.0.0.1:8129");
 	TEST_ASSERT_EQUAL(true, result);
 
 	// Create two clients
-	t_Blastpit *client1 = blastpitNew();
-	t_Blastpit *client2 = blastpitNew();
+	t_Blastpit* client1 = blastpitNew();
+	t_Blastpit* client2 = blastpitNew();
 
 	// Connect to the server
 	// We can't check the result here because the server is not polling
@@ -140,12 +147,12 @@ TEST(BlastpitGroup, MessageTest)
 		pollMessages(simpleserver);
 		pollMessages(client1);
 		pollMessages(client2);
-		if (((t_Websocket *)client1->ws)->isConnected && ((t_Websocket *)client2->ws)->isConnected)
+		if (((t_Websocket*)client1->ws)->isConnected && ((t_Websocket*)client2->ws)->isConnected)
 			break;
 	}
 
-	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client1->ws)->isConnected);
-	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client2->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket*)client1->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket*)client2->ws)->isConnected);
 
 	// Send a message
 	sendClientMessage(client1, "client1");
@@ -161,12 +168,12 @@ TEST(BlastpitGroup, MessageTest)
 	TEST_ASSERT_EQUAL(1, getMessageCount(client1));
 	TEST_ASSERT_EQUAL(1, getMessageCount(client2));
 
-	const char *msg1 = popMessage(client1);
-	const char *msg2 = popMessage(client2);
+	const char* msg1 = popMessage(client1);
+	const char* msg2 = popMessage(client2);
 	TEST_ASSERT_EQUAL_STRING("client2", msg1);
 	TEST_ASSERT_EQUAL_STRING("client1", msg2);
-	free((void *)msg1);
-	free((void *)msg2);
+	free((void*)msg1);
+	free((void*)msg2);
 
 	// Tidy up
 	disconnectFromServer(client1);
@@ -180,7 +187,7 @@ TEST(BlastpitGroup, MessageTest)
 TEST(BlastpitGroup, AutoGenId)
 {
 	// The first auto-generated id should be 1
-	t_Blastpit *bp = blastpitNew();
+	t_Blastpit* bp = blastpitNew();
 	TEST_ASSERT_EQUAL(1, AutoGenerateId(bp));
 
 	// The generated ids should be one greater than the previous
@@ -193,44 +200,65 @@ TEST(BlastpitGroup, AutoGenId)
 
 TEST(BlastpitGroup, SendCommand)
 {
-	t_Blastpit *bp1 = blastpitNew();
-	t_Blastpit *bp2 = blastpitNew();
+	t_Blastpit* bp1 = blastpitNew();
+	t_Blastpit* bp2 = blastpitNew();
 
-	connectToServer(bp1, WS_SERVER_LOCAL, 0);
-	connectToServer(bp2, WS_SERVER_LOCAL, 0);
+	// usleep(100000);
+
+	// The event loop is not running here, so we can't check the return result
+	connectToServer(bp1, WS_SERVER_TEST, 0);
+	// usleep(100000);
+	connectToServer(bp2, WS_SERVER_TEST, 0);
+	// usleep(100000);
+	BPLOG(kLvlDebug, "%s: TIMEOUT EXPECTED SINCE EVENT LOOP IS NOT RUNNING\n", __func__);
 
 	// Wait for handshake
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 		pollMessages(server);
+		// usleep(100000);
 		pollMessages(bp1);
+		// usleep(100000);
 		pollMessages(bp2);
+		// usleep(100000);
 		if (bp_isConnected(bp1) && bp_isConnected(bp2))
 			break;
 	}
 	TEST_ASSERT_EQUAL(true, bp_isConnected(bp1));
+	TEST_ASSERT_EQUAL(true, bp_isConnected(bp2));
+	TEST_ASSERT_EQUAL(0, getMessageCount(server));
+	TEST_ASSERT_EQUAL(0, getMessageCount(bp1));
+	TEST_ASSERT_EQUAL(0, getMessageCount(bp2));
+
+	BPLOG(kLvlDebug, "SendCommand: bp1 = %p\n", (void*)((t_Websocket*)bp1->ws)->connection);
+	BPLOG(kLvlDebug, "SendCommand: bp2 = %p\n", (void*)((t_Websocket*)bp2->ws)->connection);
 
 	IdAck result = BpQueueCommand(bp1, kSelfTest);
 	TEST_ASSERT_EQUAL(kSuccess, result.retval);
 	result = BpUploadQueuedMessages(bp1);
+	usleep(100000);
 	TEST_ASSERT_EQUAL(kSuccess, result.retval);
 	TEST_ASSERT_EQUAL(1, result.id);
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 		pollMessages(bp1);
+		// usleep(100000);
 		pollMessages(bp2);
+		// usleep(100000);
 		pollMessages(server);
+		// usleep(100000);
 		if (getMessageCount(bp2) == 1)
 			break;
 	}
 
 	TEST_ASSERT_EQUAL(1, getMessageCount(bp2));
-	const char *msg1     = popMessage(bp2);
-	sds	    selftest = sdscatprintf(
-		sdsempty(), "<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"%d\" ></message>",
-		kSelfTest);
+	const char* msg1 = popMessage(bp2);
+	sds	    selftest =
+		sdscatprintf(sdsempty(),
+			     "<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"%d\" ></message>",
+			     kSelfTest);
 	TEST_ASSERT_EQUAL_STRING(selftest, msg1);
 	sdsfree(selftest);
-	free((void *)msg1);
+	free((void*)msg1);
 	// TEST_ASSERT_EQUAL_STRING("<?xml version=\"1.0\"?><message id=\"1\" type=\"command\" command=\"35\"
 	// ></message>", msg1);
 
@@ -244,7 +272,7 @@ TEST(BlastpitGroup, SendCommand)
 
 TEST(BlastpitGroup, QueueQpsetTest)
 {
-	t_Blastpit *bp = blastpitNew();
+	t_Blastpit* bp = blastpitNew();
 
 	// Should reject invalid current, speed, and frequency
 	TEST_ASSERT_EQUAL(
@@ -291,7 +319,7 @@ TEST(BlastpitGroup, DependentChildTest)
 	// message dependencies are recorded as successful.
 	// Should return false if any dependency failed.
 
-	t_Blastpit *bp = blastpitNew();
+	t_Blastpit* bp = blastpitNew();
 
 	IdAck message1_id = BpQueueMessage(bp, "payload", NULL);
 	// This should have an automatic dependency on message1
@@ -322,14 +350,14 @@ TEST(BlastpitGroup, RetvalDbTest)
 	// Must return null if no record of id
 	// Must return stored id if present
 
-	t_Blastpit *bp = blastpitNew();
+	t_Blastpit* bp = blastpitNew();
 	// RetvalDb db3 = {0, kInvalid, NULL};
 	// RetvalDb db2 = {0, kInvalid, &db3};
 	// RetvalDb db1 = {0, kInvalid, &db2};
 	// bp->retval_db = &db1;
 
-	BpAddRetvalToDb(bp, (IdAck){4, kBadLogic, NULL});
-	BpAddRetvalToDb(bp, (IdAck){5, kBadXml, NULL});
+	BpAddRetvalToDb(bp, (IdAck){ 4, kBadLogic, NULL });
+	BpAddRetvalToDb(bp, (IdAck){ 5, kBadXml, NULL });
 	// We need to rig the check against the highest id
 	bp->highest_id = 5;
 
@@ -350,18 +378,19 @@ TEST(BlastpitGroup, ConnectivityTest)
 	// 	How does it interact with the data or hardware it controls?
 	// 	How can we make it testable?
 
-	t_Blastpit *client = blastpitNew();
+	t_Blastpit* client = blastpitNew();
 
 	// Connect to the server
-	connectToServer(client, WS_SERVER_LOCAL, 0);
+	connectToServer(client, WS_SERVER_TEST, 0);
 	for (int i = 0; i < 100; i++) {
 		pollMessages(server);
 		pollMessages(client);
-		if (((t_Websocket *)client->ws)->isConnected)
+		if (((t_Websocket*)client->ws)->isConnected)
 			break;
+		usleep(1000);
 	}
 
-	TEST_ASSERT_EQUAL(true, ((t_Websocket *)client->ws)->isConnected);
+	TEST_ASSERT_EQUAL(true, ((t_Websocket*)client->ws)->isConnected);
 	TEST_ASSERT_EQUAL(false, BpIsLmosUp(client));
 
 	disconnectFromServer(client);
@@ -389,7 +418,7 @@ runAllTests()
 }
 
 int
-stdinTest(int argc, const char *argv[])
+stdinTest(int argc, const char* argv[])
 { /* Run tests using stdin as input,
      mostly used with afl fuzzing */
 
@@ -404,13 +433,13 @@ stdinTest(int argc, const char *argv[])
 /* #include <stdlib.h> */
 
 int
-main(int argc, const char *argv[])
+main(int argc, const char* argv[])
 {
 	while (1) {
-		static struct option long_options[] = {{"stdin", no_argument, 0, 't'}, {0, 0, 0, 0}};
+		static struct option long_options[] = { { "stdin", no_argument, 0, 't' }, { 0, 0, 0, 0 } };
 
 		int c, option_index = 0;
-		c = getopt_long(argc, (char *const *)argv, "tv", long_options, &option_index);
+		c = getopt_long(argc, (char* const*)argv, "tv", long_options, &option_index);
 		if (c == -1)
 			break;
 

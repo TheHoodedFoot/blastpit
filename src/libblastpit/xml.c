@@ -1,18 +1,18 @@
 #include "xml.h"
-#include <mxml.h>
 #include "blastpit.h"
 #include "sds.h"
+#include <mxml.h>
 
 int
-XmlGetMessageCount(const char *xml)
+XmlGetMessageCount(const char* xml)
 {  // Returns count of <message> elements or kInvalid on bad xml
 
 	if (!xml)
 		return 0;
 
-	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
 
-	mxml_node_t *node;
+	mxml_node_t* node;
 	int	     count = 0;
 
 	for (node = mxmlFindElement(tree, tree, "message", NULL, NULL, MXML_DESCEND); node != NULL;
@@ -25,21 +25,21 @@ XmlGetMessageCount(const char *xml)
 }
 
 sds
-XmlGetAttribute(const char *message, const char *attribute)
+XmlGetAttribute(const char* message, const char* attribute)
 {  // Retrieves an attribute value, or NULL
 
 	if (!message || !attribute)
 		return NULL;
 
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	mxml_node_t* node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		mxmlDelete(xml);
 		return NULL;
 	}
 
-	const char *value = mxmlElementGetAttr(node, attribute);
+	const char* value = mxmlElementGetAttr(node, attribute);
 	if (!value) {
 		mxmlDelete(xml);
 		return NULL;
@@ -53,7 +53,7 @@ XmlGetAttribute(const char *message, const char *attribute)
 }
 
 sds
-XmlGetChildNodeAsString(const char *message_str, const char *child)
+XmlGetChildNodeAsString(const char* message_str, const char* child)
 {  // Returns the child node tree as a string
 
 	if (!message_str) {
@@ -67,17 +67,17 @@ XmlGetChildNodeAsString(const char *message_str, const char *child)
 
 	sds message = sdsnew(message_str);
 	XmlAddXmlHeader(&message);
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 	if (!xml) {
 		BPLOG(kLvlDebug, "%s: Couldn't add xml header\n", __func__);
 		sdsfree(message);
 		return NULL;
 	}
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, child, NULL, NULL, MXML_DESCEND);
+	mxml_node_t* node = mxmlFindElement(xml, xml, child, NULL, NULL, MXML_DESCEND);
 	if (node) {
 		BPLOG(kLvlDebug, "%s: Converting tree to string\n", __func__);
-		char *mxmlString = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
+		char* mxmlString = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
 		sds   node_data	 = sdsnew(mxmlString);
 		free(mxmlString);
 		mxmlDelete(xml);
@@ -91,12 +91,12 @@ XmlGetChildNodeAsString(const char *message_str, const char *child)
 }
 
 sds
-XmlGetMessageByIndex(const char *xml, int index)
+XmlGetMessageByIndex(const char* xml, int index)
 {  // Returns a string containing a single message element
 
-	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
 
-	mxml_node_t *node;
+	mxml_node_t* node;
 	int	     count = 0;
 
 	// TODO: Memory leaks here
@@ -107,7 +107,7 @@ XmlGetMessageByIndex(const char *xml, int index)
 
 	if (!node)
 		return NULL;
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
+	char* node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
 	sds   retval	= sdsnew("<?xml?>");
 	retval		= sdscat(retval, node_data);
 	free(node_data);
@@ -117,12 +117,12 @@ XmlGetMessageByIndex(const char *xml, int index)
 }
 
 sds
-XmlGetPayloadByIndex(const char *xml, int index)
+XmlGetPayloadByIndex(const char* xml, int index)
 {  // Returns a message payload
 
-	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
 
-	mxml_node_t *node;
+	mxml_node_t* node;
 	int	     count = 0;
 
 	// TODO: Memory leaks here
@@ -133,7 +133,7 @@ XmlGetPayloadByIndex(const char *xml, int index)
 
 	if (!node)
 		return NULL;
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
+	char* node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
 	sds   retval	= sdsnew("<?xml?>");
 	retval		= sdscat(retval, node_data);
 	free(node_data);
@@ -143,16 +143,16 @@ XmlGetPayloadByIndex(const char *xml, int index)
 }
 
 sds
-XmlSetAttribute(sds message, const char *attribute, const char *value)
+XmlSetAttribute(sds message, const char* attribute, const char* value)
 {  // Sets an attribute value. Invalidates original message.
 
 	if (!message || !attribute || !value)
 		return NULL;
 
 	XmlAddXmlHeader(&message);
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	mxml_node_t* node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		mxmlDelete(xml);
 		return NULL;
@@ -160,7 +160,7 @@ XmlSetAttribute(sds message, const char *attribute, const char *value)
 
 	mxmlElementSetAttr(node, attribute, value);
 
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
+	char* node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
 	sds   retval	= sdsnew(node_data);
 	free(node_data);
 	mxmlDelete(xml);
@@ -170,7 +170,7 @@ XmlSetAttribute(sds message, const char *attribute, const char *value)
 }
 
 void
-XmlAddXmlHeader(sds *message)
+XmlAddXmlHeader(sds* message)
 {  // Helper to add the <?xml?> header to allow mxmlLoadString to work
 
 	sds header_added = sdsnew("<?xml?>");
@@ -180,7 +180,7 @@ XmlAddXmlHeader(sds *message)
 }
 
 sds
-XmlDeleteAttribute(sds message, const char *attribute)
+XmlDeleteAttribute(sds message, const char* attribute)
 {  // Deletes an attribute value. Invalidates original message.
 
 	if (!message || !attribute) {
@@ -188,9 +188,9 @@ XmlDeleteAttribute(sds message, const char *attribute)
 	}
 
 	XmlAddXmlHeader(&message);
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
+	mxml_node_t* node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		mxmlDelete(xml);
 		return NULL;
@@ -198,7 +198,7 @@ XmlDeleteAttribute(sds message, const char *attribute)
 
 	mxmlElementDeleteAttr(node, attribute);
 
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
+	char* node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
 	sds   retval	= sdsnew(node_data);
 	free(node_data);
 	mxmlDelete(xml);
@@ -208,18 +208,18 @@ XmlDeleteAttribute(sds message, const char *attribute)
 }
 
 sds
-XmlNewCdata(const char *message)
+XmlNewCdata(const char* message)
 {  // Adds a CDATA string to a <message>
 
 	if (!message)
 		return NULL;
 
-	mxml_node_t *xml	  = mxmlNewXML("1.0");
-	mxml_node_t *message_node = mxmlNewElement(xml, "message");
+	mxml_node_t* xml	  = mxmlNewXML("1.0");
+	mxml_node_t* message_node = mxmlNewElement(xml, "message");
 	mxmlNewCDATA(message_node, message);
 
 	// We don't want the xml header, just the message node
-	char *xml_string = mxmlSaveAllocString(message_node, MXML_NO_CALLBACK);
+	char* xml_string = mxmlSaveAllocString(message_node, MXML_NO_CALLBACK);
 
 	sds retval = sdsnew(xml_string);
 	free(xml_string);
@@ -237,11 +237,11 @@ XmlDrawingToMessage(sds drawing)
 	}
 
 	// XmlAddXmlHeader(&message);
-	mxml_node_t *xml     = mxmlLoadString(NULL, drawing, MXML_OPAQUE_CALLBACK);
-	mxml_node_t *tidy    = mxmlNewXML("1.0");
-	mxml_node_t *message = mxmlNewElement(tidy, "message");
+	mxml_node_t* xml     = mxmlLoadString(NULL, drawing, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tidy    = mxmlNewXML("1.0");
+	mxml_node_t* message = mxmlNewElement(tidy, "message");
 	mxmlAdd(message, MXML_ADD_AFTER, NULL, xml);
-	char *tree   = mxmlSaveAllocString(tidy, MXML_NO_CALLBACK);
+	char* tree   = mxmlSaveAllocString(tidy, MXML_NO_CALLBACK);
 	sds   retval = sdsnew(tree);
 	free(tree);
 	mxmlDelete(xml);
@@ -251,21 +251,21 @@ XmlDrawingToMessage(sds drawing)
 }
 
 sds
-XmlExtractMessagePayload(const char *xml)
+XmlExtractMessagePayload(const char* xml)
 {  // Returns the string payload of a message, or NULL
 
 	if (!xml) {
 		return NULL;
 	}
 
-	mxml_node_t *message = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
-	mxml_node_t *node    = mxmlFindElement(message, message, "message", NULL, NULL, MXML_DESCEND);
+	mxml_node_t* message = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* node    = mxmlFindElement(message, message, "message", NULL, NULL, MXML_DESCEND);
 	if (!node) {
 		mxmlDelete(message);
 		return NULL;
 	}
 
-	const char *node_data = mxmlGetOpaque(node);
+	const char* node_data = mxmlGetOpaque(node);
 	sds	    retval    = sdsnew(node_data);
 	// free(node_data);
 	mxmlDelete(message);

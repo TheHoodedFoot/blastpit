@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "blastpit.h"
 #include <QDateTime>
 #include <QSettings>
 #include <QTime>
@@ -7,14 +8,14 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "blastpit.h"
 
 #define MUTEX_COUNT 10	// How many cycles to allow mutex to stay locked
 
-Parser::Parser(QObject *parent) : QObject(parent)
+Parser::Parser(QObject* parent)
+	: QObject(parent)
 {
 	QObject::connect(&lmos, SIGNAL(log(QString)), this, SLOT(log(QString)));
-	QObject::connect(&lmos, SIGNAL(log(int, const char *, QString)), this, SLOT(log(int, const char *, QString)));
+	QObject::connect(&lmos, SIGNAL(log(int, const char*, QString)), this, SLOT(log(int, const char*, QString)));
 	QObject::connect(&lmos, SIGNAL(ack(QString)), this, SLOT(ack(QString)));
 	QObject::connect(&lmos, SIGNAL(sendEvent(int, QString)), this, SLOT(SendSignal(int, QString)));
 
@@ -24,7 +25,7 @@ Parser::Parser(QObject *parent) : QObject(parent)
 	// Set the object
 	// void (*func)(void *
 	registerCallback(blast, &messageReceivedCallback);
-	registerObject(blast, (void *)this);
+	registerObject(blast, (void*)this);
 	mutex = 0;
 
 	wsConnect();
@@ -60,24 +61,24 @@ Parser::wsConnect()
 		return;
 
 	QByteArray  ba	   = wsserver.toLocal8Bit();
-	const char *c_str2 = ba.data();
+	const char* c_str2 = ba.data();
 
 	// log("Parser::wsConnect : Trying to connect to server " + traySettings.value("wsServer").toString());
 	connectToServer(blast, c_str2, 1000);
 }
 
 void
-Parser::messageReceivedCallback(void *ev_data, void *object)
+Parser::messageReceivedCallback(void* ev_data, void* object)
 {
-	Parser *psr = (Parser *)object;
+	Parser* psr = (Parser*)object;
 
 	psr->mutex = MUTEX_COUNT;
 
 	// This is not null terminated
 	WsMessage msg_data = ConvertCallbackData(ev_data);
 
-	char *msg_data_string = (char *)malloc(msg_data.size + 1);
-	strncpy(msg_data_string, (const char *)msg_data.data, msg_data.size);
+	char* msg_data_string = (char*)malloc(msg_data.size + 1);
+	strncpy(msg_data_string, (const char*)msg_data.data, msg_data.size);
 	*(msg_data_string + msg_data.size) = 0;
 
 	psr->ProcessMessageBlock(msg_data_string);
@@ -87,23 +88,23 @@ Parser::messageReceivedCallback(void *ev_data, void *object)
 }
 
 void
-Parser::ProcessMessageBlock(const char *msg_data_string)
+Parser::ProcessMessageBlock(const char* msg_data_string)
 {  // Extract and process individual messages from a string
 
-	char *message	= NULL;
-	int   msg_count = BpGetMessageCount((const char *)msg_data_string);
+	char* message	= NULL;
+	int   msg_count = BpGetMessageCount((const char*)msg_data_string);
 
 	log("Processing " + QString::number(msg_count) + " messages");
 
 	for (int i = 0; i < msg_count; i++) {
-		message = BpGetMessageByIndex((const char *)msg_data_string, i);
+		message = BpGetMessageByIndex((const char*)msg_data_string, i);
 
 		// TODO: Loop through all depends comma-separated dependencies
-		char *depends = BpGetMessageAttribute(message, "depends");
+		char* depends = BpGetMessageAttribute(message, "depends");
 		if (!depends || BpQueryRetvalDb(blast, atoi(depends)) == kSuccess) {
 			parseCommand(message);
 		} else {
-			char *id = BpGetMessageAttribute(message, "id");
+			char* id = BpGetMessageAttribute(message, "id");
 			log("Message with id ");
 			log(id);
 			log(" has failed dependency ");
@@ -177,7 +178,7 @@ Parser::log(QString string)
 }
 
 void
-Parser::log(int level, const char *function, QString entry)
+Parser::log(int level, const char* function, QString entry)
 {
 	QString time	= QTime::currentTime().toString("hh:mm:ss.zzz");
 	QString log	= QString::number(level);
@@ -199,13 +200,13 @@ Parser::ackReturn(int id, int retval)
 
 	QString message = QString::number(retval);
 	log("[ackReturn] (" + QString::number(id) + ") " + QString(bpRetvalName(retval)));
-	BpAddRetvalToDb(this->blast, (IdAck){id, retval, NULL});
+	BpAddRetvalToDb(this->blast, (IdAck){ id, retval, NULL });
 	QueueAckRetval(blast, id, retval);
 	BpUploadQueuedMessages(blast);
 }
 
 void
-Parser::ReplyWithPayload(int id, int retval, const char *payload)
+Parser::ReplyWithPayload(int id, int retval, const char* payload)
 {  // Reply to a commmand with a payload string
 
 	log("[ReplyWithPayload] #" + QString::number(id) + " : " + QString(payload));
@@ -218,9 +219,9 @@ Parser::SendSignal(int signal, QString message)
 {  // Used by Lmos to send a signal
 	// Assume that message is not null terminated
 
-	char *signal_string = (char *)alloca(4);
+	char* signal_string = (char*)alloca(4);
 	snprintf(signal_string, 4, "%d", signal);
-	char *message_string = (char *)malloc(message.size() + 1);
+	char* message_string = (char*)malloc(message.size() + 1);
 	strncpy(message_string, message.toStdString().c_str(), message.size());
 	*(message_string + message.size()) = 0;
 
@@ -234,16 +235,16 @@ Parser::SendSignal(int signal, QString message)
 }
 
 void
-Parser::parseCommand(const char *xml)
+Parser::parseCommand(const char* xml)
 {
-	char * id_string      = BpGetMessageAttribute(xml, "id");
+	char*  id_string      = BpGetMessageAttribute(xml, "id");
 	int    id	      = atoi(id_string);
-	char * command_string = BpGetMessageAttribute(xml, "command");
+	char*  command_string = BpGetMessageAttribute(xml, "command");
 	int    command	      = atoi(command_string);
-	char * message_string = NULL;
+	char*  message_string = NULL;
 	char * attr1 = NULL, *attr2 = NULL, *attr3 = NULL, *attr4 = NULL;
 	int    retval_num;
-	char * payload = NULL;
+	char*  payload = NULL;
 	double retval_double;
 
 	log("(" + QTime::currentTime().toString("hh:mm:ss.zzz") + ") #" + QString::number(id) + ": " +
@@ -408,11 +409,19 @@ Parser::parseCommand(const char *xml)
 			}
 			break;
 		case kZoomWindow:
-			// lmos.ZoomWindow(QString(cmd.attribute("x1").value()).toInt(),
-			// QString(cmd.attribute("y1").value()).toInt(),
-			// QString(cmd.attribute("x2").value()).toInt(),
-			// QString(cmd.attribute("y2").value()).toInt());
-			ackReturn(id, kFailure);
+			attr1 = BpGetMessageAttribute(xml, "x1");
+			attr2 = BpGetMessageAttribute(xml, "y1");
+			attr3 = BpGetMessageAttribute(xml, "x2");
+			attr4 = BpGetMessageAttribute(xml, "y2");
+			if (attr1 && attr2 && attr3 && attr4) {
+				lmos.ZoomWindow(strtod(attr1, NULL),
+						strtod(attr2, NULL),
+						strtod(attr3, NULL),
+						strtod(attr4, NULL));
+				ackReturn(id, kSuccess);
+			} else {
+				ackReturn(id, kBadParam);
+			}
 			break;
 		case kShowMarkingArea:
 			lmos.ShowMarkingArea();

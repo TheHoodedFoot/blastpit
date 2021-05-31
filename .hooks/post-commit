@@ -1,2 +1,2 @@
 #!/bin/sh
-.hooks/ctags
+.hooks/updatetags

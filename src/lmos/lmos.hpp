@@ -11,7 +11,8 @@ using namespace LMOSACTXLib;
 #endif
 
 
-class Lmos : public QObject {
+class Lmos : public QObject
+{
 	Q_OBJECT
       public:
 	explicit Lmos(QObject* parent = nullptr);

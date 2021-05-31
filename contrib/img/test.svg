@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   sodipodi:docname="test.svg"
+   inkscape:version="1.2-dev (9e3a25b6f, 2021-04-08, custom)"
+   version="1.1"
+   id="svg4149"
+   viewBox="0 0 120 120"
+   height="120mm"
+   width="120mm"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs4151" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.5600001"
+     inkscape:cx="209.5703"
+     inkscape:cy="245.31249"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:showpageshadow="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:document-rotation="0"
+     objecttolerance="10.0"
+     gridtolerance="10.0"
+     guidetolerance="10.0"
+     inkscape:pagecheckerboard="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid821"
+       units="mm"
+       spacingx="10"
+       spacingy="10"
+       empspacing="1" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata517">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs92" />
+  <sodipodi:namedview
+     id="namedview94"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.0"
+     inkscape:cx="212.59843"
+     inkscape:cy="212.59843"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:showpageshadow="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:snap-global="false"
+     inkscape:document-rotation="0" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <path
+       id="red"
+       style="fill:#a40000;stroke-width:0.0709364;paint-order:fill markers stroke"
+       d="M 0,110 H 10 L 0,120 Z"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="compound"
+       style="color:#000000;fill:#d3d7cf;stroke-width:0.0726094;paint-order:fill markers stroke"
+       d="M 60.000001,50 V 60 H 70 V 50 Z m 3.333332,3.33333 h 3.333333 v 3.33333 h -3.333333 z" />
+    <path
+       id="skyblue"
+       style="fill:#729fcf;stroke-width:0.0709364;paint-order:fill markers stroke"
+       d="M 0,110 H 10 L 0,120 Z"
+       sodipodi:nodetypes="cccc"
+       transform="translate(10, -10)" />
+    <g
+       id="simple_group">
+      <path
+         id="green"
+         style="fill:#4e9a06;stroke-width:0.0709364;paint-order:fill markers stroke"
+         d="M 20,90 H 30 L 20,100 Z"
+         sodipodi:nodetypes="cccc" />
+      <path
+         id="yellow"
+         style="fill:#c4a000;stroke-width:0.0709364;paint-order:fill markers stroke"
+         d="M 30,90 H 40 L 30,100 Z"
+         sodipodi:nodetypes="cccc" />
+    </g>
+    <g
+       id="simple_group_translated"
+       transform="translate(10,-10)">
+      <path
+         id="light_green"
+         style="fill:#8ae234;stroke-width:0.0709364;paint-order:fill markers stroke"
+         d="M 20,90 H 30 L 20,100 Z"
+         sodipodi:nodetypes="cccc" />
+      <path
+         id="light_yellow"
+         style="fill:#fce94f;stroke-width:0.0709364;paint-order:fill markers stroke"
+         d="M 30,90 H 40 L 30,100 Z"
+         sodipodi:nodetypes="cccc" />
+    </g>
+    <path
+       id="translated_compound"
+       style="color:#000000;fill:#555753;stroke-width:0.0726094;paint-order:fill markers stroke"
+       d="M 60.000001,50 V 60 H 70 V 50 Z m 3.333332,3.33333 h 3.333333 v 3.33333 h -3.333333 z"
+       transform="translate(10,-10)" />
+    <g
+       id="group_of_groups">
+      <g
+         id="orange_purple_group">
+        <path
+           id="orange"
+           style="fill:#ce5c00;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 40,70 H 50 L 40,80 Z"
+           sodipodi:nodetypes="cccc" />
+        <path
+           id="purple"
+           style="fill:#5c3566;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 50,70 H 60 L 50,80 Z"
+           sodipodi:nodetypes="cccc" />
+      </g>
+      <g
+         id="blue_brown_group">
+        <path
+           id="blue"
+           style="fill:#204a87;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 60,70 H 70 L 60,80 Z"
+           sodipodi:nodetypes="cccc" />
+        <path
+           id="brown"
+           style="fill:#8f5902;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 70,70 H 80 L 70,80 Z"
+           sodipodi:nodetypes="cccc" />
+      </g>
+    </g>
+    <g
+       id="translated_group_of_groups"
+       transform="translate(10,-10)">
+      <g
+         id="translated_orange_purple_group">
+        <path
+           id="bright_orange"
+           style="fill:#f57900;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 40,70 H 50 L 40,80 Z"
+           sodipodi:nodetypes="cccc" />
+        <path
+           id="bright_purple"
+           style="fill:#75507b;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 50,70 H 60 L 50,80 Z"
+           sodipodi:nodetypes="cccc" />
+      </g>
+      <g
+         id="translated_blue_brown_group">
+        <path
+           id="bright_blue"
+           style="fill:#3465a4;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 60,70 H 70 L 60,80 Z"
+           sodipodi:nodetypes="cccc" />
+        <path
+           id="bright_brown"
+           style="fill:#c17d11;stroke-width:0.0709364;paint-order:fill markers stroke"
+           d="M 70,70 H 80 L 70,80 Z"
+           sodipodi:nodetypes="cccc" />
+      </g>
+    </g>
+  </g>
+</svg>

@@ -26,8 +26,8 @@ TEST(ListeningServerGroup, CreateServer)
 	/* 	How does it interact with the data or hardware it controls? */
 	/* 	How can we make it testable? */
 
-	t_Blastpit *server = blastpitNew();
-	TEST_ASSERT_EQUAL(true, serverCreate(server, "8003"));
+	t_Blastpit* server = blastpitNew();
+	TEST_ASSERT_EQUAL(true, serverCreate(server, "ws://127.0.0.1:8003"));
 	serverDestroy(server);
 	blastpitDelete(server);
 }
@@ -46,7 +46,7 @@ runAllTests()
 }
 
 int
-main(int argc, const char *argv[])
+main(int argc, const char* argv[])
 {
 	return UnityMain(argc, argv, runAllTests);
 }

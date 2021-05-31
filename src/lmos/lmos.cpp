@@ -5,14 +5,18 @@
 #include <QMetaMethod>
 #include <QTemporaryFile>
 
-Lmos::Lmos(QObject* parent) : QObject(parent)
+Lmos::Lmos(QObject* parent)
+	: QObject(parent)
 {
 #if defined(Q_OS_WIN32)
 	lmos_actx = NULL;
 #endif
 }
 
-Lmos::~Lmos() { DestroyControl(); }
+Lmos::~Lmos()
+{
+	DestroyControl();
+}
 
 void
 Lmos::CreateControl()
@@ -44,17 +48,26 @@ Lmos::ConnectSignals()
 #if defined(Q_OS_WIN32)
 	if (!lmos_actx)
 		return;
-	connect(lmos_actx, SIGNAL(MessageMap(QString&)), this, SLOT(messagemap(QString&)),
+	connect(lmos_actx,
+		SIGNAL(MessageMap(QString&)),
+		this,
+		SLOT(messagemap(QString&)),
 		Qt::ConnectionType::DirectConnection);
-	connect(lmos_actx, SIGNAL(ALARM(int, const QString, const QString, int)), this,
+	connect(lmos_actx,
+		SIGNAL(ALARM(int, const QString, const QString, int)),
+		this,
 		SLOT(alarm(int, QString, QString, int)));
 	connect(lmos_actx, SIGNAL(CurrentChanged(const double)), this, SLOT(currentChanged(double)));
 	connect(lmos_actx, SIGNAL(FrequencyChanged(const int)), this, SLOT(frequencyChanged(int)));
 	connect(lmos_actx, SIGNAL(JobBegin()), this, SLOT(jobBegin()));
 	connect(lmos_actx, SIGNAL(JobEnd()), this, SLOT(jobEnd()));
-	connect(lmos_actx, SIGNAL(PLCEvent(QString&, QString&, QString&)), this,
+	connect(lmos_actx,
+		SIGNAL(PLCEvent(QString&, QString&, QString&)),
+		this,
 		SLOT(plcEvent(QString&, QString&, QString&)));
-	connect(lmos_actx, SIGNAL(exception(const int, const QString, const QString, const QString)), this,
+	connect(lmos_actx,
+		SIGNAL(exception(const int, const QString, const QString, const QString)),
+		this,
 		SLOT(exception(int, const QString, const QString, const QString)));
 
 	connect(lmos_actx, SIGNAL(signal(const QString&, int, void*)), this, SLOT(emitSig(const QString&)));
@@ -64,7 +77,9 @@ Lmos::ConnectSignals()
 	connect(lmos_actx, SIGNAL(ImageBegin()), this, SLOT(imagebegin()));
 	connect(lmos_actx, SIGNAL(MOBeginName(QString&)), this, SLOT(mOBeginName(QString&)));
 	connect(lmos_actx, SIGNAL(MOEndName(QString&)), this, SLOT(mOEndName(QString&)));
-	connect(lmos_actx, SIGNAL(ImageEnd2(const double, const ImageResultConstants)), this,
+	connect(lmos_actx,
+		SIGNAL(ImageEnd2(const double, const ImageResultConstants)),
+		this,
 		SLOT(imageEnd2(double, ImageResultConstants)));
 #endif
 }
@@ -126,9 +141,8 @@ Lmos::InitMachine()
 	try {
 		return lmos_actx->InitMachine();
 	} catch (...) {
-		emit log(
-			"bplInitMachine: An exception occurred initialising "
-			"the laser.");
+		emit log("bplInitMachine: An exception occurred initialising "
+			 "the laser.");
 	}
 #endif
 	return false;
@@ -347,7 +361,8 @@ Lmos::Reference()
 void
 Lmos::AddQPSet(const QString& name, const double current, const int speed, const int frequency)
 {
-	emit log(kLvlDebug, __func__,
+	emit log(kLvlDebug,
+		 __func__,
 		 "Name: " + name + ", Current: " + QString::number(current) + ", Speed: " + QString::number(speed) +
 			 ", Frequency: " + QString::number(frequency));
 #if defined(Q_OS_WIN32)
@@ -516,12 +531,16 @@ Lmos::SetMOLayer(const QString& object, const QString& layer)
 }
 
 void
-Lmos::SetQualityParam(const QString& qpname, const int qptype, const int partype, const QVariant& value,
-		      const bool save)
+Lmos::SetQualityParam(
+	const QString& qpname, const int qptype, const int partype, const QVariant& value, const bool save)
 {
 #if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->SetQualityParam(qpname, static_cast<LMOSACTXLib::eQPType>(qptype),
-							 static_cast<LMOSACTXLib::eParamType>(partype), value, save));
+	emit retval(__func__,
+		    lmos_actx->SetQualityParam(qpname,
+					       static_cast<LMOSACTXLib::eQPType>(qptype),
+					       static_cast<LMOSACTXLib::eParamType>(partype),
+					       value,
+					       save));
 #else
 	(void)qpname;
 	(void)qptype;
@@ -595,15 +614,16 @@ Lmos::logstring(const QString& name, int argc, void* argv)
 
 void
 Lmos::ZoomWindow(int x1, int y1, int x2, int y2)
-{
+{  // topLeftX, topLeftY, bottomRightX, bottomRightY
+
 	emit log(QString(__func__) + QString("Begin: ") + QString::number(x1) + QString(", ") + QString::number(y1) +
 		 QString(", ") + QString::number(x2) + QString(", ") + QString::number(y2));
 #if defined(Q_OS_WIN32)
 	// lmos_actx->ShowZoomWindow(50, 50, 70, 70);
-	lmos_actx->ActivateZoomWindow(true);
+	// lmos_actx->ActivateZoomWindow(true);
 	lmos_actx->ShowZoomWindow(x1, y1, x2, y2);
 	// lmos_actx->ActivateZoomWindow(false);
-	// lmos_actx->ShowMarkingAreaZoom();
+	lmos_actx->ShowMarkingAreaZoom();
 	// lmos_actx->RedrawLayout();
 #endif
 }

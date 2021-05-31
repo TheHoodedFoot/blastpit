@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include "unity_fixture.h" /* MUST be before <stdlib.h> */
+#include <stdlib.h>
 
 #include "blastpit.h"
 #include "xml.h"
@@ -103,18 +103,16 @@ TEST(XmlGroup, MultipleMessageTest)
 	TEST_ASSERT_EQUAL(0, XmlGetMessageCount("Feck!"));
 
 	// Must count number of <message> blocks
-	const char *xml1 = "<?xml?><message id=\"1\" command=\"1\"></message>";
+	const char* xml1 = "<?xml?><message id=\"1\" command=\"1\"></message>";
 	TEST_ASSERT_EQUAL(1, XmlGetMessageCount(xml1));
-	const char *xml2 =
-		"<?xml?><message id=\"1\" command=\"1\"></message>"
-		"<message id=\"2\" command=\"2\"></message>";
+	const char* xml2 = "<?xml?><message id=\"1\" command=\"1\"></message>"
+			   "<message id=\"2\" command=\"2\"></message>";
 	TEST_ASSERT_EQUAL(2, XmlGetMessageCount(xml2));
 
 	// Must be able to retrieve specific messages
-	const char *xml3 =
-		"<?xml?><message id=\"1\" command=\"1\"></message>"
-		"<message id=\"2\" command=\"2\"></message>"
-		"<message id=\"3\" command=\"3\"></message>";
+	const char* xml3 = "<?xml?><message id=\"1\" command=\"1\"></message>"
+			   "<message id=\"2\" command=\"2\"></message>"
+			   "<message id=\"3\" command=\"3\"></message>";
 	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"1\" command=\"1\" />\n", XmlGetMessageByIndex(xml3, 0));
 	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"2\" command=\"2\" />\n", XmlGetMessageByIndex(xml3, 1));
 	TEST_ASSERT_EQUAL_STRING("<?xml?><message id=\"3\" command=\"3\" />\n", XmlGetMessageByIndex(xml3, 2));
@@ -129,10 +127,10 @@ TEST(XmlGroup, AttributeTest)
 	// 	How can we make it testable?
 
 	// Get attribute value or NULL from node
-	const char *xml = "<?xml?><message id=\"1\" command=\"1\" lorem=\"ipsum\"></message>";
+	const char* xml = "<?xml?><message id=\"1\" command=\"1\" lorem=\"ipsum\"></message>";
 	// sds attr1 = XmlGetAttribute((char *)xml, "lorem");
 	// TEST_ASSERT_EQUAL_STRING("ipsum", attr1);
-	sds attr2 = XmlGetAttribute((char *)xml, "missing");
+	sds attr2 = XmlGetAttribute((char*)xml, "missing");
 	TEST_ASSERT_NULL(attr2);
 	sdsfree(attr2);
 	// sdsfree(attr1);
@@ -158,7 +156,7 @@ runAllTests()
 }
 
 int
-main(int argc, const char *argv[])
+main(int argc, const char* argv[])
 {
 	return UnityMain(argc, argv, runAllTests);
 }

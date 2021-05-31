@@ -89,6 +89,8 @@ connectToServer(t_Blastpit* self, const char* server, int timeout_ms)
 
 	assert(self->ws);
 
+	BPLOG(kLvlDebug, "connectToServer: timout_ms = %d\n", timeout_ms);
+
 	// Prevent servers connecting to servers
 	if (((t_Websocket*)self->ws)->isServer)
 		return kBadLogic;
@@ -151,9 +153,6 @@ pollMessagesWithTimeout(t_Blastpit* self, int timeout)
 void
 sendClientMessage(t_Blastpit* self, const char* message)
 {
-	if (!message)
-		return;
-
 	BPLOG(kLvlEverything, "sendClientMessage: %s\n", message);
 	wsClientSendMessage((t_Websocket*)self->ws, (char*)message);
 }
@@ -204,7 +203,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	sds id_message = NULL;
 
 	if (XmlGetMessageCount(message) < 1) {
-		return (IdAck){kInvalid, kBadXml, NULL};
+		return (IdAck){ kInvalid, kBadXml, NULL };
 	}
 
 	if (XmlGetMessageCount(message) == 1) {
@@ -227,7 +226,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 		}
 
 		if (!id_message) {
-			return (IdAck){kInvalid, kSetterFailure, NULL};
+			return (IdAck){ kInvalid, kSetterFailure, NULL };
 		}
 	} else {
 		id	   = kMultipleCommands;
@@ -239,7 +238,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	} else {
 		if (!bp_isConnected(self)) {
 			sdsfree(id_message);
-			return (IdAck){id, kConnectionFailure, NULL};
+			return (IdAck){ id, kConnectionFailure, NULL };
 			// return result;
 		}
 		sendClientMessage(self, id_message);
@@ -249,7 +248,7 @@ bp_sendMessage(t_Blastpit* self, const char* message)
 	sdsfree(id_message);
 
 	// BPLOG(kLvlDebug, "%s: end\n", __func__);
-	return (IdAck){id, kSuccess, NULL};
+	return (IdAck){ id, kSuccess, NULL };
 }
 
 IdAck
@@ -295,7 +294,7 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 	struct timeval start_time, current_time;
 	if (gettimeofday(&start_time, NULL) == -1) {
 		BPLOG(kLvlError, "%s: Cannot access system time\n", __func__);
-		return (IdAck){id, kFailure, NULL};
+		return (IdAck){ id, kFailure, NULL };
 	}
 
 	for (int i = 0; i < timeout; i++) {
@@ -312,10 +311,14 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 			char* message = readMessageAt(self, j);
 
 			if (message) {
-				sds parentid_str     = XmlGetAttribute(message, "parentid");
-				sds retval_str	     = XmlGetAttribute(message, "retval");
-				sds id_str	     = sdsfromlonglong(id);
-				int do_strings_match = strcmp(parentid_str, id_str);
+				sds parentid_str = XmlGetAttribute(message, "parentid");
+				sds retval_str	 = XmlGetAttribute(message, "retval");
+				sds id_str	 = sdsfromlonglong(id);
+				assert(id_str);
+				int do_strings_match = -1;
+				if (parentid_str && id_str) {
+					do_strings_match = strcmp(parentid_str, id_str);
+				}
 				int retval;
 				if (retval_str) {
 					retval = atoi(retval_str);
@@ -329,9 +332,10 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 					void* msg_data = popMessageAt(self, j);
 					// free(msg_data);
 					if (msg_data)
-						BPLOG(kLvlDebug, "BpWaitForReplyOrTimeout: Message had payload %p\n",
-						    msg_data);
-					return (IdAck){id, retval, (char*)msg_data};
+						BPLOG(kLvlDebug,
+						      "BpWaitForReplyOrTimeout: Message had payload %p\n",
+						      msg_data);
+					return (IdAck){ id, retval, (char*)msg_data };
 				}
 			}
 		}
@@ -339,7 +343,7 @@ BpWaitForReplyOrTimeout(t_Blastpit* self, int id, int timeout)
 
 
 	BPLOG(kLvlDebug, "%s: Reply timeout\n", __func__);
-	return (IdAck){id, kReplyTimeout, NULL};
+	return (IdAck){ id, kReplyTimeout, NULL };
 }
 
 char*
@@ -581,8 +585,11 @@ clearQPSets(t_Blastpit* self)
 void
 LayerSetLaserable(t_Blastpit* self, const char* layer, bool laserable)
 {
-	sds message = sdscatprintf(sdsempty(), "<command layer=\"%s\" laserable=\"%d\">%d</command>", layer,
-				   (int)laserable, kLayerSetLaserable);
+	sds message = sdscatprintf(sdsempty(),
+				   "<command layer=\"%s\" laserable=\"%d\">%d</command>",
+				   layer,
+				   (int)laserable,
+				   kLayerSetLaserable);
 	bp_sendMessage(self, message);
 	sdsfree(message);
 }
@@ -590,8 +597,8 @@ LayerSetLaserable(t_Blastpit* self, const char* layer, bool laserable)
 void
 LayerSetHeight(t_Blastpit* self, const char* layer, int height)
 {
-	sds message = sdscatprintf(sdsempty(), "<command layer=\"%s\" height=\"%d\">%d</command>", layer, height,
-				   kLayerSetHeight);
+	sds message = sdscatprintf(
+		sdsempty(), "<command layer=\"%s\" height=\"%d\">%d</command>", layer, height, kLayerSetHeight);
 	bp_sendMessage(self, message);
 	sdsfree(message);
 }
@@ -658,7 +665,7 @@ IdAck
 BpQueueCommand(t_Blastpit* self, int command)
 {
 	if (!self)
-		return (IdAck){kInvalid, kFailure, NULL};
+		return (IdAck){ kInvalid, kFailure, NULL };
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
@@ -740,7 +747,7 @@ BpQueueMessage(t_Blastpit* self, ...)
 
 	self->message_queue = xml;
 
-	return (IdAck){id, kSuccess, NULL};
+	return (IdAck){ id, kSuccess, NULL };
 }
 
 IdAck
@@ -748,7 +755,7 @@ BpUploadQueuedMessages(t_Blastpit* self)
 {  // Uploads the queued message and frees the sds string
 
 	if (!self->message_queue)
-		return (IdAck){kInvalid, kFailure, NULL};
+		return (IdAck){ kInvalid, kFailure, NULL };
 
 	BPLOG(kLvlEverything, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue);
 	IdAck result = bp_sendMessage(self, self->message_queue);
@@ -763,21 +770,33 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 {  // Queue a qp set for upload
 
 	if (!self)
-		return (IdAck){kInvalid, kInvalid, NULL};
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	if (current < LMOS_CURRENT_MIN || current > LMOS_CURRENT_MAX)
-		return (IdAck){kInvalid, kInvalid, NULL};
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	if (speed < LMOS_SPEED_MIN || speed > LMOS_SPEED_MAX)
-		return (IdAck){kInvalid, kInvalid, NULL};
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	if (frequency < LMOS_FREQUENCY_MIN || frequency > LMOS_FREQUENCY_MAX)
-		return (IdAck){kInvalid, kInvalid, NULL};
+		return (IdAck){ kInvalid, kInvalid, NULL };
 
 	sds command_str	  = sdscatprintf(sdsempty(), "%d", kAddQpSet);
 	sds current_str	  = sdscatprintf(sdsempty(), "%d", current);
 	sds speed_str	  = sdscatprintf(sdsempty(), "%d", speed);
 	sds frequency_str = sdscatprintf(sdsempty(), "%d", frequency);
 
-	IdAck result = BpQueueMessage(self, "type", "command", "command", command_str, "name", name, "current",
-				      current_str, "speed", speed_str, "frequency", frequency_str, NULL);
+	IdAck result = BpQueueMessage(self,
+				      "type",
+				      "command",
+				      "command",
+				      command_str,
+				      "name",
+				      name,
+				      "current",
+				      current_str,
+				      "speed",
+				      speed_str,
+				      "frequency",
+				      frequency_str,
+				      NULL);
 
 	sdsfree(frequency_str);
 	sdsfree(speed_str);
@@ -788,20 +807,41 @@ BpQueueQpSet(t_Blastpit* self, char* name, int current, int speed, int frequency
 }
 
 IdAck
-BpQueueCommandArgs(t_Blastpit* self, int command, const char* attr1, const char* val1, const char* attr2,
-		   const char* val2, const char* attr3, const char* val3, const char* attr4, const char* val4,
+BpQueueCommandArgs(t_Blastpit* self,
+		   int	       command,
+		   const char* attr1,
+		   const char* val1,
+		   const char* attr2,
+		   const char* val2,
+		   const char* attr3,
+		   const char* val3,
+		   const char* attr4,
+		   const char* val4,
 		   const char* payload)
 {  // Queue a command with four attributes and payload
 	// This is a fix for lack of swig support for variadic functions
 	// Supply dummy command/value pairs for unneeded values or payload
 
 	if (!self)
-		return (IdAck){kInvalid, kFailure, NULL};
+		return (IdAck){ kInvalid, kFailure, NULL };
 
 	sds command_str = sdscatprintf(sdsempty(), "%d", command);
 
-	IdAck result = BpQueueMessage(self, "type", "command", "command", command_str, attr1, val1, attr2, val2, attr3,
-				      val3, attr4, val4, payload, NULL);
+	IdAck result = BpQueueMessage(self,
+				      "type",
+				      "command",
+				      "command",
+				      command_str,
+				      attr1,
+				      val1,
+				      attr2,
+				      val2,
+				      attr3,
+				      val3,
+				      attr4,
+				      val4,
+				      payload,
+				      NULL);
 
 	sdsfree(command_str);
 
@@ -928,13 +968,13 @@ BpSetLightState(t_Blastpit* self, bool state)
 	sds command_str = sdsfromlonglong(kWriteIoBit);
 	if (self->light_is_on == 1) {
 		BPLOG(kLvlDebug, "%s: Turning light off\n", __func__);
-		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "0",
-			       NULL);
+		BpQueueMessage(
+			self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "0", NULL);
 		self->light_is_on = 0;
 	} else {
 		BPLOG(kLvlDebug, "%s: Turning light on\n", __func__);
-		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "1",
-			       NULL);
+		BpQueueMessage(
+			self, "type", "command", "command", command_str, "bitfunction", "Light", "value", "1", NULL);
 		self->light_is_on = 1;
 	}
 	BpUploadQueuedMessages(self);
@@ -994,12 +1034,20 @@ BpSetDoorState(t_Blastpit* self, bool state)
 	command_str = sdsfromlonglong(kWriteIoBit);
 	if (state) {
 		BPLOG(kLvlDebug, "%s: Opening door\n", __func__);
-		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "1",
-			       NULL);
+		BpQueueMessage(
+			self, "type", "command", "command", command_str, "bitfunction", "OpenDoor", "value", "1", NULL);
 	} else {
 		BPLOG(kLvlDebug, "%s: Closing door\n", __func__);
-		BpQueueMessage(self, "type", "command", "command", command_str, "bitfunction", "CloseDoor", "value",
-			       "1", NULL);
+		BpQueueMessage(self,
+			       "type",
+			       "command",
+			       "command",
+			       command_str,
+			       "bitfunction",
+			       "CloseDoor",
+			       "value",
+			       "1",
+			       NULL);
 	}
 	BpUploadQueuedMessages(self);
 
