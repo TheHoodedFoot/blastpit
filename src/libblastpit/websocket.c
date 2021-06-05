@@ -74,7 +74,7 @@ broadcastServer(struct mg_connection* nc, const struct mg_str msg)
 
 	for (struct mg_connection* con = nc->mgr->conns; con != NULL; con = con->next) {
 		BPLOG(kLvlDebug, "broadcastServer: Sending message to client %p\n", (void*)con);
-		uint16_t port = (con->peer.port << 8) | (con->peer.port >> 8);
+		uint16_t port = (uint16_t)(con->peer.port << 8) | (con->peer.port >> 8);
 		BPLOG(kLvlDebug, "broadcastServer: port %d\n", port);
 		BPLOG(kLvlDebug, "msg.len %lu\n", msg.len);
 		BPLOG(kLvlEverything, "msg.ptr %s\n", msg.ptr);

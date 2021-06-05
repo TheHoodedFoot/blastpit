@@ -285,6 +285,8 @@ class ring_generator(inkex.Effect):
         text.text += str(round(float(self.options.width), 2))
         text.text += '",' + '"sectors": "'
         text.text += str(round(360.0 / SEGMENTS, 2))
+        text.text += '",' + '"maxwidth": "'
+        text.text += str(round(SECTOR_WIDTH, 2))
         text.text += '",' + '"height": "'
         text.text += str((round(layerHeight, 1)))
         text.text += '",' + '"angle": "'

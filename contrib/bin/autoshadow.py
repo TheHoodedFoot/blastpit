@@ -1,4 +1,26 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# coding=utf-8
+#
+# Copyright (C) 2021 Andrew Black, andrew@rfbevan.co.uk
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+"""
+autoshadow.py: Reads a VLM file and modifies shadow positions
+"""
 
 # Needed until blastpy is installed system-wide
 import sys
@@ -11,12 +33,12 @@ import blastpy
 sys.path.append(expanduser("~") + "/projects/blastpit/contrib/cfg")
 import myconfig
 
-import xml.etree.ElementTree as ET
 from io import StringIO  # To convert string to csv file
 import csv
-import re
-import getopt
 import itertools
+import re
+import xml.etree.ElementTree as ET
+import getopt
 
 #######################################################################
 #                              READ THIS                              #
@@ -25,12 +47,6 @@ import itertools
 # If autoshadow creates shadows that overlap each other and cannot be merged,
 # then it should output multiple files that stagger each set of non-overlapping
 # shadows
-
-
-
-
-
-
 
 # Simple start algorithm without needing to break
 
@@ -87,24 +103,30 @@ import itertools
 # Delete extraneous shadows
 
 
-class autoshadow:
-    def __init__(self):
+class Autoshadow:
+    """Automatically optimise shadow positions"""
+
+    def __init__(self, maxwidth=1):
         self.paths = []
         self.shadows = []
         self.moved_shadows = []
+        self.inputfile = None
+        self.maxwidth = maxwidth
 
     def printUsage(self):
-        print("Usage: autoshadow.py -i <inputfile> -o <outputfile>")
+        print(
+            "Usage: autoshadow.py -i <inputfile> -o <outputfile> -w <width> -s <server> -t <timeout>"
+        )
 
     def parseArgs(self):
         try:
             opts, args = getopt.getopt(
-                sys.argv[1:], "hi:o:w:", ["ifile=", "ofile=", "width="]
+                sys.argv[1:],
+                "hi:o:w:s:t",
+                ["ifile=", "ofile=", "width=", "server=", "timeout="],
             )
         except getopt.GetoptError:
             return False
-        # if len(sys.argv) < 4:
-        #     return False
         for opt, arg in opts:
             if opt in ("-i", "--ifile"):
                 self.inputfile = arg
@@ -112,6 +134,10 @@ class autoshadow:
                 self.outputfile = arg
             elif opt in ("-w", "--width"):
                 self.maxwidth = arg
+            elif opt in ("-t", "--timeout"):
+                self.timeout = arg
+            elif opt in ("-s", "--server"):
+                self.server = arg
         try:
             if self.outputfile is None:
                 self.outputfile = self.inputfile
@@ -119,8 +145,8 @@ class autoshadow:
             self.outputfile = self.inputfile
         print("self.outputfile =", self.outputfile)
 
-    def save(self):
-        print("Saving VLM file...")
+    def saveVLM(self):
+        # print("Saving VLM file...")
 
         id = blastpy.BpQueueCommandArgs(
             self.blast,
@@ -142,31 +168,26 @@ class autoshadow:
         if result.retval != blastpy.kSuccess:
             print("Error saving VLM file", file=sys.stderr)
 
-    def zoom(self):
-        blastpy.BpQueueCommandArgs(
-            self.blast,
-            blastpy.kZoomWindow,
-            "x1",
-            "30",
-            "y1",
-            "30",
-            "x2",
-            "90",
-            "y2",
-            "90",
-            None,
-        )
-        blastpy.BpUploadQueuedMessages(self.blast)
-
     def connect(self):
         # Connect to server or bail
         self.blast = blastpy.blastpitNew()
         result = blastpy.connectToServer(
-            self.blast, myconfig.WS_SERVER_LOCAL, myconfig.WS_TIMEOUT_SHORT
+            self.blast, myconfig.WS_SERVER_REMOTE, myconfig.WS_TIMEOUT_SHORT
         )
         if result != blastpy.kSuccess:
             print("Can't connect to server (%d)" % result, file=sys.stderr)
             return False
+
+    def showWindow(self):
+        # Show lmos window
+        blastpy.BpDisplayLmosWindow(self.blast, 1)
+        blastpy.BpUploadQueuedMessages(self.blast)
+
+    def setInputfile(self, filename):
+        self.inputfile = filename
+
+    def setOutputfile(self, filename):
+        self.outputfile = filename
 
     def loadFile(self):
         id = blastpy.BpQueueCommandArgs(
@@ -223,8 +244,9 @@ class autoshadow:
                             float(row[5]),
                         ]
                     )
+                    # print("Found path", row[0], file=sys.stderr)
         else:
-            print("kGetGeoList failed")
+            print("kGetGeoList failed", file=sys.stderr)
             return False
 
     def mergeRawPaths(self):
@@ -233,28 +255,28 @@ class autoshadow:
         basename = None
         x1 = 0
         x2 = 0
-        pattern = re.compile("(.*)-(\d+)")
+        pattern = re.compile(r"(.*)-(\d+)")
         for path in self.paths:
             match = re.search(pattern, path[0])
             if match:
-                print("Match found")
+                # print("Match found")
                 if float(path[1]) < x1:
                     x1 = float(path[1])
-                    print("x1 moved to", x1, "by", path[0])
+                    # print("x1 moved to", x1, "by", path[0])
                 if float(path[1]) + float(path[3]) > x2:
                     x2 = float(path[1]) + float(path[3])
-                    print("x2 moved to", x2, "by", path[0])
+                    # print("x2 moved to", x2, "by", path[0])
             else:
                 # Dump any finished path block
                 if basename is not None:
-                    print("Transferring path:", basename)
+                    # print("Transferring path:", basename)
                     merged_paths.append([x1, x2 - x1])
                     basename = None
-                print("Found new base path:", path[0])
+                # print("Found new base path:", path[0])
                 basename = path[0]
                 x1 = float(path[1])
                 x2 = x1 + float(path[3])
-        print("Transferring final path:", basename)
+        # print("Transferring final path:", basename)
         merged_paths.append([x1, x2 - x1])
 
         return merged_paths
@@ -283,68 +305,117 @@ class autoshadow:
 
     def removeInternalPaths(self, paths):
         majorPaths = []
-        for path in paths:
+        for i in range(0, len(paths)):
             is_subpath = False
-            for testPath in paths:
-                if (float(testPath[0]) <= float(path[0])) and (
-                    float(path[0]) + float(path[1])
-                ) < (float(testPath[0]) + float(testPath[1])):
-                    print("Subpath", path, "exists within", testPath)
-                    is_subpath = True
-                    break
+            for j in range(0, len(paths)):
+                if i == j:
+                    continue
+                # if i exists within j then i should be dropped
+                if (float(paths[i][0]) >= float(paths[j][0])) and (
+                    float(paths[i][0]) + float(paths[i][1])
+                ) <= (float(paths[j][0]) + float(paths[j][1])):
+                    if paths[i] != paths[j]:
+                        # print("Subpath", paths[i], "exists within", paths[j], file=sys.stderr)
+                        is_subpath = True
+                        break
+                # else:
+                #     print("Path", paths[i], "is not within", paths[j], "or is identical", file=sys.stderr)
             if is_subpath is False:
-                majorPaths.append(path)
+                majorPaths.append(paths[i])
 
         return majorPaths
+
+    def removeOverlappingPaths(self, paths):
+        nonOverlappingPaths = [paths[0]]
+        # print(paths, file=sys.stderr)
+        for i in range(1, len(paths)):
+            # print("Processing", i, file=sys.stderr)
+            badshadow = False
+            for j in range(0, len(nonOverlappingPaths)):
+                # If start of j is before end of i
+                # print("j:", j, paths[j], file=sys.stderr)
+                # print(float(paths[j][0]), float(paths[i][0]), float(paths[i][1]), file=sys.stderr)
+                if float(paths[i][0]) < (
+                    float(nonOverlappingPaths[j][0]) + float(nonOverlappingPaths[j][1])
+                ):
+                    # If start position is before the end of the previous shadow, it's bad
+                    badshadow = True
+                    # print("Path", paths[i], "overlaps", paths[j], "(", float(paths[i][0]), "<", (float(nonOverlappingPaths[j][0]) + float(nonOverlappingPaths[j][1])), file=sys.stderr)
+                    break
+            if badshadow is False:
+                nonOverlappingPaths.append(paths[i])
+
+        return nonOverlappingPaths
 
     def mergeNeighbouringPaths(self, paths):
         unduplicatePaths = self.removeDuplicates(paths)
         mergedPaths = []
-        for i in range(0, len(unduplicatePaths) - 1):
+        for i in range(0, len(unduplicatePaths)):
             idxBestMerge = -1
             valBestMerge = 0
-            for j in range(0, len(unduplicatePaths) - 1 - i):
+            idxNextTry = -1
+            for j in range(i + 1, len(unduplicatePaths)):
                 width = self.totalWidth(unduplicatePaths[i], unduplicatePaths[j])
                 if width > valBestMerge and width <= float(self.maxwidth):
+                    # print("New best width of", unduplicatePaths[i], "and", unduplicatePaths[j], "is", width, file=sys.stderr)
                     # Found a new widest pair
-                    idxBestMerge = j
+                    idxBestMerge = i
                     valBestMerge = width
+                    idxNextTry = j + 1
             if idxBestMerge > -1:
                 mergedPaths.append(
                     [float(unduplicatePaths[idxBestMerge][0]), float(valBestMerge)]
                 )
+                i = idxNextTry
+            else:
+                mergedPaths.append([unduplicatePaths[i][0], unduplicatePaths[i][1]])
+                # print("Storing best path:", unduplicatePaths[idxBestMerge][0], float(valBestMerge), file=sys.stderr)
 
-        return mergedPaths + unduplicatePaths
+        return mergedPaths
 
     def calculateOptimalPaths(self, paths):
 
         # Sort paths by size
         sortedPaths = self.roundPaths(self.sortPathsByWidth(paths))
-        print("Sorted paths:")
-        print(sortedPaths)
-        print()
+        # print("Sorted paths:")
+        # print(sortedPaths)
+        # print()
 
         # Remove paths larger than max
         sizedPaths = self.removeOversizePaths(sortedPaths)
-        print("Sized paths:")
-        print(self.sortPathsByStartPosition(sizedPaths))
-        print()
+        # print("Sized paths:", file=sys.stderr)
+        # print(self.sortPathsByStartPosition(sizedPaths), file=sys.stderr)
+        # print(file=sys.stderr)
 
         # Merge all possible path combinations
         mergedPaths = self.removeDuplicates(
             self.roundPaths(self.mergeNeighbouringPaths(sizedPaths))
         )
-        print("Merged paths:")
-        print(self.sortPathsByStartPosition(mergedPaths))
-        print()
+        # print("Merged paths:", file=sys.stderr)
+        # print(self.sortPathsByStartPosition(mergedPaths), file=sys.stderr)
+        # print(file=sys.stderr)
+
+        # Remove overlapping merged paths
+        nooverlapMergedPaths = self.removeDuplicates(
+            self.roundPaths(
+                self.removeOverlappingPaths(self.sortPathsByStartPosition(mergedPaths))
+            )
+        )
+        # print("Non-overlapping merged paths:")
+        # print(self.sortPathsByStartPosition(nooverlapMergedPaths))
+        # print()
 
         # Remove paths that exist inside other paths
-        majorPaths = self.removeInternalPaths(mergedPaths)
-        print("Major paths:")
-        print(self.sortPathsByStartPosition(majorPaths))
-        print()
+        majorPaths = self.removeInternalPaths(
+            self.roundPaths(
+                self.sortPathsByStartPosition(nooverlapMergedPaths + sizedPaths)
+            )
+        )
+        # print("Major paths:")
+        # print(self.sortPathsByStartPosition(majorPaths))
+        # print()
 
-        return sizedPaths
+        return majorPaths
 
     def totalWidth(self, path1, path2):
         paths = self.sortPathsByStartPosition([path1, path2])
@@ -353,6 +424,8 @@ class autoshadow:
     def moveShadows(self, newShadowPositions):
         i = 0
         for shadow in self.shadows:
+            if i >= len(newShadowPositions):
+                break
             id = blastpy.BpQueueCommandArgs(
                 self.blast,
                 blastpy.kSetDimension,
@@ -380,16 +453,14 @@ class autoshadow:
                 None,
             )
             i = i + 1
-            # if i > 0:
-            if i >= len(newShadowPositions):
-                break
 
-        blastpy.BpUploadQueuedMessages(self.blast)
-        result = blastpy.BpWaitForReplyOrTimeout(
-            self.blast, id.id, myconfig.WS_TIMEOUT_LONG
-        )
-        if result.retval != blastpy.kSuccess:
-            return False
+        if i > 0:
+            blastpy.BpUploadQueuedMessages(self.blast)
+            result = blastpy.BpWaitForReplyOrTimeout(
+                self.blast, id.id, myconfig.WS_TIMEOUT_LONG
+            )
+            if result.retval != blastpy.kSuccess:
+                return False
 
     def invalidateShadows(self):
         # Move all shadows to an invalid position to highlight unused shadows
@@ -433,8 +504,12 @@ class autoshadow:
         return list(listOfLists for listOfLists, _ in itertools.groupby(listOfLists))
 
     def bail(self, errorMessage):
-        print(errorMessage)
+        print(errorMessage, file=sys.stderr)
         sys.exit(1)
+
+    def cleanup(self):
+        # Disconnect from server; Close open files
+        blastpy.disconnectFromServer(self.blast)
 
     def run(self):
         if self.parseArgs() is False:
@@ -466,11 +541,9 @@ class autoshadow:
         except AttributeError:
             pass
 
-    def cleanup(self):
-        # Disconnect from server; Close open files
-        blastpy.disconnectFromServer(self.blast)
-
 
 if __name__ == "__main__":
-    job = autoshadow()
-    job.run()
+    instance = Autoshadow()
+    instance.run()
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

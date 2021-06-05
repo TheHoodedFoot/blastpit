@@ -144,7 +144,7 @@ sanitize:	$(BUILD_DIR) .tags
 
 release:	$(BUILD_DIR)
 		$(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile release_build 
-		$(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile test_run
+		# $(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile test_run
 
 profile:	$(BUILD_DIR)
 		$(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile profile_build
@@ -155,10 +155,15 @@ cross:		clean $(BUILD_DIR) pngs
 alltargetscheck:
 		make clean
 		make debug
+		make test
+		make test_inkscape
 		make clean
 		make release
+		make test
+		make test_inkscape
 		make clean
 		make sanitize
+		make test
 		make clean
 		make cross
 
@@ -249,7 +254,6 @@ python_install:
 # Testing and Debugging
 test_run:
 	@UBSAN_OPTIONS=print_stacktrace=1 sh -c $(PROJECT_ROOT)/contrib/bin/testrunner.sh
-	pytest -v $(SRC_DIR)/inkscape
 	passed
 
 test_inkscape:
@@ -292,6 +296,7 @@ WINE_ARCH = "win32"
 WINE_LIBS = "C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin"
 WINE_CXX = $(WINE_LIBS)"\\g++.exe"
 QT_DLL_DIR = "Qt/Qt5.14.2/5.14.2/mingw730_32/bin"
+WINE_BINARY = wine
 
 # Qt (Wine) - Must be run from within the 32-bit environment
 $(BUILD_DIR)/debug/platforms $(BUILD_DIR)/release/platforms:
@@ -307,22 +312,25 @@ qmake $(BUILD_DIR)/Makefile: $(BUILD_DIR)
 	git log -1 --pretty=format:%s > $(BUILD_DIR)/git_description.txt
 	git show -s --format=%ci > $(BUILD_DIR)/git_date.txt
 	env WINEARCH="win32" \
+		WINEPREFIX="${HOME}/.wine/32bit" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
-		wine $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/qmake.exe \
+		$(WINE_BINARY) $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/qmake.exe \
 		-o $(BUILD_DIR)/Makefile \
 		src\\lmos\\lmos.pro
 
 lmos $(BUILD_DIR)/debug/lmostray.exe $(BUILD_DIR)/release/lmostray.exe:	$(BUILD_DIR)/Makefile $(BUILD_DIR)/debug/platforms $(BUILD_DIR)/release/platforms $(LIBBLASTPIT_OBJS)
 	env WINEARCH="win32" \
+		WINEPREFIX="${HOME}/.wine/32bit" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
-		wine $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/mingw32-make.exe -C $(BUILD_DIR) -j$(MAXJOBS)
+		$(WINE_BINARY) $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/mingw32-make.exe -C $(BUILD_DIR) -j$(MAXJOBS)
 
 lmosrelease:	$(BUILD_DIR)/release/lmostray.exe tarball
 
 lmosx:	$(BUILD_DIR)/release/lmostray.exe
 	env WINEARCH="win32" \
+		WINEPREFIX="${HOME}/.wine/32bit" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
-		wine $^
+		$(WINE_BINARY) $^
 
 lmoslin $(BUILD_DIR)/lmostray: $(BUILD_DIR)/Makefile
 	make -C $(BUILD_DIR) -j$(MAXJOBS)
