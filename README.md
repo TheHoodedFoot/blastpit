@@ -2,7 +2,7 @@
 
 ## Description
 
-![Tentacle](/res/img/blastpit.png)
+![Tentacle](/res/img/blastpit.svg)
 
 **blastpit** adds additional functionality to the Rofin Easyjewel marking
 system. Features will **(hopefully)** include:
@@ -61,9 +61,9 @@ dependencies used here.
 
 ---
 
-#### libblastpit
+#### Blastpit
 
-The core library and WebSockets server, which are required
+The core files and WebSockets server, which are required
 by the Inkscape plugin, can be compiled with:
 
 ~~~{.sh}
@@ -74,7 +74,7 @@ in the root of the project directory.
 
 #### Python libraries
 
-Once libblastpit has been compiled, you can install the Python bindings to a local directory with:
+Once blastpit has been compiled, you can install the Python bindings to a local directory with:
 
 ~~~{.sh}
 make python
@@ -113,9 +113,9 @@ If you have access to the Rofin VLM installation media then you can install VLM
 to the Wine directory, since the lmos ActiveX control will run under Wine. This
 can be useful for testing and development.
 
-Once installed, you can compile the Win32 blastpit library from your normal
+Once installed, you can compile the Win32 blastpit code from your normal
 development environment (not the 32-bit chroot, if you used one) with the
-following command:
+following command, which uses zig to cross-compile:
 
 ~~~{.sh}
 make clean cross

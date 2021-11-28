@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -f .git/tags{,extra}
+res/.hooks/updatetags

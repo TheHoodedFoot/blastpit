@@ -1,0 +1,133 @@
+{
+  "$schema": "https://puremourning.github.io/vimspector/schema/vimspector.schema.json",
+  "configurations": {
+    "run-to-entry": {
+      "adapter": "vscode-cpptools",
+      // This makes this configuration the default. Only one default can be set
+      // (having two is the same as having none)
+      "default": true,
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/${program}",
+        "cwd": "${workspaceRoot}/build",
+        "externalConsole": false,
+        "stopAtEntry": true,
+        "stopOnEntry": true,
+        "MImode": "${mimode}"
+      },
+      "breakpoints": {
+        "exception": {
+          "cpp_catch": "",
+          "cpp_throw": ""
+        }
+      },
+      "variables": {
+	      "mimode": {
+		      "shell": ["${workspaceRoot}/contrib/bin/debugcmd.sh"]
+	      },
+	      "program": {
+		      "shell": ["${workspaceRoot}/contrib/bin/debugexe.sh"]
+	      }
+      }
+    },
+    "run-to-breakpoint": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "${program}/cock",
+        "cwd": "${workspaceRoot}/build",
+        "externalConsole": false,
+        "stopAtEntry": false,
+        "stopOnEntry": false,
+        "MImode": "${mimode}"
+      },
+      "breakpoints": {
+        "exception": {
+          "cpp_catch": "",
+          "cpp_throw": ""
+        }
+      }
+    },
+    "run-to-breakpoint-specify-file": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/build/${prog}",
+        "cwd": "${workspaceRoot}/build",
+        "externalConsole": false,
+        "stopAtEntry": false,
+        "stopOnEntry": false,
+        "MImode": "${mimode}"
+      },
+      "breakpoints": {
+        "exception": {
+          "cpp_catch": "",
+          "cpp_throw": ""
+        }
+      }
+    },
+    "calculate-some-variable": {
+      "adapter": "vscode-cpptools",
+      "variables": {
+        "SIMPLE": "This is some text containing: $HOME",
+        "CALCULATED_LIST": {
+          "shell": [ "uuidgen" ]
+        },
+        "CALCULATED_STR": {
+          "shell": [ "uuidgen" ]
+        }
+      },
+      "configuration": {
+        "request": "launch",
+        "program": "${program}",
+        "cwd": "${workspaceRoot}/build",
+        "MImode": "${mimode}",
+        "externalConsole": false,
+        "args": [
+          "CALCULATED_LIST", "${CALCULATED_LIST}",
+          "SIMPLE", "${SIMPLE}",
+          "CALCULATED_STR", "${CALCULATED_STR}"
+        ]
+      }
+    },
+    "lldb-vscode": {
+      "adapter": "lldb-vscode",
+      "configuration": {
+        "request": "launch",
+        "program": "${program}",
+        "cwd": "${workspaceRoot}/build",
+        "externalConsole": false,
+        "MIMode": "lldb"
+      }
+    },
+    "CodeLLDB": {
+      "adapter": "CodeLLDB",
+      "configuration": {
+        "request": "launch",
+        "program": "${program}",
+        "cwd": "${workspaceRoot}/build",
+        "expressions": "native"
+      }
+    }
+  },
+  "adapters": {
+    "lldb-vscode": {
+      "variables": {
+        "LLVM": {
+          "shell": "brew --prefix llvm"
+        }
+      },
+      "attach": {
+        "pidProperty": "pid",
+        "pidSelect": "ask"
+      },
+      "command": [
+        "${LLVM}/bin/lldb-vscode"
+      ],
+      "env": {
+        "LLDB_LAUNCH_FLAG_LAUNCH_IN_TTY": "YES"
+      },
+      "name": "lldb"
+    }
+  }
+}

@@ -1,274 +1,274 @@
 #include "xml.h"
-#include <mxml.h>
 #include "blastpit.h"
 #include "sds.h"
+#include <mxml.h>
 
 int
-XmlGetMessageCount(const char *xml)
+XmlGetMessageCount( const char* xml )
 {  // Returns count of <message> elements or kInvalid on bad xml
 
-	if (!xml)
+	if ( !xml )
 		return 0;
 
-	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tree = mxmlLoadString( NULL, xml, MXML_OPAQUE_CALLBACK );
 
-	mxml_node_t *node;
+	mxml_node_t* node;
 	int	     count = 0;
 
-	for (node = mxmlFindElement(tree, tree, "message", NULL, NULL, MXML_DESCEND); node != NULL;
-	     node = mxmlFindElement(node, tree, "message", NULL, NULL, MXML_DESCEND)) {
+	for ( node = mxmlFindElement( tree, tree, "message", NULL, NULL, MXML_DESCEND ); node != NULL;
+	      node = mxmlFindElement( node, tree, "message", NULL, NULL, MXML_DESCEND ) ) {
 		count++;
 	}
 
-	mxmlDelete(tree);
+	mxmlDelete( tree );
 	return count;
 }
 
 sds
-XmlGetAttribute(const char *message, const char *attribute)
+XmlGetAttribute( const char* message, const char* attribute )
 {  // Retrieves an attribute value, or NULL
 
-	if (!message || !attribute)
+	if ( !message || !attribute )
 		return NULL;
 
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* xml = mxmlLoadString( NULL, message, MXML_OPAQUE_CALLBACK );
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-	if (!node) {
-		mxmlDelete(xml);
-		return NULL;
-	}
-
-	const char *value = mxmlElementGetAttr(node, attribute);
-	if (!value) {
-		mxmlDelete(xml);
+	mxml_node_t* node = mxmlFindElement( xml, xml, "message", NULL, NULL, MXML_DESCEND );
+	if ( !node ) {
+		mxmlDelete( xml );
 		return NULL;
 	}
 
-	sds retval = sdsnew(value);
+	const char* value = mxmlElementGetAttr( node, attribute );
+	if ( !value ) {
+		mxmlDelete( xml );
+		return NULL;
+	}
 
-	mxmlDelete(xml);
+	sds retval = sdsnew( value );
+
+	mxmlDelete( xml );
 
 	return retval;
 }
 
 sds
-XmlGetChildNodeAsString(const char *message_str, const char *child)
+XmlGetChildNodeAsString( const char* message_str, const char* child )
 {  // Returns the child node tree as a string
 
-	if (!message_str) {
-		BPLOG(kLvlDebug, "%s: Invalid message string supplied\n", __func__);
+	if ( !message_str ) {
+		BPLOG( kLvlDebug, "%s: Invalid message string supplied\n", __func__ );
 		return NULL;
 	}
-	if (!strlen(message_str)) {
-		BPLOG(kLvlDebug, "%s: Invalid message string length\n", __func__);
-		return NULL;
-	}
-
-	sds message = sdsnew(message_str);
-	XmlAddXmlHeader(&message);
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
-	if (!xml) {
-		BPLOG(kLvlDebug, "%s: Couldn't add xml header\n", __func__);
-		sdsfree(message);
+	if ( !strlen( message_str ) ) {
+		BPLOG( kLvlDebug, "%s: Invalid message string length\n", __func__ );
 		return NULL;
 	}
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, child, NULL, NULL, MXML_DESCEND);
-	if (node) {
-		BPLOG(kLvlDebug, "%s: Converting tree to string\n", __func__);
-		char *mxmlString = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
-		sds   node_data	 = sdsnew(mxmlString);
-		free(mxmlString);
-		mxmlDelete(xml);
-		sdsfree(message);
+	sds message = sdsnew( message_str );
+	XmlAddXmlHeader( &message );
+	mxml_node_t* xml = mxmlLoadString( NULL, message, MXML_OPAQUE_CALLBACK );
+	if ( !xml ) {
+		BPLOG( kLvlDebug, "%s: Couldn't add xml header\n", __func__ );
+		sdsfree( message );
+		return NULL;
+	}
+
+	mxml_node_t* node = mxmlFindElement( xml, xml, child, NULL, NULL, MXML_DESCEND );
+	if ( node ) {
+		BPLOG( kLvlDebug, "%s: Converting tree to string\n", __func__ );
+		char* mxmlString = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
+		sds   node_data	 = sdsnew( mxmlString );
+		free( mxmlString );
+		mxmlDelete( xml );
+		sdsfree( message );
 		return node_data;
 	}
 
-	BPLOG(kLvlDebug, "%s: Couldn't find the message element\n", __func__);
-	sdsfree(message);
+	BPLOG( kLvlDebug, "%s: Couldn't find the message element\n", __func__ );
+	sdsfree( message );
 	return NULL;
 }
 
 sds
-XmlGetMessageByIndex(const char *xml, int index)
+XmlGetMessageByIndex( const char* xml, int index )
 {  // Returns a string containing a single message element
 
-	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tree = mxmlLoadString( NULL, xml, MXML_OPAQUE_CALLBACK );
 
-	mxml_node_t *node;
+	mxml_node_t* node;
 	int	     count = 0;
 
 	// TODO: Memory leaks here
-	for (node = mxmlFindElement(tree, tree, "message", NULL, NULL, MXML_DESCEND); node != NULL && count < index;
-	     node = mxmlFindElement(node, tree, "message", NULL, NULL, MXML_DESCEND)) {
+	for ( node = mxmlFindElement( tree, tree, "message", NULL, NULL, MXML_DESCEND ); node != NULL && count < index;
+	      node = mxmlFindElement( node, tree, "message", NULL, NULL, MXML_DESCEND ) ) {
 		count++;
 	}
 
-	if (!node)
+	if ( !node )
 		return NULL;
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
-	sds   retval	= sdsnew("<?xml?>");
-	retval		= sdscat(retval, node_data);
-	free(node_data);
-	mxmlDelete(tree);
+	char* node_data = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
+	sds   retval	= sdsnew( "<?xml?>" );
+	retval		= sdscat( retval, node_data );
+	free( node_data );
+	mxmlDelete( tree );
 
 	return retval;
 }
 
 sds
-XmlGetPayloadByIndex(const char *xml, int index)
+XmlGetPayloadByIndex( const char* xml, int index )
 {  // Returns a message payload
 
-	mxml_node_t *tree = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
+	mxml_node_t* tree = mxmlLoadString( NULL, xml, MXML_OPAQUE_CALLBACK );
 
-	mxml_node_t *node;
+	mxml_node_t* node;
 	int	     count = 0;
 
 	// TODO: Memory leaks here
-	for (node = mxmlFindElement(tree, tree, "message", NULL, NULL, MXML_DESCEND); node != NULL && count < index;
-	     node = mxmlFindElement(node, tree, "message", NULL, NULL, MXML_DESCEND)) {
+	for ( node = mxmlFindElement( tree, tree, "message", NULL, NULL, MXML_DESCEND ); node != NULL && count < index;
+	      node = mxmlFindElement( node, tree, "message", NULL, NULL, MXML_DESCEND ) ) {
 		count++;
 	}
 
-	if (!node)
+	if ( !node )
 		return NULL;
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
-	sds   retval	= sdsnew("<?xml?>");
-	retval		= sdscat(retval, node_data);
-	free(node_data);
-	mxmlDelete(tree);
+	char* node_data = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
+	sds   retval	= sdsnew( "<?xml?>" );
+	retval		= sdscat( retval, node_data );
+	free( node_data );
+	mxmlDelete( tree );
 
 	return retval;
 }
 
 sds
-XmlSetAttribute(sds message, const char *attribute, const char *value)
+XmlSetAttribute( sds message, const char* attribute, const char* value )
 {  // Sets an attribute value. Invalidates original message.
 
-	if (!message || !attribute || !value)
+	if ( !message || !attribute || !value )
 		return NULL;
 
-	XmlAddXmlHeader(&message);
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	XmlAddXmlHeader( &message );
+	mxml_node_t* xml = mxmlLoadString( NULL, message, MXML_OPAQUE_CALLBACK );
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-	if (!node) {
-		mxmlDelete(xml);
+	mxml_node_t* node = mxmlFindElement( xml, xml, "message", NULL, NULL, MXML_DESCEND );
+	if ( !node ) {
+		mxmlDelete( xml );
 		return NULL;
 	}
 
-	mxmlElementSetAttr(node, attribute, value);
+	mxmlElementSetAttr( node, attribute, value );
 
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
-	sds   retval	= sdsnew(node_data);
-	free(node_data);
-	mxmlDelete(xml);
-	sdsfree(message);  // Caller must treat existing message as deleted
+	char* node_data = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
+	sds   retval	= sdsnew( node_data );
+	free( node_data );
+	mxmlDelete( xml );
+	sdsfree( message );  // Caller must treat existing message as deleted
 
 	return retval;
 }
 
 void
-XmlAddXmlHeader(sds *message)
+XmlAddXmlHeader( sds* message )
 {  // Helper to add the <?xml?> header to allow mxmlLoadString to work
 
-	sds header_added = sdsnew("<?xml?>");
-	header_added	 = sdscatsds(header_added, *message);
-	sdsfree(*message);
+	sds header_added = sdsnew( "<?xml?>" );
+	header_added	 = sdscatsds( header_added, *message );
+	sdsfree( *message );
 	*message = header_added;
 }
 
 sds
-XmlDeleteAttribute(sds message, const char *attribute)
+XmlDeleteAttribute( sds message, const char* attribute )
 {  // Deletes an attribute value. Invalidates original message.
 
-	if (!message || !attribute) {
+	if ( !message || !attribute ) {
 		return NULL;
 	}
 
-	XmlAddXmlHeader(&message);
-	mxml_node_t *xml = mxmlLoadString(NULL, message, MXML_OPAQUE_CALLBACK);
+	XmlAddXmlHeader( &message );
+	mxml_node_t* xml = mxmlLoadString( NULL, message, MXML_OPAQUE_CALLBACK );
 
-	mxml_node_t *node = mxmlFindElement(xml, xml, "message", NULL, NULL, MXML_DESCEND);
-	if (!node) {
-		mxmlDelete(xml);
+	mxml_node_t* node = mxmlFindElement( xml, xml, "message", NULL, NULL, MXML_DESCEND );
+	if ( !node ) {
+		mxmlDelete( xml );
 		return NULL;
 	}
 
-	mxmlElementDeleteAttr(node, attribute);
+	mxmlElementDeleteAttr( node, attribute );
 
-	char *node_data = mxmlSaveAllocString(node, MXML_NO_CALLBACK);
-	sds   retval	= sdsnew(node_data);
-	free(node_data);
-	mxmlDelete(xml);
-	sdsfree(message);  // Caller must treat existing message as deleted
+	char* node_data = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
+	sds   retval	= sdsnew( node_data );
+	free( node_data );
+	mxmlDelete( xml );
+	sdsfree( message );  // Caller must treat existing message as deleted
 
 	return retval;
 }
 
 sds
-XmlNewCdata(const char *message)
+XmlNewCdata( const char* message )
 {  // Adds a CDATA string to a <message>
 
-	if (!message)
+	if ( !message )
 		return NULL;
 
-	mxml_node_t *xml	  = mxmlNewXML("1.0");
-	mxml_node_t *message_node = mxmlNewElement(xml, "message");
-	mxmlNewCDATA(message_node, message);
+	mxml_node_t* xml	  = mxmlNewXML( "1.0" );
+	mxml_node_t* message_node = mxmlNewElement( xml, "message" );
+	mxmlNewCDATA( message_node, message );
 
 	// We don't want the xml header, just the message node
-	char *xml_string = mxmlSaveAllocString(message_node, MXML_NO_CALLBACK);
+	char* xml_string = mxmlSaveAllocString( message_node, MXML_NO_CALLBACK );
 
-	sds retval = sdsnew(xml_string);
-	free(xml_string);
-	mxmlDelete(xml);
+	sds retval = sdsnew( xml_string );
+	free( xml_string );
+	mxmlDelete( xml );
 
 	return retval;
 }
 
 sds
-XmlDrawingToMessage(sds drawing)
+XmlDrawingToMessage( sds drawing )
 {  // Rewrites Xml.
 
-	if (!drawing) {
+	if ( !drawing ) {
 		return NULL;
 	}
 
 	// XmlAddXmlHeader(&message);
-	mxml_node_t *xml     = mxmlLoadString(NULL, drawing, MXML_OPAQUE_CALLBACK);
-	mxml_node_t *tidy    = mxmlNewXML("1.0");
-	mxml_node_t *message = mxmlNewElement(tidy, "message");
-	mxmlAdd(message, MXML_ADD_AFTER, NULL, xml);
-	char *tree   = mxmlSaveAllocString(tidy, MXML_NO_CALLBACK);
-	sds   retval = sdsnew(tree);
-	free(tree);
-	mxmlDelete(xml);
-	mxmlDelete(tidy);
+	mxml_node_t* xml     = mxmlLoadString( NULL, drawing, MXML_OPAQUE_CALLBACK );
+	mxml_node_t* tidy    = mxmlNewXML( "1.0" );
+	mxml_node_t* message = mxmlNewElement( tidy, "message" );
+	mxmlAdd( message, MXML_ADD_AFTER, NULL, xml );
+	char* tree   = mxmlSaveAllocString( tidy, MXML_NO_CALLBACK );
+	sds   retval = sdsnew( tree );
+	free( tree );
+	mxmlDelete( xml );
+	mxmlDelete( tidy );
 
 	return retval;
 }
 
 sds
-XmlExtractMessagePayload(const char *xml)
+XmlExtractMessagePayload( const char* xml )
 {  // Returns the string payload of a message, or NULL
 
-	if (!xml) {
+	if ( !xml ) {
 		return NULL;
 	}
 
-	mxml_node_t *message = mxmlLoadString(NULL, xml, MXML_OPAQUE_CALLBACK);
-	mxml_node_t *node    = mxmlFindElement(message, message, "message", NULL, NULL, MXML_DESCEND);
-	if (!node) {
-		mxmlDelete(message);
+	mxml_node_t* message = mxmlLoadString( NULL, xml, MXML_OPAQUE_CALLBACK );
+	mxml_node_t* node    = mxmlFindElement( message, message, "message", NULL, NULL, MXML_DESCEND );
+	if ( !node ) {
+		mxmlDelete( message );
 		return NULL;
 	}
 
-	const char *node_data = mxmlGetOpaque(node);
-	sds	    retval    = sdsnew(node_data);
+	const char* node_data = mxmlGetOpaque( node );
+	sds	    retval    = sdsnew( node_data );
 	// free(node_data);
-	mxmlDelete(message);
+	mxmlDelete( message );
 
 	return retval;
 }

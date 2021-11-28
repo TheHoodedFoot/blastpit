@@ -1,0 +1,3 @@
+Checks:          '*,-llvmlibc*,-altera-unroll-loops'
+WarningsAsErrors: '*,-readability-function-cognitive-complexity,-bugprone-easily-swappable-parameters'
+HeaderFilterRegex: ''

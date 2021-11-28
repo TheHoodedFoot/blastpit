@@ -5,6 +5,7 @@
 #
 
 import blastpy as bp
+
 # from myconfig import BP_NET_TIMEOUT
 
 # The main Blastpit object

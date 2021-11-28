@@ -1,31 +1,36 @@
 #include "traysettings.h"
-#include <QSettings>
 #include "ui_traysettings.h"
+#include <QSettings>
 
-traysettings::traysettings(QWidget *parent) : QDialog(parent), ui(new Ui::traysettings)
+traysettings::traysettings( QWidget* parent )
+	: QDialog( parent )
+	, ui( new Ui::traysettings )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 
-	QSettings traySettings("Rfbevanco", "lmos-tray");
+	QSettings traySettings( "Rfbevanco", "lmos-tray" );
 
 	/* Retrieve settings */
-	QString dummy = traySettings.value("wsServer").toString();
-	if (dummy.trimmed().isEmpty()) {
+	QString dummy = traySettings.value( "wsServer" ).toString();
+	if ( dummy.trimmed().isEmpty() ) {
 		dummy = "ws://server:port";
 	}
-	ui->wsServer->setText(dummy);
+	ui->wsServer->setText( dummy );
 
-	connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(storesettings()));
+	connect( ui->buttonBox, SIGNAL( accepted() ), this, SLOT( storesettings() ) );
 }
 
-traysettings::~traysettings() { delete ui; }
+traysettings::~traysettings()
+{
+	delete ui;
+}
 
 void
 traysettings::storesettings()
 {
-	QSettings traySettings("Rfbevanco", "lmos-tray");
+	QSettings traySettings( "Rfbevanco", "lmos-tray" );
 
 	/* Store settings */
-	traySettings.setValue("wsServer", ui->wsServer->text());
-	emit(serverChanged());
+	traySettings.setValue( "wsServer", ui->wsServer->text() );
+	emit( serverChanged() );
 }

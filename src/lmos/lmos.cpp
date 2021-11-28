@@ -2,26 +2,31 @@
 #include "../libblastpit/blastpit.h"
 
 #include <QDir>
+#include <QFile>
 #include <QMetaMethod>
 #include <QTemporaryFile>
 
-Lmos::Lmos(QObject* parent) : QObject(parent)
+Lmos::Lmos( QObject* parent )
+	: QObject( parent )
 {
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	lmos_actx = NULL;
 #endif
 }
 
-Lmos::~Lmos() { DestroyControl(); }
+Lmos::~Lmos()
+{
+	DestroyControl();
+}
 
 void
 Lmos::CreateControl()
 {  // Dyamically creates the activex control
 
-#if defined(Q_OS_WIN32)
-	if (lmos_actx)
+#if defined( Q_OS_WIN32 )
+	if ( lmos_actx )
 		return;
-	lmos_actx = new (LMOSACTXLib::LMOSActX);
+	lmos_actx = new ( LMOSACTXLib::LMOSActX );
 #endif
 }
 
@@ -29,8 +34,8 @@ void
 Lmos::DestroyControl()
 {  // Destroy the activex control
 
-#if defined(Q_OS_WIN32)
-	if (lmos_actx) {
+#if defined( Q_OS_WIN32 )
+	if ( lmos_actx ) {
 		delete lmos_actx;
 		lmos_actx = NULL;
 	}
@@ -41,31 +46,42 @@ void
 Lmos::ConnectSignals()
 {  // Connect up Qt signals and slots
 
-#if defined(Q_OS_WIN32)
-	if (!lmos_actx)
+#if defined( Q_OS_WIN32 )
+	if ( !lmos_actx )
 		return;
-	connect(lmos_actx, SIGNAL(MessageMap(QString&)), this, SLOT(messagemap(QString&)),
-		Qt::ConnectionType::DirectConnection);
-	connect(lmos_actx, SIGNAL(ALARM(int, const QString, const QString, int)), this,
-		SLOT(alarm(int, QString, QString, int)));
-	connect(lmos_actx, SIGNAL(CurrentChanged(const double)), this, SLOT(currentChanged(double)));
-	connect(lmos_actx, SIGNAL(FrequencyChanged(const int)), this, SLOT(frequencyChanged(int)));
-	connect(lmos_actx, SIGNAL(JobBegin()), this, SLOT(jobBegin()));
-	connect(lmos_actx, SIGNAL(JobEnd()), this, SLOT(jobEnd()));
-	connect(lmos_actx, SIGNAL(PLCEvent(QString&, QString&, QString&)), this,
-		SLOT(plcEvent(QString&, QString&, QString&)));
-	connect(lmos_actx, SIGNAL(exception(const int, const QString, const QString, const QString)), this,
-		SLOT(exception(int, const QString, const QString, const QString)));
+	connect( lmos_actx,
+		 SIGNAL( MessageMap( QString& ) ),
+		 this,
+		 SLOT( messagemap( QString& ) ),
+		 Qt::ConnectionType::DirectConnection );
+	connect( lmos_actx,
+		 SIGNAL( ALARM( int, const QString, const QString, int ) ),
+		 this,
+		 SLOT( alarm( int, QString, QString, int ) ) );
+	connect( lmos_actx, SIGNAL( CurrentChanged( const double ) ), this, SLOT( currentChanged( double ) ) );
+	connect( lmos_actx, SIGNAL( FrequencyChanged( const int ) ), this, SLOT( frequencyChanged( int ) ) );
+	connect( lmos_actx, SIGNAL( JobBegin() ), this, SLOT( jobBegin() ) );
+	connect( lmos_actx, SIGNAL( JobEnd() ), this, SLOT( jobEnd() ) );
+	connect( lmos_actx,
+		 SIGNAL( PLCEvent( QString&, QString&, QString& ) ),
+		 this,
+		 SLOT( plcEvent( QString&, QString&, QString& ) ) );
+	connect( lmos_actx,
+		 SIGNAL( exception( const int, const QString, const QString, const QString ) ),
+		 this,
+		 SLOT( exception( int, const QString, const QString, const QString ) ) );
 
-	connect(lmos_actx, SIGNAL(signal(const QString&, int, void*)), this, SLOT(emitSig(const QString&)));
+	connect( lmos_actx, SIGNAL( signal( const QString&, int, void* ) ), this, SLOT( emitSig( const QString& ) ) );
 
 	/* Working */
-	connect(lmos_actx, SIGNAL(ImageEnd()), this, SLOT(imageend()));
-	connect(lmos_actx, SIGNAL(ImageBegin()), this, SLOT(imagebegin()));
-	connect(lmos_actx, SIGNAL(MOBeginName(QString&)), this, SLOT(mOBeginName(QString&)));
-	connect(lmos_actx, SIGNAL(MOEndName(QString&)), this, SLOT(mOEndName(QString&)));
-	connect(lmos_actx, SIGNAL(ImageEnd2(const double, const ImageResultConstants)), this,
-		SLOT(imageEnd2(double, ImageResultConstants)));
+	connect( lmos_actx, SIGNAL( ImageEnd() ), this, SLOT( imageend() ) );
+	connect( lmos_actx, SIGNAL( ImageBegin() ), this, SLOT( imagebegin() ) );
+	connect( lmos_actx, SIGNAL( MOBeginName( QString& ) ), this, SLOT( mOBeginName( QString& ) ) );
+	connect( lmos_actx, SIGNAL( MOEndName( QString& ) ), this, SLOT( mOEndName( QString& ) ) );
+	connect( lmos_actx,
+		 SIGNAL( ImageEnd2( const double, const ImageResultConstants ) ),
+		 this,
+		 SLOT( imageEnd2( double, ImageResultConstants ) ) );
 #endif
 }
 
@@ -73,11 +89,11 @@ void
 Lmos::DisconnectSignals()
 {  // Disconnect Qt signals and slots
 
-#if defined(Q_OS_WIN32)
-	if (!lmos_actx)
+#if defined( Q_OS_WIN32 )
+	if ( !lmos_actx )
 		return;
 
-	disconnect(lmos_actx, 0, 0, 0);
+	disconnect( lmos_actx, 0, 0, 0 );
 #endif
 }
 
@@ -85,8 +101,8 @@ void
 Lmos::ShowWindow()
 {  // Makes the lmos window visible
 
-#if defined(Q_OS_WIN32)
-	if (!lmos_actx)
+#if defined( Q_OS_WIN32 )
+	if ( !lmos_actx )
 		return;
 	lmos_actx->show();
 #endif
@@ -96,8 +112,8 @@ void
 Lmos::HideWindow()
 {  // Hides the lmos window
 
-#if defined(Q_OS_WIN32)
-	if (!lmos_actx)
+#if defined( Q_OS_WIN32 )
+	if ( !lmos_actx )
 		return;
 	lmos_actx->hide();
 #endif
@@ -106,10 +122,10 @@ Lmos::HideWindow()
 QPixmap
 Lmos::GrabWindow()
 {
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	return lmos_actx->grab();
 #else
-	QPixmap* ptr_pixmap = new QPixmap(256, 256);
+	QPixmap* ptr_pixmap = new QPixmap( 256, 256 );
 	/* ptr_pixmap->fill("#777777"); */
 	QPixmap pixmap = *ptr_pixmap;
 	delete ptr_pixmap;
@@ -121,26 +137,25 @@ bool
 Lmos::InitMachine()
 {  // Initialise the hardware
 
-	emit log(kLvlDebug, __func__, "Initialising hardware...");
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "Initialising hardware..." );
+#if defined( Q_OS_WIN32 )
 	try {
 		return lmos_actx->InitMachine();
-	} catch (...) {
-		emit log(
-			"bplInitMachine: An exception occurred initialising "
-			"the laser.");
+	} catch ( ... ) {
+		emit log( "bplInitMachine: An exception occurred initialising "
+			  "the laser." );
 	}
 #endif
 	return false;
 }
 
 bool
-Lmos::SaveVLM(const QString& filename)
+Lmos::SaveVLM( const QString& filename )
 {
-	emit log(kLvlDebug, __func__, "Saving vlm as " + filename);
-	if (filename.length() > 0) {
-#if defined(Q_OS_WIN32)
-		return lmos_actx->Save(filename);
+	emit log( kLvlDebug, __func__, "Saving vlm as " + filename );
+	if ( filename.length() > 0 ) {
+#if defined( Q_OS_WIN32 )
+		return lmos_actx->Save( filename );
 #else
 		return false;
 #endif
@@ -149,31 +164,168 @@ Lmos::SaveVLM(const QString& filename)
 	return false;
 }
 
+int
+Lmos::PatchFlexibleShadows( const QString& filename )
+{  // Patch binary to enable flexible shadows
+
+#define SEARCH_LEN 9
+
+	unsigned char findstring[] = { 0xff, 0xfe, 0xff, 0x00, 0x01, 0x00, 0x00, 0x00, 0x30 };
+
+	// Open file, patch, and save
+	QFile infile( filename );
+	QFile outfile( filename + ".patch_flex_shadows" );
+
+	int  offset	  = 0;
+	int  num_replaced = 0;
+	char buf[SEARCH_LEN];
+
+	infile.open( QIODevice::ReadOnly );
+
+	// Fill initial buffer
+	infile.read( buf, SEARCH_LEN );
+	if ( infile.atEnd() ) {
+		emit log( kLvlDebug, __func__, "Could not fill initial buffer." );
+		return kFailure;
+	}
+	offset += SEARCH_LEN;
+
+	outfile.open( QIODevice::WriteOnly );
+	while ( !infile.atEnd() ) {
+		// Compare string
+		int does_match = memcmp( findstring, buf, SEARCH_LEN );
+		if ( does_match == 0 ) {
+			// Replace
+			buf[SEARCH_LEN - 1] = 0xb0;
+			num_replaced++;
+		}
+
+		// Flush first character
+		outfile.putChar( buf[0] );
+
+		// Rotate bytes
+		for ( int i = 0; i < SEARCH_LEN - 1; i++ ) {
+			buf[i] = buf[i + 1];
+		}
+
+		// Get next character
+		infile.getChar( &buf[SEARCH_LEN - 1] );
+		offset++;
+	}
+
+	infile.close();
+
+	// Flush and quit
+	for ( int i = 0; i < SEARCH_LEN; i++ ) {
+		outfile.putChar( buf[i] );
+	}
+	outfile.close();
+
+	if ( num_replaced > 1 ) {
+		emit log( kLvlWarn, __func__, "Warning: more than one replacement was made." );
+		return kFailure;
+	}
+
+	// Delete input file and rename
+	QFile::remove( filename );
+	QFile::rename( filename + ".patch_flex_shadows", filename );
+
+	return kSuccess;
+}
+
+int
+Lmos::PatchVLMFile( const QString&	 filename,
+		    int			 length,
+		    const unsigned char* findstring,
+		    const unsigned char* replacestring )
+{  // Apply patches to VLM file
+
+	// Open file, patch, and save
+	QFile infile( filename );
+	QFile outfile( filename + ".patch_flex_shadows" );
+
+	int  offset	  = 0;
+	int  num_replaced = 0;
+	char buf[length];
+
+	infile.open( QIODevice::ReadOnly );
+
+	// Fill initial buffer
+	infile.read( buf, length );
+	if ( infile.atEnd() ) {
+		emit log( kLvlDebug, __func__, "Could not fill initial buffer." );
+		return kFailure;
+	}
+	offset += length;
+
+	outfile.open( QIODevice::WriteOnly );
+	while ( !infile.atEnd() ) {
+		// Compare string
+		int does_match = memcmp( findstring, buf, length );
+		if ( does_match == 0 ) {
+			// Copy replacestring to buffer
+			memcpy( buf, replacestring, length );
+			num_replaced++;
+		}
+
+		// Flush first character
+		outfile.putChar( buf[0] );
+
+		// Rotate bytes
+		for ( int i = 0; i < length - 1; i++ ) {
+			buf[i] = buf[i + 1];
+		}
+
+		// Get next character
+		infile.getChar( &buf[length - 1] );
+		offset++;
+	}
+
+	infile.close();
+
+	// Flush and quit
+	for ( int i = 0; i < length; i++ ) {
+		outfile.putChar( buf[i] );
+	}
+	outfile.close();
+
+	if ( num_replaced > 1 ) {
+		emit log( kLvlWarn, __func__, "Warning: more than one replacement was made." );
+		return kFailure;
+	}
+
+	// Delete input file and rename
+	QFile::remove( filename );
+	QFile::rename( filename + ".patch_flex_shadows", filename );
+
+	return kSuccess;
+}
+
 bool
-Lmos::LoadVLM(const QString& filename)
+Lmos::LoadVLM( const QString& filename )
 {
-	QString vlm = QDir::toNativeSeparators(filename);
-	emit	log(kLvlDebug, __func__, "Loading " + vlm);
-#if defined(Q_OS_WIN32)
-	return lmos_actx->FileName2(vlm);
+	QString vlm = QDir::toNativeSeparators( filename );
+	emit	log( kLvlDebug, __func__, "Loading " + vlm );
+#if defined( Q_OS_WIN32 )
+	return lmos_actx->FileName2( vlm );
 #endif
 	return false;
 }
 
 bool
-Lmos::LoadXML(const QString& xml)
+Lmos::LoadXML( const QString& xml )
 {
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	/* We must force a clear here, since Lmos crashes if a previous layout
 	 * exists */
 	lmos_actx->CancelJob();
 	lmos_actx->ClearLayout();
 
-	bool result = lmos_actx->LoadXML(xml);
+	bool result = lmos_actx->LoadXML( xml );
 	lmos_actx->ShowMarkingArea();
 	return result;
 #else
-	emit log(kLvlDebug, __func__, xml);
+	emit log( kLvlDebug, __func__, xml );
 	return false;
 #endif
 }
@@ -185,46 +337,46 @@ Lmos::ClearQPSets()
 		emit log(kLvlDebug, __func__, "Debug mode: not Clearing QP
 	Sets"); return; #endif
 	*/
-	emit log(kLvlDebug, __func__, "Clearing QP Sets");
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "Clearing QP Sets" );
+#if defined( Q_OS_WIN32 )
 	QVariant    qpNames	= lmos_actx->GetGlobalQPSetNames();
 	QStringList qpNamesList = qpNames.toStringList();
 	QString	    qpName;
-	for (int i = 0; i < qpNamesList.count(); i++) {
-		if (!QString::compare("bp_", qpNamesList[i].left(3), Qt::CaseInsensitive)) {
-			emit log(kLvlDebug, __func__, "Deleting " + qpNamesList[i]);
-			lmos_actx->RemoveGlobalQPSet(qpNamesList[i]);
+	for ( int i = 0; i < qpNamesList.count(); i++ ) {
+		if ( !QString::compare( "bp_", qpNamesList[i].left( 3 ), Qt::CaseInsensitive ) ) {
+			emit log( kLvlDebug, __func__, "Deleting " + qpNamesList[i] );
+			lmos_actx->RemoveGlobalQPSet( qpNamesList[i] );
 		}
 		// lmos_actx->SaveGlobalQPSets();
 	}
 #endif
-	emit log(kLvlDebug, __func__, "Finished clearing QP Sets");
+	emit log( kLvlDebug, __func__, "Finished clearing QP Sets" );
 }
 void
-Lmos::ImportXML(QTemporaryFile* XMLFile)
+Lmos::ImportXML( QTemporaryFile* XMLFile )
 {
 	// Qt may be happy with path separators, but LMOS isn't
-	QString winXML = QDir::toNativeSeparators(XMLFile->fileName());
-	emit	log(kInfo, __func__, "bplImportXML: Importing " + winXML);
+	QString winXML = QDir::toNativeSeparators( XMLFile->fileName() );
+	emit	log( kInfo, __func__, "bplImportXML: Importing " + winXML );
 
 	// LMOS fails to import the file if it is still owned by us,
 	// so we have to close it, read it then delete it.
-	XMLFile->setAutoRemove(false);
+	XMLFile->setAutoRemove( false );
 	delete XMLFile;
-#if defined(Q_OS_WIN32)
-	lmos_actx->ActivateZoomWindow(false);
-	lmos_actx->ImportXMLFile2(winXML);
+#if defined( Q_OS_WIN32 )
+	lmos_actx->ActivateZoomWindow( false );
+	lmos_actx->ImportXMLFile2( winXML );
 	lmos_actx->ShowMarkingArea();
 	// lmos_actx->ShowWholeDrawing();
 #endif
-	QFile::remove(winXML);
+	QFile::remove( winXML );
 }
 
 void
 Lmos::ShowMarkingArea()
 {
-#if defined(Q_OS_WIN32)
-	lmos_actx->ActivateZoomWindow(false);
+#if defined( Q_OS_WIN32 )
+	lmos_actx->ActivateZoomWindow( false );
 	lmos_actx->ShowMarkingArea();
 #endif
 }
@@ -233,18 +385,18 @@ void
 Lmos::StopPosHelp()
 {
 	// stopPosHelp: Disable the positioning help
-	emit log(kLvlDebug, __func__, "Stop positioning help");
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "Stop positioning help" );
+#if defined( Q_OS_WIN32 )
 	lmos_actx->StopPosHelp();
 #endif
 }
 
 void
-Lmos::StartPosHelp(const QString& object)
+Lmos::StartPosHelp( const QString& object )
 {
-	emit log(kLvlDebug, __func__, "object: " + object);
-#if defined(Q_OS_WIN32)
-	lmos_actx->StartPosHelp(object);
+	emit log( kLvlDebug, __func__, "object: " + object );
+#if defined( Q_OS_WIN32 )
+	lmos_actx->StartPosHelp( object );
 #endif
 }
 
@@ -252,9 +404,9 @@ void
 Lmos::TermMachine()
 {  // Release control of hardare
 
-	emit log(kLvlDebug, __func__, "Releasing hardware...");
-#if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->TermMachine());
+	emit log( kLvlDebug, __func__, "Releasing hardware..." );
+#if defined( Q_OS_WIN32 )
+	emit retval( __func__, lmos_actx->TermMachine() );
 #endif
 }
 
@@ -262,8 +414,8 @@ bool
 Lmos::StartMarking()
 {
 	// startMarking: Begin the marking operation
-	emit log(kLvlDebug, __func__, "Calling lmos.StartMarking()");
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "Calling lmos.StartMarking()" );
+#if defined( Q_OS_WIN32 )
 	return lmos_actx->StartMarking();
 #endif
 	return false;
@@ -272,10 +424,10 @@ Lmos::StartMarking()
 bool
 Lmos::LoadJob()
 {
-	emit log(kLvlDebug, __func__, "Calling loadjob");
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "Calling loadjob" );
+#if defined( Q_OS_WIN32 )
 	bool loadjob = lmos_actx->LoadJob();
-	emit retval(__func__, loadjob);
+	emit retval( __func__, loadjob );
 	return loadjob;
 #endif
 	return false;
@@ -284,22 +436,22 @@ void
 Lmos::StopMarking()
 {
 	// stopMarking: End the marking operation
-	emit log(kLvlDebug, __func__, "Calling lmos.StopMarking()");
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "Calling lmos.StopMarking()" );
+#if defined( Q_OS_WIN32 )
 	bool stop   = lmos_actx->StopMarking();
 	bool cancel = lmos_actx->CancelJob();
-	emit retval(__func__, stop && cancel);
+	emit retval( __func__, stop && cancel );
 #endif
 }
 
 void
-Lmos::MoveZ(const float z)
+Lmos::MoveZ( const float z )
 {
 	// move: Position the Z axis
-	emit log(kLvlDebug, __func__, "Moving Z axis...");
-#if defined(Q_OS_WIN32)
-	LMOSACTXLib::Axis myaxis(lmos_actx->Axis());
-	myaxis.NewPos(LMOSACTXLib::Z_AXIS, static_cast<double>(z), true);
+	emit log( kLvlDebug, __func__, "Moving Z axis..." );
+#if defined( Q_OS_WIN32 )
+	LMOSACTXLib::Axis myaxis( lmos_actx->Axis() );
+	myaxis.NewPos( LMOSACTXLib::Z_AXIS, static_cast<double>( z ), true );
 	myaxis.MoveAxes();
 #else
 	(void)z;
@@ -310,22 +462,22 @@ double
 Lmos::GetW()
 {  // Returns the current value of the W axis
 
-	emit log(kLvlDebug, __func__, "Querying W...");
-#if defined(Q_OS_WIN32)
-	LMOSACTXLib::Axis myaxis(lmos_actx->Axis());
-	return myaxis.GetPos(LMOSACTXLib::W_AXIS, true);
+	emit log( kLvlDebug, __func__, "Querying W..." );
+#if defined( Q_OS_WIN32 )
+	LMOSACTXLib::Axis myaxis( lmos_actx->Axis() );
+	return myaxis.GetPos( LMOSACTXLib::W_AXIS, true );
 #else
 	return kInvalid;
 #endif
 }
 
 void
-Lmos::MoveW(const double w)
+Lmos::MoveW( const double w )
 {
-	emit log(kLvlDebug, __func__, "Moving W axis to " + QString::number(w));
-#if defined(Q_OS_WIN32)
-	LMOSACTXLib::Axis myaxis(lmos_actx->Axis());
-	myaxis.NewPos(LMOSACTXLib::W_AXIS, w, true);
+	emit log( kLvlDebug, __func__, "Moving W axis to " + QString::number( w ) );
+#if defined( Q_OS_WIN32 )
+	LMOSACTXLib::Axis myaxis( lmos_actx->Axis() );
+	myaxis.NewPos( LMOSACTXLib::W_AXIS, w, true );
 	myaxis.MoveAxes();
 #else
 	(void)w;
@@ -334,52 +486,53 @@ Lmos::MoveW(const double w)
 void
 Lmos::Reference()
 {
-	emit log(kLvlDebug, __func__, "Referencing Z and W axes...");
-#if defined(Q_OS_WIN32)
-	LMOSACTXLib::Axis myaxis(lmos_actx->Axis());
-	myaxis.NewReference(LMOSACTXLib::Z_AXIS);
+	emit log( kLvlDebug, __func__, "Referencing Z and W axes..." );
+#if defined( Q_OS_WIN32 )
+	LMOSACTXLib::Axis myaxis( lmos_actx->Axis() );
+	myaxis.NewReference( LMOSACTXLib::Z_AXIS );
 	myaxis.ReferenceAxes();
-	myaxis.NewReference(LMOSACTXLib::W_AXIS);
+	myaxis.NewReference( LMOSACTXLib::W_AXIS );
 	myaxis.ReferenceAxes();
 #endif
 }
 
 void
-Lmos::AddQPSet(const QString& name, const double current, const int speed, const int frequency)
+Lmos::AddQPSet( const QString& name, const double current, const int speed, const int frequency )
 {
-	emit log(kLvlDebug, __func__,
-		 "Name: " + name + ", Current: " + QString::number(current) + ", Speed: " + QString::number(speed) +
-			 ", Frequency: " + QString::number(frequency));
-#if defined(Q_OS_WIN32)
-	lmos_actx->AddGlobalQPSet(name, current, speed, frequency);
+	emit log( kLvlDebug,
+		  __func__,
+		  "Name: " + name + ", Current: " + QString::number( current ) +
+			  ", Speed: " + QString::number( speed ) + ", Frequency: " + QString::number( frequency ) );
+#if defined( Q_OS_WIN32 )
+	lmos_actx->AddGlobalQPSet( name, current, speed, frequency );
 #endif
 }
 
 void
 Lmos::SaveQPSets()
 {
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	lmos_actx->SaveGlobalQPSets();
 #endif
 }
 
 void
-Lmos::LayerSetHeightZAxis(const QString& layer, const float height)
+Lmos::LayerSetHeightZAxis( const QString& layer, const float height )
 {
-	emit log(kLvlDebug, __func__, "Setting layer " + layer + " to height " + QString::number(height));
+	emit log( kLvlDebug, __func__, "Setting layer " + layer + " to height " + QString::number( height ) );
 
-#if defined(Q_OS_WIN32)
-	LMOSACTXLib::Layers moLayers(lmos_actx->Layers());
+#if defined( Q_OS_WIN32 )
+	LMOSACTXLib::Layers moLayers( lmos_actx->Layers() );
 	try {
-		LMOSACTXLib::ILayer* mylayer = moLayers.Item(layer);
-		if (mylayer) {
-			mylayer->SetHeightZAxis(height);
+		LMOSACTXLib::ILayer* mylayer = moLayers.Item( layer );
+		if ( mylayer ) {
+			mylayer->SetHeightZAxis( height );
 		} else {
 			qDebug() << __func__ << "Null layer pointer!";
 			return;
 		}
-	} catch (...) {
-		qDebug() << "EXCEPTION: Setting layer height of " + QString::number(height) + " for layer named " +
+	} catch ( ... ) {
+		qDebug() << "EXCEPTION: Setting layer height of " + QString::number( height ) + " for layer named " +
 				    layer + " failed.";
 	}
 #else
@@ -389,19 +542,19 @@ Lmos::LayerSetHeightZAxis(const QString& layer, const float height)
 }
 
 void
-Lmos::LayerSetLaserable(const QString& layer, const bool is_laserable)
+Lmos::LayerSetLaserable( const QString& layer, const bool is_laserable )
 {
-#if defined(Q_OS_WIN32)
-	if (layer.length()) {
-		LMOSACTXLib::Layers moLayers(lmos_actx->Layers());
-		if (moLayers.Count()) {
-			if (!moLayers.Item(layer)->isNull()) {
-				moLayers.Item(layer)->SetLaserable(is_laserable);
+#if defined( Q_OS_WIN32 )
+	if ( layer.length() ) {
+		LMOSACTXLib::Layers moLayers( lmos_actx->Layers() );
+		if ( moLayers.Count() ) {
+			if ( !moLayers.Item( layer )->isNull() ) {
+				moLayers.Item( layer )->SetLaserable( is_laserable );
 			} else {
 				qDebug() << __func__ << "Layer is null";
 			}
 		} else {
-			qDebug() << "Layer count: " + QString::number(moLayers.Count());
+			qDebug() << "Layer count: " + QString::number( moLayers.Count() );
 		}
 	}
 #else
@@ -412,15 +565,15 @@ Lmos::LayerSetLaserable(const QString& layer, const bool is_laserable)
 }
 
 void
-Lmos::LayerSetVisible(const QString& layer, const bool is_visible)
+Lmos::LayerSetVisible( const QString& layer, const bool is_visible )
 {
-	emit log(kLvlDebug, __func__, "Layer: " + layer + ", is_visible: " + QString::number(is_visible));
-#if defined(Q_OS_WIN32)
-	if (layer.length()) {
-		LMOSACTXLib::Layers moLayers(lmos_actx->Layers());
-		if (moLayers.Count()) {
-			moLayers.Item(layer)->SetVisible(is_visible);
-			moLayers.Item(layer)->SetExportable(is_visible);
+	emit log( kLvlDebug, __func__, "Layer: " + layer + ", is_visible: " + QString::number( is_visible ) );
+#if defined( Q_OS_WIN32 )
+	if ( layer.length() ) {
+		LMOSACTXLib::Layers moLayers( lmos_actx->Layers() );
+		if ( moLayers.Count() ) {
+			moLayers.Item( layer )->SetVisible( is_visible );
+			moLayers.Item( layer )->SetExportable( is_visible );
 			lmos_actx->RedrawLayout();
 		} else {
 			qDebug() << __func__ << "Error: layer count is zero";
@@ -433,14 +586,14 @@ Lmos::LayerSetVisible(const QString& layer, const bool is_visible)
 }
 
 void
-Lmos::LayerSetExportable(const QString& layer, const bool is_exportable)
+Lmos::LayerSetExportable( const QString& layer, const bool is_exportable )
 {
-	emit log(kLvlDebug, __func__, "Layer: " + layer + ", is_exportable: " + QString::number(is_exportable));
-#if defined(Q_OS_WIN32)
-	if (layer.length()) {
-		LMOSACTXLib::Layers moLayers(lmos_actx->Layers());
-		if (moLayers.Count()) {
-			moLayers.Item(layer)->SetExportable(is_exportable);
+	emit log( kLvlDebug, __func__, "Layer: " + layer + ", is_exportable: " + QString::number( is_exportable ) );
+#if defined( Q_OS_WIN32 )
+	if ( layer.length() ) {
+		LMOSACTXLib::Layers moLayers( lmos_actx->Layers() );
+		if ( moLayers.Count() ) {
+			moLayers.Item( layer )->SetExportable( is_exportable );
 			// lmos_actx->RedrawLayout();
 		} else {
 			qDebug() << __func__ << "Error: layer count is zero";
@@ -453,13 +606,13 @@ Lmos::LayerSetExportable(const QString& layer, const bool is_exportable)
 }
 
 int
-Lmos::ReadByte(const int port, const int mask)
+Lmos::ReadByte( const int port, const int mask )
 {
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	int  byte;
-	emit log(kLvlDebug, __func__, "port: " + QString::number(port));
-	emit log(kLvlDebug, __func__, "mask: " + QString::number(mask));
-	return lmos_actx->ReadByte(static_cast<LMOSACTXLib::InPortConstants>(port), mask, byte);
+	emit log( kLvlDebug, __func__, "port: " + QString::number( port ) );
+	emit log( kLvlDebug, __func__, "mask: " + QString::number( mask ) );
+	return lmos_actx->ReadByte( static_cast<LMOSACTXLib::InPortConstants>( port ), mask, byte );
 #else
 	(void)port;
 	(void)mask;
@@ -468,60 +621,64 @@ Lmos::ReadByte(const int port, const int mask)
 }
 
 int
-Lmos::ReadIOBit(const QString& bitfunction)
+Lmos::ReadIOBit( const QString& bitfunction )
 {
-	emit log(kLvlDebug, __func__, "Running ReadIOBit with bitfunction: " + bitfunction);
+	emit log( kLvlDebug, __func__, "Running ReadIOBit with bitfunction: " + bitfunction );
 
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	QVariant res;
-	emit	 retval(__func__, lmos_actx->ReadIOBit(bitfunction, res));
-	if (res.canConvert<bool>()) {
+	emit	 retval( __func__, lmos_actx->ReadIOBit( bitfunction, res ) );
+	if ( res.canConvert<bool>() ) {
 		bool result = res.Bool;
-		if (result) {
-			emit log(kLvlDebug, __func__, "Result: True");
+		if ( result ) {
+			emit log( kLvlDebug, __func__, "Result: True" );
 			return true;
 		} else {
-			emit log(kLvlDebug, __func__, "Result: False");
+			emit log( kLvlDebug, __func__, "Result: False" );
 			return false;
 		}
 	}
-	emit log(kLvlDebug, __func__, "Could not convert return value to bool");
+	emit log( kLvlDebug, __func__, "Could not convert return value to bool" );
 	return kInvalid;
 #else
 	(void)bitfunction;
-	emit log(kLvlDebug, __func__, "This function is only available on Win32");
+	emit log( kLvlDebug, __func__, "This function is only available on Win32" );
 	return kInvalid;
 #endif
 }
 
 void
-Lmos::SetDimension(const QString& object, const double width, const double height)
+Lmos::SetDimension( const QString& object, const double width, const double height )
 {
-	emit log(kLvlDebug, __func__, "object: " + object);
-	emit log(kLvlDebug, __func__, "width: " + QString::number(width));
-	emit log(kLvlDebug, __func__, "height: " + QString::number(height));
-#if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->SetDimension(object, width, height));
+	emit log( kLvlDebug, __func__, "object: " + object );
+	emit log( kLvlDebug, __func__, "width: " + QString::number( width ) );
+	emit log( kLvlDebug, __func__, "height: " + QString::number( height ) );
+#if defined( Q_OS_WIN32 )
+	emit retval( __func__, lmos_actx->SetDimension( object, width, height ) );
 #endif
 }
 
 void
-Lmos::SetMOLayer(const QString& object, const QString& layer)
+Lmos::SetMOLayer( const QString& object, const QString& layer )
 {
-	emit log(kLvlDebug, __func__, "object: " + object);
-	emit log(kLvlDebug, __func__, "layer: " + layer);
-#if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->SetMOLayer(object, layer));
+	emit log( kLvlDebug, __func__, "object: " + object );
+	emit log( kLvlDebug, __func__, "layer: " + layer );
+#if defined( Q_OS_WIN32 )
+	emit retval( __func__, lmos_actx->SetMOLayer( object, layer ) );
 #endif
 }
 
 void
-Lmos::SetQualityParam(const QString& qpname, const int qptype, const int partype, const QVariant& value,
-		      const bool save)
+Lmos::SetQualityParam(
+	const QString& qpname, const int qptype, const int partype, const QVariant& value, const bool save )
 {
-#if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->SetQualityParam(qpname, static_cast<LMOSACTXLib::eQPType>(qptype),
-							 static_cast<LMOSACTXLib::eParamType>(partype), value, save));
+#if defined( Q_OS_WIN32 )
+	emit retval( __func__,
+		     lmos_actx->SetQualityParam( qpname,
+						 static_cast<LMOSACTXLib::eQPType>( qptype ),
+						 static_cast<LMOSACTXLib::eParamType>( partype ),
+						 value,
+						 save ) );
 #else
 	(void)qpname;
 	(void)qptype;
@@ -532,10 +689,11 @@ Lmos::SetQualityParam(const QString& qpname, const int qptype, const int partype
 }
 
 void
-Lmos::WriteByte(const int outport, const char mask, const char data)
+Lmos::WriteByte( const int outport, const char mask, const char data )
 {
-#if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->WriteByte(static_cast<LMOSACTXLib::OutPortConstants>(outport), mask, data));
+#if defined( Q_OS_WIN32 )
+	emit retval( __func__,
+		     lmos_actx->WriteByte( static_cast<LMOSACTXLib::OutPortConstants>( outport ), mask, data ) );
 #else
 	(void)outport;
 	(void)mask;
@@ -544,40 +702,40 @@ Lmos::WriteByte(const int outport, const char mask, const char data)
 }
 
 void
-Lmos::WriteIOBit(const QString& bitfunction, const bool value)
+Lmos::WriteIOBit( const QString& bitfunction, const bool value )
 {
-	emit log(kLvlDebug, __func__, "bitfunction: " + bitfunction);
-	emit log(kLvlDebug, __func__, "value: " + QString::number(value));
-#if defined(Q_OS_WIN32)
+	emit log( kLvlDebug, __func__, "bitfunction: " + bitfunction );
+	emit log( kLvlDebug, __func__, "value: " + QString::number( value ) );
+#if defined( Q_OS_WIN32 )
 	QVariant bf  = bitfunction;
 	QVariant val = value;
-	emit	 retval(__func__, lmos_actx->WriteIOBit(bf, value));
+	emit	 retval( __func__, lmos_actx->WriteIOBit( bf, value ) );
 	// emit retval(__func__, lmos_actx->WriteIOBit(bitfunction, value));
 #endif
 }
 
 void
-Lmos::SetPosValues(const QString& object, const double x, const double y, const double angle)
+Lmos::SetPosValues( const QString& object, const double x, const double y, const double angle )
 {
-	emit log(kLvlDebug, __func__, "object: " + object);
-	emit log(kLvlDebug, __func__, "x: " + QString::number(x));
-	emit log(kLvlDebug, __func__, "y: " + QString::number(y));
-	emit log(kLvlDebug, __func__, "angle: " + QString::number(angle));
-#if defined(Q_OS_WIN32)
-	emit retval(__func__, lmos_actx->SetPosValues(object, x, y, angle));
+	emit log( kLvlDebug, __func__, "object: " + object );
+	emit log( kLvlDebug, __func__, "x: " + QString::number( x ) );
+	emit log( kLvlDebug, __func__, "y: " + QString::number( y ) );
+	emit log( kLvlDebug, __func__, "angle: " + QString::number( angle ) );
+#if defined( Q_OS_WIN32 )
+	emit retval( __func__, lmos_actx->SetPosValues( object, x, y, angle ) );
 #endif
 }
 
 int
 Lmos::CancelJob()
 {
-#if defined(Q_OS_WIN32)
-	emit log(kLvlDebug, __func__, "Cancelling job...");
+#if defined( Q_OS_WIN32 )
+	emit log( kLvlDebug, __func__, "Cancelling job..." );
 	int  cancelret = lmos_actx->CancelJob();
-	emit retval(__func__, cancelret);
-	emit log(kLvlDebug, __func__, "Clearing layout...");
+	emit retval( __func__, cancelret );
+	emit log( kLvlDebug, __func__, "Clearing layout..." );
 	int  clearret = lmos_actx->ClearLayout();
-	emit retval(__func__, clearret);
+	emit retval( __func__, clearret );
 	return cancelret || clearret;
 #else
 	return false;
@@ -585,25 +743,27 @@ Lmos::CancelJob()
 }
 
 void
-Lmos::logstring(const QString& name, int argc, void* argv)
+Lmos::logstring( const QString& name, int argc, void* argv )
 {
 	(void)argc;
 	(void)argv;
 
-	emit log(QString("(Event) " + name));
+	emit log( QString( "(Event) " + name ) );
 }
 
 void
-Lmos::ZoomWindow(int x1, int y1, int x2, int y2)
-{
-	emit log(QString(__func__) + QString("Begin: ") + QString::number(x1) + QString(", ") + QString::number(y1) +
-		 QString(", ") + QString::number(x2) + QString(", ") + QString::number(y2));
-#if defined(Q_OS_WIN32)
+Lmos::ZoomWindow( int x1, int y1, int x2, int y2 )
+{  // topLeftX, topLeftY, bottomRightX, bottomRightY
+
+	emit log( QString( __func__ ) + QString( "Begin: " ) + QString::number( x1 ) + QString( ", " ) +
+		  QString::number( y1 ) + QString( ", " ) + QString::number( x2 ) + QString( ", " ) +
+		  QString::number( y2 ) );
+#if defined( Q_OS_WIN32 )
 	// lmos_actx->ShowZoomWindow(50, 50, 70, 70);
-	lmos_actx->ActivateZoomWindow(true);
-	lmos_actx->ShowZoomWindow(x1, y1, x2, y2);
+	// lmos_actx->ActivateZoomWindow(true);
+	lmos_actx->ShowZoomWindow( x1, y1, x2, y2 );
 	// lmos_actx->ActivateZoomWindow(false);
-	// lmos_actx->ShowMarkingAreaZoom();
+	lmos_actx->ShowMarkingAreaZoom();
 	// lmos_actx->RedrawLayout();
 #endif
 }
@@ -615,9 +775,9 @@ Lmos::Test()
 	/* Lmos::Test() is also used as an indication
 	 * of the server being alive, so we emit a signal here */
 	/* sendIdEvent("Beginning LMOS::Test", kTest); */
-	emit log(kInfo, __func__, "Beginning LMOS::Test");
+	emit log( kInfo, __func__, "Beginning LMOS::Test" );
 
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 
 	GetGeoList();
 	// // List signals
@@ -656,7 +816,7 @@ Lmos::Test()
 	// lmos_actx->dynamicCall("WriteIOBit(QVariant,QVariant)", bf, val);
 
 #else
-	log(kLvlDebug, __func__, "Running linux Lmos::Test()");
+	log( kLvlDebug, __func__, "Running linux Lmos::Test()" );
 	// currentChanged(0);
 	// frequencyChanged(0);
 	// imagebegin();
@@ -675,18 +835,19 @@ Lmos::GetGeoList()
 
 	QString csv;
 
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	QVariant    moNames	= lmos_actx->GetMONames();
 	QStringList moNamesList = moNames.toStringList();
 	QString	    moName;
 
-	for (int i = 0; i < moNamesList.count(); i++) {
+	for ( int i = 0; i < moNamesList.count(); i++ ) {
 		double x, y, width, height, r;
-		lmos_actx->GetPosValues(moNamesList[i], x, y, r);
-		lmos_actx->GetDimension(moNamesList[i], width, height);
-		QString geo = moNamesList[i] + "," + QString::number(x) + "," + QString::number(y) + "," +
-			      QString::number(r) + "," + QString::number(width) + "," + QString::number(height) + ";";
-		log(kLvlDebug, __func__, geo);
+		lmos_actx->GetPosValues( moNamesList[i], x, y, r );
+		lmos_actx->GetDimension( moNamesList[i], width, height );
+		QString geo = moNamesList[i] + "," + QString::number( x ) + "," + QString::number( y ) + "," +
+			      QString::number( r ) + "," + QString::number( width ) + "," + QString::number( height ) +
+			      ";";
+		log( kLvlDebug, __func__, geo );
 		csv = csv + geo;
 	}
 #else
@@ -696,134 +857,136 @@ Lmos::GetGeoList()
 }
 
 void
-Lmos::messagemap(QString& name)
+Lmos::messagemap( QString& name )
 {
-	emit log(kLvlDebug, __func__, name);
-	sendIdEvent(name, kMessageMap);
+	emit log( kLvlDebug, __func__, name );
+	sendIdEvent( name, kMessageMap );
 }
 
 void
 Lmos::imagebegin()
 {
-	emit log(kLvlDebug, __func__, "");
-	sendIdEvent("0", kImageBegin);
+	emit log( kLvlDebug, __func__, "" );
+	sendIdEvent( "0", kImageBegin );
 }
 
 void
 Lmos::imageend()
 {
-	emit log(kLvlDebug, __func__, "");
-	sendIdEvent("0", kImageEnd);
+	emit log( kLvlDebug, __func__, "" );
+	sendIdEvent( "0", kImageEnd );
 }
 
 void
-Lmos::currentChanged(double current)
+Lmos::currentChanged( double current )
 {
-	emit log(kLvlDebug, __func__, QString::number(current));
-	sendIdEvent(QString::number(current), kCurrentChanged);
+	emit log( kLvlDebug, __func__, QString::number( current ) );
+	sendIdEvent( QString::number( current ), kCurrentChanged );
 }
 
 void
 Lmos::jobBegin()
 {
-	emit log(kLvlDebug, __func__, "");
-	sendIdEvent("0", kJobBegin);
+	emit log( kLvlDebug, __func__, "" );
+	sendIdEvent( "0", kJobBegin );
 }
 
 void
 Lmos::jobEnd()
 {
-	emit log(kLvlDebug, __func__, "");
-	sendIdEvent("0", kJobEnd);
+	emit log( kLvlDebug, __func__, "" );
+	sendIdEvent( "0", kJobEnd );
 }
 
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 void
-Lmos::imageEnd2(double time, ImageResultConstants result)
+Lmos::imageEnd2( double time, ImageResultConstants result )
 {
-	emit	log(kLvlDebug, __func__, "signal issued");
-	emit	sigImageEnd2(time, static_cast<int>(result));
-	QString message = "imageEnd2: " + QString::number(result);
-	sendIdEvent(message, kImageEnd2);
+	emit	log( kLvlDebug, __func__, "signal issued" );
+	emit	sigImageEnd2( time, static_cast<int>( result ) );
+	QString message = "imageEnd2: " + QString::number( result );
+	sendIdEvent( message, kImageEnd2 );
 }
 #endif
 
 void
-Lmos::frequencyChanged(int a)
+Lmos::frequencyChanged( int a )
 {
-	emit log(kLvlDebug, __func__, QString::number(a));
-	sendIdEvent(QString::number(a), kFreqChanged);
+	emit log( kLvlDebug, __func__, QString::number( a ) );
+	sendIdEvent( QString::number( a ), kFreqChanged );
 }
 
 void
-Lmos::mOBeginName(QString& moName)
+Lmos::mOBeginName( QString& moName )
 { /* Return name of object before marking */
 
-	emit log(kLvlDebug, __func__, moName);
-	sendIdEvent(moName, kMoBegin);
+	emit log( kLvlDebug, __func__, moName );
+	sendIdEvent( moName, kMoBegin );
 }
 
 void
-Lmos::mOEndName(QString& moName)
+Lmos::mOEndName( QString& moName )
 { /* Return name of object after marking complete */
 
-	emit log(kLvlDebug, __func__, moName);
-	sendIdEvent(moName, kMoEnd);
+	emit log( kLvlDebug, __func__, moName );
+	sendIdEvent( moName, kMoEnd );
 }
 
 void
-Lmos::plcEvent(QString& a, QString& b, QString& c)
+Lmos::plcEvent( QString& a, QString& b, QString& c )
 {
-	emit	log(kLvlDebug, __func__, "signal issued");
-	emit	log(kLvlDebug, __func__, "param1: " + a);
-	emit	log(kLvlDebug, __func__, "param2: " + b);
-	emit	log(kLvlDebug, __func__, "param3: " + c);
+	emit	log( kLvlDebug, __func__, "signal issued" );
+	emit	log( kLvlDebug, __func__, "param1: " + a );
+	emit	log( kLvlDebug, __func__, "param2: " + b );
+	emit	log( kLvlDebug, __func__, "param3: " + c );
 	QString message = "plcEvent: " + a + ", " + b + ", " + c;
-	sendIdEvent(message, kPlcEvent);
+	sendIdEvent( message, kPlcEvent );
 }
 
 void
-Lmos::alarm(int alarmNum, QString description, QString moName, int moID)
+Lmos::alarm( int alarmNum, QString description, QString moName, int moID )
 {
-	QString message = QString("(Alarm) " + QString::number(alarmNum) + ", " + description + ", " + moName + ", " +
-				  QString::number(moID));
-	emit	log(message);
-	sendIdEvent(message, kAlarm);
+	QString message = QString( "(Alarm) " + QString::number( alarmNum ) + ", " + description + ", " + moName +
+				   ", " + QString::number( moID ) );
+	emit	log( message );
+	sendIdEvent( message, kAlarm );
 }
 
 void
-Lmos::exception(int alarmNum, const QString& description, const QString& moName, const QString& moID)
+Lmos::exception( int alarmNum, const QString& description, const QString& moName, const QString& moID )
 {
-	QString message =
-		QString("(exception) " + QString::number(alarmNum) + ", " + description + ", " + moName + ", " + moID);
-	emit log(message);
-	sendIdEvent(message, kException);
+	QString message = QString( "(exception) " + QString::number( alarmNum ) + ", " + description + ", " + moName +
+				   ", " + moID );
+	emit	log( message );
+	sendIdEvent( message, kException );
 }
 
 void
-Lmos::emitSig(const QString& sig)
+Lmos::emitSig( const QString& sig )
 {
-	emit log(kLvlDebug, __func__, sig);
-	sendIdEvent(sig, kSignal);
+	emit log( kLvlDebug, __func__, sig );
+	sendIdEvent( sig, kSignal );
 }
 
 void
-Lmos::sendIdEvent(QString string, int event)
+Lmos::sendIdEvent( QString string, int event )
 {  // Helper function for sending an event
 
 	// To distinguish events from other return values,
 	// they are all negatives of the enums they represent.
 	QString message = string;  // + QChar::Null;
-	emit	log(kLvlDebug, __func__, QString("sendIdEvent: (") + QString::number(event) + QString(") ") + message);
-	emit	sendEvent(-event, message);
+	emit	log( kLvlDebug,
+		     __func__,
+		     QString( "sendIdEvent: (" ) + QString::number( event ) + QString( ") " ) + message );
+	emit	sendEvent( -event, message );
 }
 
 void
-Lmos::SetLaserable(QString object, int laserable)
+Lmos::SetLaserable( QString object, int laserable )
 { /* Sets object to laserable or non laserable */
 
-#if defined(Q_OS_WIN32)
-	lmos_actx->SetLaserable(object, laserable);
+#if defined( Q_OS_WIN32 )
+	lmos_actx->SetLaserable( object, laserable );
 #else
 	(void)object;
 	(void)laserable;
@@ -834,21 +997,21 @@ void
 Lmos::UnsetLaserableAllObjects()
 { /* Sets all marking objects to non-laserable */
 
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	QVariant    moNames	= lmos_actx->GetMONames();
 	QStringList moNamesList = moNames.toStringList();
-	for (int i = 0; i < moNamesList.count(); i++) {
-		SetLaserable(moNamesList[i], false);
+	for ( int i = 0; i < moNamesList.count(); i++ ) {
+		SetLaserable( moNamesList[i], false );
 	}
 #endif
 }
 
 void
-Lmos::SuppressRedraw(int redraw)
+Lmos::SuppressRedraw( int redraw )
 { /* Enables or disables auto redraw of activex control */
 
-#if defined(Q_OS_WIN32)
-	lmos_actx->SetSuppressAutoRedraw(redraw);
+#if defined( Q_OS_WIN32 )
+	lmos_actx->SetSuppressAutoRedraw( redraw );
 #else
 	(void)redraw;
 #endif
@@ -858,7 +1021,7 @@ void
 Lmos::ForceRedraw()
 { /* Redraws the activex control */
 
-#if defined(Q_OS_WIN32)
+#if defined( Q_OS_WIN32 )
 	lmos_actx->RedrawLayout();
 #endif
 }

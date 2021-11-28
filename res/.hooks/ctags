@@ -10,7 +10,7 @@ trap "rm -f ${TAGS_FILE}.$$" EXIT
 #trap "rm -f ${EXTRA_TAGS_FILE}.$$" EXIT
 
 GIT_ROOT=`git rev-parse --show-toplevel`
-EXTRA_DIRS_FILE=${GIT_ROOT}/.ctags_extra_dirs
+EXTRA_DIRS_FILE=${GIT_ROOT}/res/.ctags_extra_dirs
 
 CURRENT_DIR=${GIT_ROOT}
 
@@ -26,7 +26,8 @@ ctags --fields=+l --tag-relative=yes -Rf${TAGS_FILE}.$$ --c-kinds=+p \
 	--exclude=worktree \
 	--exclude=build \
 	--exclude=doc \
-	--exclude=src/submodules/emsdk
+	--exclude=src/submodules/emsdk \
+	--exclude="*.js"
 mv ${TAGS_FILE}.$$ ${TAGS_FILE}
 
 # Only update the extra dirs file if it is too old or doesn't exist
@@ -47,13 +48,14 @@ if [ -f ${EXTRA_DIRS_FILE} ]; then
 			[ ${DEBUG} ] && echo "Processing directory ${EXTRA_DIR}"
 			CURRENT_DIR=`pwd`
 			pushd ${EXTRA_DIR}
-			ctags --append --fields=+l --tag-relative=yes -Rf${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p
+			ctags --append --fields=+l --tag-relative=yes -Rf${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p \
+			--exclude="*.js"
 			popd
 		else
 			if [ -f ${EXTRA_DIR} ]; then
 				# Is a file, not a directory, so no recursion
 				[ ${DEBUG} ] && echo "Processing file ${EXTRA_DIR}"
-				ctags --append --fields=+l --tag-relative=yes -f${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p ${EXTRA_DIR}
+				ctags --append --fields=+l --tag-relative=yes -f${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p --exclude="*.js" ${EXTRA_DIR}
 			fi
 		fi
 	done

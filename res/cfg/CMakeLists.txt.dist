@@ -1,0 +1,23 @@
+# Template CMakeLists.txt
+
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+project(blastpit LANGUAGES C)
+add_executable(wscli wscli.c)
+
+# set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Og -ggdb3")
+set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb3 -Wall -Wpedantic -Wextra -MMD")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -Wall -Wpedantic -Wextra -Werror -Wfatal-errors")
+
+# pkg-config is needed to find several libraries (pkg-config --list-all)
+INCLUDE(FindPkgConfig REQUIRED)
+
+# Serdisplib
+PKG_SEARCH_MODULE(serdisplib REQUIRED serdisplib IMPORTED_TARGET)
+target_link_libraries(${PROJECT_NAME} PkgConfig::serdisplib)
+
+# Audio requires SDL2 and SDL2_Mixer
+find_package(SDL2 REQUIRED)
+target_link_libraries(${PROJECT_NAME} SDL2)
+
+PKG_SEARCH_MODULE(SDL2_mixer REQUIRED SDL2_mixer)
+target_link_libraries(${PROJECT_NAME} SDL2_mixer)

@@ -64,31 +64,35 @@
 #include "lmos-tray.hpp"
 #include "ui_lmos-tray.h"
 
+#include "parser.hpp"
+#include "traysettings.h"
 #include <QMenu>
 #include <QMessageBox>
 #include <QtGui>
 #include <sstream>
-#include "parser.hpp"
-#include "traysettings.h"
 
-LmosTray::LmosTray(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+LmosTray::LmosTray( QWidget* parent )
+	: QMainWindow( parent )
+	, ui( new Ui::MainWindow )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 
 	createActions();
 	initTray();
-	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this,
-		SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-	setIcon("noconnection");
+	connect( trayIcon,
+		 SIGNAL( activated( QSystemTrayIcon::ActivationReason ) ),
+		 this,
+		 SLOT( iconActivated( QSystemTrayIcon::ActivationReason ) ) );
+	setIcon( "noconnection" );
 	trayIcon->show();
 
 #ifdef VER
-	setWindowTitle("Lmos [git] " + QString(VER));
+	setWindowTitle( "Lmos [git] " + QString( VER ) );
 #endif
 	listen();
 
 #ifdef DEBUG
-	// Until tripmine is stable, always show the log window
+	// Always show the log window when debugging
 	show();
 #endif
 }
@@ -96,7 +100,7 @@ LmosTray::LmosTray(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow
 LmosTray::~LmosTray()
 {
 	// destroyLMOS();
-	if (parser)
+	if ( parser )
 		delete parser;
 	delete ui;
 }
@@ -104,75 +108,75 @@ LmosTray::~LmosTray()
 void
 LmosTray::createActions()
 {
-	minimizeAction = new QAction(tr("Mi&nimize"), this);
-	connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+	minimizeAction = new QAction( tr( "Mi&nimize" ), this );
+	connect( minimizeAction, SIGNAL( triggered() ), this, SLOT( hide() ) );
 
-	restoreAction = new QAction(tr("&Restore"), this);
-	connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+	restoreAction = new QAction( tr( "&Restore" ), this );
+	connect( restoreAction, SIGNAL( triggered() ), this, SLOT( showNormal() ) );
 
-	quitAction = new QAction(tr("&Quit"), this);
-	connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+	quitAction = new QAction( tr( "&Quit" ), this );
+	connect( quitAction, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
 
-	settingsAction = new QAction(tr("&Settings"), this);
-	connect(settingsAction, SIGNAL(triggered()), this, SLOT(showSettings()));
+	settingsAction = new QAction( tr( "&Settings" ), this );
+	connect( settingsAction, SIGNAL( triggered() ), this, SLOT( showSettings() ) );
 
-	clearLogAction = new QAction(tr("&Clear log"), this);
-	connect(clearLogAction, SIGNAL(triggered()), this, SLOT(clearLog()));
+	clearLogAction = new QAction( tr( "&Clear log" ), this );
+	connect( clearLogAction, SIGNAL( triggered() ), this, SLOT( clearLog() ) );
 }
 void
 LmosTray::initTray()
 {
-	trayIconMenu = new QMenu(this);
+	trayIconMenu = new QMenu( this );
 	// QAction* clearLogAction = new QAction( "&Clear log", this );
-	trayIconMenu->addAction(clearLogAction);
+	trayIconMenu->addAction( clearLogAction );
 	trayIconMenu->addSeparator();
-	trayIconMenu->addAction(minimizeAction);
-	trayIconMenu->addAction(restoreAction);
+	trayIconMenu->addAction( minimizeAction );
+	trayIconMenu->addAction( restoreAction );
 	trayIconMenu->addSeparator();
-	trayIconMenu->addAction(settingsAction);
-	trayIconMenu->addAction(quitAction);
+	trayIconMenu->addAction( settingsAction );
+	trayIconMenu->addAction( quitAction );
 
-	trayIcon = new QSystemTrayIcon(this);
-	trayIcon->setContextMenu(trayIconMenu);
+	trayIcon = new QSystemTrayIcon( this );
+	trayIcon->setContextMenu( trayIconMenu );
 }
 
 void
 LmosTray::showSettings()
 {
 	/* Show the settings window */
-	traysettings *ts = new traysettings;
-	if (parser)
-		connect(ts, SIGNAL(serverChanged()), parser, SLOT(wsConnect()));
-	ts->setAttribute(Qt::WA_DeleteOnClose);
+	traysettings* ts = new traysettings;
+	if ( parser )
+		connect( ts, SIGNAL( serverChanged() ), parser, SLOT( wsConnect() ) );
+	ts->setAttribute( Qt::WA_DeleteOnClose );
 	ts->show();
 }
 
 void
-LmosTray::setIcon(QString png)
+LmosTray::setIcon( QString png )
 {
-	QIcon icon(":///" + png + ".png");
+	QIcon icon( ":///" + png + ".png" );
 	// QIcon icon(":///lmos-tray.png");
 
-	trayIcon->setIcon(icon);
-	setWindowIcon(icon);
+	trayIcon->setIcon( icon );
+	setWindowIcon( icon );
 }
 void
-LmosTray::closeEvent(QCloseEvent *event)
+LmosTray::closeEvent( QCloseEvent* event )
 {
-	if (trayIcon->isVisible()) {
+	if ( trayIcon->isVisible() ) {
 		hide();
 		event->ignore();
 	}
 }
 void
-LmosTray::setTrayBalloon(QString text)
+LmosTray::setTrayBalloon( QString text )
 {
-	trayIcon->showMessage("Lmos", text);
+	trayIcon->showMessage( "Lmos", text );
 }
 void
-LmosTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
+LmosTray::iconActivated( QSystemTrayIcon::ActivationReason reason )
 {
-	switch (reason) {
+	switch ( reason ) {
 		case QSystemTrayIcon::Trigger:
 			isVisible() ? hide() : show();
 			break;
@@ -187,12 +191,12 @@ LmosTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
 void
 LmosTray::listen()
 {
-	parser = new Parser(nullptr);
-	connect(parser, SIGNAL(finished()), qApp, SLOT(quit()));
-	connect(parser, SIGNAL(sendlog(QString)), this, SLOT(log(QString)));
-	connect(parser, SIGNAL(settray(QString)), this, SLOT(setTrayBalloon(QString)));
-	connect(parser, SIGNAL(seticon(QString)), this, SLOT(setIcon(QString)));
-	connect(parser, SIGNAL(ClearLog()), this, SLOT(clearLog()));
+	parser = new Parser( nullptr );
+	connect( parser, SIGNAL( finished() ), qApp, SLOT( quit() ) );
+	connect( parser, SIGNAL( sendlog( QString ) ), this, SLOT( log( QString ) ) );
+	connect( parser, SIGNAL( settray( QString ) ), this, SLOT( setTrayBalloon( QString ) ) );
+	connect( parser, SIGNAL( seticon( QString ) ), this, SLOT( setIcon( QString ) ) );
+	connect( parser, SIGNAL( ClearLog() ), this, SLOT( clearLog() ) );
 }
 
 void
@@ -202,39 +206,39 @@ LmosTray::clearLog()
 }
 
 void
-LmosTray::log(QString entry)
+LmosTray::log( QString entry )
 {
-	ui->teLog->append(entry);
+	ui->teLog->append( entry );
 }
 
 void
-LmosTray::alert(const QString &name, int argc, void *argv)
+LmosTray::alert( const QString& name, int argc, void* argv )
 {
 	(void)argc;
 	(void)argv;
 
-	ui->teLog->append("Alert: " + name);
+	ui->teLog->append( "Alert: " + name );
 }
 
 void
-LmosTray::log(int level, const char *function, QString entry)
+LmosTray::log( int level, const char* function, QString entry )
 {
-	QString log	= QString::number(level);
-	QString logFunc = QString(function);
-	ui->teLog->append(log + ": (" + logFunc + ") " + entry);
+	QString log	= QString::number( level );
+	QString logFunc = QString( function );
+	ui->teLog->append( log + ": (" + logFunc + ") " + entry );
 }
 
 void
-LmosTray::retval(const char *function, bool value)
+LmosTray::retval( const char* function, bool value )
 {
-	QString logFunc = QString(function);
+	QString logFunc = QString( function );
 	QString retbool = value ? "True" : "False";
-	ui->teLog->append("retval (" + logFunc + "): " + retbool);
+	ui->teLog->append( "retval (" + logFunc + "): " + retbool );
 }
 
 void
-LmosTray::retval(const char *function, int value)
+LmosTray::retval( const char* function, int value )
 {
-	QString logFunc = QString(function);
-	ui->teLog->append("retval (" + logFunc + "): " + QString::number(value));
+	QString logFunc = QString( function );
+	ui->teLog->append( "retval (" + logFunc + "): " + QString::number( value ) );
 }

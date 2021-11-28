@@ -10,7 +10,7 @@
         <option value="convex">Convex (Outside)</option>
         <option value="concave">Concave (Inside)</option>
       </param>
-      <param name="diameter" type="float" precision="2" min="5" max="80" gui-text="Ring Diameter:">20
+      <param name="diameter" type="float" precision="2" min="5" max="100" gui-text="Ring Diameter:">20
 		</param>
       <param name="width" type="float" precision="2" min="0" max="120" gui-text="Ring Width:">6
 		</param>

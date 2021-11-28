@@ -26,6 +26,7 @@ import math
 import time
 import re
 import csv
+
 # from StringIO import StringIO
 import io
 import inkex
@@ -37,22 +38,19 @@ import datetime
 from subprocess import Popen, PIPE
 from shutil import copy2
 
-# Needed until bpy is installed system-wide
-# import sys
-# from os.path import expanduser
-# sys.path.append(expanduser("~") + "/projects/blastpit/build")
-# import blastpy
+# Needed until blastpy is installed system-wide
+import sys
+from os.path import expanduser
+
+sys.path.append(expanduser("~") + "/projects/blastpit/build")
+import blastpy
 
 # Get our machine-specific constants
-# sys.path.append(expanduser("~") + "/projects/blastpit/.git/untracked")
-# import myconfig
+sys.path.append(expanduser("~") + "/projects/blastpit/.git/untracked")
+import myconfig
 
 # This disables stderr to prevent popup window when debugging
 # os.close(sys.stderr.fileno())
-
-# Server timeouts
-WS_TIMEOUT_SHORT = 2000
-WS_TIMEOUT_LONG = 30000
 
 # Laser constants
 SAGITTA = 0.5  # Focal range
@@ -86,16 +84,11 @@ def chordArcLength(radius, sagitta):
 
 
 def addColourLayer(xml, colour, height=120):
-    red = (int(colour[-6:], 16) >> 16) & 0xff
-    green = (int(colour[-6:], 16) >> 8) & 0xff
-    blue = (int(colour[-6:], 16)) & 0xff
+    red = (int(colour[-6:], 16) >> 16) & 0xFF
+    green = (int(colour[-6:], 16) >> 8) & 0xFF
+    blue = (int(colour[-6:], 16)) & 0xFF
 
-    xml.addLayer(
-        "bp_" + colour,
-        round(height, 2),
-        red,
-        green,
-        blue)
+    xml.addLayer("bp_" + colour, round(height, 2), red, green, blue)
 
     nb = ["bp_" + colour, round(height, 2)]
     # print >> sys.stderr, nb
@@ -111,7 +104,8 @@ class Laser(inkex.Effect):
         # Connect to server
         try:
             bp = blastpy.connectToServer(
-                self.blast, self.server, "INKSCAPE", 1000, True)
+                self.blast, self.server, "INKSCAPE", 1000, True
+            )
         except socket.gaierror:
             return None
 
@@ -142,9 +136,20 @@ class Laser(inkex.Effect):
 
         for group in self.document.getroot():
             for child in group:
-                if '{http://www.inkscape.org/namespaces/inkscape}label' in child.attrib.keys():
-                    if "laserdata" in child.attrib['{http://www.inkscape.org/namespaces/inkscape}label']:
-                        myjson = json.loads(child.text)
+                if (
+                    "{http://www.inkscape.org/namespaces/inkscape}label"
+                    in child.attrib.keys()
+                ):
+                    if (
+                        "laserdata"
+                        in child.attrib[
+                            "{http://www.inkscape.org/namespaces/inkscape}label"
+                        ]
+                    ):
+                        try:
+                            myjson = json.loads(child.text)
+                        except json.decoder.JSONDecodeError:
+                            myjson = None
                         if myjson is not None:
                             try:
                                 self.current = float(myjson["current"])
@@ -231,10 +236,11 @@ class Laser(inkex.Effect):
             "cat " + tempfile + " | svg2bezier > /tmp/out.txt",
             shell=True,
             stdout=PIPE,
-            stderr=PIPE)
+            stderr=PIPE,
+        )
         f = p.communicate()[0]
 
-        fh = open("/tmp/out.txt", 'r')
+        fh = open("/tmp/out.txt", "r")
 
         ##########################
         #
@@ -250,9 +256,12 @@ class Laser(inkex.Effect):
             # Calculate the segment size based on including the overlap each end.
             # This makes the segments smaller, but prevents the overlap falling
             # outside of the focal range.
-            SEGMENTS = int(math.ceil((math.pi * float(self.diameter))
-                                     / (chordArcLength(RADIUS, SAGITTA) -
-                                        2 * ROTARY_OVERLAP)))
+            SEGMENTS = int(
+                math.ceil(
+                    (math.pi * float(self.diameter))
+                    / (chordArcLength(RADIUS, SAGITTA) - 2 * ROTARY_OVERLAP)
+                )
+            )
 
             SECTOR = 360.0 / SEGMENTS  # Needed in degrees for lmos
             SECTOR_WIDTH = (math.pi * float(self.diameter)) / SEGMENTS
@@ -279,11 +288,10 @@ class Laser(inkex.Effect):
             else:
                 convex = True
             xml.setCylinder(
-                float(self.diameter) / 2,
-                float(self.width),
-                SECTOR,
-                convex)
+                float(self.diameter) / 2, float(self.width), SECTOR, convex
+            )
 
+        id_counter = 0
         for line in fh:
             if line.startswith("id:"):
                 if line.startswith("id: shadow"):
@@ -297,11 +305,9 @@ class Laser(inkex.Effect):
                     collayers.append(colour)
                     if self.rofin == "rotary":
                         if not convex:
-                            rotaryLayerHeight = 77 - \
-                                RADIUS + FOCAL_ADJUSTMENT
+                            rotaryLayerHeight = 77 - RADIUS + FOCAL_ADJUSTMENT
                         else:
-                            rotaryLayerHeight = 77 + \
-                                RADIUS + FOCAL_ADJUSTMENT
+                            rotaryLayerHeight = 77 + RADIUS + FOCAL_ADJUSTMENT
                         if rotaryLayerHeight < 45:
                             rotaryLayerHeight = 120
                         # print >> sys.stderr, "Layer height: " + \
@@ -324,12 +330,13 @@ class Laser(inkex.Effect):
                 # group = xml.addGroup(
                 #     "g" + id, "bp_" + colour, "bp_" + colour, "Standard")
                 group = xml.addGroup(
-                    "g" + id, "bp_" + colour, "bp_" + colour, "bp_0_01")
+                    "g" + id, "bp_" + colour, "bp_" + colour, "bp_0_01"
+                )
             else:
                 if ignore == 1:
                     continue
                 f = io.StringIO(line)
-                reader = csv.reader(f, delimiter=',')
+                reader = csv.reader(f, delimiter=",")
                 nodes = []
                 for row in reader:
                     for i in row:
@@ -342,8 +349,8 @@ class Laser(inkex.Effect):
                 if nodes:
                     if geo is None:
                         geo = blastpy.BpPolyline(
-                            id, nodes[0], nodes[1],
-                            "bp_" + str(colour))
+                            id, nodes[0], nodes[1], "bp_" + str(colour)
+                        )
                         geo.setLayer("bp_" + str(colour))
                         lastx = nodes[0]
                         lasty = nodes[1]
@@ -352,8 +359,12 @@ class Laser(inkex.Effect):
                         geo.close()
                         xml.addPolylineG(geo, group)
                         geo = blastpy.BpPolyline(
-                            id, nodes[0], nodes[1],
-                            "bp_" + str(colour))
+                            id + "-" + str(id_counter),
+                            nodes[0],
+                            nodes[1],
+                            "bp_" + str(colour),
+                        )
+                        id_counter += 1
                         geo.setLayer("bp_" + str(colour))
                     geo.bezier(
                         nodes[2],
@@ -361,7 +372,8 @@ class Laser(inkex.Effect):
                         nodes[4],
                         nodes[5],
                         nodes[6],
-                        nodes[7])
+                        nodes[7],
+                    )
                     lastx = nodes[6]
                     lasty = nodes[7]
                 else:
@@ -374,13 +386,15 @@ class Laser(inkex.Effect):
                         xml.addPolylineG(geo, group)
                     else:
                         xml.addPolyline(geo)
+                    id_counter = 1
                     geo = None
                     group = None
 
-        if self.mode == "save":
+        if self.mode == "save" or self.mode == "upload":
             blast = blastpy.blastpitNew()
             result = blastpy.connectToServer(
-                blast, self.server, WS_TIMEOUT_SHORT)
+                blast, self.server, myconfig.WS_TIMEOUT_SHORT
+            )
             if result != blastpy.kSuccess:
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
                 fh.close()
@@ -391,36 +405,85 @@ class Laser(inkex.Effect):
                 fh.close()
                 sys.exit()
 
-            # Don't show lmos window
-            blastpy.BpDisplayLmosWindow(blast, 0)
-
+            blastpy.BpQueueCommand(blast, blastpy.kClearLog)
             blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
             blastpy.BpUploadQueuedMessages(blast)
 
-            blastpy.BpQueueCommand(blast, blastpy.kClearLog)
+            # Show lmos window
+            blastpy.BpDisplayLmosWindow(blast, 1)
+            blastpy.BpUploadQueuedMessages(blast)
+
             blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
 
             for qpset in qpsets:
                 blastpy.BpQueueQpSet(
-                    blast, qpset[0], int(
-                        qpset[1]), int(
-                        qpset[2]), int(
-                        qpset[3]))
+                    blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3])
+                )
             blastpy.BpUploadQueuedMessages(blast)
 
-            id = blastpy.BpQueueCommandArgs(blast, blastpy.kImportXML, str(
-                xml.xml()), None, None, None, None, None, None, None, None)
+            id = blastpy.BpQueueCommandArgs(
+                blast,
+                blastpy.kImportXML,
+                str(xml.xml()),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(blast, id.id, WS_TIMEOUT_LONG)
+            blastpy.BpWaitForReplyOrTimeout(
+                blast, id.id, myconfig.WS_TIMEOUT_UPLOAD
+            )
+
+            id = blastpy.BpQueueCommandArgs(
+                blast,
+                blastpy.kZoomWindow,
+                "x1",
+                "0",
+                "y1",
+                "0",
+                "x2",
+                "60",
+                "y2",
+                "60",
+                None,
+            )
+            blastpy.BpUploadQueuedMessages(blast)
+            blastpy.BpWaitForReplyOrTimeout(
+                blast, id.id, myconfig.WS_TIMEOUT_LONG
+            )
 
             for layer in layers:
                 blastpy.BpQueueCommandArgs(
-                    blast, blastpy.kLayerSetHeight, "layer", str(
-                        layer[0]), "height", str(
-                        layer[1]), None, None, None, None, None)
+                    blast,
+                    blastpy.kLayerSetHeight,
+                    "layer",
+                    str(layer[0]),
+                    "height",
+                    str(layer[1]),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
                 blastpy.BpQueueCommandArgs(
-                    blast, blastpy.kLayerSetExportable, "layer", str(
-                        layer[0]), "exportable", "1", None, None, None, None, None)
+                    blast,
+                    blastpy.kLayerSetExportable,
+                    "layer",
+                    str(layer[0]),
+                    "exportable",
+                    "1",
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
 
             blastpy.BpQueueCommandArgs(
                 blast,
@@ -433,7 +496,8 @@ class Laser(inkex.Effect):
                 None,
                 None,
                 None,
-                None)
+                None,
+            )
             blastpy.BpQueueCommandArgs(
                 blast,
                 blastpy.kLayerSetExportable,
@@ -445,7 +509,8 @@ class Laser(inkex.Effect):
                 None,
                 None,
                 None,
-                None)
+                None,
+            )
             blastpy.BpQueueCommandArgs(
                 blast,
                 blastpy.kLayerSetHeight,
@@ -457,7 +522,8 @@ class Laser(inkex.Effect):
                 None,
                 None,
                 None,
-                None)
+                None,
+            )
             blastpy.BpQueueCommandArgs(
                 blast,
                 blastpy.kLayerSetHeight,
@@ -469,12 +535,21 @@ class Laser(inkex.Effect):
                 None,
                 None,
                 None,
-                None)
+                None,
+            )
             blastpy.BpUploadQueuedMessages(blast)
 
+        if self.mode == "save":
             if self.filename is not None and self.customer is not None:
-                filename = "Z:\\drawings\\" + \
-                    str(datetime.date.today().year) + "\\" + self.customer + "\\" + self.filename + ".VLM"
+                filename = (
+                    "Z:\\drawings\\"
+                    + str(datetime.date.today().year)
+                    + "\\"
+                    + self.customer
+                    + "\\"
+                    + self.filename
+                    + ".VLM"
+                )
             else:
                 filename = "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
 
@@ -489,25 +564,50 @@ class Laser(inkex.Effect):
                 None,
                 None,
                 None,
-                None)
+                None,
+            )
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(blast, id.id, WS_TIMEOUT_LONG)
+            blastpy.BpWaitForReplyOrTimeout(
+                blast, id.id, myconfig.WS_TIMEOUT_LONG
+            )
             if id.retval != blastpy.kSuccess:
                 print("Error saving VLM file", file=sys.stderr)
                 fh.close()
                 sys.exit()
 
-            # id = blastpy.BpQueueCommand(blast, blastpy.kSelfTest)
-            # blastpy.BpUploadQueuedMessages(blast)
-            # blastpy.BpWaitForReplyOrTimeout(blast, id.id, WS_TIMEOUT_SHORT)
+            if self.rofin == "rotary":
+                id = blastpy.BpQueueCommandArgs(
+                    blast,
+                    blastpy.kPatchFlexibleShadows,
+                    "filename",
+                    filename,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                blastpy.BpUploadQueuedMessages(blast)
+                blastpy.BpWaitForReplyOrTimeout(
+                    blast, id.id, myconfig.WS_TIMEOUT_SHORT
+                )
+                if id.retval != blastpy.kSuccess:
+                    print("Error patching shadows", file=sys.stderr)
 
+        if self.mode == "save" or self.mode == "upload":
             blastpy.disconnectFromServer(blast)
             blastpy.blastpitDelete(blast)
 
         if self.mode == "position":
             blast = blastpy.t_Blastpit()
-            if blastpy.bp_connectToServer(
-                    blast, self.server, "inkscape", 1000, True) != 0:
+            if (
+                blastpy.bp_connectToServer(
+                    blast, self.server, "inkscape", 1000, True
+                )
+                != 0
+            ):
                 print("Can't connect", file=sys.stderr)
                 sys.exit()
 
@@ -519,7 +619,7 @@ class Laser(inkex.Effect):
         fh.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     e = Laser()
     e.run()
 

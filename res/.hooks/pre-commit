@@ -8,6 +8,11 @@ FILES_PATTERN='*.{c,h}'
 #FILES_PATTERN='\.(js|coffee)(\..+)?$'
 FORBIDDEN='-e password -e TODO -e arse'
 
+function stash() {
+	STASH_NAME="pre-commit-$(date +%F_%T)"
+	git stash save --keep-index --include-untracked $STASH_NAME
+}
+
 function unstash() {
 	STASH=$(git stash list | grep ${STASH_NAME} | awk '{print $1}' | rev | cut -c 2- | rev)
 	echo -e $GREEN "Popping stash ${STASH_NAME}" $WHITE
@@ -34,26 +39,16 @@ then
 	checkforbidden
 fi
 
-# Stash
-STASH_NAME="pre-commit-$(date +%F_%T)"
-# git stash save --keep-index --include-untracked $STASH_NAME
-
-
-# Tidy
-make format
+# Stash before testing
+stash
 
 # Run tests
-# make clean debug #test
-echo "DIRECTORY="
-pwd
-make clean release
+make clean debug test
 TEST_RESULT=$?
+
+unstash
 
 if [[ ${TEST_RESULT} -ne 0 ]]
 then
-	# unstash
 	exit 1
-else
-	# TODO: add any files changed by make format
-	git stash drop || /bin/true
 fi

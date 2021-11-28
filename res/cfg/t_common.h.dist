@@ -1,3 +1,0 @@
-#define WS_SERVER_REMOTE "ws://127.0.0.1:8000"
-#define WS_SERVER_LOCAL "ws://127.0.0.1:8999"
-#define WS_PORT "8999"

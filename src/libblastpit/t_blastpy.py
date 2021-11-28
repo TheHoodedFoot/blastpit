@@ -6,26 +6,31 @@ import time
 import unittest
 
 # Configuration variables
-if not os.path.isfile(os.path.expanduser("~")
-                      + "/projects/blastpit/res/cfg/myconfig.py"):
-    print("The blastpit myconfig.py file is not available.")
-    exit(1)
-sys.path.append(os.path.expanduser("~")
-                + "/projects/blastpit/res/cfg")
-import myconfig
+GIT_HIDDEN_CONFIG_DIR = os.getcwd() + "/.git/untracked"
+DEFAULT_CONFIG_DIR = os.getcwd() + "/res/cfg"
 
-if not os.path.isfile(os.path.expanduser("~")
-                      + "/projects/blastpit/build/_blastpy.so"):
+if os.path.isfile(GIT_HIDDEN_CONFIG_DIR + "/myconfig.py"):
+    # Use the existing custom config
+    sys.path.append(GIT_HIDDEN_CONFIG_DIR)
+    import myconfig
+elif os.path.isfile(DEFAULT_CONFIG_DIR + "/myconfig.py"):
+    # Use the default config
+    sys.path.append(DEFAULT_CONFIG_DIR)
+    import myconfig
+else:
+    print("The blastpit python config (myconfig.py) is not available.")
+    exit(1)
+
+if not os.path.isfile(os.getcwd() + "/build/_blastpy.so"):
     print("The blastpit library is not available.")
     exit(1)
-sys.path.append(os.path.expanduser("~")
-                + "/projects/blastpit/build")
+sys.path.append(os.getcwd() + "/build")
 
 import blastpy as bp
 
 
 # Helper functions needed due to lack of running event loop
-def PollUntilConnected(client, server, timeout=myconfig.WS_TEST_TIMEOUT):
+def PollUntilConnected(client, server, timeout=myconfig.WS_TIMEOUT_SHORT):
     for i in range(timeout):
         bp.pollMessages(client)
         bp.pollMessages(server)
@@ -35,10 +40,8 @@ def PollUntilConnected(client, server, timeout=myconfig.WS_TEST_TIMEOUT):
 
 
 def PollUntilMessageCount(
-        client,
-        server,
-        count=1,
-        timeout=myconfig.WS_TEST_TIMEOUT):
+    client, server, count=1, timeout=myconfig.WS_TIMEOUT_SHORT
+):
     for i in range(timeout):
         bp.pollMessages(client)
         bp.pollMessages(server)
@@ -48,14 +51,11 @@ def PollUntilMessageCount(
 
 
 class Testbp(unittest.TestCase):
-
     def setUp(self):
         self.server = bp.blastpitNew()
         self.assertEqual(
-            bp.kSuccess,
-            bp.serverCreate(
-                self.server,
-                myconfig.WS_PORT))
+            bp.kSuccess, bp.serverCreate(self.server, myconfig.WS_SERVER_TEST)
+        )
         print("Creating server")
 
     def test_MultipleCommands(self):
@@ -63,15 +63,15 @@ class Testbp(unittest.TestCase):
         self.client2 = bp.blastpitNew()
 
         # These next lines will give a timeout error because we don't poll
-        bp.connectToServer(self.client1, myconfig.WS_SERVER_LOCAL, 0)
-        bp.connectToServer(self.client2, myconfig.WS_SERVER_LOCAL, 0)
+        bp.connectToServer(self.client1, myconfig.WS_SERVER_TEST, 0)
+        bp.connectToServer(self.client2, myconfig.WS_SERVER_TEST, 0)
 
         PollUntilConnected(self.client1, self.server)
         PollUntilConnected(self.client2, self.server)
         # sys.exit()
 
-        xml = "<?xml?><message id=\"1\" command=\"98\"></message>"
-        xml = xml + "<message id=\"2\" command=\"99\"></message>"
+        xml = '<?xml?><message id="1" command="98"></message>'
+        xml = xml + '<message id="2" command="99"></message>'
 
         result = bp.bp_sendMessage(self.client1, xml)
         bp.pollMessages(self.client1)
@@ -86,9 +86,8 @@ class Testbp(unittest.TestCase):
     def test_QueueCommands(self):
         self.client = bp.blastpitNew()
         bp.connectToServer(
-            self.client,
-            myconfig.WS_SERVER_LOCAL,
-            myconfig.WS_TEST_TIMEOUT)
+            self.client, myconfig.WS_SERVER_TEST, myconfig.WS_TIMEOUT_SHORT
+        )
         PollUntilConnected(self.client, self.client)
 
         bp.BpQueueCommand(self.client, 99)
@@ -111,7 +110,7 @@ class Testbp(unittest.TestCase):
         print("Destroying server")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(failfast=True)
 
 # def test_sendReceive(self):
