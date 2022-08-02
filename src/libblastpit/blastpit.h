@@ -23,7 +23,7 @@ extern "C"
 #define LMOS_FREQUENCY_MIN 20000
 #define LMOS_FREQUENCY_MAX 60000
 
-#define BP_ISLMOSUP_TIMEOUT 750
+#define BP_ISLMOSUP_TIMEOUT 1200
 #define BP_SHORT_TIMEOUT    1000
 
 #define BP_TEMP_VLMFILE "outfile.VLM"
@@ -58,6 +58,7 @@ extern "C"
 	COMMAND( kEmergencyStop )                                                                                      \
 	COMMAND( kExit )                                                                                               \
 	COMMAND( kForceRedraw )                                                                                        \
+	COMMAND( kGetGeoList )                                                                                         \
 	COMMAND( kGetPng )                                                                                             \
 	COMMAND( kGetVersion )                                                                                         \
 	COMMAND( kGetW )                                                                                               \
@@ -75,12 +76,14 @@ extern "C"
 	COMMAND( kMOUnsetLaserable )                                                                                   \
 	COMMAND( kMoveW )                                                                                              \
 	COMMAND( kMoveZ )                                                                                              \
+	COMMAND( kPatchFlexibleShadows )                                                                               \
 	COMMAND( kPhoto )                                                                                              \
 	COMMAND( kReadByte )                                                                                           \
 	COMMAND( kReadIOBit )                                                                                          \
 	COMMAND( kReference )                                                                                          \
 	COMMAND( kReply )                                                                                              \
 	COMMAND( kResetRetvalDb )                                                                                      \
+	COMMAND( kSaveQpSets )                                                                                         \
 	COMMAND( kSaveVLM )                                                                                            \
 	COMMAND( kSelfTest )                                                                                           \
 	COMMAND( kSetDimension )                                                                                       \
@@ -99,8 +102,6 @@ extern "C"
 	COMMAND( kTermMachine )                                                                                        \
 	COMMAND( kWriteByte )                                                                                          \
 	COMMAND( kWriteIoBit )                                                                                         \
-	COMMAND( kGetGeoList )                                                                                         \
-	COMMAND( kPatchFlexibleShadows )                                                                               \
 	COMMAND( kZoomWindow )
 
 #define FOREACH_RETVAL( RETVAL )                                                                                       \
@@ -328,13 +329,14 @@ extern "C"
 	char*	    BpGetMessageByIndex( const char* xml, int index );
 	char*	    BpSdsToString( char* string );
 	IdAck	    BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout );
+	IdAck	    BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout );
 	const char* bpCommandName( int command );
 	const char* bpRetvalName( int retval );
 	char*	    popMessage( t_Blastpit* self );
 	char*	    popMessageAt( t_Blastpit* self, int index );
 	IdAck	    QueueAckRetval( t_Blastpit* self, int id, int retval );
 	IdAck	    QueueReplyPayload( t_Blastpit* self, int id, int retval, const char* payload );
-	IdAck	    QueueSignal( t_Blastpit* self, int signal, const char* payload );
+	IdAck	    BpQueueSignal( t_Blastpit* self, int signal, const char* payload );
 	char*	    readMessageAt( t_Blastpit* self, int index );
 	// IdAck SendCommand(t_Blastpit *self, int command);
 	// IdAck SendMessageBp(t_Blastpit *self, ...);
@@ -377,6 +379,7 @@ extern "C"
 	void BpInitMachine( t_Blastpit* self );
 	void BpTermMachine( t_Blastpit* self );
 	void BpDisplayLmosWindow( t_Blastpit* self, int visibility );
+	void BpSaveQpSets( t_Blastpit* self );
 
 #define CLSID_LMOS "{18213698-A9C9-11D1-A220-0060973058F6}"
 

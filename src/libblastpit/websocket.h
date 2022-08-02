@@ -51,7 +51,7 @@ extern "C"
 	void  wsFlushMessages( t_Websocket* ws );
 
 	// Server functions
-	int  wsServerCreate( t_Websocket* i, const char* port );
+	int  wsServerCreate( t_Websocket* self, const char* listen_address );
 	int  wsServerDestroy( t_Websocket* );
 	void wsPoll( t_Websocket* self );
 	void wsPollWithTimeout( t_Websocket* self, int timeout );

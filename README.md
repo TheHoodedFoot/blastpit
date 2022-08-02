@@ -2,7 +2,7 @@
 
 ## Description
 
-![Tentacle](/res/img/blastpit.svg)
+![Tentacle](/res/img/blastpit.png)
 
 **blastpit** adds additional functionality to the Rofin Easyjewel marking
 system. Features will **(hopefully)** include:

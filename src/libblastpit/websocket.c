@@ -53,8 +53,9 @@ void
 wsFlushMessages( t_Websocket* ws )
 {  // Drop all messages
 
-	if ( !ws )
+	if ( !ws ) {
 		return;
+	}
 	while ( wsGetMessageCount( ws ) > 0 ) {
 		free( wsPopMessage( ws ) );
 	}
@@ -252,7 +253,7 @@ client_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 			BPLOG( kLvlDebug, "Message pointer: %p\n", message );
 			*( (char*)message + (int)wm->data.len ) = 0;
 
-			void* destination = memmove( message, wm->data.ptr, (int)wm->data.len );
+			void* destination = memmove( message, wm->data.ptr, (int)wm->data.len );  // NOLINT
 			assert( destination );
 			wsPushMessage( ws, message );
 			break;
@@ -321,8 +322,9 @@ wsServerDestroy( t_Websocket* self )
 
 	// ZoneScoped
 
-	if ( !self->connection )
+	if ( !self->connection ) {
 		return kNullResource;
+	}
 
 	// Free any dynamically allocated memory here
 	// Note: This automatically runs mg_mgr_poll()
@@ -364,8 +366,9 @@ wsClientDestroy( t_Websocket* self )
 
 	// ZoneScoped
 
-	if ( !self->connection )
+	if ( !self->connection ) {
 		return kNullResource;
+	}
 
 	// Free any dynamically allocated memory here
 	mg_mgr_free( &self->mongoose );
@@ -404,8 +407,9 @@ wsServerSendMessage( t_Websocket* self, char* data )
 	BPLOG( kLvlDebug, "%s: Sending message to all clients\n", __func__ );
 	BPLOG( kLvlDebug, "Message size: %ld\n", strlen( data ) );
 
-	if ( !self->isServer )
+	if ( !self->isServer ) {
 		return kBadLogic;
+	}
 
 	broadcastServer( self->connection, mg_str( data ) );
 	wsPoll( self );
@@ -419,8 +423,9 @@ wsClientSendMessage( t_Websocket* self, char* data )
 
 	// ZoneScoped
 
-	if ( !data )
+	if ( !data ) {
 		return kInvalid;
+	}
 
 	BPLOG( kLvlDebug, "%s: Sending message to server\n", __func__ );
 	BPLOG( kLvlDebug, "Message size: %ld\n", strlen( data ) );
@@ -458,8 +463,9 @@ wsGetMessageCount( t_Websocket* self )
 
 	int	i    = 0;
 	t_Node* node = self->messageStack;
-	for ( ; node; i++ )
+	for ( ; node; i++ ) {
 		node = node->next;
+	}
 	return i;
 }
 
@@ -467,10 +473,12 @@ void*
 wsPopMessageAt( t_Websocket* self, int index )
 {  // Pop the message data for a specific index
 
-	if ( !self )
+	if ( !self ) {
 		return NULL;
-	if ( !self->messageStack )
+	}
+	if ( !self->messageStack ) {
 		return NULL;
+	}
 
 	t_Node* node = self->messageStack;
 	t_Node* prev = NULL;
@@ -481,8 +489,9 @@ wsPopMessageAt( t_Websocket* self, int index )
 		}
 	}
 
-	if ( !node )
+	if ( !node ) {
 		return NULL;
+	}
 
 	void* retval  = node->data;
 	void* newHead = node->next;
@@ -505,18 +514,23 @@ void*
 wsReadMessageAt( t_Websocket* self, int index )
 {  // Get the message data for a specific index
 
-	if ( !self )
+	if ( !self ) {
 		return NULL;
-	if ( !self->messageStack )
+	}
+	if ( !self->messageStack ) {
 		return NULL;
+	}
 
 	t_Node* node = self->messageStack;
-	for ( int i = 0; i < index; i++ )
-		if ( node )
+	for ( int i = 0; i < index; i++ ) {
+		if ( node ) {
 			node = node->next;
+		}
+	}
 
-	if ( !node )
+	if ( !node ) {
 		return NULL;
+	}
 
 	return node->data;
 }

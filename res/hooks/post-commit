@@ -1,0 +1,2 @@
+#!/bin/sh
+$(git config --get core.hooksPath)/updatetags

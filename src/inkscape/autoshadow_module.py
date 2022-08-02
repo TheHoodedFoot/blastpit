@@ -34,7 +34,7 @@ from lxml import etree
 import datetime
 import math
 
-sys.path.append(expanduser("~") + "/projects/blastpit/res/bin")
+sys.path.append(expanduser("~") + "/projects/blastpit/src/scaffolding")
 from autoshadow import Autoshadow
 
 
@@ -161,13 +161,38 @@ class AutoshadowModule(inkex.EffectExtension):
 
         ash.showWindow()
 
+        log = open("/tmp/autoshadow.log", "w")
+
         if ash.getObjectList() is False:
             self.bail("Failed to get objects/shadows from file")
+
+        # print("Object list:", file=sys.stderr)
+        # print(ash.paths, file=sys.stderr)
+
         ash.paths.sort()
 
         # Process the shadows
-        existing_paths = ash.mergeRawPaths(ash.getPaths())
-        new_paths = ash.calculateOptimalPaths(existing_paths)
+        existing_paths = ash.roundPaths(ash.mergeRawPaths(ash.getPaths()))
+        new_paths = ash.roundPaths(ash.calculateOptimalPaths(existing_paths))
+
+        # The new_paths variable can be considered as the calculated shadows
+        # print("paths: ", existing_paths, file=sys.stderr)
+        # print("shadows: ", new_paths, file=sys.stderr)
+        numUnconveredPaths = ash.findPathsWithoutShadows(
+            existing_paths, new_paths
+        )
+        if len(numUnconveredPaths) > 0:
+            print(
+                "Warning: failed to generate shadows for %s path(s)"
+                % len(numUnconveredPaths),
+                file=sys.stderr,
+            )
+            print("Paths without shadows:", numUnconveredPaths, file=sys.stderr)
+
+        # print("Merge Raw Paths:")
+        # print(existing_paths, file=log)
+        # print("Final Calculated Paths:")
+        # print(new_paths, file=log)
 
         # Show the new shadows in Inkscape
         shadowLayer = self.wipeShadows()
@@ -187,6 +212,7 @@ class AutoshadowModule(inkex.EffectExtension):
             pass
 
         ash.cleanup()
+        log.close()
 
     def createShadowLayer(self):
         root = self.document.getroot()
@@ -260,12 +286,19 @@ class AutoshadowModule(inkex.EffectExtension):
 
         # Move shadows
         # print("self.maxwidth: ", self.maxwidth, "self.diameter: ", self.diameter, file=sys.stderr)
-        try:
-            if self.maxwidth is not None and self.diameter is not None:
-                self.main()
-        except AttributeError:
+        # try:
+        if self.maxwidth is not None and self.diameter is not None:
+            self.main()
+        else:
             print(
                 "No maxwidth or diameter is set. Aborting autoshadow.",
+                file=sys.stderr,
+            )
+            print(
+                "self.maxwidth:",
+                self.maxwidth,
+                "self.diameter:",
+                self.diameter,
                 file=sys.stderr,
             )
 

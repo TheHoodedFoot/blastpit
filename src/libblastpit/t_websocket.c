@@ -58,6 +58,8 @@ TEST( WebsocketGroup, wsServerNew )
 
 TEST( WebsocketGroup, PortInUse )
 {
+	// TEST_IGNORE();
+
 	// Should fail with port in use by &server;
 	t_Websocket* ws_server = websocketNew();
 	int	     result    = wsServerCreate( ws_server, "ws://127.0.0.1:8001" );

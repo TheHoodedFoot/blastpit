@@ -91,10 +91,10 @@ LmosTray::LmosTray( QWidget* parent )
 #endif
 	listen();
 
-#ifdef DEBUG
+	// #ifdef DEBUG
 	// Always show the log window when debugging
 	show();
-#endif
+	// #endif
 }
 
 LmosTray::~LmosTray()

@@ -512,6 +512,7 @@ void
 Lmos::SaveQPSets()
 {
 #if defined( Q_OS_WIN32 )
+	emit log( kLvlDebug, __func__, "Saving Qp Sets" );
 	lmos_actx->SaveGlobalQPSets();
 #endif
 }

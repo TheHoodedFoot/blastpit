@@ -1,9 +1,0 @@
-#!/bin/sh
-
-if [[ $(uname -s) == MINGW* ]]
-then
-	rm -f build/lmos-tray/Makefile*
-	exit 0
-fi
-
-res/.hooks/updatetags

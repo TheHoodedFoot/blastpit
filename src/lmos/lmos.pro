@@ -14,11 +14,11 @@ TEMPLATE = app
 CONFIG += widgets
 
 #CONFIG += debug c++11
-CONFIG += release c++11
-#CONFIG += debug_and_release build_all c++11
+#CONFIG += release c++11
+CONFIG += debug_and_release build_all c++11
 
 QMAKE_CXXFLAGS_RELEASE += -DDEBUG_LEVEL=0
-QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=5 -Og -g3
+QMAKE_CXXFLAGS_DEBUG   += -DDEBUG_LEVEL=5 -O0 -g3
 
 linux {
 #	QMAKE_CC = "ccache clang"

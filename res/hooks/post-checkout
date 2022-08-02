@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -f $(git rev-parse --show-toplevel)/.git/tags{,extra}
+$(git config --get core.hooksPath)/updatetags

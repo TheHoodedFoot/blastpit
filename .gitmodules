@@ -25,9 +25,6 @@
 [submodule "src/submodules/nanosvg"]
 	path = src/submodules/nanosvg
 	url = https://github.com/memononen/nanosvg.git
-[submodule "src/submodules/steamcontroller"]
-	path = src/submodules/steamcontroller
-	url = https://github.com/kolrabi/steamcontroller.git
 [submodule "src/submodules/ofxCubicBezierToBiarc"]
 	path = src/submodules/ofxCubicBezierToBiarc
 	url = https://github.com/CarstenHoyer/ofxCubicBezierToBiarc.git
@@ -37,3 +34,15 @@
 [submodule "src/submodules/arcproximator"]
 	path = src/submodules/arcproximator
 	url = https://github.com/99991/arcproximator.git
+[submodule "src/submodules/lv_sim_emscripten"]
+	path = src/submodules/lv_sim_emscripten
+	url = https://github.com/lvgl/lv_sim_emscripten.git
+[submodule "src/submodules/imgui"]
+	path = src/submodules/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "src/submodules/imtui"]
+	path = src/submodules/imtui
+	url = https://github.com/ggerganov/imtui
+[submodule "src/submodules/wsServer"]
+	path = src/submodules/wsServer
+	url = https://github.com/Theldus/wsServer.git

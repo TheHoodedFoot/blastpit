@@ -5,28 +5,32 @@ echo "testrunner.sh: $0 $1 $2"
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
 FIGLET_FONTS_DIR=${HOME}/usr/share/fonts/figlet-fonts
 
+SRCDIRS=("${PROJECT_ROOT}/src/libblastpit" "${PROJECT_ROOT}/src/scaffolding")
+BUILDDIR=${PROJECT_ROOT}/build
+
+VERBOSE="-v"
+
 if [[ "$1" == "-msan" ]]
 then
 	echo "Running memory sanitizer"
-	SRCDIR=${PROJECT_ROOT}/src/libblastpit
-	BUILDDIR=${PROJECT_ROOT}/build
 elif [[ "$1" == "-asan" ]]
 then
 	echo "Running address sanitizer"
-	SRCDIR=${PROJECT_ROOT}/src/libblastpit
-	BUILDDIR=${PROJECT_ROOT}/build
+elif [[ "$1" == "--no-python" ]]
+then
+	echo "Disabling Python tests"
+elif [[ "$1" == "--long" ]]
+then
+	echo "Running long tests"
+	VERBOSE="-v -l"
 else
-	if [ -z ${1+x} ]
+	if [ ! -z ${1+x} ]
 	then
-		SRCDIR=${PROJECT_ROOT}/src/libblastpit
-		BUILDDIR=${PROJECT_ROOT}/build
-	else
-		SRCDIR=$1
+		SRCDIRS=($1)
 		BUILDDIR=$1
 	fi
 fi
 
-VERBOSE="-v"
 
 # Black        0;30     Dark Gray     1;30
 # Red          0;31     Light Red     1;31
@@ -46,6 +50,7 @@ GREEN="\e[32m"
 BLUE="\e[34m"
 MAGENTA="\e[35m"
 WHITE="\e[39m"
+YELLOW="\e[33m"
 
 
 function print_large()
@@ -70,74 +75,81 @@ function set_colour()
 	echo -e $1
 }
 
-echo -e "\nChecking for unit tests in ${SRCDIR}..."
-pushd ${SRCDIR} > /dev/null
-CTESTS=$(ls -1t t_*.c* | sed -e 's/t_//' -e 's/\.c.*$//')
-PYTESTS=$(ls -1t t_*.py | sed -e 's/t_//' -e 's/\.py$//')
-popd > /dev/null
-
-TESTS="${CTESTS} ${PYTESTS}"
-TESTS=$(echo -e "${TESTS// /\\n}" | sort -u)
-
-if [[ "$2" == "-valgrind" ]]
-then
-	VALGRIND="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --expensive-definedness-checks=yes --gen-suppressions=all --error-exitcode=1 --exit-on-first-error=yes --suppressions=res/valgrind/valgrind.supp"
-fi
-
-for TEST in ${TESTS}
+NUM_SRCDIRS=${#SRCDIRS[@]}
+for (( i=0; i<${NUM_SRCDIRS}; i++));
 do
-	if [[ -x "${BUILDDIR}/t_${TEST}_x" ]]
+
+	echo -e "${YELLOW}\nChecking for unit tests in ${SRCDIRS[i]}...${WHITE}\\n"
+	pushd ${SRCDIRS[i]} > /dev/null
+	CTESTS=$(ls -1t t_*.c* >/dev/null 2>&1 | sed -e 's/t_//' -e 's/\.c.*$//' )
+	PYTESTS=$(ls -1t t_*.py | sed -e 's/t_//' -e 's/\.py$//') >/dev/null 2>&1
+	popd > /dev/null
+
+	TESTS="${CTESTS} ${PYTESTS}"
+	TESTS=$(echo -e "${TESTS// /\\n}" | sort -u)
+	echo $TESTS
+
+	if [[ "$2" == "-valgrind" ]]
 	then
-		echo -e "${BLUE}\nRunning [t_${TEST}_x] ${VERBOSE}${WHITE}"
-		echo
-		if [ -z "${VALGRIND}" ]
-		then
-			${BUILDDIR}/t_${TEST}_x ${VERBOSE}
-		else
-			${VALGRIND} ${BUILDDIR}/t_${TEST}_x ${VERBOSE}
-		fi
-		if [ $? -ne 0 ]
-		then
-			set_colour $RED
-			print_large "FAILED" "Bloody"
-			set_colour $WHITE
-			exit 1
-		fi
+		VALGRIND="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --expensive-definedness-checks=yes --gen-suppressions=all --error-exitcode=1 --exit-on-first-error=yes --suppressions=res/valgrind/valgrind.supp"
 	fi
 
-#######################################################################
-#                                Note                                 #
-#######################################################################
-
-# Python can cause wierd failures with the address sanitizer, so it is best
-# to do all memory checking in the c/c++ tests and to run any Python tests
-# with sanitizing disabled.
-
-if [[ "$1" == "-msan" || "$1" == "-asan" ]]
-then
-	exit 0
-fi
-
-if [[ -x "${SRCDIR}/t_${TEST}.py" ]]
-then
-	echo -e "${MAGENTA}\n[t_${TEST}.py]${WHITE}"
-	echo
-	# With ASAN_OPTIONS=detect_leaks=1 python tests will fail to complete
-	# With it set to zero we will still see things but testing will continue
-
-		PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
-
-		# UBSAN_OPTIONS=print_stacktrace=1 ASAN_OPTIONS=detect_leaks=0 LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
-
-		# ASAN_OPTIONS=suppressions=${PROJECT_ROOT}/res/.asan_suppressions LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
-		if [ $? -ne 0 ]
+	for TEST in ${TESTS}
+	do
+		if [[ -x "${BUILDDIR}/t_${TEST}_x" ]]
 		then
-			set_colour $RED
-			print_large "FAILED" "Bloody"
-			set_colour $WHITE
-			exit 1
+			echo -e "${BLUE}\nRunning [t_${TEST}_x] ${VERBOSE}${WHITE}"
+			echo
+			if [ -z "${VALGRIND}" ]
+			then
+				${BUILDDIR}/t_${TEST}_x ${VERBOSE}
+			else
+				${VALGRIND} ${BUILDDIR}/t_${TEST}_x ${VERBOSE}
+			fi
+			if [ $? -ne 0 ]
+			then
+				set_colour $RED
+				print_large "FAILED" "Bloody"
+				set_colour $WHITE
+				exit 1
+			fi
 		fi
-fi
+
+	#######################################################################
+	#                                Note                                 #
+	#######################################################################
+
+	# Python can cause wierd failures with the address sanitizer, so it is best
+	# to do all memory checking in the c/c++ tests and to run any Python tests
+	# with sanitizing disabled.
+
+		if [[ "$1" == "-msan" || "$1" == "-asan" || "$1" == "--no-python" ]]
+		then
+			continue
+		fi
+
+		if [[ -x "${SRCDIRS[i]}/t_${TEST}.py" ]]
+		then
+			echo -e "${MAGENTA}\n[t_${TEST}.py]${WHITE}"
+			echo
+			# With ASAN_OPTIONS=detect_leaks=1 python tests will fail to complete
+			# With it set to zero we will still see things but testing will continue
+
+			PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIRS[i]}/t_${TEST}.py
+
+			# UBSAN_OPTIONS=print_stacktrace=1 ASAN_OPTIONS=detect_leaks=0 LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
+
+			# ASAN_OPTIONS=suppressions=${PROJECT_ROOT}/res/.asan_suppressions LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
+			if [ $? -ne 0 ]
+			then
+				set_colour $RED
+				print_large "FAILED" "Bloody"
+				set_colour $WHITE
+				exit 1
+			fi
+		fi
+	done
+
 done
 
 # set_colour $GREEN

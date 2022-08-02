@@ -1,6 +1,8 @@
 %module blastpy
 #pragma SWIG nowarn=462
 
+%include "stdint.i"
+
 %{
 #include "blastpit.h"
 %}

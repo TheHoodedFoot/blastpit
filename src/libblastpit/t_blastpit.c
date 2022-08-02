@@ -1,20 +1,21 @@
-#include "blastpit.h"
-#include "sds.h"
-#include "websocket.h"
-#include "xml.h"
 #include <assert.h>
+#include <getopt.h>
+#include <stdlib.h>
 #include <unistd.h>
 
-#include "unity_fixture.h"
+#include "blastpit.h"
+#include "sds.h"
+#include "unity.h"
+#include "websocket.h"
+#include "xml.h"
 
 // This uncontrolled file defines SERVER and MQTT_TIMEOUT
 #include "t_common.h"
 
-TEST_GROUP( BlastpitGroup );
-
 t_Blastpit* server;
 
-TEST_SETUP( BlastpitGroup )
+void
+testSetup( void )
 {
 	BPLOG( kLvlDebug, "%s: Creating server\n", __func__ );
 	server	   = blastpitNew();
@@ -24,7 +25,8 @@ TEST_SETUP( BlastpitGroup )
 	BPLOG( kLvlDebug, "Server nc: %p\n", (void*)( (t_Websocket*)server->ws )->connection );
 }
 
-TEST_TEAR_DOWN( BlastpitGroup )
+void
+testTeardown( void )
 {
 	BPLOG( kLvlDebug, "%s: Destroying server\n", __func__ );
 	serverDestroy( server );
@@ -40,7 +42,8 @@ testcallback()
 	testval++;
 }
 
-TEST( BlastpitGroup, simpleServerTest )
+void
+simpleServerTest( void )
 {
 	/* What are the requirements to test 'x'? */
 	/* 	What does the object do? */
@@ -97,7 +100,8 @@ TEST( BlastpitGroup, simpleServerTest )
 	blastpitDelete( simpleserver );
 }
 
-TEST( BlastpitGroup, SendAndWaitTest )
+void
+SendAndWaitTest( void )
 {
 	// Create a client
 	t_Blastpit* client = blastpitNew();
@@ -119,7 +123,8 @@ TEST( BlastpitGroup, SendAndWaitTest )
 	blastpitDelete( client );
 }
 
-TEST( BlastpitGroup, MessageTest )
+void
+MessageTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -184,7 +189,63 @@ TEST( BlastpitGroup, MessageTest )
 	blastpitDelete( simpleserver );
 }
 
-TEST( BlastpitGroup, AutoGenId )
+void
+SignalTest( void )
+{
+	// What are the requirements to test 'x'?
+	// 	What does the object do?
+	// 	How does it interact with the data or hardware it controls?
+	// 	How can we make it testable?
+
+	// Allocates memory for t_Blastpit and t_Websocket
+	t_Blastpit* simpleserver = blastpitNew();
+
+	// Sets the t_Websocket address via serverCreate()
+	int result = serverCreate( simpleserver, "ws://127.0.0.1:8129" );
+	TEST_ASSERT_EQUAL( true, result );
+
+	// Create two clients
+	t_Blastpit* client1 = blastpitNew();
+
+	// Connect to the server
+	// We can't check the result here because the server is not polling
+	connectToServer( client1, "ws://127.0.0.1:8129", 0 );
+
+	// Wait for handshake
+	for ( int i = 0; i < 100; i++ ) {
+		pollMessages( simpleserver );
+		pollMessages( client1 );
+		if ( ( (t_Websocket*)client1->ws )->isConnected )
+			break;
+	}
+
+	TEST_ASSERT_EQUAL( true, ( (t_Websocket*)client1->ws )->isConnected );
+
+	// Send a message
+	// IdAck reply = QueueSignal( client1, 0x99, NULL );
+
+	// for ( int i = 0; i < 100; i++ ) {
+	// 	pollMessages( client1 );
+	// 	pollMessages( simpleserver );
+	// 	if ( getMessageCount( client1 ) == 1 )
+	// 		break;
+	// }
+
+	// TEST_ASSERT_EQUAL( 1, getMessageCount( client1 ) );
+
+	// const char* msg1 = popMessage( client1 );
+	// TEST_ASSERT_EQUAL_STRING( "client2", msg1 );
+	// free( (void*)msg1 );
+
+	// Tidy up
+	disconnectFromServer( client1 );
+	serverDestroy( simpleserver );
+	blastpitDelete( client1 );
+	blastpitDelete( simpleserver );
+}
+
+void
+AutoGenId( void )
 {
 	// The first auto-generated id should be 1
 	t_Blastpit* bp = blastpitNew();
@@ -198,7 +259,8 @@ TEST( BlastpitGroup, AutoGenId )
 	blastpitDelete( bp );
 }
 
-TEST( BlastpitGroup, SendCommand )
+void
+SendCommand( void )
 {
 	t_Blastpit* bp1 = blastpitNew();
 	t_Blastpit* bp2 = blastpitNew();
@@ -215,7 +277,7 @@ TEST( BlastpitGroup, SendCommand )
 	// Wait for handshake
 	for ( int i = 0; i < 10; i++ ) {
 		pollMessages( server );
-		// usleep(100000);
+		usleep( 100000 );
 		pollMessages( bp1 );
 		// usleep(100000);
 		pollMessages( bp2 );
@@ -270,7 +332,8 @@ TEST( BlastpitGroup, SendCommand )
 	blastpitDelete( bp2 );
 }
 
-TEST( BlastpitGroup, QueueQpsetTest )
+void
+QueueQpsetTest( void )
 {
 	t_Blastpit* bp = blastpitNew();
 
@@ -307,7 +370,8 @@ TEST( BlastpitGroup, QueueQpsetTest )
 	blastpitDelete( bp );
 }
 
-TEST( BlastpitGroup, DependentChildTest )
+void
+DependentChildTest( void )
 {  // Checks that queued messages rely on parent
 
 	// Queued messages should have 'depends' attribute added
@@ -340,7 +404,8 @@ TEST( BlastpitGroup, DependentChildTest )
 	blastpitDelete( bp );
 }
 
-TEST( BlastpitGroup, RetvalDbTest )
+void
+RetvalDbTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -371,7 +436,8 @@ TEST( BlastpitGroup, RetvalDbTest )
 	blastpitDelete( bp );
 }
 
-TEST( BlastpitGroup, ConnectivityTest )
+void
+ConnectivityTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -397,30 +463,48 @@ TEST( BlastpitGroup, ConnectivityTest )
 	blastpitDelete( client );
 }
 
-TEST_GROUP_RUNNER( BlastpitGroup )
-{ /* Add a line below for each unit test */
+static void
+unityShortTests()
+{  // These tests must pass or fail within microseconds. No network tests.
 
-	RUN_TEST_CASE( BlastpitGroup, ConnectivityTest );
-	RUN_TEST_CASE( BlastpitGroup, RetvalDbTest );
-	RUN_TEST_CASE( BlastpitGroup, DependentChildTest );
-	RUN_TEST_CASE( BlastpitGroup, QueueQpsetTest );
-	RUN_TEST_CASE( BlastpitGroup, SendCommand );
-	RUN_TEST_CASE( BlastpitGroup, simpleServerTest );
-	RUN_TEST_CASE( BlastpitGroup, SendAndWaitTest );
-	RUN_TEST_CASE( BlastpitGroup, MessageTest );
-	RUN_TEST_CASE( BlastpitGroup, AutoGenId );
+	RUN_TEST( RetvalDbTest );
+	RUN_TEST( AutoGenId );
+	RUN_TEST( QueueQpsetTest );
+	RUN_TEST( DependentChildTest );
 }
 
 static void
-runAllTests()
-{
-	RUN_TEST_GROUP( BlastpitGroup );
+unityLongTests()
+{  // Long-running tests, meant to be run under Buildbot.
+
+	testSetup();
+	RUN_TEST( ConnectivityTest );
+	testTeardown();
+
+	testSetup();
+	RUN_TEST( SendAndWaitTest );
+	testTeardown();
+
+	testSetup();
+	RUN_TEST( SendCommand );
+	testTeardown();
+
+	testSetup();
+	RUN_TEST( simpleServerTest );
+	testTeardown();
+
+	testSetup();
+	RUN_TEST( MessageTest );
+	testTeardown();
+
+	testSetup();
+	RUN_TEST( SignalTest );
+	testTeardown();
 }
 
 int
-stdinTest( int argc, const char* argv[] )
-{ /* Run tests using stdin as input,
-     mostly used with afl fuzzing */
+StdinTest( int argc, const char* argv[] )
+{  // Run tests using stdin as input, mostly used with afl fuzzing
 
 	(void)argc;
 	(void)argv;
@@ -428,30 +512,41 @@ stdinTest( int argc, const char* argv[] )
 	return 0;
 }
 
-#include <getopt.h>
-/* #include <stdio.h> */
-/* #include <stdlib.h> */
 
 int
 main( int argc, const char* argv[] )
 {
 	while ( 1 ) {
-		static struct option long_options[] = { { "stdin", no_argument, 0, 't' }, { 0, 0, 0, 0 } };
+		static struct option long_options[] = { { "stdin", no_argument, 0, 't' },
+							{ "longtests", no_argument, 0, 'l' },
+							{ 0, 0, 0, 0 } };
 
 		int c, option_index = 0;
-		c = getopt_long( argc, (char* const*)argv, "tv", long_options, &option_index );
+		c = getopt_long( argc, (char* const*)argv, "ltv", long_options, &option_index );
 		if ( c == -1 )
 			break;
 
 		switch ( c ) {
 			case 't':
+				// stdin test is used with afl
 				fprintf( stderr, "Running stdin test...\n" );
-				return stdinTest( argc, argv );
+				return StdinTest( argc, argv );
+
+			case 'l':
+				// To speed the development cycle, long tests
+				// must be forced (usually by buildbot)
+				fprintf( stderr, "Running long tests...\n" );
+				UNITY_BEGIN();
+				unityShortTests();
+				unityLongTests();
+				return UNITY_END();
 
 			default:
-				break;
+				UNITY_BEGIN();
+				unityShortTests();
+				return UNITY_END();
 		}
 	}
 
-	return UnityMain( argc, argv, runAllTests );
+	return 0;
 }

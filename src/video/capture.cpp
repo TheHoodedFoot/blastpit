@@ -23,6 +23,9 @@ main( int, char** )
 	VideoCapture cap( CAPTURE_DEVICE, CV_CAP_V4L );
 	if ( !cap.isOpened() )	// check if we succeeded
 		return -1;
+#ifdef CAPTURE_USE_MJPEG
+	cap.set( CV_CAP_PROP_FOURCC, CV_FOURCC( 'M', 'J', 'P', 'G' ) );
+#endif
 	cap.set( CV_CAP_PROP_FRAME_WIDTH, CAPTURE_X_RESOLUTION );
 	cap.set( CV_CAP_PROP_FRAME_HEIGHT, CAPTURE_Y_RESOLUTION );
 
@@ -67,7 +70,7 @@ main( int, char** )
 				std::string filename;
 
 				for ( int i = 0;; i++ ) {
-					filename = "/home/user/Pictures/Microscope/" CAMERA_NAME "-";
+					filename = "/home/" USERNAME "/Pictures/Microscope/" CAMERA_NAME "-";
 					filename += std::to_string( i );
 					filename += ".jpg";
 					if ( !exists( filename ) )
@@ -77,7 +80,9 @@ main( int, char** )
 				cout << "next file: " << filename << endl;
 
 
-				imwrite( filename, colourframe );
+				if (!imwrite( filename, colourframe )) {
+			      cout << "Could not save file (" << filename << ")" << endl;
+				}
 				destroyWindow( windowName );  // destroy the created window
 
 				return 0;

@@ -24,6 +24,7 @@
 *.obj
 *.old
 *.orig
+*.otl
 *.out
 *.pch
 *.pdb
@@ -49,15 +50,19 @@
 .ccls-cache
 .depend
 .env
+.gdb_history
 .tags*
 BuildLog.htm
+TODO.txt
 Thumbs.db
 a.out
 build
 compile_commands.json
 gdb.txt
+res/img/*.png
 src/libblastpit/blastpy.py
 src/lmos/Makefile
+src/lmos/lmos-tray.ico
 src/video/eakins
 src/video/veho
 src/webapp/hello.html
@@ -65,7 +70,3 @@ src/webapp/hello.js
 src/webapp/hello.wasm
 worktree
 zig-cache
-.gdb_history
-res/img/*.png
-TODO.txt
-src/lmos/lmos-tray.ico

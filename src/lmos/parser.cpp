@@ -64,7 +64,7 @@ Parser::wsConnect()
 	QByteArray  ba	   = wsserver.toLocal8Bit();
 	const char* c_str2 = ba.data();
 
-	// log("Parser::wsConnect : Trying to connect to server " + traySettings.value("wsServer").toString());
+	log( "Parser::wsConnect : Trying to connect to server " + traySettings.value( "wsServer" ).toString() );
 	connectToServer( blast, c_str2, 1000 );
 }
 
@@ -229,7 +229,7 @@ Parser::SendSignal( int signal, QString message )
 	log( "Parser::SendSignal" );
 	log( signal_string );
 	log( message_string );
-	QueueSignal( blast, signal, message_string );
+	BpQueueSignal( blast, signal, message_string );
 	// QueueSignal(blast, signal, "TEST SIGNAL");
 	BpUploadQueuedMessages( blast );
 	free( message_string );
@@ -323,7 +323,8 @@ Parser::parseCommand( const char* xml )
 			ackReturn( id, kSuccess );
 			break;
 		case kSelfTest:
-			lmos.Test();
+			// lmos.Test();
+			SendSignal( 999, "Test Signal 999" );
 			ackReturn( id, kSuccess );
 			break;
 		case kStartPosHelp:
@@ -437,11 +438,14 @@ Parser::parseCommand( const char* xml )
 			attr4 = BpGetMessageAttribute( xml, "frequency" );
 			if ( attr1 && attr2 && attr3 && attr4 ) {
 				lmos.AddQPSet( attr1, atoi( attr2 ), atoi( attr3 ), atoi( attr4 ) );
-				lmos.SaveQPSets();
 				ackReturn( id, kSuccess );
 			} else {
 				ackReturn( id, kBadParam );
 			}
+			break;
+		case kSaveQpSets:
+			lmos.SaveQPSets();
+			ackReturn( id, kSuccess );
 			break;
 		case kWriteIoBit:
 			attr1 = BpGetMessageAttribute( xml, "bitfunction" );
@@ -582,9 +586,11 @@ Parser::parseCommand( const char* xml )
 			break;
 		case kCreateLMOS:
 			lmos.CreateControl();
+			lmos.ConnectSignals();
 			ackReturn( id, kSuccess );
 			break;
 		case kDestroyLMOS:
+			lmos.DisconnectSignals();
 			lmos.DestroyControl();
 			ackReturn( id, kSuccess );
 			break;

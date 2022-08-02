@@ -19,6 +19,7 @@ USER_DEFINES  = SPACENAV
 CPPFLAGS     += $(addprefix -D, $(USER_DEFINES))
 CPPFLAGS     += -pthread -pipe
 MAXJOBS      ?= $(shell nproc)
+USERNAME     ?= $(shell whoami)
 
 # Debugger
 DBG = lldb
@@ -31,7 +32,7 @@ RANLIB = llvm-ranlib
 debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -Wall -Wpedantic -Wextra
 debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -Werror
 debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -O0 -g3
-debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -DDEBUG_LEVEL=1
+debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -DDEBUG_LEVEL=3
 #debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -DDEBUG_LEVEL=3
 debug debug_build asan asan_build msan msan_build:	CPPFLAGS += -MMD
 
@@ -41,13 +42,13 @@ debug debug_build asan asan_build msan msan_build:	EXTERNAL_CPPFLAGS += -DMG_ENA
 
 analyze analyze_build:		CC = clang
 analyze analyze_build:		CXX = clang++
-analyze analyze_build:		CPPFLAGS = -Og -g3
+analyze analyze_build:		CPPFLAGS = -O0 -g3
 
 # Use gcc for debugging, clang for sanitizing, and zig for release/cross
 debug debug_build:		CC        = clang
 debug debug_build:		CXX       = clang++
-debug debug_build:		CPPFLAGS += -fno-sanitize=all -Og
-debug debug_build:		EXTERNAL_CPPFLAGS += -fno-sanitize=all -Og
+debug debug_build:		CPPFLAGS += -fno-sanitize=all -O0
+debug debug_build:		EXTERNAL_CPPFLAGS += -fno-sanitize=all -O0
 #debug debug_build:		BEAR_OPTS = --use-cc "$(CC)" --use-c++ "$(CXX)"
 
 # ...but Clang is necessary for an address/memory sanitizer build 
@@ -60,7 +61,7 @@ asan asan_build msan msan_build:	SANFLAGS += -fno-omit-frame-pointer -fno-optimi
 asan asan_build msan msan_build:	SANFLAGS += -fsanitize-recover=all -fsanitize-blacklist=$(PROJECT_ROOT)/res/.sanitize_blacklist.txt
 asan asan_build msan msan_build:	SANLDFLAGS += -Wl,-rpath,$(shell dirname $(shell clang -print-file-name=libclang_rt.ubsan_standalone-x86_64.so))
 asan asan_build msan msan_build:	SHARED_SANFLAGS += -shared-libsan
-asan asan_build msan msan_build:	EXTERNAL_CPPFLAGS = -Og -g3 -w
+asan asan_build msan msan_build:	EXTERNAL_CPPFLAGS = -O0 -g3 -w
 
 release release_build:	CC = gcc #zig cc #-target x86_64-linux-musl
 release release_build:	CXX = g++ #zig c++ #-target x86_64-linux-musl
@@ -126,11 +127,11 @@ DEBUG_COMMAND ?= $(shell head -n1 .debugcmd)
 DEBUG_TARGET  ?= $(shell tail -n1 .debugcmd)
 
 FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp}
-FORMAT_FILES_PYTHON = res/bin/*.py src/libblastpit/*.py src/inkscape/*.py
+FORMAT_FILES_PYTHON = src/libblastpit/*.py src/inkscape/*.py src/scaffolding/*.py
 FORMAT_FILES_XML    = src/inkscape/*.inx
 FORMAT_FILES_HTML   = doc/reference_manuals/lmos.html
 
-TIDY_FILES          = src/lmos/parser.cpp
+TIDY_FILES          = src/libblastpit/{wscli,websocket}.c
 
 # Unit Tests
 # TEST_SOURCES  = t_linkedlist.c t_message.c t_xml.c t_websocket.c t_client_command.c
@@ -148,6 +149,9 @@ all: 		debug test
 test:
 		$(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile test_run
 
+test_full:
+		$(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile test_run_full
+
 debug: 		$(BUILD_DIR) .tags
 		bear $(BEAR_OPTS) --append -- $(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile debug_build
 		# $(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile test_run
@@ -162,7 +166,7 @@ msan:	$(BUILD_DIR) .tags
 		bear $(BEAR_OPTS) --append -- $(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile msan_build
 
 release:	$(BUILD_DIR)
-		$(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile release_build 
+		bear $(BEAR_OPTS) --append -- $(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile release_build 
 		# $(MAKE) -j$(MAXJOBS) -f $(PROJECT_ROOT)/Makefile test_run
 
 profile:	$(BUILD_DIR)
@@ -284,7 +288,11 @@ python_install:
 
 # Testing and Debugging
 test_run:
-	@UBSAN_OPTIONS=print_stacktrace=1 sh -c $(PROJECT_ROOT)/res/bin/testrunner.sh
+	@UBSAN_OPTIONS=print_stacktrace=1 sh -c "$(PROJECT_ROOT)/res/bin/testrunner.sh --no-python"
+	@sh -c "if command -v passed &> /dev/null; then passed; fi"
+
+test_run_full:
+	@UBSAN_OPTIONS=print_stacktrace=1 sh -c "$(PROJECT_ROOT)/res/bin/testrunner.sh --long"
 	@sh -c "if command -v passed &> /dev/null; then passed; fi"
 
 test_asan:
@@ -308,6 +316,9 @@ format:
 
 tidy:
 	clang-tidy --config-file=$(PROJECT_ROOT)/res/.clang-tidy $(TIDY_FILES)
+
+bangtidy:
+	clang-tidy --fix --config-file=$(PROJECT_ROOT)/res/.clang-tidy $(TIDY_FILES)
 
 # Documentation and Resource Generation
 $(PROJECT_ROOT)/src/lmos/lmos-tray.ico:	$(PROJECT_ROOT)/res/img/blastpit.svg
@@ -340,6 +351,14 @@ QT_DLL_DIR = "Qt/Qt5.14.2/5.14.2/mingw730_32/bin"
 WINE_BINARY = wine
 WINEPREFIX="${HOME}/.wine/32bit"
 
+# Emscripten
+
+emscripten_update:
+	git -C $(SUBMODULES_DIR)/emsdk checkout main
+	git -C $(SUBMODULES_DIR)/emsdk pull
+	$(SUBMODULES_DIR)/emsdk/emsdk install latest
+	$(SUBMODULES_DIR)/emsdk/emsdk activate latest
+
 # Qt (Wine) - Must be run from within the 32-bit environment
 $(BUILD_DIR)/win32/debug/platforms $(BUILD_DIR)/win32/release/platforms:
 	mkdir -p $(BUILD_DIR)/win32/{release,debug}/platforms
@@ -366,9 +385,9 @@ lmos $(BUILD_DIR)/win32/debug/lmostray.exe $(BUILD_DIR)/win32/release/lmostray.e
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
 		$(WINE_BINARY) $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/bin/mingw32-make.exe -C $(BUILD_DIR)/win32 -j$(MAXJOBS)
 
-lmosrelease:	$(BUILD_DIR)/release/lmostray.exe tarball
+lmostar:	$(BUILD_DIR)/win32/release/lmostray.exe $(BUILD_DIR)/win32/debug/lmostray.exe tarball
 
-lmosx:
+lmosx:		$(BUILD_DIR)/win32/release/lmostray.exe
 	env WINEARCH="win32" \
 		WINEPREFIX="${HOME}/.wine/32bit" \
 		WINEPATH="C:\\Qt\\Qt5.14.2\\Tools\\mingw730_32\\bin" \
@@ -406,7 +425,7 @@ ueye:	$(BUILD_DIR) $(BUILD_DIR)/ueye
 wscli_portable:
 	make clean
 	# Disable undefined behaviour sanitiser in zig since Mongoose fails
-	CC="zig cc -target i386-linux-musl -Og -g3 -fno-sanitize=all" CXX="zig c++ -target i386-linux-musl -Og -g3 -fno-sanitize=all" CPPFLAGS="-Og -g3 -fno-sanitize=all" make wscli
+	CC="zig cc -target i386-linux-musl -O0 -g3 -fno-sanitize=all" CXX="zig c++ -target i386-linux-musl -O0 -g3 -fno-sanitize=all" CPPFLAGS="-O0 -g3 -fno-sanitize=all" make wscli
 
 debug_wscli_portable:
 	qemu-i386 -g 9999 -- $(BUILD_DIR)/wscli -s ws://0.0.0.0:8000 &
@@ -420,17 +439,17 @@ $(BUILD_DIR)/ueye:	$(LIBBLASTPIT_OBJS) $(SRC_DIR)/video/ueye.c $(SRC_DIR)/video/
 
 # Camera
 
-cameras:	$(BUILD_DIR) $(BUILD_DIR)/veho $(BUILD_DIR)/eakins $(BUILD_DIR)/orbitmp $(BUILD_DIR)/canny
+cameras:	$(BUILD_DIR) $(BUILD_DIR)/veho $(BUILD_DIR)/eakins $(BUILD_DIR)/webcam $(BUILD_DIR)/canny
 
 # TODO: Find out why we cannot use 'zig c++' here (fails to link)
 $(BUILD_DIR)/veho:	$(SRC_DIR)/video/capture.cpp
-	g++ -DCAPTURE_DEVICE=\"/dev/v4l/by-id/usb-Vimicro_Co._ltd_Vimicro_USB2.0_UVC_PC_Camera-video-index0\" -DCAPTURE_X_RESOLUTION=640 -DCAPTURE_Y_RESOLUTION=480 -DCAMERA_NAME=\"veho\" -std=c++11 $(CXXFLAGS) -o $@ $(shell pkg-config opencv4 --cflags) $^ $(shell pkg-config opencv4 --libs)
+	g++ -DCAPTURE_DEVICE=\"/dev/v4l/by-id/usb-Vimicro_Co._ltd_Vimicro_USB2.0_UVC_PC_Camera-video-index0\" -DCAPTURE_X_RESOLUTION=640 -DCAPTURE_Y_RESOLUTION=480 -DCAMERA_NAME=\"veho\" -DUSERNAME=\"$(USERNAME)\" -std=c++11 $(CXXFLAGS) -o $@ $(shell pkg-config opencv4 --cflags) $^ $(shell pkg-config opencv4 --libs)
 
 $(BUILD_DIR)/eakins:	 $(SRC_DIR)/video/capture.cpp
-	g++ -DCAPTURE_DEVICE=\"/dev/v4l/by-id/usb-VXIS_Inc_ezcap_U3_capture-video-index0\" -DCAPTURE_X_RESOLUTION=1920 -DCAPTURE_Y_RESOLUTION=1080 -DCAMERA_NAME=\"eakins\" -std=c++11 $(CXXFLAGS) -o $@ $(shell pkg-config opencv4 --cflags) $^ $(shell pkg-config opencv4 --libs)
+	g++ -DCAPTURE_DEVICE=\"/dev/v4l/by-id/usb-VXIS_Inc_ezcap_U3_capture-video-index0\" -DCAPTURE_X_RESOLUTION=1920 -DCAPTURE_Y_RESOLUTION=1080 -DCAMERA_NAME=\"eakins\" -DUSERNAME=\"$(USERNAME)\" -std=c++11 $(CXXFLAGS) -o $@ $(shell pkg-config opencv4 --cflags) $^ $(shell pkg-config opencv4 --libs)
 
-$(BUILD_DIR)/orbitmp:	$(SRC_DIR)/video/capture.cpp
-	g++ -DCAPTURE_DEVICE=\"/dev/v4l/by-id/usb-046d_08cc_11CDE8A2-video-index0\" -DCAPTURE_X_RESOLUTION=640 -DCAPTURE_Y_RESOLUTION=480 -DCAMERA_NAME=\"orbitmp\" -std=c++11 $(CXXFLAGS) -o $@ $(shell pkg-config opencv4 --cflags) $^ $(shell pkg-config opencv4 --libs)
+$(BUILD_DIR)/webcam:	$(SRC_DIR)/video/capture.cpp
+	g++ -DCAPTURE_DEVICE=\"/dev/v4l/by-id/usb-GENERAL_GENERAL_WEBCAM_JH0319_20210727_v017-video-index0\" -DCAPTURE_X_RESOLUTION=1920 -DCAPTURE_Y_RESOLUTION=1080 -DCAMERA_NAME=\"webcam\" -DCAPTURE_USE_MJPEG -DUSERNAME=\"$(USERNAME)\" -std=c++11 $(CXXFLAGS) -o $@ $(shell pkg-config opencv4 --cflags) $^ $(shell pkg-config opencv4 --libs)
 
 # Canny edge detector demo
 $(BUILD_DIR)/canny:	$(SRC_DIR)/video/canny.cpp
@@ -439,12 +458,13 @@ $(BUILD_DIR)/canny:	$(SRC_DIR)/video/canny.cpp
 # Packaging
 
 tarball:	lmos
-		cd build/release && \
+		cd build/win32/release && \
+		cp ../debug/lmostray.exe lmostray_debug.exe && \
 		zip -r /tmp/lmos.zip \
 		--exclude=\*.o \
 		--exclude=\*.h \
 		--exclude=\*.cpp \
-		Qt5Core.dll Qt5Gui.dll Qt5Widgets.dll lmostray.exe platforms && \
+		Qt5Core.dll Qt5Gui.dll Qt5Widgets.dll lmostray.exe lmostray_debug.exe platforms && \
 		cd $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/Tools/mingw730_32/i686-w64-mingw32/lib && \
 		zip /tmp/lmos.zip \
 		libstdc++-6.dll libgcc_s_dw2-1.dll libwinpthread-1.dll

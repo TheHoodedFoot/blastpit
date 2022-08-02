@@ -264,7 +264,7 @@ class Laser(inkex.Effect):
             )
 
             SECTOR = 360.0 / SEGMENTS  # Needed in degrees for lmos
-            SECTOR_WIDTH = (math.pi * float(self.diameter)) / SEGMENTS
+            # SECTOR_WIDTH = (math.pi * float(self.diameter)) / SEGMENTS
             # RINGWIDTH = self.options.width
             FOCAL_ADJUSTMENT = 0
 
@@ -284,7 +284,7 @@ class Laser(inkex.Effect):
         if self.rofin == "rotary":
             if int(self.angle) > 0:
                 convex = False
-                print("Jig angle: " + str(self.angle), file=sys.stderr)
+                # print("Jig angle: " + str(self.angle), file=sys.stderr)
             else:
                 convex = True
             xml.setCylinder(
@@ -349,7 +349,10 @@ class Laser(inkex.Effect):
                 if nodes:
                     if geo is None:
                         geo = blastpy.BpPolyline(
-                            id, nodes[0], nodes[1], "bp_" + str(colour)
+                            id + "#" + str(colour),
+                            nodes[0],
+                            nodes[1],
+                            "bp_" + str(colour),
                         )
                         geo.setLayer("bp_" + str(colour))
                         lastx = nodes[0]
@@ -359,7 +362,7 @@ class Laser(inkex.Effect):
                         geo.close()
                         xml.addPolylineG(geo, group)
                         geo = blastpy.BpPolyline(
-                            id + "-" + str(id_counter),
+                            id + "-" + str(id_counter) + "#" + str(colour),
                             nodes[0],
                             nodes[1],
                             "bp_" + str(colour),
@@ -409,16 +412,12 @@ class Laser(inkex.Effect):
             blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
             blastpy.BpUploadQueuedMessages(blast)
 
-            # Show lmos window
-            blastpy.BpDisplayLmosWindow(blast, 1)
-            blastpy.BpUploadQueuedMessages(blast)
-
             blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
-
             for qpset in qpsets:
                 blastpy.BpQueueQpSet(
                     blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3])
                 )
+            blastpy.BpQueueCommand(blast, blastpy.kSaveQpSets)
             blastpy.BpUploadQueuedMessages(blast)
 
             id = blastpy.BpQueueCommandArgs(
@@ -540,6 +539,9 @@ class Laser(inkex.Effect):
             blastpy.BpUploadQueuedMessages(blast)
 
         if self.mode == "save":
+            tmpxml = open("/tmp/inkscape_xml.xml", "w")
+            print(xml.xml(), file=tmpxml)
+            tmpxml.close()
             if self.filename is not None and self.customer is not None:
                 filename = (
                     "Z:\\drawings\\"
@@ -596,6 +598,10 @@ class Laser(inkex.Effect):
                 if id.retval != blastpy.kSuccess:
                     print("Error patching shadows", file=sys.stderr)
 
+            # Finally, show lmos window
+            blastpy.BpDisplayLmosWindow(blast, 1)
+            blastpy.BpUploadQueuedMessages(blast)
+
         if self.mode == "save" or self.mode == "upload":
             blastpy.disconnectFromServer(blast)
             blastpy.blastpitDelete(blast)
@@ -612,9 +618,14 @@ class Laser(inkex.Effect):
                 sys.exit()
 
         if self.mode == "view":
-            # print(qpsets.xml(), file=sys.stderr)
-            # print(file=sys.stderr)
+            print(qpsets, file=sys.stderr)
+            print(file=sys.stderr)
             print(xml.xml(), file=sys.stderr)
+
+        if self.mode == "savexml":
+            tmpxml = open("/tmp/inkscape_xml.xml", "w")
+            print(xml.xml(), file=tmpxml)
+            tmpxml.close()
 
         fh.close()
 

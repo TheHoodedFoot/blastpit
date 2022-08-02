@@ -1,0 +1,4 @@
+The scaffolding subdirectory contains experiments, temporary fixes, and command
+line utilities that will eventually be refactored into the Blastpit library,
+but which are required for production use right now and so exist in a rough
+state here. All of this code should be rewritten at some point.
