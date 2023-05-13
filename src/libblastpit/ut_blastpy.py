@@ -59,7 +59,7 @@ class Testbp(unittest.TestCase):
         self.assertEqual(
             bp.kSuccess, bp.serverCreate(self.server, myconfig.WS_SERVER_TEST)
         )
-        print("Creating server")
+        # print("Creating server")
 
     def test_MultipleCommands(self):
         self.client1 = bp.blastpitNew()
@@ -120,7 +120,7 @@ class Testbp(unittest.TestCase):
     def tearDown(self):
         bp.serverDestroy(self.server)
         bp.blastpitDelete(self.server)
-        print("Destroying server")
+        # print("Destroying server")
 
 
 if __name__ == "__main__":

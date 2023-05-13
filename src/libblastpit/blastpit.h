@@ -180,10 +180,10 @@ extern "C"
 			{                                                                                              \
 				struct timespec now;                                                                   \
 				clock_gettime( CLOCK_REALTIME, &now );                                                 \
-				fprintf( stderr, "%ld.%04ld: ", now.tv_sec, now.tv_nsec % 10000 );                     \
-				fprintf( stderr, "\033[3%dm", level + 1 );                                             \
-				fprintf( stderr, fmt, __VA_ARGS__ );                                                   \
-				fprintf( stderr, "\033[0m" );                                                          \
+				(void)fprintf( stderr, "%ld.%04ld: ", now.tv_sec, now.tv_nsec % 10000 );               \
+				(void)fprintf( stderr, "\033[3%dm", level + 1 );                                       \
+				(void)fprintf( stderr, fmt, __VA_ARGS__ );                                             \
+				(void)fprintf( stderr, "\033[0m" );                                                    \
 			}                                                                                              \
 		}                                                                                                      \
 	while ( 0 )
@@ -192,9 +192,9 @@ extern "C"
 	do                                                                                                             \
 		if ( DEBUG_LEVEL >= level ) {                                                                          \
 			{                                                                                              \
-				fprintf( stderr, "\033[3%dm", level + 1 );                                             \
-				fprintf( stderr, fmt, __VA_ARGS__ );                                                   \
-				fprintf( stderr, "\033[0m" );                                                          \
+				(void)fprintf( stderr, "\033[3%dm", level + 1 );                                       \
+				(void)fprintf( stderr, fmt, __VA_ARGS__ );                                             \
+				(void)fprintf( stderr, "\033[0m" );                                                    \
 			}                                                                                              \
 		}                                                                                                      \
 	while ( 0 )
@@ -341,7 +341,7 @@ extern "C"
 	// IdAck SendCommand(t_Blastpit *self, int command);
 	// IdAck SendMessageBp(t_Blastpit *self, ...);
 	WsMessage   ConvertCallbackData( void* ev_data );
-	t_Blastpit* blastpitNew();
+	t_Blastpit* blastpitNew( void );
 	int	    BpAddRetvalToDb( t_Blastpit* self, IdAck record );
 	// IdAck SendAckRetval(t_Blastpit *self, int id, int retval);
 
@@ -365,7 +365,7 @@ extern "C"
 				  const char* payload );
 	int   BpQueryRetvalDb( t_Blastpit* self, int id );
 
-	char* SdsEmpty();
+	char* SdsEmpty( void );
 	char* SdsNew( const char* string );
 	char* SdsFromLong( long number );
 	void  SdsFree( char* string );

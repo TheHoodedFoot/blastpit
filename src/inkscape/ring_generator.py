@@ -6,6 +6,7 @@ import math
 import colorsys
 import simplestyle
 import inkex
+import json
 
 from lxml import etree
 
@@ -98,10 +99,11 @@ class ring_generator(inkex.Effect):
             ["t", "ring_type", "", "Concave or convex ring type"],
             ["w", "width", "6.0", "Ring width"],
             ["s", "sagitta", "1.0", "Focal range"],
-            ["v", "overlap", "2.0", "Shadow overlap"],
+            ["v", "overlap", "0.0", "Shadow overlap"],
             ["f", "face", "76.0", "Ring holder face offset"],
             ["x", "axisheight", "77.0", "Height of rotary axis"],
             ["r", "override", "False", "Override the 20 degree limit"],
+            ["c", "customer", "", "Customer name"],
         ]
 
         for arg in options:
@@ -119,7 +121,6 @@ class ring_generator(inkex.Effect):
         # 		  help=arg[4])
 
     def draw_rectangle(self, width_height, x_y, hue, parent, id):
-
         (w, h) = width_height
         (x, y) = x_y
         colours = colorsys.hls_to_rgb(hue, 0.80, 1.0)
@@ -157,8 +158,25 @@ class ring_generator(inkex.Effect):
 
         etree.SubElement(parent, inkex.addNS("rect", "svg"), attribs)
 
-    def effect(self):
+    def getLaserdata(self, laserdata):
+        list = []
 
+        try:
+            myjson = json.loads(laserdata)
+        except json.decoder.JSONDecodeError:
+            # print("No laserdata found.", file=sys.stderr)
+            return
+
+        if myjson is not None:
+            for attr in ["customer", "filename"]:
+                try:
+                    print("Looking for", attr, file=sys.stderr)
+                    list.append([attr, float(myjson[attr])])
+                except BaseException:
+                    pass
+            return list
+
+    def effect(self):
         root = self.document.getroot()
 
         r_id = 1
@@ -181,8 +199,44 @@ class ring_generator(inkex.Effect):
         root.attrib["height"] = "120mm"
         root.attrib["viewBox"] = "0 0 " + r_width + " 120"
 
-        # Delete any existing data labels
+        # Store laserdata values then delete any existing data labels
         for group in self.document.getroot():
+            for child in group:
+                if (
+                    "{http://www.inkscape.org/namespaces/inkscape}label"
+                    in child.attrib.keys()
+                ):
+                    if (
+                        "laserdata"
+                        in child.attrib[
+                            "{http://www.inkscape.org/namespaces/inkscape}label"
+                        ]
+                    ):
+                        existing_attrs = self.getLaserdata(
+                            child.attrib[
+                                "{http://www.inkscape.org/namespaces/inkscape}label"
+                            ]
+                        )
+                        if existing_attrs is not None:
+                            print(
+                                "Existing attributes:",
+                                existing_attrs,
+                                file=sys.stderr,
+                            )
+                            print("Text:", child.get_text(), file=sys.stderr)
+                            # update_attrs(existing_attrs)
+                        group.remove(child)
+                        break
+                    if (
+                        "ringdata"
+                        in child.attrib[
+                            "{http://www.inkscape.org/namespaces/inkscape}label"
+                        ]
+                    ):
+                        group.remove(child)
+                        break
+
+            # Delete any existing shadow layer
             if (
                 "{http://www.inkscape.org/namespaces/inkscape}label"
                 in group.attrib.keys()
@@ -196,27 +250,6 @@ class ring_generator(inkex.Effect):
                     root = self.document.getroot()
                     root.remove(group)
                     break
-            for child in group:
-                if (
-                    "{http://www.inkscape.org/namespaces/inkscape}label"
-                    in child.attrib.keys()
-                ):
-                    if (
-                        "laserdata"
-                        in child.attrib[
-                            "{http://www.inkscape.org/namespaces/inkscape}label"
-                        ]
-                    ):
-                        group.remove(child)
-                        break
-                    if (
-                        "ringdata"
-                        in child.attrib[
-                            "{http://www.inkscape.org/namespaces/inkscape}label"
-                        ]
-                    ):
-                        group.remove(child)
-                        break
 
         # Create layer element (or use self.current_layer)
         layer = etree.SubElement(root, "g")
@@ -287,9 +320,9 @@ class ring_generator(inkex.Effect):
         text.text += '",' + '"width": "'
         text.text += str(round(float(self.options.width), 2))
         text.text += '",' + '"sectors": "'
-        text.text += str(round(360.0 / SEGMENTS, 2))
+        text.text += str(round(360.0 / (SEGMENTS * 2), 2))
         text.text += '",' + '"maxwidth": "'
-        text.text += str(round(SECTOR_WIDTH / 3, 2))
+        text.text += "1.0"
         text.text += '",' + '"height": "'
         text.text += str((round(layerHeight, 1)))
         text.text += '",' + '"angle": "'
@@ -298,7 +331,7 @@ class ring_generator(inkex.Effect):
 
         # Set text position to center of document.
         width = self.svg.unittouu(root.attrib["width"])
-        height = self.svg.unittouu(root.attrib["height"])
+        # height = self.svg.unittouu(root.attrib["height"])
         text.set("x", str(width / 2))
         text.set("y", str(y_offset + 15))
 

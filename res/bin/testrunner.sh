@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "testrunner.sh: $0 $1 $2"
+# echo "testrunner.sh: $0 $1 $2"
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
 FIGLET_FONTS_DIR=${HOME}/usr/share/fonts/figlet-fonts
@@ -8,7 +8,33 @@ FIGLET_FONTS_DIR=${HOME}/usr/share/fonts/figlet-fonts
 SRCDIRS=("${PROJECT_ROOT}/src/libblastpit" "${PROJECT_ROOT}/src/scaffolding")
 BUILDDIR=${PROJECT_ROOT}/build
 
-VERBOSE="-v"
+VERBOSE=""
+
+if [[ "$1" == "-v" ]]
+then
+	echo "Using verbose mode"
+	VERBOSE="-v"
+elif [[ "$1" == "-msan" ]]
+then
+	echo "Running memory sanitizer"
+elif [[ "$1" == "-asan" ]]
+then
+	echo "Running address sanitizer"
+elif [[ "$1" == "--no-python" ]]
+then
+	echo "Disabling Python tests"
+elif [[ "$1" == "--long" ]]
+then
+	echo "Running long tests"
+	VERBOSE="-v -l"
+else
+	if [ ! -z ${1+x} ]
+	then
+		SRCDIRS=($1)
+		BUILDDIR=$1
+	fi
+fi
+
 
 if [[ "$1" == "-msan" ]]
 then
@@ -79,15 +105,21 @@ NUM_SRCDIRS=${#SRCDIRS[@]}
 for (( i=0; i<${NUM_SRCDIRS}; i++));
 do
 
-	echo -e "${YELLOW}\nChecking for unit tests in ${SRCDIRS[i]}...${WHITE}\\n"
+	if [[ "$1" == "-v" ]]
+	then
+		echo -e "${YELLOW}\nChecking for unit tests in ${SRCDIRS[i]}...${WHITE}\\n"
+	fi
 	pushd ${SRCDIRS[i]} > /dev/null
-	CTESTS=$(ls -1t t_*.c* >/dev/null 2>&1 | sed -e 's/t_//' -e 's/\.c.*$//' )
-	PYTESTS=$(ls -1t t_*.py | sed -e 's/t_//' -e 's/\.py$//') >/dev/null 2>&1
+	CTESTS=$(ls -1t ut_*.c* 2>/dev/null | sed -e 's/ut_//' -e 's/\.c.*$//' ) >/dev/null 2>&1
+	PYTESTS=$(ls -1t ut_*.py 2>/dev/null | sed -e 's/ut_//' -e 's/\.py$//') >/dev/null 2>&1
 	popd > /dev/null
 
 	TESTS="${CTESTS} ${PYTESTS}"
 	TESTS=$(echo -e "${TESTS// /\\n}" | sort -u)
-	echo $TESTS
+	if [[ "$1" == "-v" ]]
+	then
+		echo "Tests found: ${TESTS}"
+	fi
 
 	if [[ "$2" == "-valgrind" ]]
 	then
@@ -96,21 +128,29 @@ do
 
 	for TEST in ${TESTS}
 	do
-		if [[ -x "${BUILDDIR}/t_${TEST}_x" ]]
+		if [[ -x "${BUILDDIR}/ut_${TEST}_x" ]]
 		then
-			echo -e "${BLUE}\nRunning [t_${TEST}_x] ${VERBOSE}${WHITE}"
-			echo
+			if [[ "$1" == "-v" ]]
+			then
+				echo -e "${BLUE}\nRunning [ut_${TEST}_x] ${VERBOSE}${WHITE}"
+				echo
+			fi
 			if [ -z "${VALGRIND}" ]
 			then
-				${BUILDDIR}/t_${TEST}_x ${VERBOSE}
+				${BUILDDIR}/ut_${TEST}_x ${VERBOSE}
 			else
-				${VALGRIND} ${BUILDDIR}/t_${TEST}_x ${VERBOSE}
+				${VALGRIND} ${BUILDDIR}/ut_${TEST}_x ${VERBOSE}
 			fi
 			if [ $? -ne 0 ]
 			then
-				set_colour $RED
-				print_large "FAILED" "Bloody"
-				set_colour $WHITE
+				if command -v failed &> /dev/null
+				then
+					failed
+				else
+					set_colour $RED
+					print_large "FAILED" "Bloody"
+					set_colour $WHITE
+				fi
 				exit 1
 			fi
 		fi
@@ -128,23 +168,31 @@ do
 			continue
 		fi
 
-		if [[ -x "${SRCDIRS[i]}/t_${TEST}.py" ]]
+		if [[ -x "${SRCDIRS[i]}/ut_${TEST}.py" ]]
 		then
-			echo -e "${MAGENTA}\n[t_${TEST}.py]${WHITE}"
-			echo
+			if [[ "$1" == "-v" ]]
+			then
+				echo -e "${MAGENTA}\n[ut_${TEST}.py]${WHITE}"
+				echo
+			fi
 			# With ASAN_OPTIONS=detect_leaks=1 python tests will fail to complete
 			# With it set to zero we will still see things but testing will continue
 
-			PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIRS[i]}/t_${TEST}.py
+			PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIRS[i]}/ut_${TEST}.py
 
 			# UBSAN_OPTIONS=print_stacktrace=1 ASAN_OPTIONS=detect_leaks=0 LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
 
 			# ASAN_OPTIONS=suppressions=${PROJECT_ROOT}/res/.asan_suppressions LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) PYTHONPATH=${PYTHONPATH}:${PROJECT_ROOT}/build python3 ${SRCDIR}/t_${TEST}.py
 			if [ $? -ne 0 ]
 			then
-				set_colour $RED
-				print_large "FAILED" "Bloody"
-				set_colour $WHITE
+				if command -v failed &> /dev/null
+				then
+					failed
+				else
+					set_colour $RED
+					print_large "FAILED" "Bloody"
+					set_colour $WHITE
+				fi
 				exit 1
 			fi
 		fi

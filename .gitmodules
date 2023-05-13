@@ -1,48 +1,92 @@
-[submodule "src/submodules/apriltag"]
-	path = src/submodules/apriltag
-	url = https://github.com/AprilRobotics/apriltag.git
-[submodule "src/submodules/apriltag-imgs"]
-	path = src/submodules/apriltag-imgs
-	url = https://github.com/AprilRobotics/apriltag-imgs.git
+[submodule "src/submodules/tracy"]
+	path = src/submodules/tracy
+	url = https://github.com/wolfpld/tracy.git
+	branch = master
+[submodule "src/submodules/emsdk"]
+	path = src/submodules/emsdk
+	url = https://github.com/emscripten-core/emsdk.git
+	branch = main
+[submodule "src/submodules/cimgui"]
+	path = src/submodules/cimgui
+	url = https://github.com/cimgui/cimgui.git
+	branch = master
 [submodule "src/submodules/unity"]
 	path = src/submodules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "src/submodules/mongoose"]
 	path = src/submodules/mongoose
 	url = https://github.com/cesanta/mongoose.git
-[submodule "src/submodules/tracy"]
-	path = src/submodules/tracy
-	url = https://github.com/wolfpld/tracy.git
-[submodule "src/submodules/emsdk"]
-	path = src/submodules/emsdk
-	url = https://github.com/emscripten-core/emsdk.git
-[submodule "src/submodules/sds"]
-	path = src/submodules/sds
-	url = https://github.com/antirez/sds.git
 [submodule "src/submodules/mxml"]
 	path = src/submodules/mxml
 	url = https://github.com/michaelrsweet/mxml.git
+	branch = master
 [submodule "src/submodules/nanosvg"]
 	path = src/submodules/nanosvg
 	url = https://github.com/memononen/nanosvg.git
-[submodule "src/submodules/ofxCubicBezierToBiarc"]
-	path = src/submodules/ofxCubicBezierToBiarc
-	url = https://github.com/CarstenHoyer/ofxCubicBezierToBiarc.git
-[submodule "src/submodules/CavalierContours"]
-	path = src/submodules/CavalierContours
-	url = https://github.com/jbuckmccready/CavalierContours.git
-[submodule "src/submodules/arcproximator"]
-	path = src/submodules/arcproximator
-	url = https://github.com/99991/arcproximator.git
-[submodule "src/submodules/lv_sim_emscripten"]
-	path = src/submodules/lv_sim_emscripten
-	url = https://github.com/lvgl/lv_sim_emscripten.git
-[submodule "src/submodules/imgui"]
-	path = src/submodules/imgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "src/submodules/imtui"]
-	path = src/submodules/imtui
-	url = https://github.com/ggerganov/imtui
-[submodule "src/submodules/wsServer"]
-	path = src/submodules/wsServer
-	url = https://github.com/Theldus/wsServer.git
+[submodule "src/submodules/apriltag"]
+	path = src/submodules/apriltag
+	url = https://github.com/AprilRobotics/apriltag.git
+	branch = master
+[submodule "src/submodules/apriltag-imgs"]
+	path = src/submodules/apriltag-imgs
+	url = https://github.com/AprilRobotics/apriltag-imgs.git
+[submodule "src/submodules/lvgl"]
+	path = src/submodules/lvgl
+	url = https://github.com/lvgl/lvgl.git
+	ignore = dirty
+[submodule "src/submodules/lv_drivers"]
+	path = src/submodules/lv_drivers
+	url = https://github.com/lvgl/lv_drivers.git
+
+# Unused
+
+; [submodule "src/submodules/clipper"]
+; 	path = src/submodules/clipper
+; 	url = https://github.com/AngusJohnson/Clipper2.git
+; 	branch = master
+	
+; [submodule "src/submodules/sds"]
+; 	path = src/submodules/sds
+; 	url = https://github.com/antirez/sds.git
+; [submodule "src/submodules/ofxCubicBezierToBiarc"]
+; 	path = src/submodules/ofxCubicBezierToBiarc
+; 	url = https://github.com/CarstenHoyer/ofxCubicBezierToBiarc.git
+; [submodule "src/submodules/CavalierContours"]
+; 	path = src/submodules/CavalierContours
+; 	url = https://github.com/jbuckmccready/CavalierContours.git
+; [submodule "src/submodules/arcproximator"]
+; 	path = src/submodules/arcproximator
+; 	url = https://github.com/99991/arcproximator.git
+; [submodule "src/submodules/lv_sim_emscripten"]
+; 	path = src/submodules/lv_sim_emscripten
+; 	url = https://github.com/lvgl/lv_sim_emscripten.git
+; [submodule "src/submodules/imtui"]
+; 	path = src/submodules/imtui
+; 	url = https://github.com/ggerganov/imtui
+; [submodule "src/submodules/wsServer"]
+; 	path = src/submodules/wsServer
+; 	url = https://github.com/Theldus/wsServer.git
+; [submodule "src/submodules/lv_platformio"]
+; 	path = src/submodules/lv_platformio
+; 	url = https://github.com/lvgl/lv_platformio.git
+; [submodule "src/submodules/lv_port_stm32f746_disco"]
+; 	path = src/submodules/lv_port_stm32f746_disco
+; 	url = https://github.com/lvgl/lv_port_stm32f746_disco.git
+; [submodule "src/submodules/pid-stm32f746"]
+; 	path = src/submodules/pid-stm32f746
+; 	url = https://github.com/JON95Git/pid-stm32f746.git
+; [submodule "src/submodules/svgelements"]
+; 	path = src/submodules/svgelements
+; 	url = https://github.com/meerk40t/svgelements
+; [submodule "src/submodules/svgpp"]
+; 	path = src/submodules/svgpp
+; 	url = https://github.com/svgpp/svgpp.git
+; [submodule "src/submodules/cimnodes"]
+; 	path = src/submodules/cimnodes
+; 	url = https://github.com/cimgui/cimnodes.git
+; [submodule "src/submodules/cimplot"]
+; 	path = src/submodules/cimplot
+; 	url = https://github.com/cimgui/cimplot.git
+; [submodule "src/submodules/zig-imgui"]
+; 	path = src/submodules/zig-imgui
+; 	url = https://github.com/SpexGuy/Zig-ImGui.git

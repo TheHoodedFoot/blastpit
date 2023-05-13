@@ -432,7 +432,6 @@ class Autoshadow:
         return mergedPaths
 
     def calculateOptimalPaths(self, paths):
-
         # Sort paths by size
         sortedPaths = self.sortPathsByWidth(paths)
 
@@ -446,8 +445,6 @@ class Autoshadow:
 
         # Remove paths larger than max
         # sizedPaths = self.removeOversizePaths(sortedPaths)
-
-
 
         # Merge all possible path combinations
         mergedPaths = self.removeDuplicates(
@@ -469,9 +466,7 @@ class Autoshadow:
 
         # Remove paths that exist inside other paths
         majorPaths = self.roundPaths(
-            self.removeInternalPaths(
-                self.sortPathsByStartPosition(mergedPaths)
-            )
+            self.removeInternalPaths(self.sortPathsByStartPosition(mergedPaths))
         )
 
         if DEBUG == 1:

@@ -100,8 +100,9 @@ LmosTray::LmosTray( QWidget* parent )
 LmosTray::~LmosTray()
 {
 	// destroyLMOS();
-	if ( parser )
+	if ( parser ) {
 		delete parser;
+	}
 	delete ui;
 }
 
@@ -145,8 +146,9 @@ LmosTray::showSettings()
 {
 	/* Show the settings window */
 	traysettings* ts = new traysettings;
-	if ( parser )
+	if ( parser ) {
 		connect( ts, SIGNAL( serverChanged() ), parser, SLOT( wsConnect() ) );
+	}
 	ts->setAttribute( Qt::WA_DeleteOnClose );
 	ts->show();
 }

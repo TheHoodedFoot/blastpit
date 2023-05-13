@@ -23,10 +23,11 @@ processBuffer(const char* buf)
 	for (int i=0; i < (int)sysconf(_SC_PAGESIZE); i++) {
 		total += (int)buf[i];
 	}
-	if (total == 0) {
-		assert(total != 0);
-	}
 
+	// Enable this to cause crashes
+	// if (total == 0) {
+	// 	assert(total != 0);
+	// }
 
 }
 

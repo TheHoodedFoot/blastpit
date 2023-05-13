@@ -5,7 +5,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 
-//#include "bplmos.h"
+// #include "bplmos.h"
 #include "lmos.hpp"
 #include "parser.hpp"
 

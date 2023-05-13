@@ -12,6 +12,9 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
+    _ = target;
+    _ = mode;
+
     // // Executable
     // const exe = b.addExecutable("wirer232", "src/wirer232.zig");
     // exe.setTarget(target);
@@ -50,12 +53,16 @@ pub fn build(b: *std.build.Builder) void {
     // If this is set as the default_step it will be run with every 'zig build'
     b.default_step = make_step;
 
-    // A custom target (ls -alh /tmp)
+    // A custom step (ls -alh /tmp)
     const ls_step = b.step("ls", "List the contents of the /tmp directory");
     ls_step.makeFn = ls;
 }
 
-///**ls** List the contents of the /tmp directory.
+// ░█▀▀░▀█▀░█▀▀░█▀█░█▀▀
+// ░▀▀█░░█░░█▀▀░█▀▀░▀▀█
+// ░▀▀▀░░▀░░▀▀▀░▀░░░▀▀▀
+
+// **ls** List the contents of the /tmp directory.
 fn ls(self: *std.build.Step) !void {
 
     // self is unused
@@ -63,13 +70,13 @@ fn ls(self: *std.build.Step) !void {
 
     // Zig and its bizarre memory allocation shenanigans
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    var allocator: *std.mem.Allocator = &arena.allocator;
+    var allocator: std.mem.Allocator = arena.allocator();
     defer arena.deinit();
 
     // The arguments must be split first (you can use std.mem.split if
     // you have all of your arguments in one string)
-    var command = try std.ChildProcess.init(&[_][]const u8{ "/bin/ls", "-alh" }, allocator);
-    defer command.deinit();
+    var command = std.ChildProcess.init(&[_][]const u8{ "/bin/ls", "-alh" }, allocator);
+    // defer command.deinit();
 
     // By default, standard input is inherited, but to give the child program
     // a specific input, you need to request it to open a pipe with parent program.
@@ -91,13 +98,13 @@ fn runMake(self: *std.build.Step) !void {
 
     // Zig and its bizarre memory allocation shenanigans
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    var allocator: *std.mem.Allocator = &arena.allocator;
+    var allocator: std.mem.Allocator = arena.allocator();
     defer arena.deinit();
 
     // The arguments must be split first (you can use std.mem.split if
     // you have all of your arguments in one string)
-    var command = try std.ChildProcess.init(&[_][]const u8{"make"}, allocator);
-    defer command.deinit();
+    var command = std.ChildProcess.init(&[_][]const u8{"make"}, allocator);
+    // defer command.deinit();
 
     // By default, standard input is inherited, but to give the child program
     // a specific input, you need to request it to open a pipe with parent program.
@@ -109,4 +116,32 @@ fn runMake(self: *std.build.Step) !void {
 
     // Now wait for the program to end.
     _ = try command.wait();
+}
+
+// ░█░█░█▀█░▀█▀░▀█▀░░░▀█▀░█▀▀░█▀▀░▀█▀░█▀▀
+// ░█░█░█░█░░█░░░█░░░░░█░░█▀▀░▀▀█░░█░░▀▀█
+// ░▀▀▀░▀░▀░▀▀▀░░▀░░░░░▀░░▀▀▀░▀▀▀░░▀░░▀▀▀
+
+// const c = @cImport({
+//     @cInclude("src/libblastpit");
+// });
+
+// test "AutoGenerateId" {
+//     var bp: c.t_Blastpit = c.blastpitNew();
+//     try std.testing.expect(c.AutoGenerateId(bp) == 1);
+// }
+
+test "expect addOne adds one to 41" {
+
+    // The Standard Library contains useful functions to help create tests.
+    // `expect` is a function that verifies its argument is true.
+    // It will return an error if its argument is false to indicate a failure.
+    // `try` is used to return an error to the test runner to notify it that the test failed.
+    // var c.t_Blastpit *bp = c.blastpitNew();
+    try std.testing.expect(addOne(41) == 42);
+}
+
+/// The function `addOne` adds one to the number given as its argument.
+fn addOne(number: i32) i32 {
+    return number + 1;
 }

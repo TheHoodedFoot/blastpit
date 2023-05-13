@@ -6,9 +6,12 @@
 
 #include "blastpit.h"
 
-#define SERVER_POLL_TIMEOUT_MS	  1000
-#define SERVER_CONNECT_TIMEOUT_MS 1000
-#define HANDSHAKE_TIMEOUT_MS	  10000
+enum timings
+{
+	SERVER_POLL_TIMEOUT_MS	  = 1000,
+	SERVER_CONNECT_TIMEOUT_MS = 1000,
+	HANDSHAKE_TIMEOUT_MS	  = 10000,
+};
 
 /* Flag set by ‘--verbose’. */
 static int verbose_flag;	      // NOLINT
@@ -42,7 +45,7 @@ HandleSIGINT( int dummy )
 	(void)dummy;
 
 	// Reset the handler so any further signals are default
-	signal( SIGINT, SIG_DFL );
+	(void)signal( SIGINT, SIG_DFL );
 
 	exit_client_loop = true;
 }
@@ -60,13 +63,13 @@ server( const char* port )
 
 	t_Blastpit* simpleserver = blastpitNew();
 
-	fprintf( stderr, "wscli: Running listening server on port %s\n", port );
+	(void)fprintf( stderr, "wscli: Running listening server on port %s\n", port );
 
 	// Set the callback
 	registerCallback( simpleserver, &messageReceivedCallback );
 
 	// Prevent broken pipes from crashing the server
-	signal( SIGPIPE, HandleSIGPIPE );
+	(void)signal( SIGPIPE, HandleSIGPIPE );
 
 	serverCreate( simpleserver, port );
 
@@ -124,7 +127,7 @@ client( const char* server, const char* message )
 int
 main( int argc, char** argv )
 {
-	int c = 0;
+	int count = 0;
 
 	while ( 1 ) {
 		static struct option long_options[] = { /* These options set a flag. */
@@ -139,14 +142,14 @@ main( int argc, char** argv )
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
 
-		c = getopt_long( argc, argv, "s:c:", long_options, &option_index );  // NOLINT
+		count = getopt_long( argc, argv, "s:c:", long_options, &option_index );	 // NOLINT
 
 		/* Detect the end of the options. */
-		if ( c == -1 ) {
+		if ( count == -1 ) {
 			break;
 		}
 
-		switch ( c ) {
+		switch ( count ) {
 			case 0:
 				/* If this option set a flag, do nothing else now. */
 				if ( long_options[option_index].flag != 0 ) {

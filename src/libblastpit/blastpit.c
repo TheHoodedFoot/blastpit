@@ -13,7 +13,7 @@
 #include "xml.h"
 
 t_Blastpit*
-blastpitNew()
+blastpitNew( void )
 {  // Constructor
 
 	t_Blastpit* bp = (t_Blastpit*)calloc( sizeof( t_Blastpit ), 1 );
@@ -686,7 +686,7 @@ LayerSetHeight( t_Blastpit* self, const char* layer, int height )
 }
 
 char*
-SdsEmpty()
+SdsEmpty( void )
 {  // Helper function to create sds string that can be called from c++
 	// Avoids c++ code needing to know anything about sds
 

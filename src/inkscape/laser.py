@@ -119,7 +119,6 @@ class Laser(inkex.Effect):
             return bp
 
     def effect(self):
-
         # Find the ring or flat data
 
         # Defaults
@@ -248,7 +247,8 @@ class Laser(inkex.Effect):
         #
         ##########################
 
-        freq = 60000
+        # freq = 60000
+        freq = int(self.frequency)
 
         if self.rofin == "rotary":
             RADIUS = float(self.diameter) / 2
@@ -267,8 +267,6 @@ class Laser(inkex.Effect):
             # SECTOR_WIDTH = (math.pi * float(self.diameter)) / SEGMENTS
             # RINGWIDTH = self.options.width
             FOCAL_ADJUSTMENT = 0
-
-            freq = int(self.frequency)
 
         id = "error"
         geo = None
@@ -547,7 +545,7 @@ class Laser(inkex.Effect):
                     "Z:\\drawings\\"
                     + str(datetime.date.today().year)
                     + "\\"
-                    + self.customer
+                    + self.customer.upper()
                     + "\\"
                     + self.filename
                     + ".VLM"
@@ -624,7 +622,7 @@ class Laser(inkex.Effect):
 
         if self.mode == "savexml":
             tmpxml = open("/tmp/inkscape_xml.xml", "w")
-            print(xml.xml(), file=tmpxml)
+            print(xml.xml().decode(), file=tmpxml)
             tmpxml.close()
 
         fh.close()

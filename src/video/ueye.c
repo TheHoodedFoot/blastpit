@@ -76,8 +76,9 @@ b64_encoded_size( size_t inlen )
 	size_t ret;
 
 	ret = inlen;
-	if ( inlen % 3 != 0 )
+	if ( inlen % 3 != 0 ) {
 		ret += 3 - ( inlen % 3 );
+	}
 	ret /= 3;
 	ret *= 4;
 
@@ -96,8 +97,9 @@ b64_encode( const unsigned char* in, size_t len )
 	size_t j;
 	size_t v;
 
-	if ( in == NULL || len == 0 )
+	if ( in == NULL || len == 0 ) {
 		return NULL;
+	}
 
 	elen	  = b64_encoded_size( len );
 	out	  = (char*)malloc( elen + 1 );
@@ -312,17 +314,20 @@ main( int argc, char** argv )
 		c = getopt_long( argc, argv, "p:f:e:", long_options, &option_index );
 
 		/* Detect the end of the options. */
-		if ( c == -1 )
+		if ( c == -1 ) {
 			break;
+		}
 
 		switch ( c ) {
 			case 0:
 				/* If this option set a flag, do nothing else now. */
-				if ( long_options[option_index].flag != 0 )
+				if ( long_options[option_index].flag != 0 ) {
 					break;
+				}
 				printf( "option %s", long_options[option_index].name );
-				if ( optarg )
+				if ( optarg ) {
 					printf( " with arg %s", optarg );
+				}
 				printf( "\n" );
 				break;
 
@@ -350,8 +355,9 @@ main( int argc, char** argv )
 	/* Instead of reporting ‘--verbose’
 		 and ‘--brief’ as they are encountered,
 		 we report the final status resulting from them. */
-	if ( verbose_flag )
+	if ( verbose_flag ) {
 		puts( "verbose flag is set" );
+	}
 
 	// We should have a single argument left, the server address.
 	if ( !( optind < argc ) ) {

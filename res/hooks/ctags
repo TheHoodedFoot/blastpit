@@ -26,7 +26,7 @@ ctags --fields=+l --tag-relative=yes -Rf${TAGS_FILE}.$$ --c-kinds=+p \
 	--exclude=worktree \
 	--exclude=build \
 	--exclude=doc \
-	--exclude=src/submodules/emsdk \
+	--exclude=src/submodules \
 	--exclude="*.js"
 mv ${TAGS_FILE}.$$ ${TAGS_FILE}
 

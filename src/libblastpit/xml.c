@@ -7,8 +7,9 @@ int
 XmlGetMessageCount( const char* xml )
 {  // Returns count of <message> elements or kInvalid on bad xml
 
-	if ( !xml )
+	if ( !xml ) {
 		return 0;
+	}
 
 	mxml_node_t* tree = mxmlLoadString( NULL, xml, MXML_OPAQUE_CALLBACK );
 
@@ -28,8 +29,9 @@ sds
 XmlGetAttribute( const char* message, const char* attribute )
 {  // Retrieves an attribute value, or NULL
 
-	if ( !message || !attribute )
+	if ( !message || !attribute ) {
 		return NULL;
+	}
 
 	mxml_node_t* xml = mxmlLoadString( NULL, message, MXML_OPAQUE_CALLBACK );
 
@@ -105,8 +107,9 @@ XmlGetMessageByIndex( const char* xml, int index )
 		count++;
 	}
 
-	if ( !node )
+	if ( !node ) {
 		return NULL;
+	}
 	char* node_data = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
 	sds   retval	= sdsnew( "<?xml?>" );
 	retval		= sdscat( retval, node_data );
@@ -131,8 +134,9 @@ XmlGetPayloadByIndex( const char* xml, int index )
 		count++;
 	}
 
-	if ( !node )
+	if ( !node ) {
 		return NULL;
+	}
 	char* node_data = mxmlSaveAllocString( node, MXML_NO_CALLBACK );
 	sds   retval	= sdsnew( "<?xml?>" );
 	retval		= sdscat( retval, node_data );
@@ -146,8 +150,9 @@ sds
 XmlSetAttribute( sds message, const char* attribute, const char* value )
 {  // Sets an attribute value. Invalidates original message.
 
-	if ( !message || !attribute || !value )
+	if ( !message || !attribute || !value ) {
 		return NULL;
+	}
 
 	XmlAddXmlHeader( &message );
 	mxml_node_t* xml = mxmlLoadString( NULL, message, MXML_OPAQUE_CALLBACK );
@@ -211,8 +216,9 @@ sds
 XmlNewCdata( const char* message )
 {  // Adds a CDATA string to a <message>
 
-	if ( !message )
+	if ( !message ) {
 		return NULL;
+	}
 
 	mxml_node_t* xml	  = mxmlNewXML( "1.0" );
 	mxml_node_t* message_node = mxmlNewElement( xml, "message" );

@@ -150,7 +150,7 @@ TEST_GROUP_RUNNER( XmlGroup )
 }
 
 static void
-runAllTests()
+runAllTests( void )
 {
 	RUN_TEST_GROUP( XmlGroup );
 }

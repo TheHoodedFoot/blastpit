@@ -8,15 +8,21 @@ int countServerMessagesReceived;
 int countClientMessagesReceived;
 
 void
-serverMessageReceivedCallback()
+serverMessageReceivedCallback( void* cb1, void* cb2 )
 {
+	(void)cb1;
+	(void)cb2;
+
 	// A simple callback that increments a counter.
 	countServerMessagesReceived++;
 }
 
 void
-clientMessageReceivedCallback()
+clientMessageReceivedCallback( void* cb1, void* cb2 )
 {
+	(void)cb1;
+	(void)cb2;
+
 	countClientMessagesReceived++;
 }
 
@@ -94,8 +100,9 @@ TEST( WebsocketGroup, wsListen )
 	for ( int i = 0; i < 100; i++ ) {
 		wsPoll( ws_server );
 		wsPoll( ws_client );
-		if ( ws_client->isConnected )
+		if ( ws_client->isConnected ) {
 			break;
+		}
 	}
 	TEST_ASSERT_EQUAL( true, ws_client->isConnected );
 
@@ -133,8 +140,9 @@ TEST( WebsocketGroup, wsBroadcastToClients )
 		wsPoll( ws_client_sender );
 		wsPoll( ws_client_receiver );
 		wsPoll( server );
-		if ( ws_client_sender->isConnected && ws_client_receiver->isConnected )
+		if ( ws_client_sender->isConnected && ws_client_receiver->isConnected ) {
 			break;
+		}
 	}
 
 	// Send a client message
@@ -143,8 +151,9 @@ TEST( WebsocketGroup, wsBroadcastToClients )
 
 	// Fake event loop
 	for ( int i = 0; i < 5; i++ ) {
-		if ( countServerMessagesReceived )
+		if ( countServerMessagesReceived ) {
 			break;
+		}
 		wsPoll( server );
 		wsPoll( ws_client_sender );
 		wsPoll( ws_client_receiver );
@@ -219,8 +228,9 @@ TEST( WebsocketGroup, DataTransferTest )
 		wsPoll( ws_client_sender );
 		wsPoll( ws_client_receiver );
 		wsPoll( server );
-		if ( ws_client_sender->isConnected && ws_client_receiver->isConnected )
+		if ( ws_client_sender->isConnected && ws_client_receiver->isConnected ) {
 			break;
+		}
 	}
 	TEST_ASSERT_EQUAL( true, ws_client_sender->isConnected );
 	TEST_ASSERT_EQUAL( true, ws_client_receiver->isConnected );
@@ -244,8 +254,9 @@ TEST( WebsocketGroup, DataTransferTest )
 		wsPoll( server );
 		wsPoll( ws_client_sender );
 		wsPoll( ws_client_receiver );
-		if ( countServerMessagesReceived )
+		if ( countServerMessagesReceived ) {
 			break;
+		}
 		usleep( 1000 );
 	}
 
@@ -269,7 +280,7 @@ TEST_GROUP_RUNNER( WebsocketGroup )
 }
 
 static void
-runAllTests()
+runAllTests( void )
 {
 	RUN_TEST_GROUP( WebsocketGroup );
 }

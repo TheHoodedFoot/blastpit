@@ -4,6 +4,9 @@
 /usr/include/qt5/QtWidgets
 /usr/include/unistd.h
 src/submodules/mongoose
-src/submodules/pugixml/src
 src/submodules/sds
 src/submodules/unity/src
+src/submodules/cimgui
+src/submodules/mxml
+src/submodules/lvgl
+src/submodules/lv_drivers

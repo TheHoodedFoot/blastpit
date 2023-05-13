@@ -37,10 +37,27 @@ testTeardown( void )
 int testval;
 
 void
-testcallback()
+testcallback( void* cb1, void* cb2 )
 {
+	(void)cb1;
+	(void)cb2;
+
 	testval++;
 }
+
+/*! \file  blastpit.h
+    \brief Brief description
+
+    Long description
+*/
+
+/*! \fn int BpGetMessageCount( const char* xml )
+    \brief Brief description
+    \param xml The XML
+    \return Returns an integer
+
+    This is the long text
+*/
 
 void
 simpleServerTest( void )
@@ -76,8 +93,9 @@ simpleServerTest( void )
 	for ( int i = 0; i < 100; i++ ) {
 		pollMessages( simpleserver );
 		pollMessages( client );
-		if ( bp_isConnected( client ) )
+		if ( bp_isConnected( client ) ) {
 			break;
+		}
 	}
 	TEST_ASSERT_EQUAL( true, bp_isConnected( client ) );
 
@@ -85,8 +103,9 @@ simpleServerTest( void )
 	testval = 0;
 	sendClientMessage( client, "test" );
 	for ( int i = 0; i < 100; i++ ) {
-		if ( testval )
+		if ( testval ) {
 			break;
+		}
 		pollMessages( client );
 		pollMessages( simpleserver );
 	}
@@ -111,8 +130,9 @@ SendAndWaitTest( void )
 	for ( int i = 0; i < 100; i++ ) {
 		pollMessages( server );
 		pollMessages( client );
-		if ( ( (t_Websocket*)client->ws )->isConnected )
+		if ( ( (t_Websocket*)client->ws )->isConnected ) {
 			break;
+		}
 	}
 	TEST_ASSERT_EQUAL( true, ( (t_Websocket*)client->ws )->isConnected );
 
@@ -152,8 +172,9 @@ MessageTest( void )
 		pollMessages( simpleserver );
 		pollMessages( client1 );
 		pollMessages( client2 );
-		if ( ( (t_Websocket*)client1->ws )->isConnected && ( (t_Websocket*)client2->ws )->isConnected )
+		if ( ( (t_Websocket*)client1->ws )->isConnected && ( (t_Websocket*)client2->ws )->isConnected ) {
 			break;
+		}
 	}
 
 	TEST_ASSERT_EQUAL( true, ( (t_Websocket*)client1->ws )->isConnected );
@@ -166,8 +187,9 @@ MessageTest( void )
 		pollMessages( client1 );
 		pollMessages( client2 );
 		pollMessages( simpleserver );
-		if ( getMessageCount( client1 ) == 1 && getMessageCount( client2 ) == 1 )
+		if ( getMessageCount( client1 ) == 1 && getMessageCount( client2 ) == 1 ) {
 			break;
+		}
 	}
 
 	TEST_ASSERT_EQUAL( 1, getMessageCount( client1 ) );
@@ -215,8 +237,9 @@ SignalTest( void )
 	for ( int i = 0; i < 100; i++ ) {
 		pollMessages( simpleserver );
 		pollMessages( client1 );
-		if ( ( (t_Websocket*)client1->ws )->isConnected )
+		if ( ( (t_Websocket*)client1->ws )->isConnected ) {
 			break;
+		}
 	}
 
 	TEST_ASSERT_EQUAL( true, ( (t_Websocket*)client1->ws )->isConnected );
@@ -282,8 +305,9 @@ SendCommand( void )
 		// usleep(100000);
 		pollMessages( bp2 );
 		// usleep(100000);
-		if ( bp_isConnected( bp1 ) && bp_isConnected( bp2 ) )
+		if ( bp_isConnected( bp1 ) && bp_isConnected( bp2 ) ) {
 			break;
+		}
 	}
 	TEST_ASSERT_EQUAL( true, bp_isConnected( bp1 ) );
 	TEST_ASSERT_EQUAL( true, bp_isConnected( bp2 ) );
@@ -308,8 +332,9 @@ SendCommand( void )
 		// usleep(100000);
 		pollMessages( server );
 		// usleep(100000);
-		if ( getMessageCount( bp2 ) == 1 )
+		if ( getMessageCount( bp2 ) == 1 ) {
 			break;
+		}
 	}
 
 	TEST_ASSERT_EQUAL( 1, getMessageCount( bp2 ) );
@@ -451,8 +476,9 @@ ConnectivityTest( void )
 	for ( int i = 0; i < 100; i++ ) {
 		pollMessages( server );
 		pollMessages( client );
-		if ( ( (t_Websocket*)client->ws )->isConnected )
+		if ( ( (t_Websocket*)client->ws )->isConnected ) {
 			break;
+		}
 		usleep( 1000 );
 	}
 
@@ -464,7 +490,7 @@ ConnectivityTest( void )
 }
 
 static void
-unityShortTests()
+unityShortTests( void )
 {  // These tests must pass or fail within microseconds. No network tests.
 
 	RUN_TEST( RetvalDbTest );
@@ -474,7 +500,7 @@ unityShortTests()
 }
 
 static void
-unityLongTests()
+unityLongTests( void )
 {  // Long-running tests, meant to be run under Buildbot.
 
 	testSetup();
@@ -523,8 +549,9 @@ main( int argc, const char* argv[] )
 
 		int c, option_index = 0;
 		c = getopt_long( argc, (char* const*)argv, "ltv", long_options, &option_index );
-		if ( c == -1 )
+		if ( c == -1 ) {
 			break;
+		}
 
 		switch ( c ) {
 			case 't':

@@ -1,0 +1,4 @@
+afl_i
+afl_o
+afl_persistent.c
+stdin_template_afl.c

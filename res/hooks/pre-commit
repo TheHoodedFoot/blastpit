@@ -28,7 +28,7 @@ function checkforbidden() {
 	# Check for forbidden patterns and abort
 	git diff --cached --name-only | \
 	    grep -E "$FILES_PATTERN" | \
-	    GREP_COLOR='4;5;37;41' xargs grep --color --with-filename -n -E ${FORBIDDEN} && \
+	    GREP_COLOR='mt=4;5;37;41' xargs grep --color --with-filename -n -E ${FORBIDDEN} && \
 	    echo COMMIT REJECTED Found forbidden references. Please remove them before commiting. && \
 	    echo Forbidden patterns are: ${FORBIDDEN} && \
 	    exit 1
@@ -43,7 +43,9 @@ fi
 #stash
 
 # Run tests
-make clean debug test
+make clean
+make -j$(nproc) debug || exit 1
+make -j$(nproc) unit_tests
 TEST_RESULT=$?
 
 #unstash

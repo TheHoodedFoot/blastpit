@@ -21,8 +21,9 @@ main( int, char** )
 	// /dev/v4l/by-id, which we need to convert here using
 	// readlink -f to find the actual /dev/videox path used below
 	VideoCapture cap( CAPTURE_DEVICE, CV_CAP_V4L );
-	if ( !cap.isOpened() )	// check if we succeeded
+	if ( !cap.isOpened() ) {  // check if we succeeded
 		return -1;
+	}
 #ifdef CAPTURE_USE_MJPEG
 	cap.set( CV_CAP_PROP_FOURCC, CV_FOURCC( 'M', 'J', 'P', 'G' ) );
 #endif
@@ -73,22 +74,24 @@ main( int, char** )
 					filename = "/home/" USERNAME "/Pictures/Microscope/" CAMERA_NAME "-";
 					filename += std::to_string( i );
 					filename += ".jpg";
-					if ( !exists( filename ) )
+					if ( !exists( filename ) ) {
 						break;
+					}
 				}
 
 				cout << "next file: " << filename << endl;
 
 
-				if (!imwrite( filename, colourframe )) {
-			      cout << "Could not save file (" << filename << ")" << endl;
+				if ( !imwrite( filename, colourframe ) ) {
+					cout << "Could not save file (" << filename << ")" << endl;
 				}
 				destroyWindow( windowName );  // destroy the created window
 
 				return 0;
 			}
-			if ( key == 27 )
+			if ( key == 27 ) {
 				return -1;
+			}
 #ifdef IGNORE_DARK_IMAGES
 		}
 #endif

@@ -24,8 +24,9 @@ Lmos::CreateControl()
 {  // Dyamically creates the activex control
 
 #if defined( Q_OS_WIN32 )
-	if ( lmos_actx )
+	if ( lmos_actx ) {
 		return;
+	}
 	lmos_actx = new ( LMOSACTXLib::LMOSActX );
 #endif
 }
@@ -47,8 +48,9 @@ Lmos::ConnectSignals()
 {  // Connect up Qt signals and slots
 
 #if defined( Q_OS_WIN32 )
-	if ( !lmos_actx )
+	if ( !lmos_actx ) {
 		return;
+	}
 	connect( lmos_actx,
 		 SIGNAL( MessageMap( QString& ) ),
 		 this,
@@ -90,8 +92,9 @@ Lmos::DisconnectSignals()
 {  // Disconnect Qt signals and slots
 
 #if defined( Q_OS_WIN32 )
-	if ( !lmos_actx )
+	if ( !lmos_actx ) {
 		return;
+	}
 
 	disconnect( lmos_actx, 0, 0, 0 );
 #endif
@@ -102,8 +105,9 @@ Lmos::ShowWindow()
 {  // Makes the lmos window visible
 
 #if defined( Q_OS_WIN32 )
-	if ( !lmos_actx )
+	if ( !lmos_actx ) {
 		return;
+	}
 	lmos_actx->show();
 #endif
 }
@@ -113,8 +117,9 @@ Lmos::HideWindow()
 {  // Hides the lmos window
 
 #if defined( Q_OS_WIN32 )
-	if ( !lmos_actx )
+	if ( !lmos_actx ) {
 		return;
+	}
 	lmos_actx->hide();
 #endif
 }

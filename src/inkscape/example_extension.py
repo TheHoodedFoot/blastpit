@@ -251,7 +251,6 @@ class SvgToVlm(inkex.EffectExtension):
         # Then continue as normal (but don't create another group)
 
         if is_compound_path(element.path) is True:
-
             logging.debug("Processing compound path " + element.get_id())
 
             path_bbox = self.get_bbox(element)
@@ -358,7 +357,6 @@ class SvgToVlm(inkex.EffectExtension):
         # # tr.add_matrix((1, 0, 0), (0, -1, 120))
         # path = path.transform(tr)
         for segment in path.to_superpath().to_path(curves_only=True):
-
             matches = re.match(".*M (.*) (.*)$", str(segment))
             if matches is not None:
                 x = float(matches.group(1))
@@ -533,7 +531,6 @@ class SvgToVlm(inkex.EffectExtension):
         return self.testresult
 
     def effect(self):
-
         logging.basicConfig(level=logging.DEBUG)
 
         transform = inkex.Transform()

@@ -11,20 +11,23 @@
 
 #ifdef TRACY_ENABLE
 #include "Tracy.hpp"
+#include "TracyC.h"
 #else
 #define ZoneScoped
+#define TracyCAlloc( a, b )
+#define TracyCFree( a )
+#define TracyCPlot( a, b )
 #endif
 
 // static struct mg_http_serve_opts s_http_server_opts;
 
 t_Websocket*
-websocketNew()
+websocketNew( void )
 {  // Constructor
 
-	// ZoneScoped
-
-	t_Websocket* ws = (t_Websocket*)calloc( 1, sizeof( t_Websocket ) );
-	return ws;
+	t_Websocket* websock = (t_Websocket*)calloc( 1, sizeof( t_Websocket ) );
+	TracyCAlloc( websock, sizeof( t_Websocket ) );
+	return websock;
 }
 
 void
@@ -40,24 +43,25 @@ wsSetMessageReceivedObject( t_Websocket* self, void* object )
 }
 
 void
-websocketDelete( t_Websocket* ws )
+websocketDelete( t_Websocket* websock )
 {  // Destructor
 
-	// ZoneScoped
+	ZoneScoped;
 
-	wsFlushMessages( ws );
-	free( ws );
+	wsFlushMessages( websock );
+	free( websock );
+	TracyCFree( websock );
 }
 
 void
-wsFlushMessages( t_Websocket* ws )
+wsFlushMessages( t_Websocket* websock )
 {  // Drop all messages
 
-	if ( !ws ) {
+	if ( !websock ) {
 		return;
 	}
-	while ( wsGetMessageCount( ws ) > 0 ) {
-		free( wsPopMessage( ws ) );
+	while ( wsGetMessageCount( websock ) > 0 ) {
+		free( wsPopMessage( websock ) );
 	}
 }
 
@@ -68,18 +72,18 @@ wsFlushMessages( t_Websocket* ws )
 // }
 
 void
-broadcastServer( struct mg_connection* nc, const struct mg_str msg )
+broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
 {  // Send message to client
 
-	// ZoneScoped
+	ZoneScoped;
 
-	for ( struct mg_connection* con = nc->mgr->conns; con != NULL; con = con->next ) {
+	for ( struct mg_connection* con = nconn->mgr->conns; con != NULL; con = con->next ) {
 		BPLOG( kLvlDebug, "broadcastServer: Sending message to client %p\n", (void*)con );
 		// uint16_t port = (uint16_t)( con->peer.port << 8 ) | ( con->peer.port >> 8 );
 		// BPLOG( kLvlDebug, "broadcastServer: port %d\n", port );
 		BPLOG( kLvlDebug, "msg.len %lu\n", msg.len );
 		BPLOG( kLvlEverything, "msg.ptr %s\n", msg.ptr );
-		if ( con != nc ) {
+		if ( con != nconn ) {
 			mg_ws_send( con, msg.ptr, msg.len, WEBSOCKET_OP_TEXT );
 		} else {
 			BPLOG( kLvlEverything, "%s: Not sending to duplicate nc\n", __func__ );
@@ -90,25 +94,25 @@ broadcastServer( struct mg_connection* nc, const struct mg_str msg )
 }
 
 void
-broadcastClient( struct mg_connection* nc, const struct mg_str msg )
+broadcastClient( struct mg_connection* nconn, const struct mg_str msg )
 {  // Send message to server
 
-	// ZoneScoped
+	ZoneScoped;
 
 	BPLOG( kLvlDebug, "%s: Client sending message to server\n", __func__ );
-	BPLOG( kLvlDebug, "nc: %p\n", (void*)nc );
+	BPLOG( kLvlDebug, "nc: %p\n", (void*)nconn );
 	BPLOG( kLvlEverything, "msg.ptr: %p\n", (void*)msg.ptr );
 	BPLOG( kLvlDebug, "msg.len: %lu\n", msg.len );
-	mg_ws_send( nc, msg.ptr, msg.len, WEBSOCKET_OP_TEXT );
+	mg_ws_send( nconn, msg.ptr, msg.len, WEBSOCKET_OP_TEXT );
 }
 
 static void
-server_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_data )
+server_event_handler( struct mg_connection* nconn, int event, void* ev_data, void* fn_data )
 {  // Callback when listening server receives an event
 
-	// ZoneScoped
+	ZoneScoped;
 
-	switch ( ev ) {
+	switch ( event ) {
 		// case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
 		// 	BPLOG(kLvlDebug, "%s: MG_EV_WEBSOCKET_HANDSHAKE_DONE\n", __func__);
 		// 	/* New websocket connection. Tell everybody. */
@@ -118,7 +122,7 @@ server_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 		case MG_EV_WS_MSG: {
 			assert( ev_data );
 			BPLOG( kLvlDebug, "%s: MG_EV_WS_FRAME\n", __func__ );
-			struct mg_ws_message* wm = (struct mg_ws_message*)ev_data;
+			struct mg_ws_message* websock_msg = (struct mg_ws_message*)ev_data;
 
 			// Parse message
 
@@ -129,31 +133,31 @@ server_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 				BPLOG( kLvlWarn,
 				       "server MG_EV_WS_MSG: Message received but no message handler callback set for "
 				       "connection %p\n",
-				       (void*)nc );
+				       (void*)nconn );
 			}
 
 			/* New websocket message. Tell everybody. */
-			struct mg_str d = mg_str_n( (char*)wm->data.ptr, wm->data.len );
-			if ( wm->data.len == 0 ) {
+			struct mg_str ws_string = mg_str_n( (char*)websock_msg->data.ptr, websock_msg->data.len );
+			if ( websock_msg->data.len == 0 ) {
 				BPLOG( kLvlWarn,
 				       "server MG_EV_WS_MSG: (nc = %p) Message received has length of zero. Not "
 				       "broadcasting to clients.\n",
-				       (void*)nc );
+				       (void*)nconn );
 				break;
 			}
 
-			broadcastServer( nc, d );
+			broadcastServer( nconn, ws_string );
 			break;
 		}
 		case MG_EV_HTTP_MSG: {
 			BPLOG( kLvlDebug, "%s: MG_EV_HTTP_MSG\n", __func__ );
-			struct mg_http_message* hm = (struct mg_http_message*)ev_data;
+			struct mg_http_message* hmsg = (struct mg_http_message*)ev_data;
 			// We should check whether the client is requesting
 			// http files, or whether they want to upgrade to websockets.
 			// For now, always assume they want to upgrade.
 
 			// Upgrade to WebSockets
-			mg_ws_upgrade( nc, hm, NULL );
+			mg_ws_upgrade( nconn, hmsg, NULL );
 
 			// Reply HTTP
 			// mg_http_serve_dir(nc, (struct mg_http_message*)ev_data, &s_http_server_opts);
@@ -191,22 +195,22 @@ server_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 			break;
 		}
 		default:
-			BPLOG( kLvlError, "server_event_handler: Unhandled event (%d)\n", ev );
+			BPLOG( kLvlError, "server_event_handler: Unhandled event (%d)\n", event );
 	}
 }
 
 static void
-client_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_data )
+client_event_handler( struct mg_connection* nconn, int event, void* ev_data, void* fn_data )
 {
-	// ZoneScoped
+	ZoneScoped;
 
-	(void)nc;
+	(void)nconn;
 
 	if ( !ev_data ) {
 		BPLOG( kLvlDebug, "%s: ev_data is null\n", __func__ );
 	}
 
-	switch ( ev ) {
+	switch ( event ) {
 		case MG_EV_CONNECT: {
 			BPLOG( kLvlDebug, "%s: MG_EV_CONNECT\n", __func__ );
 			// int status = *((int*)ev_data);
@@ -228,13 +232,13 @@ client_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 		}
 		case MG_EV_WS_MSG: {
 			// Message received
-			BPLOG( kLvlDebug, "client_event_handler: Message received by nc %p\n", (void*)nc );
+			BPLOG( kLvlDebug, "client_event_handler: Message received by nc %p\n", (void*)nconn );
 
 			// Call our message handler callback
-			t_Websocket* ws = (t_Websocket*)fn_data;
-			if ( ws->messageReceived ) {
+			t_Websocket* websock = (t_Websocket*)fn_data;
+			if ( websock->messageReceived ) {
 				BPLOG( kLvlDebug, "%s: Calling messageReceivedCpp callback\n", __func__ );
-				ws->messageReceived( ev_data, ws->object );
+				websock->messageReceived( ev_data, websock->object );
 			} else {
 				BPLOG( kLvlWarn,
 				       "%s: WebSocket message received but client WEBSOCKET_FRAME callback is unset.\n",
@@ -244,18 +248,20 @@ client_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 			// Store message
 			BPLOG( kLvlDebug, "%s: Pushing message onto stack\n", __func__ );
 			assert( ev_data );
-			struct mg_ws_message* wm = (struct mg_ws_message*)ev_data;
-			BPLOG( kLvlDebug, "Message size: %d\n", (int)wm->data.len );
+			struct mg_ws_message* websock_msg = (struct mg_ws_message*)ev_data;
+			BPLOG( kLvlDebug, "Message size: %d\n", (int)websock_msg->data.len );
 
 			// We could use calloc here, but we only need to zero the last byte
-			void* message = malloc( (int)wm->data.len + 1 );  // Allow null terminator
+			void* message = malloc( (int)websock_msg->data.len + 1 );  // Allow null terminator
 			assert( message );
+			TracyCAlloc( message, (int)websock_msg->data.len + 1 );
 			BPLOG( kLvlDebug, "Message pointer: %p\n", message );
-			*( (char*)message + (int)wm->data.len ) = 0;
+			*( (char*)message + (int)websock_msg->data.len ) = 0;
 
-			void* destination = memmove( message, wm->data.ptr, (int)wm->data.len );  // NOLINT
+			void* destination =
+				memmove( message, websock_msg->data.ptr, (int)websock_msg->data.len );	// NOLINT
 			assert( destination );
-			wsPushMessage( ws, message );
+			wsPushMessage( websock, message );
 			break;
 		}
 		case MG_EV_CLOSE: {
@@ -282,7 +288,7 @@ client_event_handler( struct mg_connection* nc, int ev, void* ev_data, void* fn_
 		// 	break;
 		// }
 		default:
-			BPLOG( kLvlError, "client_event_handler: Unhandled event (%d)\n", ev );
+			BPLOG( kLvlError, "client_event_handler: Unhandled event (%d)\n", event );
 	}
 }
 
@@ -290,7 +296,7 @@ int
 wsServerCreate( t_Websocket* self, const char* listen_address )
 {  // Server Constructor
 
-	// ZoneScoped
+	ZoneScoped;
 
 	// assert(atoi(listen_address));
 
@@ -320,7 +326,7 @@ int
 wsServerDestroy( t_Websocket* self )
 {  // Server Destructor
 
-	// ZoneScoped
+	ZoneScoped;
 
 	if ( !self->connection ) {
 		return kNullResource;
@@ -342,7 +348,7 @@ int
 wsClientCreate( t_Websocket* self, const char* address )
 {  // Client Constructor
 
-	// ZoneScoped
+	ZoneScoped;
 
 	self->evloopIsRunning = true;
 
@@ -364,7 +370,7 @@ int
 wsClientDestroy( t_Websocket* self )
 {  // Client Destructor
 
-	// ZoneScoped
+	ZoneScoped;
 
 	if ( !self->connection ) {
 		return kNullResource;
@@ -402,7 +408,7 @@ int
 wsServerSendMessage( t_Websocket* self, char* data )
 {  // Broadcast message to all clients
 
-	// ZoneScoped
+	ZoneScoped;
 
 	BPLOG( kLvlDebug, "%s: Sending message to all clients\n", __func__ );
 	BPLOG( kLvlDebug, "Message size: %ld\n", strlen( data ) );
@@ -421,7 +427,7 @@ int
 wsClientSendMessage( t_Websocket* self, char* data )
 {  // Send message to the server
 
-	// ZoneScoped
+	ZoneScoped;
 
 	if ( !data ) {
 		return kInvalid;
@@ -439,9 +445,11 @@ void
 wsPushMessage( t_Websocket* self, void* data )
 {  // Add a message to the start of the message stack
 
-	// ZoneScoped
+	ZoneScoped;
 
 	t_Node* message = (t_Node*)malloc( sizeof( t_Node ) );
+	TracyCAlloc( message, sizeof( t_Node ) );
+
 	BPLOG( kLvlDebug, "Pushing message pointer: %p\n", (void*)message );
 	message->data	   = data;
 	message->next	   = self->messageStack;
@@ -452,7 +460,7 @@ void*
 wsPopMessage( t_Websocket* self )
 {  // Remove newest message from stack
 
-	// ZoneScoped
+	ZoneScoped;
 
 	return wsPopMessageAt( self, 0 );
 }
@@ -461,7 +469,7 @@ int
 wsGetMessageCount( t_Websocket* self )
 {  // Returns the count of the message stack
 
-	int	i    = 0;
+	int	i    = 0;  // NOLINT
 	t_Node* node = self->messageStack;
 	for ( ; node; i++ ) {
 		node = node->next;
@@ -498,6 +506,7 @@ wsPopMessageAt( t_Websocket* self, int index )
 	BPLOG( kLvlDebug, "Freeing message pointer: %p\n", (void*)node );
 	BPLOG( kLvlDebug, "which points to data: %p\n", (void*)node->data );
 	free( node );
+	TracyCFree( node );
 
 	if ( !prev ) {
 		// We were index 0, so just point to next item
@@ -542,9 +551,9 @@ ExtractWsMessageData( void* ev_data )
 
 	WsMessage retval;
 
-	struct mg_ws_message* wm = (struct mg_ws_message*)ev_data;
-	retval.size		 = (int)wm->data.len;
-	retval.data		 = wm->data.ptr;
+	struct mg_ws_message* websock_msg = (struct mg_ws_message*)ev_data;
+	retval.size			  = (int)websock_msg->data.len;
+	retval.data			  = websock_msg->data.ptr;
 
 	return retval;
 }

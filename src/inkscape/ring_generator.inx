@@ -3,7 +3,6 @@
   <_name>Ring Generator</_name>
   <id>org.inkscape.laser.ringgenerator</id>
   <dependency type="executable" location="extensions">ring_generator.py</dependency>
-  <dependency type="executable" location="extensions">inkex.py</dependency>
   <param name="name" type="notebook">
     <page name="geometry" gui-text="Ring Geometry">
       <param name="ring_type" type="optiongroup" gui-text="Ring Geometry:">
@@ -14,6 +13,13 @@
 		</param>
       <param name="width" type="float" precision="2" min="0" max="120" gui-text="Ring Width:">6
 		</param>
+      <param name="customer" type="optiongroup" appearance="combo" gui-text="Customer:">
+        <option value="">- Unspecified -</option>
+        <option value="MITCHEL_AND_CO">Mitchel &amp; Co.</option>
+        <option value="RIVERMOUNTS">Rivermounts</option>
+        <option value="TOUCHSTONE">Touchstone</option>
+        <option value="ANDREW_MACGOWAN">Andrew Macgowan</option>
+      </param>
       <param name="holder" type="optiongroup" gui-text="Ring Holder:">
         <option value="flush">Flush with shield</option>
         <option value="centreoffset">Centre offset from shield</option>

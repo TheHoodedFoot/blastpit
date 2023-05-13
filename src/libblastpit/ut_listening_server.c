@@ -40,7 +40,7 @@ TEST_GROUP_RUNNER( ListeningServerGroup )
 }
 
 static void
-runAllTests()
+runAllTests( void )
 {
 	RUN_TEST_GROUP( ListeningServerGroup );
 }

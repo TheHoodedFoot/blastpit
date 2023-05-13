@@ -222,7 +222,6 @@ class AutoshadowModule(inkex.EffectExtension):
         return layer
 
     def effect(self):
-
         # Get filename from document
         for group in self.document.getroot():
             for child in group:

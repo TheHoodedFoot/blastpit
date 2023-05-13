@@ -51,15 +51,17 @@ Parser::wsConnect()
 {  // (Re)try connection to server
 
 	static QDateTime last_connection_attempt = QDateTime::currentDateTime().addSecs( -WS_RETRY_SECONDS );
-	if ( QDateTime::currentDateTime() < last_connection_attempt.addSecs( WS_RETRY_SECONDS ) )
+	if ( QDateTime::currentDateTime() < last_connection_attempt.addSecs( WS_RETRY_SECONDS ) ) {
 		return;
+	}
 	last_connection_attempt = QDateTime::currentDateTime();
 
 	QSettings traySettings( "Rfbevanco", "lmos-tray" );
 	QString	  wsserver = traySettings.value( "wsServer" ).toString();
 
-	if ( wsserver.size() < MIN_SERVER_STRING_LEN )
+	if ( wsserver.size() < MIN_SERVER_STRING_LEN ) {
 		return;
+	}
 
 	QByteArray  ba	   = wsserver.toLocal8Bit();
 	const char* c_str2 = ba.data();
@@ -630,20 +632,28 @@ Parser::parseCommand( const char* xml )
 			ackReturn( id, kFailure );
 	}
 
-	if ( command_string )
+	if ( command_string ) {
 		SdsFree( command_string );
-	if ( id_string )
+	}
+	if ( id_string ) {
 		SdsFree( id_string );
-	if ( message_string )
+	}
+	if ( message_string ) {
 		SdsFree( message_string );
-	if ( payload )
+	}
+	if ( payload ) {
 		SdsFree( payload );
-	if ( attr1 )
+	}
+	if ( attr1 ) {
 		SdsFree( attr1 );
-	if ( attr2 )
+	}
+	if ( attr2 ) {
 		SdsFree( attr2 );
-	if ( attr3 )
+	}
+	if ( attr3 ) {
 		SdsFree( attr3 );
-	if ( attr4 )
+	}
+	if ( attr4 ) {
 		SdsFree( attr4 );
+	}
 }

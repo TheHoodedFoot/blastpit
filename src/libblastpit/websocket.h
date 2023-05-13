@@ -6,6 +6,7 @@ extern "C"
 {
 #endif
 
+#include "blastpit.h"
 #include "mongoose.h"
 #include <signal.h>
 #include <stdbool.h>
@@ -37,8 +38,8 @@ extern "C"
 	} t_Websocket;
 
 	// Constructor and destructor
-	t_Websocket* websocketNew();
-	void	     websocketDelete( t_Websocket* ws );
+	t_Websocket* websocketNew( void );
+	void	     websocketDelete( t_Websocket* websock );
 
 	// Common functions
 	void  wsSetMessageReceivedCallback( t_Websocket* self, void ( *callback )( void*, void* ) );
@@ -48,7 +49,7 @@ extern "C"
 	int   wsGetMessageCount( t_Websocket* self );
 	void* wsPopMessageAt( t_Websocket* self, int index );
 	void* wsReadMessageAt( t_Websocket* self, int index );
-	void  wsFlushMessages( t_Websocket* ws );
+	void  wsFlushMessages( t_Websocket* websock );
 
 	// Server functions
 	int  wsServerCreate( t_Websocket* self, const char* listen_address );
