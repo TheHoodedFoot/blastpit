@@ -43,8 +43,8 @@ DBG              = lldb
 
 # Compilers (Note: using Zig with bear fails to create compile database)
 
-CC = gcc
-CXX = g++
+CC = gcc-13
+CXX = g++-13
 
 analyze analyze_build:              	 CC                      ?= clang
 analyze analyze_build:              	 CXX                     ?= clang++

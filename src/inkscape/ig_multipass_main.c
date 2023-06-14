@@ -32,7 +32,7 @@
 int
 main( int argc, char** argv )
 {
-	// We avoid globals by having a struct passed to the event loop
+	// We avoid globals by passing a struct to the event loop
 	t_multipass_data self = {
 		.fh_script_output	= NULL,
 		.glfwdata.ctx		= NULL,

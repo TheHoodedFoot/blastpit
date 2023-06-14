@@ -36,28 +36,6 @@ else
 fi
 
 
-if [[ "$1" == "-msan" ]]
-then
-	echo "Running memory sanitizer"
-elif [[ "$1" == "-asan" ]]
-then
-	echo "Running address sanitizer"
-elif [[ "$1" == "--no-python" ]]
-then
-	echo "Disabling Python tests"
-elif [[ "$1" == "--long" ]]
-then
-	echo "Running long tests"
-	VERBOSE="-v -l"
-else
-	if [ ! -z ${1+x} ]
-	then
-		SRCDIRS=($1)
-		BUILDDIR=$1
-	fi
-fi
-
-
 # Black        0;30     Dark Gray     1;30
 # Red          0;31     Light Red     1;31
 # Green        0;32     Light Green   1;32

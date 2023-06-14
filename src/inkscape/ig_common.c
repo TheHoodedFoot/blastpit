@@ -210,7 +210,12 @@ doEventLoop( t_glfw_data* glfwdata, void* callback_data, bool ( *headlessCallbac
 			if ( glfwWindowShouldClose( glfwdata->win ) ) {
 				// Window has been closed, so exit event loop
 				glfwdata->imguiCallback = NULL;
-				// headlessCallback	= NULL;
+
+				// TODO: This should allow the headless to continue,
+				// but for now it just causes the imgui window to stay open
+				// and prevents the program from exiting,
+				// so we set the headlessCallback to NULL to exit
+				headlessCallback = NULL;
 			}
 		}
 	}

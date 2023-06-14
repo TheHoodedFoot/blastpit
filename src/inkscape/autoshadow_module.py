@@ -178,16 +178,16 @@ class AutoshadowModule(inkex.EffectExtension):
         # The new_paths variable can be considered as the calculated shadows
         # print("paths: ", existing_paths, file=sys.stderr)
         # print("shadows: ", new_paths, file=sys.stderr)
-        numUnconveredPaths = ash.findPathsWithoutShadows(
-            existing_paths, new_paths
-        )
-        if len(numUnconveredPaths) > 0:
-            print(
-                "Warning: failed to generate shadows for %s path(s)"
-                % len(numUnconveredPaths),
-                file=sys.stderr,
-            )
-            print("Paths without shadows:", numUnconveredPaths, file=sys.stderr)
+        # numUnconveredPaths = ash.findPathsWithoutShadows(
+        # existing_paths, new_paths
+        # )
+        # if len(numUnconveredPaths) > 0:
+        #     print(
+        #         "Warning: failed to generate shadows for %s path(s)"
+        #         % len(numUnconveredPaths),
+        #         file=sys.stderr,
+        #     )
+        #     print("Paths without shadows:", numUnconveredPaths, file=sys.stderr)
 
         # print("Merge Raw Paths:")
         # print(existing_paths, file=log)

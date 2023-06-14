@@ -258,7 +258,7 @@ mpEventLoop( void* multipass_data )
 		pollMultipass( self );
 	}
 
-	return true;
+	return !self->exit_event_loop;
 }
 
 bool
