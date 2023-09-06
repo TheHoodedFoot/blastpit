@@ -33,102 +33,86 @@ USERNAME        ?= $(shell whoami)
 USER_DEFINES     = SPACENAV
 
 
-# ░▀█▀░█▀█░█▀█░█░░░█▀▀
-# ░░█░░█░█░█░█░█░░░▀▀█
-# ░░▀░░▀▀▀░▀▀▀░▀▀▀░▀▀▀
-
-AR               = llvm-ar
-RANLIB           = llvm-ranlib
-DBG              = lldb
-
 # Compilers (Note: using Zig with bear fails to create compile database)
-
-CC = gcc-13
-CXX = g++-13
-
-analyze analyze_build:              	 CC                      ?= clang
-analyze analyze_build:              	 CXX                     ?= clang++
-asan    asan_build msan msan_build: 	 CC                      ?= clang
-asan    asan_build msan msan_build: 	 CXX                     ?= clang++
-cross   cross_build:                	 CC                      ?= zig cc -target i386-windows-gnu
-cross   cross_build:                	 CXX                     ?= zig c++ -target i386-windows-gnu
-debug   debug_build:                	 CC                      ?= clang
-debug   debug_build:                	 CXX                     ?= clang++
-profile profile_build:              	 CC                      = $(CXX) # Needed for tracy, which is c++
-release release_build:              	 CC                      ?= zig cc #-target x86_64-linux-musl
-release release_build:              	 CXX                     ?= zig c++ #-target x86_64-linux-musl
+CC ?= gcc
+CXX ?= g++
+ASAN_CC = clang
+ASAN_CXX = clang++
+MSAN_CC = clang
+MSAN_CXX = clang++
+CROSS_CC = zig cc -target x86-windows-gnu
+CROSS_CXX = zig c++ -target x86-windows-gnu
+PROFILE_CC = clang # Needed for tracy, which is c++
+PROFILE_CXX = clang++
 
 # Compiler Warnings
-debug_build:                  	 CPPFLAGS                += -Wall -Wextra -Werror #-Wpedantic
-release release_build:              	 CPPFLAGS                += -Wall -Wextra -Wpedantic -Wfatal-errors
+CPPFLAGS += -Wall -Wextra
+RELEASE_CPPFLAGS += -Wall -Wextra -Wpedantic -Werror -Wfatal-errors
 
 # Optimization
-cross cross_build:                  	 CPPFLAGS                += -Ofast
-debug_build:                  	 CPPFLAGS                += -O0
-profile profile_build:              	 CPPFLAGS                += -Ofast -rdynamic
-release release_build:              	 CPPFLAGS                += -Ofast -flto #-flto causes segfaults in getopt and others
+DEBUG_CPPFLAGS                += -O0
+PROFILE_CPPFLAGS                += -Ofast
+PROFILE_CPPFLAGS  = -fno-omit-frame-pointer
+RELEASE_CPPFLAGS                += -Ofast
 
 # Debugging
-analyze analyze_build: 	 CPPFLAGS += -g3 -fno-omit-frame-pointer -DDEBUG_LEVEL=1
-asan asan_build:       	 CPPFLAGS += -g3 -fno-omit-frame-pointer -DDEBUG_LEVEL=1
-debug_build:     	 CPPFLAGS += -g3 -fno-omit-frame-pointer -DDEBUG_LEVEL=1
-msan msan_build:       	 CPPFLAGS += -g3 -fno-omit-frame-pointer -DDEBUG_LEVEL=1
-profile profile_build: 	 CPPFLAGS += -g3 -fno-omit-frame-pointer -DDEBUG_LEVEL=1
+DEBUG_CPPFLAGS += -g3 -fno-omit-frame-pointer -DDEBUG_LEVEL=1
+
+# Tracy
+TRACY_CPPFLAGS += -DTRACY_ENABLE
+TRACY_CXXFLAGS = -fpermissive
+TRACY_INCFLAGS += -I$(SUBMODULES_DIR)/tracy/public/tracy
+# TRACY_OBJS      =  $(BUILD_DIR)/TracyClient.o
+
+ASAN_CPPFLAGS += $(DEBUG_CPPFLAGS)
+MSAN_CPPFLAGS += $(DEBUG_CPPFLAGS)
+PROFILE_CPPFLAGS += $(TRACY_CPPFLAGS)
 
 # Linker Flags
-GCCVERSIONGTEQ4 := $(shell expr `gcc -dumpversion | cut -f1 -d.` \>= 12)
-ifeq "$(GCCVERSIONGTEQ4)" "1"
-          	 LDFLAGS                 += -fuse-ld=mold
-endif
-debug_build:                  	 LDFLAGS                 += -Wl,-O1 -Wl,--as-needed
-
-# gcc-11 does not recognise -fuse-ld=mold
-# debug_build:                  	 LDFLAGS                 += -fuse-ld=mold
+DEBUG_LDFLAGS  += -Wl,-O1 -Wl,--as-needed
 
 # Flags for External Sources
-asan asan_build:                    	 EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
-cross cross_build:                  	 EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
-cross cross_build:                  	 EXTERNAL_CPPFLAGS       += -fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1
-debug_build:                  	 EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
-debug_build:                  	 EXTERNAL_CPPFLAGS       += -fno-sanitize=all -O0
-msan msan_build:                    	 EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
-release release_build:              	 EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 # Mongoose log messages can bork the returned Inkscape XML
-release release_build:              	 EXTERNAL_CPPFLAGS       += -g3
+ASAN_EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
+CROSS_EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
+CROSS_EXTERNAL_CPPFLAGS       += -fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1
+DEBUG_EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
+DEBUG_EXTERNAL_CPPFLAGS       += -fno-sanitize=all -O0
+MSAN_EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 -DMG_MAX_RECV_BUF_SIZE=10000000
+RELEASE_EXTERNAL_CPPFLAGS       += -DMG_ENABLE_LOG=0 # Mongoose log messages can bork the returned Inkscape XML
+RELEASE_EXTERNAL_CPPFLAGS       += -g3
 
 # Hardening
-release release_build:              	 CPPFLAGS                += -D_FORTIFY_SOURCE=3
+RELEASE_CPPFLAGS                += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 # Sometimes fails because already set, so unset first
 
 # Profiling
-profile profile_build:              	 CPPFLAGS                += -DTRACY_ENABLE
-profile profile_build:              	 CPPFLAGS                += -pg --coverage
-profile profile_build:              	 INCFLAGS                += -I$(SUBMODULES_DIR)/tracy/public/tracy
-profile profile_build:              	 TRACY_OBJS               = $(BUILD_DIR)/TracyClient.o
-profile profile_build:              	 CPPFLAGS                += -fpermissive # Tracy needs c++ compiler which is less forgiving of errors
-profile profile_build: 	EXTERNAL_CPPFLAGS = -fno-sanitize=all -fpermissive
+PROFILE_INCFLAGS                += -I$(SUBMODULES_DIR)/tracy/public/tracy
+PROFILE_TRACY_OBJS               = $(BUILD_DIR)/TracyClient.o
+# PROFILE_CPPFLAGS                += -fpermissive # Tracy needs c++ compiler which is less forgiving of errors
+PROFILE_EXTERNAL_CPPFLAGS = -fno-sanitize=all
 
 # Miscellaneous
-debug_build:                  	 CPPFLAGS                += -MMD
+# DEBUG_CPPFLAGS                += -MMD
 
 # Cross compiling
-cross cross_build:                  	 BUILD_DIR               := $(PROJECT_ROOT)/build/win32
-cross cross_build:                  	 CPPFLAGS                += -fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1
-cross cross_build:                  	 DISABLE_STEAMCONTROLLER  = "1"
-cross cross_build:                  	 LDFLAGS                 += -lc++
-cross cross_build:                  	 WIN32FLAGS              += -lws2_32
+CROSS_BUILD_DIR               := $(PROJECT_ROOT)/build/win32
+CROSS_CPPFLAGS                += -fno-stack-protector -D_GLIBCXX_USE_CXX_ABI=1
+CROSS_CPPFLAGS += -DDISABLE_STEAMCONTROLLER
+CROSS_LDFLAGS                 += -lc++
+cross:                  	 WIN32FLAGS              += -lws2_32
 
 # Sanitizer Flags
-# asan asan_build msan msan_build:	SANFLAGS += -fno-omit-frame-pointer -fno-optimize-sibling-calls
-# asan asan_build msan msan_build:	SANFLAGS += -fsanitize-recover=all -fsanitize-blacklist=$(PROJECT_ROOT)/res/.sanitize_blacklist.txt
-# asan asan_build msan msan_build:	SANLDFLAGS += -Wl,-rpath,$(shell dirname $(shell clang -print-file-name=libclang_rt.ubsan_standalone-x86_64.so))
-# asan asan_build msan msan_build:	SHARED_SANFLAGS += -shared-libsan
-# asan asan_build:	SANFLAGS += -fsanitize=address -fsanitize-address-use-after-scope
-# asan asan_build:	SANFLAGS += -fsanitize=undefined,implicit-conversion,nullability,integer
-# cross cross_build:	CPPFLAGS                  += -fno-sanitize=all
-# debug debug_build:	CPPFLAGS          += -fsanitize=undefined
-# msan msan_build:	SANFLAGS += -fsanitize=memory -fsanitize-memory-track-origins
-# profile profile_build: 	CPPFLAGS += -fno-sanitize=all
-# release release_build:	CPPFLAGS += -fno-sanitize=all
-# release release_build:	EXTERNAL_CPPFLAGS += -fno-sanitize=all -Ofast -w # lto causes problems with unity
+ASAN_SANFLAGS             += -fsanitize=address -fsanitize-address-use-after-scope
+ASAN_SANFLAGS             += -fsanitize=undefined,implicit-conversion,nullability,integer
+ASAN_SANFLAGS             += -shared-libsan
+CROSS_CPPFLAGS            += -fno-sanitize=all
+DEBUG_CPPFLAGS            += -fsanitize=undefined
+MSAN_SANFLAGS             += -fsanitize=memory -fsanitize-memory-track-origins
+PROFILE_CPPFLAGS          += -fno-sanitize=all
+RELEASE_CPPFLAGS          += -fno-sanitize=all
+RELEASE_EXTERNAL_CPPFLAGS += -fno-sanitize=all -Ofast -w # lto causes problems with unity
+SANFLAGS                  += -fno-omit-frame-pointer -fno-optimize-sibling-calls
+SANFLAGS                  += -fsanitize-recover=all #-fsanitize-blacklist=$(PROJECT_ROOT)/res/.sanitize_blacklist.txt
+SANLDFLAGS                += -Wl,-rpath,$(shell dirname $(shell clang -print-file-name=libclang_rt.ubsan_standalone-x86_64.so))
 
 
 # ░█▀▀░█▀█░█░█░█▀▄░█▀▀░█▀▀░█▀▀
@@ -139,7 +123,11 @@ cross cross_build:                  	 WIN32FLAGS              += -lws2_32
 LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
 LIBMXML_OBJS        := $(patsubst %.c,$(BUILD_DIR)/%.o,$(LIBMXML_SRCS))
 LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml.c
-LIBBLASTPIT_OBJS    := $(LIBMXML_OBJS) $(BUILD_DIR)/sds.o $(BUILD_DIR)/mongoose.o $(patsubst %.c,$(BUILD_DIR)/%.o,$(LIBBLASTPIT_SOURCES))
+
+LIBBLASTPIT_OBJS    :=$(patsubst %.c,$(BUILD_DIR)/%.o,$(LIBBLASTPIT_SOURCES))
+
+EXTERNAL_OBJS := $(LIBMXML_OBJS) $(BUILD_DIR)/sds.o $(BUILD_DIR)/mongoose.o
+
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES))
 LIBBLASTPIT_TARGETS := $(BUILD_DIR)/libblastpit.a $(BUILD_DIR)/_blastpy.so $(BUILD_DIR)/blastpy.py 
 
@@ -150,7 +138,7 @@ UNITY_OBJS        = $(BUILD_DIR)/unity.o $(BUILD_DIR)/unity_fixture.o
 UNITY_DEFS        = -DUNITY_OUTPUT_COLOR -DUNITY_FIXTURE_NO_EXTRAS
 
 # Includes
-INCFLAGS = -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR) -I$(LIBBLASTPIT_DIR) -I $(PROJECT_ROOT)/res/cfg -I$(SUBMODULES_DIR)/mongoose -I$(SUBMODULES_DIR)/mxml -I$(SRC_DIR)/sds
+INCFLAGS = -I$(UNITY_DIR) -I$(UNITY_FIXTURE_DIR) -I$(LIBBLASTPIT_DIR) -I $(PROJECT_ROOT)/res/cfg -I$(SUBMODULES_DIR)/mongoose -I$(SUBMODULES_DIR)/mxml -I$(PROJECT_ROOT)/src/sds
 
 # Libraries
 LIBS  = -lm -ldl
@@ -162,7 +150,7 @@ BLASTPY_FILES  = $(BUILD_DIR)/blastpy_wrap.o
 DEBUG_COMMAND ?= $(shell head -n1 .debugcmd)
 DEBUG_TARGET  ?= $(shell tail -n1 .debugcmd)
 
-FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp} src/imgui/*.c src/scaffolding/*.c src/inkscape/*.{c,h} src/windows/*.c src/include/*.h src/include/*/*.h src/database/*.c src/lvgl/*.{c,h} src/scaps/*.c
+FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp} src/imgui/*.c src/scaffolding/*.c src/inkscape/*.{c,h} src/windows/*.c src/include/*.h src/include/*/*.h src/database/*.c src/lvgl/*.{c,h} src/scaps/*.{c,cpp,h}
 FORMAT_FILES_PYTHON = src/libblastpit/*.py src/inkscape/*.py src/scaffolding/*.py
 FORMAT_FILES_XML    = src/inkscape/*.inx
 FORMAT_FILES_HTML   = doc/reference_manuals/lmos.html
@@ -190,24 +178,26 @@ TEST_BINARIES = $(patsubst %.c,$(BUILD_DIR)/%_x,$(TEST_SOURCES))
 # the target-specific variables defined above
 all: 		debug
 
+libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a $(BUILD_DIR)/libblastpit.a 
+debug:		.tags
+		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) libs targets python_targets wscli imgui
+
+# debug:	.tags targets wscli python_targets imgui lvgl
+# 		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
+# 		@$(PROJECT_ROOT)/res/bin/run_after_build.sh
+
 analyze:	clean
-		scan-build --status-bugs -maxloop 20 --force-analyze-debug-code --exclude $(SUBMODULES_DIR)/mongoose --exclude $(SRC_DIR)/sds --show-description $(MAKE) -f $(PROJECT_ROOT)/Makefile analyze_build
+		scan-build --status-bugs -maxloop 20 --force-analyze-debug-code --exclude $(SUBMODULES_DIR) --show-description -o $(BUILD_DIR) $(MAKE) -f $(PROJECT_ROOT)/Makefile targets
 
-asan:	clean $(BUILD_DIR) .tags
-		$(MAKE) -f $(PROJECT_ROOT)/Makefile asan_build
+profile:	$(BUILD_DIR)
+		$(MAKE) $(EXTERNAL_OBJS)
+		CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) $(TRACY_OBJS) targets python_targets wscli imgui
+		# $(MAKE) -f $(PROJECT_ROOT)/Makefile profile_build || echo "If building tracy fails, git-clean the tracy directory and retry"
 
-msan:	clean $(BUILD_DIR) .tags
-		$(MAKE) -f $(PROJECT_ROOT)/Makefile msan_build
-
-release:	$(BUILD_DIR)
-		$(MAKE) -f $(PROJECT_ROOT)/Makefile release_build 
-		# $(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
-
-profile:	clean $(BUILD_DIR)
-		$(shell cd $(SUBMODULES_DIR)/tracy; git clean -dfx)
-		$(MAKE) -f $(PROJECT_ROOT)/Makefile profile_build || echo "If building tracy fails, git-clean the tracy directory and retry"
+		pkill capture-release || /bin/true
 		$(MAKE) -f $(PROJECT_ROOT)/Makefile tracycap
 
+		sleep 1
 		# This binary should contain tracy profiling as the statistics are saved in the /tmp directory
 		# We have to disable the check on the webserver for some reason
 		TRACY_NO_INVARIANT_CHECK=1 $(BUILD_DIR)/ut_websocket_x
@@ -217,57 +207,82 @@ profile:	clean $(BUILD_DIR)
 		$(MAKE) -f $(PROJECT_ROOT)/Makefile tracyexport
 
 cross:		pngs
-		BUILD_DIR=$(PROJECT_ROOT)/build/win32 $(MAKE) -f $(PROJECT_ROOT)/Makefile cross_build
+		BUILD_DIR=$(PROJECT_ROOT)/build/win32 $(MAKE) -f $(PROJECT_ROOT)/Makefile libs
 
 alltargetscheck:
 		make clean
-		CC="zig cc" CXX="zig c++" make debug
-		CC="zig cc" CXX="zig c++" make unit_tests
-		CC="zig cc" CXX="zig c++" make system_tests
+		make $(BUILD_DIR)
+		# We can't just build with zig cc
+		# because cimnodes fails to compile
+		# so we just don't compile imgui with zig cc
+
+		# CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) $(EXTERNAL_OBJS) imgui
+		# CC="zig cc" CXX="zig c++" make debug
+		# CC="zig cc" CXX="zig c++" make unit_tests
+		# CC="zig cc" CXX="zig c++" make system_tests
+		# make clean
+		# make $(BUILD_DIR)
+		# CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(EXTERNAL_OBJS) imgui
+		# CC="zig cc" CXX="zig c++" make release
+		# CC="zig cc" CXX="zig c++" make unit_tests
+		# CC="zig cc" CXX="zig c++" make system_tests
+
 		make clean
-		CC="zig cc" CXX="zig c++" make release
-		CC="zig cc" CXX="zig c++" make unit_tests
-		CC="zig cc" CXX="zig c++" make system_tests
-		make clean
+		make $(BUILD_DIR)
+		echo asan | figlet
 		make asan
+		echo test_asan | figlet
 		make test_asan
 		make clean
+		make $(BUILD_DIR)
+		echo msan | figlet
 		make msan
+		echo test_msan | figlet
 		make test_msan
 		make clean
+		make $(BUILD_DIR)
+		echo cross | figlet
 		make cross
+		echo wscli | figlet
 		make wscli_portable
 		make clean
+		make $(BUILD_DIR)
+		echo profile | figlet
 		make profile
 
 # Prevent intermediate files being deleted and rebuilt every time
-.SECONDARY: 	$(LIBBLASTPIT_OBJS) $(TEST_OBJS)
-targets:	$(BUILD_DIR) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES)
+# .SECONDARY: 	$(LIBBLASTPIT_OBJS) $(TEST_OBJS)
+
+targets:	$(BUILD_DIR) $(TEST_BINARIES)
 
 accessories:	ueye cameras images
 
-debug: 		debug_build | $(BUILD_DIR) .tags
-		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
-		@$(PROJECT_ROOT)/res/bin/run_after_build.sh
+asan:	targets
 
-debug_build:	.tags targets wscli python_targets imgui lvgl
+msan:	targets
 
-analyze_build:	targets
+release:	$(BUILD_DIR)
+		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(EXTERNAL_OBJS)
+		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) targets python_targets cameras wscli imgui
 
-asan_build:	targets
+.INTERMEDIATE: $(EXTERNAL_OBJS) $(UNITY_OBJS) $(LIBBLASTPIT_OBJS)
+$(BUILD_DIR)/external_libs.a:	$(EXTERNAL_OBJS) $(UNITY_OBJS)
+		ar -crs $@ $^
 
-msan_build:	targets
+$(BUILD_DIR)/libblastpit.a:	$(LIBBLASTPIT_OBJS)
+		ar -crs $@ $^
 
-release_build:	targets python_targets cameras wscli imgui
+# release:	targets python_targets cameras wscli imgui
 
-.SECONDEXPANSION:
-profile_build:	$(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) $$(TRACY_OBJS)
+# .SECONDEXPANSION:
+# profile:	$(BUILD_DIR)
+# 		$(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) $(TRACY_OBJS)
+#
+test:	targets
 
-test_build:	targets
+# cross:	$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
-cross_build:	$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
-
-ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
+# ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
 clean:
 		@rm -rf $(BUILD_DIR) 2>/dev/null || /bin/true
@@ -279,9 +294,11 @@ distclean:
 		git submodule foreach 'git clean -dfx' || /bin/true
 		rm -rf /home/$(shell whoami)/.cache/zig 2>/dev/null || /bin/true
 
+builddir:	$(BUILD_DIR)
+
 $(BUILD_DIR):
 	if [ ! -d "$(BUILD_DIR)" ]; then mkdir -p $(BUILD_DIR); fi
-	# ln -fs $(PROJECT_ROOT)/.git/untracked/myconfig.py $(BUILD_DIR)/
+	@# ln -fs $(PROJECT_ROOT)/.git/untracked/myconfig.py $(BUILD_DIR)/
 
 
 include $(SRC_DIR)/makefiles/cameras.mk
@@ -299,3 +316,4 @@ include $(SRC_DIR)/makefiles/tracy.mk
 include $(SRC_DIR)/makefiles/wscli.mk
 include $(SRC_DIR)/makefiles/helpers.mk
 include $(SRC_DIR)/makefiles/doxygen.mk
+include $(SRC_DIR)/makefiles/lmos.mk

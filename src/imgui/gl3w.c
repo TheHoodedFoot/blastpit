@@ -94,7 +94,10 @@ get_proc( const char* proc )
 {
 	void* res;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 	res = (void*)glXGetProcAddress( (const GLubyte*)proc );
+#pragma GCC diagnostic pop
 	if ( !res ) {
 		res = dlsym( libgl, proc );
 	}
@@ -760,6 +763,8 @@ PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC		     gl3wTextureStorage3DMultisampleEXT
 static void
 load_procs( void )
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 	gl3wCullFace		      = (PFNGLCULLFACEPROC)get_proc( "glCullFace" );
 	gl3wFrontFace		      = (PFNGLFRONTFACEPROC)get_proc( "glFrontFace" );
 	gl3wHint		      = (PFNGLHINTPROC)get_proc( "glHint" );
@@ -1396,4 +1401,5 @@ load_procs( void )
 		(PFNGLTEXTURESTORAGE2DMULTISAMPLEEXTPROC)get_proc( "glTextureStorage2DMultisampleEXT" );
 	gl3wTextureStorage3DMultisampleEXT =
 		(PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC)get_proc( "glTextureStorage3DMultisampleEXT" );
+#pragma GCC diagnostic push
 }

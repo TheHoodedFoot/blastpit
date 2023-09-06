@@ -173,7 +173,10 @@ startMultipassScript( const char* command, t_multipass_data* self )
 	/* Open the command for reading. */
 	self->fh_script_output = popen( command, "r" );
 	if ( self->fh_script_output == NULL ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 		perror( __FUNCTION__ );
+#pragma GCC diagnostic pop
 		return ( false );
 	}
 
@@ -310,3 +313,62 @@ mpImGuiLoop( void* multipass_data )
 //      message = (char *) ptr;
 //      printf("%s \n", message);
 // }
+
+
+int
+main( int argc, char** argv )
+{
+	// We avoid globals by passing a struct to the event loop
+	t_multipass_data self = {
+		.glfwdata	  = { .ctx	     = NULL,
+				      .width	     = DEFAULT_WINDOW_WIDTH,
+				      .height	     = DEFAULT_WINDOW_HEIGHT,
+				      .imguiCallback = mpImGuiLoop },
+		.fh_script_output = NULL,
+		.status		  = MULTIPASS_INACTIVE,
+		.svg		  = NULL,
+	};
+
+	// Parse the command line options
+	int opt;
+	while ( ( opt = getopt( argc, argv, "w:h:t" ) ) != -1 ) {
+		switch ( opt ) {
+			case 'n':
+				fprintf( stderr, "Display deactivated\n" );
+				self.glfwdata.imguiCallback = NULL;
+				break;
+			case 'w':
+				self.glfwdata.width = atoi( optarg );
+				break;
+			case 'h':
+				self.glfwdata.height = atoi( optarg );
+				break;
+			default:
+				fprintf( stderr,
+					 "Usage: %s [-n(o display)] [-w width] [-h height] [file...]\n",
+					 argv[0] );
+				exit( EXIT_FAILURE );
+		}
+	}
+
+	// Parse Inkscape SVG to obtain customer and filename
+	if ( argc == optind + 1 ) {
+		self.svg = FileToXML( argv[optind] );
+	}
+
+	// Initialise graphics
+	openGLSetup( &self.glfwdata );
+
+	// Main event loop
+	doEventLoop( &self.glfwdata, &self, mpEventLoop );
+
+	// Deactivate graphics
+	openGLShutdown( &self.glfwdata );
+
+	// Destructors
+	if ( self.svg != NULL ) {
+		mxmlDelete( self.svg );
+	}
+
+	return EXIT_SUCCESS;
+}

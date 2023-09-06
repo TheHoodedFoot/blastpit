@@ -4,6 +4,7 @@
 #include "mxml.h"
 #include "unity_fixture.h"  // MUST be before <stdlib.h>
 
+
 TEST_GROUP( inkCommonGroup );
 
 TEST_SETUP( inkCommonGroup ) {}
@@ -94,7 +95,7 @@ TEST_GROUP_RUNNER( inkCommonGroup )
 }
 
 static void
-runAllTests()
+runAllTests( void )
 {
 	RUN_TEST_GROUP( inkCommonGroup );
 }

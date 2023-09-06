@@ -1,5 +1,7 @@
 # Blastpit
 
+![CI Status](https://buildbot.47or.com/badges/blastpit.svg)
+
 ## Description
 
 ![Tentacle](/res/img/blastpit.png)

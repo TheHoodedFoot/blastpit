@@ -219,7 +219,10 @@ getCurrentDirectory( void )
 	if ( getcwd( cwd, sizeof( cwd ) ) != NULL ) {
 		printf( "Current working dir: %s\n", cwd );
 	} else {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 		perror( __FUNCTION__ );
+#pragma GCC diagnostic pop
 		return false;
 	}
 	return true;

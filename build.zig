@@ -1,57 +1,104 @@
+// Build file for a C project
+
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
 
-    // Standard target options allows the person running `zig build` to choose
-    // what target to build for. Here we do not override the defaults, which
-    // means any target is allowed, and the default is native. Other options
-    // for restricting supported target set are available.
-    const target = b.standardTargetOptions(.{});
+    // Target and release options
+    const target_opt = b.standardTargetOptions(.{});
+    const release_opt = b.standardReleaseOptions();
 
-    // Standard release options allow the person running `zig build` to select
-    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
+    // Add a conditional option
+    const tracy = b.option(bool, "tracy", "Enable Tracy profiler") orelse false;
 
-    _ = target;
-    _ = mode;
+    // First parameter is the name of the generated binary
+    // Second parameter is null because we don't have a zig executable
+    // If zig code is used, then the main() must be in the zig file
+    const exe = b.addExecutable("ig_template", null);
+    exe.setTarget(target_opt);
+    exe.setBuildMode(release_opt);
 
-    // // Executable
-    // const exe = b.addExecutable("wirer232", "src/wirer232.zig");
-    // exe.setTarget(target);
-    // exe.setBuildMode(mode);
-    // exe.install();
+    // common flags
+    // our source tree flags
+    // submodule flags
+    // debug flags
+    // release flags
+    // profile flags
+    // sanitizer flags
+    // cross flags
 
-    // const run_cmd = exe.run();
-    // run_cmd.step.dependOn(b.getInstallStep());
-    // if (b.args) |args| {
-    //     run_cmd.addArgs(args);
+    // We can store common flags and apply to multiple files
+    const cflags = [_][]const u8{
+        "-Wall",
+        "-Wextra",
+    };
+
+    // Second parameter is command line options
+    // exe.addCSourceFile("main.c", &cflags);
+    // We can turn off sanitizer per file
+    // exe.addCSourceFile("buffer.c", &[_][]const u8{"-fno-sanitize=undefined"});
+    // Or have per-file standards
+    // exe.addCSourceFile("buffer.c", &[_][]const u8{"-std=c90"});
+
+    // Compile multiple files
+    const sources = [_][]const u8{
+        "src/inkscape/ig_template.c",
+    };
+    exe.addCSourceFiles(&sources, &cflags);
+
+    // Conditional compilation
+    if (tracy) {
+        // Defines a macro like using a -D compiler flag
+        // Second argument is optional value of macro
+        exe.defineCMacro("TRACY_ENABLE", null);
+    }
+
+    // Per-target compilation
+    // if (exe.target.isWindows()) {
+    //     exe.addCSourceFile("windows.c", &[_][]const u8{});
+    // } else {
+    //     exe.addCSourceFile("linux.c", &[_][]const u8{});
     // }
 
-    // // Run target
-    // const run_step = b.step("run", "Run the app");
-    // run_step.dependOn(&run_cmd.step);
+    // Build will fail without linking libc
+    // If building C++ then we would add .cpp files above and use
+    // exe.linkLibCpp() in addition to exe.linkLibC()
+    exe.linkLibC();
+    // exe.linkLibCpp();
 
-    // // Include code kept in other .zig files
-    // exe.addPackagePath("libwirer232", "src/libwirer232.zig");
+    // Add extra libraries. This uses pkg-config
+    // exe.linkSystemLibrary("libcurl");
 
-    // // Build a static library
-    // const lib = b.addStaticLibrary("test_library", "src/libwirer232.zig");
-    // lib.setBuildMode(mode);
-    // lib.install();
+    // This adds search paths for include and library directories
+    // for when pkg-config cannot be used
+    exe.addIncludePath("src/include");
+    exe.addIncludePath("src/inkscape");
+    exe.addIncludePath("src/imgui");
+    exe.addIncludePath("src/submodules/cimgui");
+    exe.addIncludePath("src/submodules/cimgui/generator/output");
+    exe.addIncludePath("src/submodules/cimgui/imgui/examples/libs/glfw/include");
+    exe.addIncludePath("src/submodules/mxml");
+    exe.addIncludePath("src/submodules/sds");
+    exe.addIncludePath("src/submodules/cimnodes");
+    exe.addIncludePath("src/submodules/cimplot");
+    // exe.addLibraryPath("/tmp");
+    // This specifies the library by name (-lcurl)
+    // exe.linkSystemLibraryName("curl");
 
-    // // Unit test target
-    // const test_step = b.step("test", "Run library tests");
-    // var main_tests = b.addTest("test/test_wirer232.zig");
-    // main_tests.setBuildMode(mode);
-    // main_tests.addPackagePath("libwirer232", "src/libwirer232.zig");
-    // test_step.dependOn(&main_tests.step);
+    // We can also link static libraries
+    // exe.addObjectFile("libcurl.a");
+
+    // If we need per-file include paths, we use this approach
+    // exe.addCSourceFile("buffer.c", &[_][]const u8{"-I", "include_dir"});
+
+    exe.install();
 
     // Replace Makefile
     const make_step = b.step("make", "Build the project using make");
     make_step.makeFn = runMake;
 
     // If this is set as the default_step it will be run with every 'zig build'
-    b.default_step = make_step;
+    // b.default_step = make_step;
 
     // A custom step (ls -alh /tmp)
     const ls_step = b.step("ls", "List the contents of the /tmp directory");

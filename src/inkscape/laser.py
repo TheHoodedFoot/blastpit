@@ -625,6 +625,35 @@ class Laser(inkex.Effect):
             print(xml.xml().decode(), file=tmpxml)
             tmpxml.close()
 
+            # We also need to upload the LPs
+            blast = blastpy.blastpitNew()
+            result = blastpy.connectToServer(
+                blast, self.server, myconfig.WS_TIMEOUT_SHORT
+            )
+            if result != blastpy.kSuccess:
+                print("Can't connect to server (%d)" % result, file=sys.stderr)
+                fh.close()
+                sys.exit()
+
+            if blastpy.BpIsLmosUp(blast) != blastpy.kSuccess:
+                print("Lmos client could not be reached", file=sys.stderr)
+                fh.close()
+                sys.exit()
+
+            blastpy.BpQueueCommand(blast, blastpy.kClearLog)
+            blastpy.BpQueueCommand(blast, blastpy.kResetRetvalDb)
+            blastpy.BpUploadQueuedMessages(blast)
+
+            blastpy.BpQueueCommand(blast, blastpy.kClearQpSets)
+            for qpset in qpsets:
+                blastpy.BpQueueQpSet(
+                    blast, qpset[0], int(qpset[1]), int(qpset[2]), int(qpset[3])
+                )
+            blastpy.BpQueueCommand(blast, blastpy.kSaveQpSets)
+            blastpy.BpUploadQueuedMessages(blast)
+            blastpy.disconnectFromServer(blast)
+            blastpy.blastpitDelete(blast)
+
         fh.close()
 
 

@@ -2,9 +2,9 @@
 #define IG_COMMON
 
 #include "GLFW/glfw3.h"
-#include <libpq-fe.h>
-#include <mxml.h>
-#include <sds.h>
+// #include <libpq-fe.h>
+// #include <mxml.h>
+// #include <sds.h>
 #include <stdbool.h>
 
 

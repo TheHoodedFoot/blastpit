@@ -29,6 +29,7 @@
 
 #include "ig_common.h"
 #include "ig_database.h"
+#include "ink_common.h"
 #include "psql.h"
 
 
@@ -268,4 +269,64 @@ dbEventLoop( void* db_data )
 	// Let the ImGui event loop know if we want to continue or exit
 	// (true to continue or false to exit)
 	return !self->exit_event_loop;
+}
+
+int
+main( int argc, char** argv )
+{
+	// We avoid globals by having a struct passed to the event loop
+	t_database_data self = {
+		.exit_event_loop  = false,
+		.fh_script_output = NULL,
+		.svg		  = NULL,
+		.conn		  = NULL,
+
+		.glfwdata = { .ctx	     = NULL,
+			      .width	     = DEFAULT_WINDOW_WIDTH,
+			      .height	     = DEFAULT_WINDOW_HEIGHT,
+			      .imguiCallback = dbEventLoop },
+	};
+
+	// Parse the command line options
+	int opt;
+	while ( ( opt = getopt( argc, argv, "w:h:n" ) ) != -1 ) {
+		switch ( opt ) {
+			case 'n':
+				fprintf( stderr, "Display deactivated\n" );
+				self.glfwdata.imguiCallback = NULL;
+				break;
+			case 'w':
+				self.glfwdata.width = atoi( optarg );
+				break;
+			case 'h':
+				self.glfwdata.height = atoi( optarg );
+				break;
+			default:
+				fprintf( stderr,
+					 "Usage: %s [-n(o display)] [-w width] [-h height] [file...]\n",
+					 argv[0] );
+				exit( EXIT_FAILURE );
+		}
+	}
+
+	// Parse Inkscape SVG to obtain customer and filename
+	if ( argc == optind + 1 ) {
+		self.svg = FileToXML( argv[optind] );
+	}
+
+	// Initialise graphics
+	openGLSetup( &self.glfwdata );
+
+	// Main event loop
+	doEventLoop( &self.glfwdata, &self, NULL );
+
+	// Deactivate graphics
+	openGLShutdown( &self.glfwdata );
+
+	// Destructors
+	if ( self.svg != NULL ) {
+		mxmlDelete( self.svg );
+	}
+
+	return EXIT_SUCCESS;
 }

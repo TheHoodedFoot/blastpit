@@ -11,7 +11,7 @@ unit_tests: $(TEST_BINARIES) #$(BUILD_DIR)/_blastpy.so
 	@sh -c "if command -v passed &> /dev/null; then passed; fi"
 
 system_tests: $(BUILD_DIR)/_blastpy.so
-	@UBSAN_OPTIONS=print_stacktrace=1 sh -c "$(PROJECT_ROOT)/res/bin/testrunner.sh --long"
+	@UBSAN_OPTIONS=print_stacktrace=1 TRACY_NO_INVARIANT_CHECK=1 sh -c "$(PROJECT_ROOT)/res/bin/testrunner.sh --long"
 	@sh -c "if command -v passed &> /dev/null; then passed; fi"
 
 test_asan:

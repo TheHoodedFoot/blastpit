@@ -94,7 +94,7 @@ TEST_GROUP_RUNNER( inkCommonGroup )
 }
 
 static void
-runAllTests()
+runAllTests( void )
 {
 	RUN_TEST_GROUP( inkCommonGroup );
 }

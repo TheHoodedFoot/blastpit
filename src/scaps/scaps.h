@@ -21,17 +21,12 @@ typedef struct
 
 
 void demo( t_scaps_struct* this );
-void
-printhr( HRESULT hr );
+void printhr( HRESULT hr );
 
-int
-SetupCOM( t_scaps_struct* this );
-void
-ShutdownCOM( t_scaps_struct* this );
-void
-disableViewUpdate( _Samlight_clientEx* this );
-void
-enableViewUpdate( _Samlight_clientEx* this );
+int  SetupCOM( t_scaps_struct* this );
+void ShutdownCOM( t_scaps_struct* this );
+void disableViewUpdate( _Samlight_clientEx* this );
+void enableViewUpdate( _Samlight_clientEx* this );
 HRESULT
 createRectangle( _Samlight_clientEx* this,
 		 const char* name,
@@ -42,5 +37,4 @@ createRectangle( _Samlight_clientEx* this,
 		 double	     height,
 		 int	     pen );
 
-void
-demo( t_scaps_struct* this );
+void demo( t_scaps_struct* this );

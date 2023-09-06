@@ -19,7 +19,7 @@
 #include "lvgl.h"
 #include "lvgl_hal.h"
 #include "lvgl_multipass.h"
-#include "widgets/spinbox/lv_spinbox.h"
+// #include "widgets/spinbox/lv_spinbox.h"
 
 /*********************
  *      DEFINES

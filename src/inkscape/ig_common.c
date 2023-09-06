@@ -24,6 +24,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+// Tracy
+#ifdef TRACY_ENABLE
+// #include "Tracy.hpp"
+#include "TracyC.h"
+#else
+#define FrameMark
+#define TracyCFrameMark
+#endif
+
 #include "ig_common.h"
 
 
@@ -104,6 +113,7 @@ openGLSetup( t_glfw_data* glfwdata )
 		exit( EXIT_FAILURE );
 	}
 
+	glfwdata->ctx = NULL;  // Segfaults otherwise
 	gui_init( glfwdata->win, glfwdata->ctx, glfwdata->io );
 
 	// glfwSetWindowSizeCallback(win, onResize);
@@ -197,15 +207,17 @@ doEventLoop( t_glfw_data* glfwdata, void* callback_data, bool ( *headlessCallbac
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			igNewFrame();
+			TracyCFrameMark;  // Tracy
 
 			// Our ImGui widget callback
 			if ( !( *glfwdata->imguiCallback )( callback_data ) ) {
 				// ImGui has exited, so clear its pointer
 				glfwdata->imguiCallback = NULL;
-			} else {
-				// Render the widgets
-				imgui_render( &glfwdata->win, &glfwdata->width, &glfwdata->height );
 			}
+
+			igEndFrame();
+			// Render the widgets
+			imgui_render( &glfwdata->win, &glfwdata->width, &glfwdata->height );
 
 			if ( glfwWindowShouldClose( glfwdata->win ) ) {
 				// Window has been closed, so exit event loop

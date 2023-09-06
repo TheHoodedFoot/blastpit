@@ -9,7 +9,13 @@
 [submodule "src/submodules/cimgui"]
 	path = src/submodules/cimgui
 	url = https://github.com/cimgui/cimgui.git
+[submodule "src/submodules/cimnodes"]
+	path = src/submodules/cimnodes
+	url = https://github.com/cimgui/cimnodes.git
 	branch = master
+[submodule "src/submodules/cimplot"]
+	path = src/submodules/cimplot
+	url = https://github.com/cimgui/cimplot.git
 [submodule "src/submodules/unity"]
 	path = src/submodules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
@@ -81,12 +87,9 @@
 ; [submodule "src/submodules/svgpp"]
 ; 	path = src/submodules/svgpp
 ; 	url = https://github.com/svgpp/svgpp.git
-; [submodule "src/submodules/cimnodes"]
-; 	path = src/submodules/cimnodes
-; 	url = https://github.com/cimgui/cimnodes.git
-; [submodule "src/submodules/cimplot"]
-; 	path = src/submodules/cimplot
-; 	url = https://github.com/cimgui/cimplot.git
 ; [submodule "src/submodules/zig-imgui"]
 ; 	path = src/submodules/zig-imgui
 ; 	url = https://github.com/SpexGuy/Zig-ImGui.git
+[submodule "src/submodules/sds"]
+	path = src/submodules/sds
+	url = https://github.com/antirez/sds.git

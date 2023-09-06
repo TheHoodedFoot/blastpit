@@ -20,6 +20,7 @@ testSetup( void )
 	BPLOG( kLvlDebug, "%s: Creating server\n", __func__ );
 	server	   = blastpitNew();
 	int result = serverCreate( server, WS_SERVER_TEST ) == kSuccess;
+	(void)result;
 	assert( result );
 	BPLOG( kLvlDebug, "%s: Server created\n", __func__ );
 	BPLOG( kLvlDebug, "Server nc: %p\n", (void*)( (t_Websocket*)server->ws )->connection );

@@ -1,0 +1,1 @@
+(function(){"use strict";var n=document.createElement("div"),t;n.id="adbp-tester";t=document.createTextNode("an advertisement");n.appendChild(t);document.body.appendChild(n)})();

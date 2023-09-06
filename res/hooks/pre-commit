@@ -43,7 +43,8 @@ fi
 #stash
 
 # Run tests
-make clean
+# make clean
+# make builddir
 make -j$(nproc) debug || exit 1
 make -j$(nproc) unit_tests
 TEST_RESULT=$?

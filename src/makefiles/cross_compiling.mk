@@ -32,7 +32,8 @@ $(BUILD_DIR)/win32/debug/platforms $(BUILD_DIR)/win32/release/platforms:
 	cp -v $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/bin/Qt5{Core,Gui,Widgets}.dll $(BUILD_DIR)/win32/debug/
 	cp -v $(WINEPREFIX)/drive_c/Qt/Qt5.14.2/5.14.2/mingw73_32/plugins/platforms/qwindows.dll $(BUILD_DIR)/win32/debug/platforms
 
-qmake $(BUILD_DIR)/win32/Makefile: $(BUILD_DIR)
+qmake $(BUILD_DIR)/win32/Makefile: $(BUILD_DIR) images
+	mkdir -p $(BUILD_DIR)/win32
 	git describe --long --dirty --always > $(BUILD_DIR)/win32/git_version.txt
 	git branch --show-current > $(BUILD_DIR)/win32/git_branch.txt
 	git log -1 --pretty=format:%s > $(BUILD_DIR)/win32/git_description.txt
@@ -67,7 +68,7 @@ lmoslinx:	$(BUILD_DIR)/lmostray
 # Build Mongoose example by cross-compiling with Zig
 mongoose:	$(BUILD_DIR)
 	zig cc \
-		-target i386-windows-gnu \
+		-target x86-windows-gnu \
 		-DCS_PLATFORM=CS_P_WINDOWS \
 		-o $(BUILD_DIR)/mongoose.exe \
 		-I ~/projects/blastpit/src/submodules/mongoose \
@@ -76,11 +77,11 @@ mongoose:	$(BUILD_DIR)
 		src/submodules/mongoose/examples/simplest_web_server/simplest_web_server.c \
 		-lwsock32
 
-$(BUILD_DIR)/wscli:	$(BUILD_DIR)/wscli.o
-	$(CC) $(CPPFLAGS) $(SANFLAGS) -o $@ $^ $(LIBBLASTPIT_OBJS) $(WIN32FLAGS)
+$(BUILD_DIR)/wscli:	$(BUILD_DIR)/wscli.o $(BUILD_DIR)/libblastpit.a $(BUILD_DIR)/external_libs.a $(TRACY_OBJS)
+	$(CXX) $(CPPFLAGS) $(SANFLAGS) -o $@ $^ $(WIN32FLAGS)
 
 $(BUILD_DIR)/wscli.o:	$(LIBBLASTPIT_OBJS) $(LIBBLASTPIT_DIR)/wscli.c
-	$(CC) $(CPPFLAGS) $(SANFLAGS) -c -I $(LIBBLASTPIT_DIR)/libblastpit -I $(SUBMODULES_DIR)/mongoose -o $@ -x c $(LIBBLASTPIT_DIR)/wscli.c
+	$(CC) $(CPPFLAGS) $(SANFLAGS) -c -I $(LIBBLASTPIT_DIR)/libblastpit -I $(SUBMODULES_DIR)/mongoose -o $@ $(LIBBLASTPIT_DIR)/wscli.c
 
 
 server:	$(BUILD_DIR)/wscli

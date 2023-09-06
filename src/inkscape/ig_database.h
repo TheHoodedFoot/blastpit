@@ -12,11 +12,11 @@
 
 typedef struct
 {
-	mxml_node_t* svg;
-	FILE*	     fh_script_output;	// Output from popen()
 	bool	     exit_event_loop;
-	t_glfw_data  glfwdata;
+	FILE*	     fh_script_output;	// Output from popen()
+	mxml_node_t* svg;
 	PGconn*	     conn;
+	t_glfw_data  glfwdata;
 	t_db_query   customers;
 	t_db_query   fonts;
 	t_db_query   job;

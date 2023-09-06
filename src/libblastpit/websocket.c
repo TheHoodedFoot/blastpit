@@ -10,13 +10,15 @@
 #include "websocket.h"
 
 #ifdef TRACY_ENABLE
-#include "Tracy.hpp"
+// #include "Tracy.hpp"
 #include "TracyC.h"
 #else
 #define ZoneScoped
 #define TracyCAlloc( a, b )
 #define TracyCFree( a )
 #define TracyCPlot( a, b )
+#define TracyCZone( a, b )
+#define TracyCZoneEnd( a )
 #endif
 
 // static struct mg_http_serve_opts s_http_server_opts;
@@ -46,11 +48,13 @@ void
 websocketDelete( t_Websocket* websock )
 {  // Destructor
 
-	ZoneScoped;
+	TracyCZone( websocketDelete, true );
 
 	wsFlushMessages( websock );
 	free( websock );
 	TracyCFree( websock );
+
+	TracyCZoneEnd( websocketDelete );
 }
 
 void
@@ -75,7 +79,7 @@ void
 broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
 {  // Send message to client
 
-	ZoneScoped;
+	TracyCZone( broadcastServer, true );
 
 	for ( struct mg_connection* con = nconn->mgr->conns; con != NULL; con = con->next ) {
 		BPLOG( kLvlDebug, "broadcastServer: Sending message to client %p\n", (void*)con );
@@ -91,26 +95,30 @@ broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
 
 		// mg_mgr_poll(con->mgr, 0);
 	}
+
+	TracyCZoneEnd( broadcastServer );
 }
 
 void
 broadcastClient( struct mg_connection* nconn, const struct mg_str msg )
 {  // Send message to server
 
-	ZoneScoped;
+	TracyCZone( broadcastClient, true );
 
 	BPLOG( kLvlDebug, "%s: Client sending message to server\n", __func__ );
 	BPLOG( kLvlDebug, "nc: %p\n", (void*)nconn );
 	BPLOG( kLvlEverything, "msg.ptr: %p\n", (void*)msg.ptr );
 	BPLOG( kLvlDebug, "msg.len: %lu\n", msg.len );
 	mg_ws_send( nconn, msg.ptr, msg.len, WEBSOCKET_OP_TEXT );
+
+	TracyCZoneEnd( broadcastClient );
 }
 
 static void
 server_event_handler( struct mg_connection* nconn, int event, void* ev_data, void* fn_data )
 {  // Callback when listening server receives an event
 
-	ZoneScoped;
+	TracyCZone( server_event_handler, true );
 
 	switch ( event ) {
 		// case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
@@ -197,12 +205,14 @@ server_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 		default:
 			BPLOG( kLvlError, "server_event_handler: Unhandled event (%d)\n", event );
 	}
+
+	TracyCZoneEnd( server_event_handler );
 }
 
 static void
 client_event_handler( struct mg_connection* nconn, int event, void* ev_data, void* fn_data )
 {
-	ZoneScoped;
+	TracyCZone( client_event_handler, true );
 
 	(void)nconn;
 
@@ -260,6 +270,8 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 
 			void* destination =
 				memmove( message, websock_msg->data.ptr, (int)websock_msg->data.len );	// NOLINT
+
+			(void)destination;
 			assert( destination );
 			wsPushMessage( websock, message );
 			break;
@@ -290,13 +302,15 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 		default:
 			BPLOG( kLvlError, "client_event_handler: Unhandled event (%d)\n", event );
 	}
+
+	TracyCZoneEnd( client_event_handler );
 }
 
 int
 wsServerCreate( t_Websocket* self, const char* listen_address )
 {  // Server Constructor
 
-	ZoneScoped;
+	TracyCZone( wsServerCreate, true );
 
 	// assert(atoi(listen_address));
 
@@ -320,13 +334,15 @@ wsServerCreate( t_Websocket* self, const char* listen_address )
 	// s_http_server_opts.enable_directory_listing = "yes";
 
 	return kSuccess;
+
+	TracyCZoneEnd( wsServerCreate );
 }
 
 int
 wsServerDestroy( t_Websocket* self )
 {  // Server Destructor
 
-	ZoneScoped;
+	TracyCZone( wsServerDestroy, true );
 
 	if ( !self->connection ) {
 		return kNullResource;
@@ -342,13 +358,15 @@ wsServerDestroy( t_Websocket* self )
 
 	// wsFlushMessages(self);
 	return true;
+
+	TracyCZoneEnd( wsServerDestroy );
 }
 
 int
 wsClientCreate( t_Websocket* self, const char* address )
 {  // Client Constructor
 
-	ZoneScoped;
+	TracyCZone( wsClientCreate, true );
 
 	self->evloopIsRunning = true;
 
@@ -364,13 +382,15 @@ wsClientCreate( t_Websocket* self, const char* address )
 	self->connection->fn_data = self;
 
 	return kSuccess;
+
+	TracyCZoneEnd( wsClientCreate );
 }
 
 int
 wsClientDestroy( t_Websocket* self )
 {  // Client Destructor
 
-	ZoneScoped;
+	TracyCZone( wsClientDestroy, true );
 
 	if ( !self->connection ) {
 		return kNullResource;
@@ -386,6 +406,8 @@ wsClientDestroy( t_Websocket* self )
 	// wsFlushMessages(self);
 	// self = NULL;
 	return true;
+
+	TracyCZoneEnd( wsClientDestroy );
 }
 
 void
@@ -408,7 +430,7 @@ int
 wsServerSendMessage( t_Websocket* self, char* data )
 {  // Broadcast message to all clients
 
-	ZoneScoped;
+	TracyCZone( wsServerSendMessage, true );
 
 	BPLOG( kLvlDebug, "%s: Sending message to all clients\n", __func__ );
 	BPLOG( kLvlDebug, "Message size: %ld\n", strlen( data ) );
@@ -421,13 +443,15 @@ wsServerSendMessage( t_Websocket* self, char* data )
 	wsPoll( self );
 
 	return true;
+
+	TracyCZoneEnd( wsServerSendMessage );
 }
 
 int
 wsClientSendMessage( t_Websocket* self, char* data )
 {  // Send message to the server
 
-	ZoneScoped;
+	TracyCZone( wsClientSendMessage, true );
 
 	if ( !data ) {
 		return kInvalid;
@@ -439,13 +463,15 @@ wsClientSendMessage( t_Websocket* self, char* data )
 	// wsPoll(self);
 
 	return kSuccess;
+
+	TracyCZoneEnd( wsClientSendMessage );
 }
 
 void
 wsPushMessage( t_Websocket* self, void* data )
 {  // Add a message to the start of the message stack
 
-	ZoneScoped;
+	TracyCZone( wsPushMessage, true );
 
 	t_Node* message = (t_Node*)malloc( sizeof( t_Node ) );
 	TracyCAlloc( message, sizeof( t_Node ) );
@@ -454,13 +480,13 @@ wsPushMessage( t_Websocket* self, void* data )
 	message->data	   = data;
 	message->next	   = self->messageStack;
 	self->messageStack = message;
+
+	TracyCZoneEnd( wsPushMessage );
 }
 
 void*
 wsPopMessage( t_Websocket* self )
 {  // Remove newest message from stack
-
-	ZoneScoped;
 
 	return wsPopMessageAt( self, 0 );
 }

@@ -21,20 +21,20 @@ LVGL_FONT_OBJS += $(patsubst %.c,%.o,$(LVGL_FONT_SRCS))
 LVGL_HAL_SRCS += $(shell find $(LVGL_PATH)/hal -type f -name '*.c')
 LVGL_HAL_OBJS += $(patsubst %.c,%.o,$(LVGL_HAL_SRCS))
 
-LVGL_LAYOUTS_SRCS += $(shell find $(LVGL_PATH)/layouts -type f -name '*.c')
-LVGL_LAYOUTS_OBJS += $(patsubst %.c,%.o,$(LVGL_LAYOUTS_SRCS))
+# LVGL_LAYOUTS_SRCS += $(shell find $(LVGL_PATH)/layouts -type f -name '*.c')
+# LVGL_LAYOUTS_OBJS += $(patsubst %.c,%.o,$(LVGL_LAYOUTS_SRCS))
 
-LVGL_LIBS_SRCS += $(shell find $(LVGL_PATH)/libs -type f -name '*.c')
-LVGL_LIBS_OBJS += $(patsubst %.c,%.o,$(LVGL_LIBS_SRCS))
+# LVGL_LIBS_SRCS += $(shell find $(LVGL_PATH)/libs -type f -name '*.c')
+# LVGL_LIBS_OBJS += $(patsubst %.c,%.o,$(LVGL_LIBS_SRCS))
 
 LVGL_MISC_SRCS += $(shell find $(LVGL_PATH)/misc -type f -name '*.c')
 LVGL_MISC_OBJS += $(patsubst %.c,%.o,$(LVGL_MISC_SRCS))
 
-LVGL_OTHERS_SRCS += $(shell find $(LVGL_PATH)/others -type f -name '*.c')
-LVGL_OTHERS_OBJS += $(patsubst %.c,%.o,$(LVGL_OTHERS_SRCS))
+# LVGL_OTHERS_SRCS += $(shell find $(LVGL_PATH)/others -type f -name '*.c')
+# LVGL_OTHERS_OBJS += $(patsubst %.c,%.o,$(LVGL_OTHERS_SRCS))
 
-LVGL_THEMES_SRCS += $(shell find $(LVGL_PATH)/themes -type f -name '*.c')
-LVGL_THEMES_OBJS += $(patsubst %.c,%.o,$(LVGL_THEMES_SRCS))
+# LVGL_THEMES_SRCS += $(shell find $(LVGL_PATH)/themes -type f -name '*.c')
+# LVGL_THEMES_OBJS += $(patsubst %.c,%.o,$(LVGL_THEMES_SRCS))
 
 LVGL_WIDGETS_SRCS += $(shell find $(LVGL_PATH)/widgets -type f -name '*.c')
 LVGL_WIDGETS_OBJS += $(patsubst %.c,%.o,$(LVGL_WIDGETS_SRCS))
@@ -83,12 +83,12 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/lvgl/%.c | $(BUILD_DIR)
 lvgl_libs:		$(LVGL_LIBRARY) $(LV_DRIVERS_LIBRARY)
 
 $(LVGL_LIBRARY):	$(LVGL_LIBRARY_OBJS) | $(BUILD_DIR)
-			$(AR) -crs $@ $^
-			$(RANLIB) $@
+			ar -crs $@ $^
+			ranlib $@
 
 $(LV_DRIVERS_LIBRARY):	$(LV_DRIVERS_LIBRARY_OBJS) | $(BUILD_DIR)
-			$(AR) -crs $@ $^
-			$(RANLIB) $@
+			ar -crs $@ $^
+			ranlib $@
 
 %.o:			%.c
 			@# LVGL has unused parameters preventing compilation as at 25/10/22

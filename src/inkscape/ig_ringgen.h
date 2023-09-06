@@ -9,10 +9,10 @@
 
 typedef struct
 {
-	mxml_node_t* svg;
-	FILE*	     fh_script_output;	// Output from popen()
-	bool	     exit_event_loop;
 	t_glfw_data  glfwdata;
+	FILE*	     fh_script_output;	// Output from popen()
+	mxml_node_t* svg;
+	bool	     exit_event_loop;
 } t_ringgen_data;
 
 bool rgImGuiLoop( void* rg_data );

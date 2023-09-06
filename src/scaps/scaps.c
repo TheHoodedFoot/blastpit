@@ -263,32 +263,59 @@ GetNextPen()
 {  // Read the next pen from the file or EOF
 
 	t_pen_properties pen;
-	int		 retval;
+	pen.pen_number = 0;  // Pen 0 is invalid
+	char* line;
+	char* token;
+	int   i;
 
-	// TODO: Scanning the string here is liable to a buffer overflow
-	retval = wscanf_s( L"%d,%f,%f,%f,%f,%255S\n",
-			   &pen.pen_number,
-			   &pen.pen_power,
-			   &pen.pen_speed,
-			   &pen.pen_frequency,
-			   &pen.pen_ipg,
-			   pen.pen_name,
-			   (unsigned)_countof( pen.pen_name ) );
-	// printf( "Retval = %d\n", retval );
-	// wprintf( L"Read: %d, %f, %f, %f, %f, %s\n",
-	// 	 pen.pen_number,
-	// 	 pen.pen_power,
-	// 	 pen.pen_speed,
-	// 	 pen.pen_frequency,
-	// 	 pen.pen_ipg,
-	// 	 pen.pen_name );
+	line = fgets( pen.pen_name, sizeof( pen.pen_name ), stdin );
 
-	if ( retval == 6 ) {
-		return pen;
-	} else {
-		pen.pen_number = 0;
+	// If the line is empty, return EOF
+
+	if ( line == NULL ) {
 		return pen;
 	}
+
+	// Remove the newline character from the end of the string
+
+	line[strlen( line ) - 1] = '\0';
+
+	// Parse the CSV string
+
+	token = strtok( line, "," );
+	i     = 0;
+	while ( token != NULL ) {
+		switch ( i ) {
+			case 0:
+				pen.pen_number = atoi( token );
+				break;
+			case 1:
+				pen.pen_power = atof( token );
+				break;
+			case 2:
+				pen.pen_speed = atof( token );
+				break;
+			case 3:
+				pen.pen_frequency = atof( token );
+				break;
+			case 4:
+				pen.pen_ipg = atof( token );
+				break;
+			case 5: {
+				int len = strlen( token );
+				if ( len >= sizeof( pen.pen_name ) ) {
+					len = sizeof( pen.pen_name ) - 1;
+				}
+				memcpy( pen.pen_name, token, len );
+				pen.pen_name[len] = '\0';
+				break;
+			}
+		}
+		i++;
+		token = strtok( NULL, "," );
+	}
+
+	return pen;
 }
 
 void
@@ -319,7 +346,7 @@ UploadPens( t_scaps_struct* this )
 void
 DownloadPens( t_scaps_struct* this )
 {
-	for ( int i = 1; i < 10; i++ ) {
+	for ( int i = 1; i < 255; i++ ) {
 		getPen( this->scapsObject, i );
 	}
 }
