@@ -27,6 +27,8 @@ GIT_HOOKS       := ${PROJECT_ROOT}/$(shell git config --get core.hooksPath)
 
 CPPFLAGS        += $(addprefix -D, $(USER_DEFINES))
 CPPFLAGS        += -pthread -pipe
+CPPFLAGS        += -B/usr/libexec/mold
+# CPPFLAGS        += -fuse-ld=mold
 GIT_HEAD         = $(shell git rev-parse --short HEAD)
 MAXJOBS         ?= $(shell nproc)
 USERNAME        ?= $(shell whoami)
@@ -122,11 +124,14 @@ SANLDFLAGS                += -Wl,-rpath,$(shell dirname $(shell clang -print-fil
 # Library source and object files
 LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
 LIBMXML_OBJS        := $(patsubst %.c,$(BUILD_DIR)/%.o,$(LIBMXML_SRCS))
+WIN32_LIBMXML_OBJS        := $(patsubst %.c,$(BUILD_DIR)/win32/%.o,$(LIBMXML_SRCS))
 LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml.c
 
 LIBBLASTPIT_OBJS    :=$(patsubst %.c,$(BUILD_DIR)/%.o,$(LIBBLASTPIT_SOURCES))
+WIN32_LIBBLASTPIT_OBJS    :=$(patsubst %.c,$(BUILD_DIR)/win32/%.o,$(LIBBLASTPIT_SOURCES))
 
 EXTERNAL_OBJS := $(LIBMXML_OBJS) $(BUILD_DIR)/sds.o $(BUILD_DIR)/mongoose.o
+WIN32_EXTERNAL_OBJS := $(WIN32_LIBMXML_OBJS) $(BUILD_DIR)/win32/sds.o $(BUILD_DIR)/win32/mongoose.o
 
 LIBBLASTPIT_SRCS    := $(patsubst %.c,$(LIBBLASTPIT_DIR)/%.c,$(LIBBLASTPIT_SOURCES))
 LIBBLASTPIT_TARGETS := $(BUILD_DIR)/libblastpit.a $(BUILD_DIR)/_blastpy.so $(BUILD_DIR)/blastpy.py 
@@ -190,24 +195,28 @@ analyze:	clean
 		scan-build --status-bugs -maxloop 20 --force-analyze-debug-code --exclude $(SUBMODULES_DIR) --show-description -o $(BUILD_DIR) $(MAKE) -f $(PROJECT_ROOT)/Makefile targets
 
 profile:	$(BUILD_DIR)
-		$(MAKE) $(EXTERNAL_OBJS)
-		CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) $(TRACY_OBJS) targets python_targets wscli imgui
+		# CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" echo \${CC} \$(CXX) \$(CPPFLAGS) \$(CXXFLAGS) \$(TRACY_OBJS)
+		# exit 1
+		$(MAKE) CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(INCFLAGS) $(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" EXTERNAL_CPPFLAGS="$(PROFILE_EXTERNAL_CPPFLAGS)" $(BUILD_DIR)/TracyClient.o
+		$(MAKE) CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(INCFLAGS) $(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" EXTERNAL_CPPFLAGS="$(PROFILE_EXTERNAL_CPPFLAGS)" $(EXTERNAL_OBJS)
+		$(MAKE) CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(INCFLAGS) $(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) targets python_targets wscli imgui
+		# CC="$(PROFILE_CC)" CXX="$(PROFILE_CXX)" CPPFLAGS="$(PROFILE_CPPFLAGS)" CXXFLAGS="$(PROFILE_CXXFLAGS)" INCFLAGS="$(PROFILE_INCFLAGS)" TRACY_OBJS="$(BUILD_DIR)/TracyClient.o" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) $(TRACY_OBJS) targets python_targets wscli imgui
 		# $(MAKE) -f $(PROJECT_ROOT)/Makefile profile_build || echo "If building tracy fails, git-clean the tracy directory and retry"
 
 		pkill capture-release || /bin/true
 		$(MAKE) -f $(PROJECT_ROOT)/Makefile tracycap
 
-		sleep 1
-		# This binary should contain tracy profiling as the statistics are saved in the /tmp directory
-		# We have to disable the check on the webserver for some reason
+		# sleep 1
+		# # This binary should contain tracy profiling as the statistics are saved in the /tmp directory
+		# # We have to disable the check on the webserver for some reason
 		TRACY_NO_INVARIANT_CHECK=1 $(BUILD_DIR)/ut_websocket_x
-		
-		# Give it time to write the output
+		#
+		# # Give it time to write the output
 		sleep 2
 		$(MAKE) -f $(PROJECT_ROOT)/Makefile tracyexport
 
-cross:		pngs
-		BUILD_DIR=$(PROJECT_ROOT)/build/win32 $(MAKE) -f $(PROJECT_ROOT)/Makefile libs
+# cross:		pngs
+# 		BUILD_DIR=$(PROJECT_ROOT)/build/win32 $(MAKE) -f $(PROJECT_ROOT)/Makefile libs
 
 alltargetscheck:
 		make clean
@@ -265,11 +274,17 @@ release:	$(BUILD_DIR)
 		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(EXTERNAL_OBJS)
 		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) targets python_targets cameras wscli imgui
 
-.INTERMEDIATE: $(EXTERNAL_OBJS) $(UNITY_OBJS) $(LIBBLASTPIT_OBJS)
+.INTERMEDIATE: $(EXTERNAL_OBJS) $(UNITY_OBJS) $(LIBBLASTPIT_OBJS) $(BUILD_DIR)/TracyClient.o
 $(BUILD_DIR)/external_libs.a:	$(EXTERNAL_OBJS) $(UNITY_OBJS)
 		ar -crs $@ $^
 
 $(BUILD_DIR)/libblastpit.a:	$(LIBBLASTPIT_OBJS)
+		ar -crs $@ $^
+
+$(BUILD_DIR)/libtracy.a:	$(BUILD_DIR)/TracyClient.o
+		ar -crs $@ $^
+
+$(BUILD_DIR)/libunity.a:	$(BUILD_DIR)/unity.o $(BUILD_DIR)/unity_fixture.o
 		ar -crs $@ $^
 
 # release:	targets python_targets cameras wscli imgui
@@ -285,7 +300,7 @@ test:	targets
 # ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
 clean:
-		@rm -rf $(BUILD_DIR) 2>/dev/null || /bin/true
+		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* 2>/dev/null || /bin/true
 		@rm -rf $(PROJECT_ROOT)/.{cache,ccls-cache,pytest_cache} 2>/dev/null || /bin/true
 		@rm -f $(PROJECT_ROOT)/{.tags,compile_command*.json} >/dev/null 2>/dev/null || /bin/true
 

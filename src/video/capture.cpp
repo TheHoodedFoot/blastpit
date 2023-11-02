@@ -1,3 +1,4 @@
+#include "opencv2/highgui.hpp"
 #include "opencv2/opencv.hpp"
 #include "opencv2/videoio/legacy/constants_c.h"
 #include <iostream>
@@ -30,8 +31,8 @@ main( int, char** )
 	cap.set( CV_CAP_PROP_FRAME_WIDTH, CAPTURE_X_RESOLUTION );
 	cap.set( CV_CAP_PROP_FRAME_HEIGHT, CAPTURE_Y_RESOLUTION );
 
-	String windowName = "Microscope Capture";  // Name of the window
-	namedWindow( windowName );		   // Create a window
+	String windowName = "Microscope Capture";      // Name of the window
+	namedWindow( windowName, WINDOW_GUI_NORMAL );  // Create a window
 
 	for ( ;; ) {
 		Mat frame;
@@ -64,8 +65,9 @@ main( int, char** )
 		} else {
 #endif
 			imshow( windowName, colourframe );  // Show our image inside the created window.
-			int key;
-			if ( ( key = waitKey( 1 ) ) == 32 ) {
+
+			int key = waitKey( 1 );
+			if ( key == 32 || key == 13 ) {
 				cout << "Key: " << key << endl;
 
 				std::string filename;
@@ -87,7 +89,9 @@ main( int, char** )
 				}
 				destroyWindow( windowName );  // destroy the created window
 
-				return 0;
+				if ( key == 32 ) {
+					return 0;
+				}
 			}
 			if ( key == 27 ) {
 				return -1;

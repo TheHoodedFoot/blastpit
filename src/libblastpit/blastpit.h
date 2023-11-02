@@ -30,144 +30,216 @@ extern "C"
 
 #define BP_EMPTY_STRING "<empty string>"
 
-	// enum BpReply {
-	// 	kNack,
-	// 	kAck,
-	// };
-
-	/* The following preprocessor macros are used to generate
-	 * both the enums and the enum name strings. The #pragmas are used
-	 * to squash the unused variable compiler error. */
-
-#define GENERATE_ENUM( ENUM )	  ENUM,
-#define GENERATE_STRING( STRING ) #STRING,
-
-// kInvalidCommand must be kept as the first item (index=0),
-// so that bad strings, which evaluate to 0, will be discovered
-#define FOREACH_BPCOMMAND( COMMAND )                                                                                   \
-	COMMAND( kInvalidCommand )                                                                                     \
-	COMMAND( kAddQpSet )                                                                                           \
-	COMMAND( kCancelJob )                                                                                          \
-	COMMAND( kClearLayout )                                                                                        \
-	COMMAND( kClearLog )                                                                                           \
-	COMMAND( kClearQpSets )                                                                                        \
-	COMMAND( kConnectSignals )                                                                                     \
-	COMMAND( kCreateLMOS )                                                                                         \
-	COMMAND( kDestroyLMOS )                                                                                        \
-	COMMAND( kDisconnectSignals )                                                                                  \
-	COMMAND( kEmergencyStop )                                                                                      \
-	COMMAND( kExit )                                                                                               \
-	COMMAND( kForceRedraw )                                                                                        \
-	COMMAND( kGetGeoList )                                                                                         \
-	COMMAND( kGetPng )                                                                                             \
-	COMMAND( kGetVersion )                                                                                         \
-	COMMAND( kGetW )                                                                                               \
-	COMMAND( kHideLMOS )                                                                                           \
-	COMMAND( kImportXML )                                                                                          \
-	COMMAND( kInitMachine )                                                                                        \
-	COMMAND( kIsLmosRunning )                                                                                      \
-	COMMAND( kLayerSetExportable )                                                                                 \
-	COMMAND( kLayerSetHeight )                                                                                     \
-	COMMAND( kLayerSetLaserable )                                                                                  \
-	COMMAND( kLayerSetVisible )                                                                                    \
-	COMMAND( kLoadJob )                                                                                            \
-	COMMAND( kLoadVLM )                                                                                            \
-	COMMAND( kMOSetLaserable )                                                                                     \
-	COMMAND( kMOUnsetLaserable )                                                                                   \
-	COMMAND( kMoveW )                                                                                              \
-	COMMAND( kMoveZ )                                                                                              \
-	COMMAND( kPatchFlexibleShadows )                                                                               \
-	COMMAND( kPhoto )                                                                                              \
-	COMMAND( kReadByte )                                                                                           \
-	COMMAND( kReadIOBit )                                                                                          \
-	COMMAND( kReference )                                                                                          \
-	COMMAND( kReply )                                                                                              \
-	COMMAND( kResetRetvalDb )                                                                                      \
-	COMMAND( kSaveQpSets )                                                                                         \
-	COMMAND( kSaveVLM )                                                                                            \
-	COMMAND( kSelfTest )                                                                                           \
-	COMMAND( kSetDimension )                                                                                       \
-	COMMAND( kSetMOLayer )                                                                                         \
-	COMMAND( kSetPosValues )                                                                                       \
-	COMMAND( kSetQualityParam )                                                                                    \
-	COMMAND( kShowLMOS )                                                                                           \
-	COMMAND( kShowMarkingArea )                                                                                    \
-	COMMAND( kSignal )                                                                                             \
-	COMMAND( kStartMarking )                                                                                       \
-	COMMAND( kStartPosHelp )                                                                                       \
-	COMMAND( kStatus )                                                                                             \
-	COMMAND( kStopMarking )                                                                                        \
-	COMMAND( kStopPosHelp )                                                                                        \
-	COMMAND( kSuppressRedraw )                                                                                     \
-	COMMAND( kTermMachine )                                                                                        \
-	COMMAND( kWriteByte )                                                                                          \
-	COMMAND( kWriteIoBit )                                                                                         \
-	COMMAND( kZoomWindow )
-
-#define FOREACH_RETVAL( RETVAL )                                                                                       \
-	RETVAL( kFailure )                                                                                             \
-	RETVAL( kSuccess )                                                                                             \
-	RETVAL( kAlarm )                                                                                               \
-	RETVAL( kAllocationFailure )                                                                                   \
-	RETVAL( kAlreadyInUse )                                                                                        \
-	RETVAL( kBadCommand )                                                                                          \
-	RETVAL( kBadLogic )                                                                                            \
-	RETVAL( kBadParam )                                                                                            \
-	RETVAL( kBadXml )                                                                                              \
-	RETVAL( kCommandFailed )                                                                                       \
-	RETVAL( kConnectionFailure )                                                                                   \
-	RETVAL( kCurrentChanged )                                                                                      \
-	RETVAL( kException )                                                                                           \
-	RETVAL( kFreqChanged )                                                                                         \
-	RETVAL( kImageBegin )                                                                                          \
-	RETVAL( kImageEnd )                                                                                            \
-	RETVAL( kImageEnd2 )                                                                                           \
-	RETVAL( kInfo )                                                                                                \
-	RETVAL( kJobBegin )                                                                                            \
-	RETVAL( kJobEnd )                                                                                              \
-	RETVAL( kMessageMap )                                                                                          \
-	RETVAL( kMessageQueued )                                                                                       \
-	RETVAL( kMoBegin )                                                                                             \
-	RETVAL( kMoEnd )                                                                                               \
-	RETVAL( kNullResource )                                                                                        \
-	RETVAL( kPlcEvent )                                                                                            \
-	RETVAL( kQueued )                                                                                              \
-	RETVAL( kReplyTimeout )                                                                                        \
-	RETVAL( kSetterFailure )                                                                                       \
-	RETVAL( kInvalid = -1 )                                                                                        \
-	RETVAL( kMultipleCommands = -2 )                                                                               \
-	RETVAL( kNotFound = -3 )
-
-#define FOREACH_DEBUGLEVEL( LEVEL )                                                                                    \
-	LEVEL( kLvlOff )                                                                                               \
-	LEVEL( kLvlCritical )                                                                                          \
-	LEVEL( kLvlError )                                                                                             \
-	LEVEL( kLvlWarn )                                                                                              \
-	LEVEL( kLvlInfo )                                                                                              \
-	LEVEL( kLvlDebug )                                                                                             \
-	LEVEL( kLvlEverything )
-
-	// We cannot use negative numbers here, because it would generate
-	// negative array offsets for the string arrays.
 	enum BpCommand
 	{
-		FOREACH_BPCOMMAND( GENERATE_ENUM )
+		kInvalidCommand,
+		kAddQpSet,
+		kCancelJob,
+		kClearLayout,
+		kClearLog,
+		kClearQpSets,
+		kConnectSignals,
+		kCreateLMOS,
+		kDestroyLMOS,
+		kDisconnectSignals,
+		kEmergencyStop,
+		kExit,
+		kForceRedraw,
+		kGetGeoList,
+		kGetPng,
+		kGetVersion,
+		kGetW,
+		kHideLMOS,
+		kImportXML,
+		kInitMachine,
+		kIsLmosRunning,
+		kLayerSetExportable,
+		kLayerSetHeight,
+		kLayerSetLaserable,
+		kLayerSetVisible,
+		kLoadJob,
+		kLoadVLM,
+		kMOSetLaserable,
+		kMOUnsetLaserable,
+		kMoveW,
+		kMoveZ,
+		kPatchFlexibleShadows,
+		kPhoto,
+		kReadByte,
+		kReadIOBit,
+		kReference,
+		kReply,
+		kResetRetvalDb,
+		kSaveQpSets,
+		kSaveVLM,
+		kSelfTest,
+		kSetDimension,
+		kSetMOLayer,
+		kSetPosValues,
+		kSetQualityParam,
+		kShowLMOS,
+		kShowMarkingArea,
+		kSignal,
+		kStartMarking,
+		kStartPosHelp,
+		kStatus,
+		kStopMarking,
+		kStopPosHelp,
+		kSuppressRedraw,
+		kTermMachine,
+		kWriteByte,
+		kWriteIoBit,
+		kZoomWindow,
 	};
 	enum bpRetval
 	{
-		FOREACH_RETVAL( GENERATE_ENUM )
+		kFailure,
+		kSuccess,
+		kAlarm,
+		kAllocationFailure,
+		kAlreadyInUse,
+		kBadCommand,
+		kBadLogic,
+		kBadParam,
+		kBadXml,
+		kCommandFailed,
+		kConnectionFailure,
+		kCurrentChanged,
+		kException,
+		kFreqChanged,
+		kImageBegin,
+		kImageEnd,
+		kImageEnd2,
+		kInfo,
+		kJobBegin,
+		kJobEnd,
+		kMessageMap,
+		kMessageQueued,
+		kMoBegin,
+		kMoEnd,
+		kNullResource,
+		kPlcEvent,
+		kQueued,
+		kReplyTimeout,
+		kSetterFailure,
+		kInvalid	  = -1,
+		kMultipleCommands = -2,
+		kNotFound	  = -3,
 	};
 	enum BpDebugLevel
 	{
-		FOREACH_DEBUGLEVEL( GENERATE_ENUM )
+		kLvlOff,
+		kLvlCritical,
+		kLvlError,
+		kLvlWarn,
+		kLvlInfo,
+		kLvlDebug,
+		kLvlEverything,
 	};
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
-	static const char* bpCommandString[]	= { FOREACH_BPCOMMAND( GENERATE_STRING ) };
-	static const char* bpRetvalString[]	= { FOREACH_RETVAL( GENERATE_STRING ) };
-	static const char* bpDebugLevelString[] = { FOREACH_DEBUGLEVEL( GENERATE_STRING ) };
+
+	static const char* bpCommandString[] = {
+		"kInvalidCommand",
+		"kAddQpSet",
+		"kCancelJob",
+		"kClearLayout",
+		"kClearLog",
+		"kClearQpSets",
+		"kConnectSignals",
+		"kCreateLMOS",
+		"kDestroyLMOS",
+		"kDisconnectSignals",
+		"kEmergencyStop",
+		"kExit",
+		"kForceRedraw",
+		"kGetGeoList",
+		"kGetPng",
+		"kGetVersion",
+		"kGetW",
+		"kHideLMOS",
+		"kImportXML",
+		"kInitMachine",
+		"kIsLmosRunning",
+		"kLayerSetExportable",
+		"kLayerSetHeight",
+		"kLayerSetLaserable",
+		"kLayerSetVisible",
+		"kLoadJob",
+		"kLoadVLM",
+		"kMOSetLaserable",
+		"kMOUnsetLaserable",
+		"kMoveW",
+		"kMoveZ",
+		"kPatchFlexibleShadows",
+		"kPhoto",
+		"kReadByte",
+		"kReadIOBit",
+		"kReference",
+		"kReply",
+		"kResetRetvalDb",
+		"kSaveQpSets",
+		"kSaveVLM",
+		"kSelfTest",
+		"kSetDimension",
+		"kSetMOLayer",
+		"kSetPosValues",
+		"kSetQualityParam",
+		"kShowLMOS",
+		"kShowMarkingArea",
+		"kSignal",
+		"kStartMarking",
+		"kStartPosHelp",
+		"kStatus",
+		"kStopMarking",
+		"kStopPosHelp",
+		"kSuppressRedraw",
+		"kTermMachine",
+		"kWriteByte",
+		"kWriteIoBit",
+		"kZoomWindow",
+	};
+	static const char* bpRetvalString[] = {
+		"kFailure",
+		"kSuccess",
+		"kAlarm",
+		"kAllocationFailure",
+		"kAlreadyInUse",
+		"kBadCommand",
+		"kBadLogic",
+		"kBadParam",
+		"kBadXml",
+		"kCommandFailed",
+		"kConnectionFailure",
+		"kCurrentChanged",
+		"kException",
+		"kFreqChanged",
+		"kImageBegin",
+		"kImageEnd",
+		"kImageEnd2",
+		"kInfo",
+		"kJobBegin",
+		"kJobEnd",
+		"kMessageMap",
+		"kMessageQueued",
+		"kMoBegin",
+		"kMoEnd",
+		"kNullResource",
+		"kPlcEvent",
+		"kQueued",
+		"kReplyTimeout",
+		"kSetterFailure",
+		"kInvalid = -1",
+		"kMultipleCommands = -2",
+		"kNotFound = -3",
+	};
+	static const char* bpDebugLevelString[] = {
+		"kLvlOff", "kLvlCritical", "kLvlError", "kLvlWarn", "kLvlInfo", "kLvlDebug", "kLvlEverything",
+	};
+
 #pragma GCC diagnostic pop
+
 #define BPCOMMAND_MAX  (int)( sizeof( bpCommandString ) / sizeof( bpCommandString[0] ) )
 #define RETVAL_MAX     (int)( sizeof( bpRetvalString ) / sizeof( bpRetvalString[0] ) )
 #define DEBUGLEVEL_MAX (int)( sizeof( BpDebugLevelString ) / sizeof( BpDebugLevelString[0] ) )

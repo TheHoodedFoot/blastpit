@@ -391,7 +391,11 @@ class Laser(inkex.Effect):
                     geo = None
                     group = None
 
-        if self.mode == "save" or self.mode == "upload":
+        if (
+            self.mode == "save"
+            or self.mode == "upload"
+            or self.mode == "savexml"
+        ):
             blast = blastpy.blastpitNew()
             result = blastpy.connectToServer(
                 blast, self.server, myconfig.WS_TIMEOUT_SHORT
@@ -418,23 +422,24 @@ class Laser(inkex.Effect):
             blastpy.BpQueueCommand(blast, blastpy.kSaveQpSets)
             blastpy.BpUploadQueuedMessages(blast)
 
-            id = blastpy.BpQueueCommandArgs(
-                blast,
-                blastpy.kImportXML,
-                str(xml.xml()),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
-            blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(
-                blast, id.id, myconfig.WS_TIMEOUT_UPLOAD
-            )
+            if self.mode == "save" or self.mode == "upload":
+                id = blastpy.BpQueueCommandArgs(
+                    blast,
+                    blastpy.kImportXML,
+                    str(xml.xml()),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                blastpy.BpUploadQueuedMessages(blast)
+                blastpy.BpWaitForReplyOrTimeout(
+                    blast, id.id, myconfig.WS_TIMEOUT_UPLOAD
+                )
 
             id = blastpy.BpQueueCommandArgs(
                 blast,
@@ -449,6 +454,10 @@ class Laser(inkex.Effect):
                 "60",
                 None,
             )
+
+            # Finally, show lmos window
+            blastpy.BpDisplayLmosWindow(blast, 1)
+
             blastpy.BpUploadQueuedMessages(blast)
             blastpy.BpWaitForReplyOrTimeout(
                 blast, id.id, myconfig.WS_TIMEOUT_LONG
@@ -595,10 +604,6 @@ class Laser(inkex.Effect):
                 )
                 if id.retval != blastpy.kSuccess:
                     print("Error patching shadows", file=sys.stderr)
-
-            # Finally, show lmos window
-            blastpy.BpDisplayLmosWindow(blast, 1)
-            blastpy.BpUploadQueuedMessages(blast)
 
         if self.mode == "save" or self.mode == "upload":
             blastpy.disconnectFromServer(blast)

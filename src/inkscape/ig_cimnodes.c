@@ -29,6 +29,28 @@
 #include "ig_common.h"
 #include "ink_common.h"
 
+#ifndef IM_COL32_R_SHIFT
+#ifdef IMGUI_USE_BGRA_PACKED_COLOR
+#define IM_COL32_R_SHIFT 16
+#define IM_COL32_G_SHIFT 8
+#define IM_COL32_B_SHIFT 0
+#define IM_COL32_A_SHIFT 24
+#define IM_COL32_A_MASK	 0xFF000000
+#else
+#define IM_COL32_R_SHIFT 0
+#define IM_COL32_G_SHIFT 8
+#define IM_COL32_B_SHIFT 16
+#define IM_COL32_A_SHIFT 24
+#define IM_COL32_A_MASK	 0xFF000000
+#endif
+#endif
+#define IM_COL32( R, G, B, A )                                                                                         \
+	( ( (ImU32)( A ) << IM_COL32_A_SHIFT ) | ( (ImU32)( B ) << IM_COL32_B_SHIFT ) |                                \
+	  ( (ImU32)( G ) << IM_COL32_G_SHIFT ) | ( (ImU32)( R ) << IM_COL32_R_SHIFT ) )
+#define IM_COL32_WHITE	     IM_COL32( 255, 255, 255, 255 )  // Opaque white = 0xFFFFFFFF
+#define IM_COL32_BLACK	     IM_COL32( 0, 0, 0, 255 )	     // Opaque black
+#define IM_COL32_BLACK_TRANS IM_COL32( 0, 0, 0, 0 )	     // Transparent black = 0x00000000
+
 
 // ░█▀▀░▀█▀░█▄█░█▀█░█▀█░█▀▄░█▀▀░█▀▀
 // ░█░░░░█░░█░█░█░█░█░█░█░█░█▀▀░▀▀█
@@ -43,21 +65,62 @@ cimCreateWidgets( t_cimnodes_data* self )
 	igBegin( "Cimnodes Example", NULL, 0 );
 	imnodes_BeginNodeEditor();
 
+	imnodes_PushColorStyle( ImNodesCol_Link, IM_COL32( 127, 255, 0, 255 ) );
+	imnodes_PushColorStyle( ImNodesCol_LinkSelected, IM_COL32( 127, 255, 127, 255 ) );
+	imnodes_PushColorStyle( ImNodesCol_LinkHovered, IM_COL32( 127, 255, 127, 255 ) );
+
+	imnodes_PushColorStyle( ImNodesCol_TitleBar, IM_COL32( 0, 255, 0, 255 ) );
 	imnodes_BeginNode( 1 );
 	imnodes_BeginNodeTitleBar();
-	igText( "Example Node", NULL );
+	igText( "SVG", NULL );
 	imnodes_EndNodeTitleBar();
+	imnodes_PopColorStyle();
 
-	imnodes_BeginInputAttribute( 2, ImNodesPinShape_Circle );
-	igText( "Input" );
-	imnodes_EndInputAttribute();
+	// imnodes_BeginInputAttribute( 2, ImNodesPinShape_Circle );
+	// igText( "Input" );
+	// imnodes_EndInputAttribute();
 
-	imnodes_BeginOutputAttribute( 3, ImNodesPinShape_Circle );
-	igIndent( 40 );
-	igText( "Output" );
+	imnodes_PushColorStyle( ImNodesCol_Pin, IM_COL32( 255, 0, 0, 255 ) );
+	imnodes_BeginOutputAttribute( 11, ImNodesPinShape_CircleFilled );
+	imnodes_PopColorStyle();
+	// igIndent( 40 );
+	igText( "Geometry" );
+	imnodes_EndOutputAttribute();
+	imnodes_BeginOutputAttribute( 12, ImNodesPinShape_Circle );
+	// igIndent( 40 );
+	igText( "Job" );
 	imnodes_EndOutputAttribute();
 
 	imnodes_EndNode();
+	imnodes_PopColorStyle();
+
+
+	imnodes_PushColorStyle( ImNodesCol_TitleBar, IM_COL32( 255, 0, 0, 255 ) );
+	imnodes_BeginNode( 2 );
+	imnodes_BeginNodeTitleBar();
+	igText( "Layer Split", NULL );
+	imnodes_EndNodeTitleBar();
+
+	imnodes_BeginInputAttribute( 13, ImNodesPinShape_Circle );
+	igText( "Geometry" );
+	imnodes_EndInputAttribute();
+
+	imnodes_BeginOutputAttribute( 14, ImNodesPinShape_Circle );
+	igIndent( 40 );
+	igText( "Layer" );
+	imnodes_EndOutputAttribute();
+	imnodes_BeginOutputAttribute( 15, ImNodesPinShape_Circle );
+	igIndent( 40 );
+	igText( "Non-Layer" );
+	imnodes_EndOutputAttribute();
+
+	imnodes_EndNode();
+
+	imnodes_PopColorStyle();  // Link
+	imnodes_PopColorStyle();  // Link
+	imnodes_PopColorStyle();  // Link
+
+	imnodes_Link( 26, 11, 13 );
 	imnodes_EndNodeEditor();
 
 	// TODO: make the context static, dont create and destroy every frame

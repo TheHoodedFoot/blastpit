@@ -1,0 +1,770 @@
+[
+  uuid(18213696-A9C9-11D1-A220-0060973058F6),
+  helpstring("Dispatch interface for LMOSActX Control"),
+  helpcontext(0x00000003),
+  hidden,
+  nonextensible
+]
+dispinterface _DLMOSActX {
+    properties:
+        [id(0x00000001), helpcontext(0x0000001d)        
+]
+        BSTR FileName;
+        [id(0x00000002), hidden        
+]
+        short Dummy1;
+        [id(0x00000003), hidden        
+]
+        short Dummy2;
+        [id(0x00000004), helpcontext(0x00000029)        
+]
+        VARIANT_BOOL HasMatrix;
+    methods:
+        [id(0xfffffdd8)]
+        void AboutBox();
+        [id(0x00000005), helpcontext(0x0000004c)]
+        void ShowMatrixCell();
+        [id(0x00000006), helpcontext(0x0000004e)]
+        void ShowWholeDrawing();
+        [id(0x00000007), helpcontext(0x0000004f)]
+        VARIANT_BOOL StartMarking();
+        [id(0x00000008), helpcontext(0x00000050)]
+        VARIANT_BOOL StopMarking();
+        [id(0x00000009), helpcontext(0x00000015)]
+        VARIANT_BOOL CancelJob();
+        [id(0x0000000a), helpcontext(0x0000004a)]
+        VARIANT_BOOL SetText(
+                        BSTR ObjectName, 
+                        BSTR VariableValue);
+        [id(0x0000000b), helpcontext(0x00000028)]
+        BSTR GetText(BSTR ObjectName);
+        [id(0x0000000c), restricted, hidden]
+        VARIANT_BOOL SetLogo(
+                        BSTR ObjectName, 
+                        BSTR VariableValue);
+        [id(0x0000000d), restricted, hidden]
+        BSTR GetLogo(BSTR ObjectName);
+        [id(0x0000000e), helpcontext(0x0000001f)]
+        BSTR GetMarkingFilesPath();
+        [id(0x0000000f)]
+        BSTR GetLogoFilesPath();
+        [id(0x00000010), helpcontext(0x00000049)]
+        VARIANT_BOOL SetPosValues(
+                        BSTR ObjectName, 
+                        double dX, 
+                        double dY, 
+                        double dAngle);
+        [id(0x00000011), helpcontext(0x00000025)]
+        VARIANT_BOOL GetPosValues(
+                        BSTR ObjectName, 
+                        double* dX, 
+                        double* dY, 
+                        double* dAngle);
+        [id(0x00000012), helpcontext(0x0000003e)]
+        VARIANT_BOOL RotateA(
+                        BSTR ObjectName, 
+                        double dAngle);
+        [id(0x00000013), helpcontext(0x00000037)]
+        VARIANT_BOOL MoveA(
+                        BSTR ObjectName, 
+                        double dX, 
+                        double dY);
+        [id(0x00000014), hidden, helpcontext(0x0000003a)]
+        VARIANT_BOOL ReadByte(
+                        InPortConstants Port, 
+                        short bMask, 
+                        short* InByte);
+        [id(0x00000015), helpcontext(0x0000001a)]
+        VARIANT_BOOL DrawingPosOffset(
+                        double dX, 
+                        double dY);
+        [id(0x00000016), helpcontext(0x00000017)]
+        VARIANT_BOOL DrawingAngleOffset(double dAngle);
+        [id(0x00000017), helpcontext(0x00000020)]
+        long GetMatrixCellAmount(BSTR MatrixName);
+        [id(0x00000018), helpcontext(0x0000002f)]
+        VARIANT_BOOL LoadJob();
+        [id(0x00000019), helpcontext(0x00000047)]
+        VARIANT_BOOL SetMatrixRefCell(
+                        BSTR MatrixName, 
+                        long iIndex, 
+                        VARIANT_BOOL bDrawRefCellOnly);
+        [id(0x0000001a), helpcontext(0x0000002d)]
+        VARIANT_BOOL JobLoaded();
+        [id(0x0000001b), helpcontext(0x0000001e)]
+        VARIANT_BOOL GetDimension(
+                        BSTR ObjectName, 
+                        double* dWidth, 
+                        double* dHeight);
+        [id(0x0000001c), helpcontext(0x00000043)]
+        VARIANT_BOOL SetMatrixCellAngle(
+                        BSTR MatrixName, 
+                        double dAngle);
+        [id(0x0000001d), helpcontext(0x0000002c)]
+        VARIANT_BOOL InitMachine();
+        [id(0x0000001e), helpcontext(0x00000053)]
+        VARIANT_BOOL TermMachine();
+        [id(0x0000001f), helpcontext(0x00000045)]
+        VARIANT_BOOL SetMatrixCellOffset(
+                        BSTR MatrixName, 
+                        long iCellIndex, 
+                        double OffX, 
+                        double OffY, 
+                        double OffPhi);
+        [id(0x00000020), helpcontext(0x00000044)]
+        VARIANT_BOOL SetMatrixCellOccupation(
+                        BSTR MatrixName, 
+                        long iCellIndex, 
+                        VARIANT_BOOL IsOccupied);
+        [id(0x00000021), helpcontext(0x00000052)]
+        void SynchronizeMarking();
+        [id(0x00000022), hidden, helpcontext(0x0000005a)]
+        VARIANT_BOOL WriteByte(
+                        OutPortConstants Port, 
+                        short bMask, 
+                        short bData);
+        [id(0x00000023), hidden, helpcontext(0x00000059)]
+        VARIANT_BOOL WaitOnByte(
+                        InPortConstants Port, 
+                        short bMask, 
+                        short bData, 
+                        long lTimeOut);
+        [id(0x00000024), helpcontext(0x0000001d)]
+        VARIANT_BOOL FileName2(BSTR FName);
+        [id(0x00000025), helpcontext(0x00000022)]
+        BSTR GetMatrixCustomType(BSTR MatrixName);
+        [id(0x00000026), helpcontext(0x00000021)]
+        VARIANT_BOOL GetMatrixRowsAndColsCnt(
+                        BSTR MatrixName, 
+                        short* RowCnt, 
+                        short* ColCnt);
+        [id(0x00000027), helpcontext(0x0000003c)]
+        VARIANT_BOOL ReplaceGlobalQPSet(
+                        BSTR OriginalQPSetName, 
+                        BSTR NewQPSetName);
+        [id(0x00000028), helpcontext(0x0000003d)]
+        VARIANT_BOOL ReplaceLocalQPSet(
+                        BSTR OriginalQPSetName, 
+                        BSTR NewQPSetName);
+        [id(0x00000029), propget, helpcontext(0x00000012)]
+        VARIANT_BOOL AutoSignalJobEnd();
+        [id(0x00000029), propput, helpcontext(0x00000012)]
+        void AutoSignalJobEnd(VARIANT_BOOL rhs);
+        [id(0x0000002a), propget, helpcontext(0x00000013)]
+        VARIANT_BOOL AutoSignalMarkingEnd();
+        [id(0x0000002a), propput, helpcontext(0x00000013)]
+        void AutoSignalMarkingEnd(VARIANT_BOOL rhs);
+        [id(0x0000002b), propget, hidden, helpcontext(0x0000002e)]
+        IDispatch* Layer(BSTR Name);
+        [id(0x0000002c), propget, helpcontext(0x00000014)]
+        IDispatch* Axis();
+        [id(0x0000002d), helpcontext(0x00000016)]
+        VARIANT_BOOL ClearLayout();
+        [id(0x0000002e), helpcontext(0x00000036)]
+        VARIANT_BOOL MatrixSelectBin(
+                        BSTR MatrixName, 
+                        long CellIndex, 
+                        long BinNum);
+        [id(0x0000002f), helpcontext(0x00000032)]
+        long MatrixQueryBin(
+                        BSTR MatrixName, 
+                        long CellIndex);
+        [id(0x00000030), helpcontext(0x00000023)]
+        long GetMatrixMaxBinCount(BSTR MatrixName);
+        [id(0x00000031), helpcontext(0x00000046)]
+        VARIANT_BOOL SetMatrixMaxBinCount(
+                        BSTR MatrixName, 
+                        long MaxBinCount);
+        [id(0x00000032), helpcontext(0x00000030)]
+        VARIANT_BOOL MatrixAssignBinLayout(
+                        BSTR MatrixName, 
+                        long BinNum, 
+                        BSTR LayoutName);
+        [id(0x00000033), helpcontext(0x00000031)]
+        VARIANT_BOOL MatrixAssignBinText(
+                        BSTR MatrixName, 
+                        long BinNum, 
+                        BSTR ObjectName, 
+                        BSTR BinText);
+        [id(0x00000034), propget, helpcontext(0x00000051)]
+        VARIANT_BOOL SuppressAutoRedraw();
+        [id(0x00000034), propput, helpcontext(0x00000051)]
+        void SuppressAutoRedraw(VARIANT_BOOL rhs);
+        [id(0x00000035), helpcontext(0x0000003b)]
+        void RedrawLayout();
+        [id(0x00000036), helpcontext(0x00000033)]
+        BSTR MatrixQueryBinText(
+                        BSTR MatrixName, 
+                        long BinNum, 
+                        BSTR ObjectName);
+        [id(0x00000037), helpcontext(0x00000038)]
+        VARIANT_BOOL PLCCommand(
+                        BSTR ID1, 
+                        BSTR ID2, 
+                        BSTR Command);
+        [id(0x00000038), propget, helpcontext(0x00000058)]
+        BSTR VLMVersion();
+        [id(0x00000039), propget, helpcontext(0x00000057)]
+        BSTR VLMBuildLevel();
+        [id(0x0000003a), helpcontext(0x0000001c)]
+        VARIANT_BOOL ExportVISFile(BSTR VISFileName);
+        [id(0x0000003b), propget, hidden, helpcontext(0x00000056)]
+        long VariableCnt();
+        [id(0x0000003c), propget, hidden, helpcontext(0x00000055)]
+        IDispatch* Variable(long Index);
+        [id(0x0000003d), helpcontext(0x0000001b)]
+        VARIANT_BOOL DrawingSetPosValues(
+                        double dX, 
+                        double dY, 
+                        double dAngle);
+        [id(0x0000003e), helpcontext(0x00000018)]
+        VARIANT_BOOL DrawingGetDimension(
+                        double* dWidth, 
+                        double* dHeight);
+        [id(0x0000003f), helpcontext(0x00000019)]
+        VARIANT_BOOL DrawingGetPosValues(
+                        double* dX, 
+                        double* dY, 
+                        double* dAngle);
+        [id(0x00000040)]
+        VARIANT_BOOL TTLFieldCorr(
+                        BSTR FileName, 
+                        short Action, 
+                        short Head);
+        [id(0x00000041)]
+        VARIANT_BOOL TTLGetAbsPosValues(
+                        BSTR ObjectName, 
+                        long lMatrixCellIndex, 
+                        double* dX, 
+                        double* dY, 
+                        double* dAngle);
+        [id(0x00000042)]
+        VARIANT_BOOL TTLPxLaser(
+                        double dX, 
+                        double dY);
+        [id(0x00000043)]
+        VARIANT_BOOL TTLPxCamera(
+                        double dX, 
+                        double dY);
+        [id(0x00000044), helpcontext(0x00000041)]
+        VARIANT_BOOL SelectSingleStep(long StepIndex);
+        [id(0x00000045), helpcontext(0x00000034)]
+        VARIANT_BOOL MatrixQueryCellsPerPart(
+                        BSTR MatrixName, 
+                        long PartIndex, 
+                        long* CellStartIndex, 
+                        long* CellCnt);
+        [id(0x00000046), helpcontext(0x00000035)]
+        VARIANT_BOOL MatrixQueryPartCnt(
+                        BSTR MatrixName, 
+                        long* PartCnt);
+        [id(0x00000047), propget, helpcontext(0x00000039)]
+        IDispatch* PowerDlg();
+        [id(0x00000048), propget]
+        IDispatch* MachineCfg();
+        [id(0x00000049), helpcontext(0x0000004d)]
+        void ShowMatrixCell2(BSTR MatrixName);
+        [id(0x0000004a), helpcontext(0x0000004b)]
+        void ShowMarkingArea();
+        [id(0x0000004b), helpcontext(0x0000002b)]
+        long IsMOName(BSTR MOName);
+        [id(0x0000004c), helpcontext(0x00000042)]
+        VARIANT_BOOL SetLaserable(
+                        BSTR MOName, 
+                        VARIANT_BOOL bFlag);
+        [id(0x0000004d), helpcontext(0x00000048)]
+        VARIANT_BOOL SetMODescription(
+                        BSTR MOName, 
+                        BSTR description);
+        [id(0x0000004e), helpcontext(0x00000024)]
+        BSTR GetMODescription(BSTR MOName);
+        [id(0x0000004f), helpcontext(0x00000040)]
+        VARIANT_BOOL SetGlobalQPSet(
+                        BSTR QPSetName, 
+                        double CURRENT, 
+                        long SPEED, 
+                        long FREQUENCY, 
+                        VARIANT_BOOL bSave);
+        [id(0x00000050), helpcontext(0x00000027)]
+        VARIANT_BOOL GetGlobalQPSet(
+                        BSTR QPSetName, 
+                        double* CURRENT, 
+                        long* SPEED, 
+                        long* FREQUENCY);
+        [id(0x00000051), helpcontext(0x0000002a)]
+        VARIANT_BOOL ImportXMLFile(BSTR XMLFileName);
+        [id(0x00000052), helpcontext(0x0000003f)]
+        VARIANT_BOOL Save(BSTR FileName);
+        [id(0x00000053), propget, helpcontext(0x00000055)]
+        IDispatch* LocalVariables();
+        [id(0x00000054), propget, helpcontext(0x00000055)]
+        IDispatch* GlobalVariables();
+        [id(0x00000055), propget, helpcontext(0x00000054)]
+        IDispatch* TextObjects(BSTR MOName);
+        [id(0x00000056), helpcontext(0x00000026)]
+        VARIANT_BOOL GetPosValuesAbs(
+                        BSTR ObjectName, 
+                        long lMatrixCellIndex, 
+                        double* dX, 
+                        double* dY, 
+                        double* dAngle);
+        [id(0x00000057), helpcontext(0x00000098)]
+        VARIANT_BOOL LoadXML(BSTR XMLString);
+        [id(0x00000058), propget, helpcontext(0x0000002e)]
+        IDispatch* Layers();
+        [id(0x00000059), hidden]
+        void BeamOn(VARIANT_BOOL bOn);
+        [id(0x0000005a), helpcontext(0x0000007a)]
+        VARIANT_BOOL SetDimension(
+                        BSTR ObjectName, 
+                        double dWidth, 
+                        double dHeight);
+        [id(0x0000005b), helpcontext(0x0000007d)]
+        void StartPosHelp(BSTR ObjectName);
+        [id(0x0000005c), helpcontext(0x0000007e)]
+        void StopPosHelp();
+        [id(0x0000005d), helpcontext(0x0000007c)]
+        VARIANT_BOOL PLCCommandEx(
+                        BSTR ID1, 
+                        BSTR ID2, 
+                        VARIANT Command);
+        [id(0x0000005e), helpcontext(0x0000007f)]
+        VARIANT_BOOL LoadInclinedPlaneFCR(
+                        double dAlpha, 
+                        double dBeta, 
+                        double dBeamOrigin, 
+                        double dPlaneIntersectionOffset, 
+                        long lPlaneIntersectionOrientation, 
+                        long lHeadIndex);
+        [id(0x0000005f), helpcontext(0x00000082)]
+        void AddGlobalQPSet(
+                        BSTR Name, 
+                        double CURRENT, 
+                        long SPEED, 
+                        long FREQUENCY);
+        [id(0x00000060), helpcontext(0x00000083)]
+        void RemoveGlobalQPSet(BSTR Name);
+        [id(0x00000061), helpcontext(0x00000084)]
+        void AddLocalQPSet(
+                        BSTR Name, 
+                        double CURRENT, 
+                        long SPEED, 
+                        long FREQUENCY);
+        [id(0x00000062), helpcontext(0x00000085)]
+        void RemoveLocalQPSet(BSTR Name);
+        [id(0x00000063), helpcontext(0x00000086)]
+        void SaveGlobalQPSets();
+        [id(0x00000064), helpcontext(0x00000087)]
+        VARIANT GetGlobalQPSetNames();
+        [id(0x00000065), helpcontext(0x00000088)]
+        VARIANT GetLocalQPSetNames();
+        [id(0x00000066), helpcontext(0x00000089)]
+        VARIANT GetMONames();
+        [id(0x00000067), helpcontext(0x0000008a)]
+        VARIANT_BOOL ExportPl0(
+                        BSTR PL0FileName, 
+                        VARIANT_BOOL bShowInitDlg);
+        [id(0x00000068), helpcontext(0x0000008b)]
+        VARIANT_BOOL GetQualityParam(
+                        BSTR qpname, 
+                        eQPType qptype, 
+                        eParamType partype, 
+                        VARIANT* varVal);
+        [id(0x00000069), helpcontext(0x0000008c)]
+        VARIANT_BOOL SetQualityParam(
+                        BSTR qpname, 
+                        eQPType qptype, 
+                        eParamType partype, 
+                        VARIANT varVal, 
+                        VARIANT_BOOL bSave);
+        [id(0x0000006a), helpcontext(0x0000008d)]
+        void ShowMatrixCellZoom();
+        [id(0x0000006b), helpcontext(0x00000095)]
+        VARIANT_BOOL ImportDXFFile(BSTR DXFFileName);
+        [id(0x0000006c), helpcontext(0x0000009b)]
+        ShutterStateConstants GetShutterState();
+        [id(0x0000006d), helpcontext(0x0000009e)]
+        long GetMissingResources(VARIANT* list);
+        [id(0x0000006e), helpcontext(0x0000009d)]
+        VARIANT_BOOL DrawingSetDimension(
+                        double dWidth, 
+                        double dHeight);
+        [id(0x0000006f), helpcontext(0x00000092)]
+        VARIANT_BOOL ClearAlarms();
+        [id(0x00000070), helpcontext(0x00000091)]
+        VARIANT GetAlarms();
+        [id(0x00000071), helpcontext(0x00000097)]
+        void ImportXMLFile2(BSTR XMLFileName);
+        [id(0x00000072), helpcontext(0x00000099)]
+        void LoadXML2(BSTR XMLString);
+        [id(0x00000073), helpcontext(0x00000096)]
+        void ImportDXFFile2(BSTR DXFFileName);
+        [id(0x00000074)]
+        void DriftCorr(
+                        double lambda1, 
+                        double lambda2, 
+                        double deltax, 
+                        double deltay, 
+                        int hindex);
+        [id(0x00000075)]
+        void StdCorr(int hindex);
+        [id(0x00000076), helpcontext(0x000000b6)]
+        VARIANT_BOOL GetMatrixCellProperties(
+                        BSTR MatrixName, 
+                        double* Width, 
+                        double* Height, 
+                        double* XOffset, 
+                        double* YOffset, 
+                        double* XShift, 
+                        double* YShift, 
+                        double* Orientation);
+        [id(0x00000077), helpcontext(0x000000b7)]
+        VARIANT_BOOL GetMatrixInterleaveProperties(
+                        BSTR MatrixName, 
+                        double* X, 
+                        double* Y);
+        [id(0x00000078), helpcontext(0x000000b8)]
+        VARIANT_BOOL GetMatrixGroupProperties(
+                        BSTR MatrixName, 
+                        double* X, 
+                        short* xElements, 
+                        double* Y, 
+                        short* yElements);
+        [id(0x00000079), helpcontext(0x000000b9)]
+        VARIANT_BOOL GetMatrixOptionProperties(
+                        BSTR MatrixName, 
+                        BSTR* CustomType, 
+                        VARIANT_BOOL* ColoredCell, 
+                        VARIANT_BOOL* ShowReferenceCell, 
+                        VARIANT_BOOL* BinLayoutStatic, 
+                        VARIANT_BOOL* BinLayoutDynamic, 
+                        short* maxBin, 
+                        VARIANT_BOOL* Multiplexed);
+        [id(0x0000007a), helpcontext(0x000000bb)]
+        VARIANT_BOOL GetLogoProperties(
+                        BSTR LogoName, 
+                        BSTR* FileName, 
+                        VARIANT_BOOL* OriginalSize, 
+                        double* xScale, 
+                        double* yScale, 
+                        double* Slant, 
+                        VARIANT_BOOL* Hatch);
+        [id(0x0000007b), hidden, helpcontext(0x000000bc)]
+        VARIANT_BOOL GetHatchProperties(
+                        BSTR MOName, 
+                        VARIANT_BOOL* Unidirectional, 
+                        VARIANT_BOOL* Bidirectional, 
+                        VARIANT_BOOL* Meandering, 
+                        VARIANT_BOOL* OnTheFly, 
+                        double* LineExcess, 
+                        VARIANT_BOOL* NoOutline, 
+                        VARIANT_BOOL* Inverse, 
+                        VARIANT_BOOL* OutlineCorrection, 
+                        VARIANT_BOOL* AutoLineWitdth, 
+                        VARIANT_BOOL* OptimizeJumps, 
+                        double* HatchAngle, 
+                        double* FromOutline, 
+                        double* Overlap);
+        [id(0x0000007c)]
+        VARIANT_BOOL GetBackgroundProperties(
+                        BSTR MOName, 
+                        VARIANT_BOOL* ShowFrame, 
+                        VARIANT_BOOL* DrawFrame, 
+                        VARIANT_BOOL* BackgroundBitmap, 
+                        BSTR* BitmapName, 
+                        VARIANT_BOOL* BackgroundColor, 
+                        long* Color);
+        [id(0x0000007d), helpcontext(0x000000ba)]
+        VARIANT_BOOL GetLayerProperties(
+                        BSTR MOName, 
+                        BSTR* LayerName);
+        [id(0x0000007e)]
+        LMOSMOTypeConstants GetMOType(BSTR MOName);
+        [id(0x0000007f)]
+        VARIANT_BOOL GetSizePosProperties(
+                        BSTR MOName, 
+                        double* PositionX, 
+                        double* PositionY, 
+                        double* SizeDX, 
+                        double* SizeDY, 
+                        double* Angle, 
+                        VARIANT_BOOL* PreserveAspectRatio, 
+                        VARIANT_BOOL* FlipHorizontal, 
+                        VARIANT_BOOL* FlipVertical, 
+                        OrientationConstants* RefPoint);
+        [id(0x00000080)]
+        VARIANT_BOOL GetMOQPSet(
+                        BSTR MOName, 
+                        BSTR* QPSetName, 
+                        LMOSQPSetTypeConstants* QPSetType);
+        [id(0x00000081)]
+        VARIANT_BOOL GetQPSetProperties(
+                        BSTR QPSetName, 
+                        LMOSQPSetTypeConstants QPSetType, 
+                        BSTR MOName, 
+                        VARIANT* PropertyNames, 
+                        VARIANT* PropertyValues);
+        [id(0x00000082)]
+        VARIANT_BOOL ExportAsLogo(
+                        BSTR LogoName, 
+                        VARIANT_BOOL ExportEllipsesAsPolylines, 
+                        long IncrementsPerFullEllipse);
+        [id(0x00000083), hidden, helpcontext(0x000000bd)]
+        VARIANT_BOOL SetHatchProperties(
+                        BSTR MOName, 
+                        VARIANT_BOOL Unidirectional, 
+                        VARIANT_BOOL Bidirectional, 
+                        VARIANT_BOOL Meandering, 
+                        VARIANT_BOOL OnTheFly, 
+                        double LineExcess, 
+                        VARIANT_BOOL NoOutline, 
+                        VARIANT_BOOL Inverse, 
+                        VARIANT_BOOL OutlineCorrection, 
+                        VARIANT_BOOL AutoLineWidth, 
+                        VARIANT_BOOL OptimizeJumps, 
+                        double HatchAngle, 
+                        double FromOutline, 
+                        double Overlap);
+        [id(0x00000084)]
+        long GetNoMarkMOCount();
+        [id(0x00000085), helpcontext(0x0000002c)]
+        VARIANT_BOOL InitMachineEx(eMachineModuleConstants ModulesMask);
+        [id(0x00000086), helpcontext(0x00000053)]
+        VARIANT_BOOL TermMachineEx(eMachineModuleConstants ModulesMask);
+        [id(0x00000087)]
+        VARIANT_BOOL SaveAsVersion(
+                        BSTR FileName, 
+                        LMOSSaveAsVersionConstants SaveVersion);
+        [id(0x00000088)]
+        VARIANT_BOOL GetRuntimeHeadOffset(
+                        double* X, 
+                        double* Y, 
+                        int hindex);
+        [id(0x00000089)]
+        VARIANT_BOOL SetRuntimeHeadOffset(
+                        double X, 
+                        double Y, 
+                        int hindex);
+        [id(0x0000008a), helpstring("Rotate preview window by Angle")]
+        void RotateView(double Angle);
+        [id(0x0000008b)]
+        VARIANT_BOOL MatrixSelectBinAll(
+                        BSTR MatrixName, 
+                        VARIANT* BinValues);
+        [id(0x0000008c)]
+        VARIANT_BOOL SetMatrixCellOccupationAll(
+                        BSTR MatrixName, 
+                        VARIANT* OccValues);
+        [id(0x0000008d), helpcontext(0x000000be)]
+        VARIANT_BOOL ImportLogoFile(BSTR XMLFileName);
+        [id(0x0000008e), helpcontext(0x000000bf)]
+        VARIANT_BOOL ImportLogoFile2(BSTR XMLFileName);
+        [id(0x0000008f), hidden]
+        VARIANT_BOOL GetSignal(eSignalConstants Signal);
+        [id(0x00000090), hidden]
+        void SetSignal(
+                        eSignalConstants Signal, 
+                        VARIANT_BOOL Value);
+        [id(0x00000091)]
+        VARIANT_BOOL SplitDrawing(
+                        double offset, 
+                        double Overlap);
+        [id(0x00000092)]
+        void StartPosHelpLast(BSTR ObjectName);
+        [id(0x00000093), helpcontext(0x000000b2)]
+        void SaveGlobalHatchSets();
+        [id(0x00000094), helpcontext(0x000000b3)]
+        VARIANT GetGlobalHatchSetNames();
+        [id(0x00000095), helpcontext(0x000000b4)]
+        VARIANT_BOOL GetHatchParam(
+                        BSTR hpname, 
+                        eHSType hstype, 
+                        eHatchParamType partype, 
+                        VARIANT* varVal);
+        [id(0x00000096), helpcontext(0x000000b5)]
+        VARIANT_BOOL SetHatchParam(
+                        BSTR hpname, 
+                        eHSType hstype, 
+                        eHatchParamType partype, 
+                        VARIANT varVal);
+        [id(0x00000097)]
+        void ShowMarkingAreaZoom();
+        [id(0x00000098), propget, hidden]
+        IDispatch* AllComponents();
+        [id(0x00000099)]
+        void SetAxisUsedInVLM(
+                        eAxisType eAxis, 
+                        VARIANT_BOOL Value);
+        [id(0x0000009a)]
+        VARIANT_BOOL GetAxisUsedInVLM(eAxisType eAxis);
+        [id(0x0000009b), helpcontext(0x000000a5)]
+        VARIANT_BOOL ReadIOBit(
+                        VARIANT bitfunction, 
+                        VARIANT* Result);
+        [id(0x0000009c), helpcontext(0x000000a7)]
+        VARIANT_BOOL WriteIOBit(
+                        VARIANT bitfunction, 
+                        VARIANT values);
+        [id(0x0000009d), helpcontext(0x000000a6)]
+        VARIANT_BOOL WaitOnIOBit(
+                        VARIANT bitfunction, 
+                        VARIANT values, 
+                        long timeout);
+        [id(0x0000009e), helpcontext(0x000000b0)]
+        VARIANT_BOOL SelectShadow(long ShadowIndex);
+        [id(0x0000009f), helpcontext(0x000000b1)]
+        VARIANT_BOOL GetIODefinitions(
+                        eIODirection eDir, 
+                        VARIANT bitfunction);
+        [id(0x000000a0)]
+        void DriftCorrInternal(
+                        eHeads Head, 
+                        eDriftModes mode);
+        [id(0x000000a1)]
+        VARIANT_BOOL GetSystemParameter(
+                        eSystemParameterGet partype, 
+                        VARIANT* varVal);
+        [id(0x000000a2)]
+        VARIANT_BOOL SetSystemParameter(
+                        eSystemParameterSet partype, 
+                        VARIANT varVal);
+        [id(0x000000a3), helpcontext(0x000000ac)]
+        VARIANT_BOOL GetSurfaceRefPoint(
+                        double* RefX, 
+                        double* RefY, 
+                        double* RefZ);
+        [id(0x000000a4), helpcontext(0x000000ae)]
+        VARIANT_BOOL SetSurfaceRefPoint(
+                        double RefX, 
+                        double RefY, 
+                        double RefZ);
+        [id(0x000000a5), helpcontext(0x000000ad)]
+        VARIANT_BOOL GetSurfaceVector(
+                        double* VecX, 
+                        double* VecY, 
+                        double* VecZ);
+        [id(0x000000a6), helpcontext(0x000000af)]
+        VARIANT_BOOL SetSurfaceVector(
+                        double VecX, 
+                        double VecY, 
+                        double VecZ);
+        [id(0x000000a7), hidden]
+        VARIANT_BOOL ShowZoomWindow(
+                        int topLeftX, 
+                        int topLeftY, 
+                        int bottomRightX, 
+                        int bottomRightY);
+        [id(0x000000a8), hidden]
+        void ActivateZoomWindow(VARIANT_BOOL newState);
+        [id(0x000000a9), helpcontext(0x000000aa)]
+        VARIANT_BOOL ImportPSFile(BSTR PSFileName);
+        [id(0x000000aa), helpcontext(0x000000ab)]
+        void ImportPSFile2(BSTR PSFileName);
+        [id(0x000000ab), hidden]
+        VARIANT_BOOL IsFeatureLicensed(BSTR feature);
+        [id(0x000000ac), helpcontext(0x000000a9)]
+        VARIANT_BOOL SetMOLayer(
+                        BSTR MOName, 
+                        BSTR LayerName);
+        [id(0x000000ad), hidden]
+        VARIANT_BOOL ReplaceDrawing(BSTR FileName);
+        [id(0x000000ae), propget]
+        IDispatch* AllMachineCfgParams();
+        [id(0x000000af)]
+        VARIANT_BOOL SaveImage(
+                        long resx, 
+                        long resy, 
+                        BSTR FileName);
+        [id(0x000000b0)]
+        VARIANT_BOOL GetSurfaceRadius(double* radius);
+        [id(0x000000b1)]
+        VARIANT_BOOL SetSurfaceRadius(double radius);
+        [id(0x000000b2)]
+        long GetResources(VARIANT* list);
+        [id(0x000000b3)]
+        VARIANT_BOOL SaveImageWithRuler(
+                        long resx, 
+                        long resy, 
+                        BSTR FileName);
+        [id(0x000000b4)]
+        VARIANT_BOOL GetMatrixGroupData(
+                        BSTR MatrixName, 
+                        int Index, 
+                        double* X, 
+                        int* xElements, 
+                        double* Y, 
+                        int* yElements);
+        [id(0x000000b5)]
+        VARIANT_BOOL ActivateJobPage(BSTR PaneName);
+        [id(0x000000b6)]
+        LMOSPowerActuatingVariable GetQPSetActuatingVariable(
+                        BSTR qpname, 
+                        eQPType qptype);
+        [id(0x000000b7)]
+        VARIANT_BOOL SetQPSetActuatingVariable(
+                        BSTR qpname, 
+                        eQPType qptype, 
+                        LMOSPowerActuatingVariable actVariable);
+        [id(0x000000b8), propget]
+        IDispatch* JobPages();
+        [id(0x000000b9)]
+        BSTR DrawingGetGalvoHead();
+        [id(0x000000ba)]
+        VARIANT_BOOL SetMatrixCellOffsetAll(
+                        BSTR MatrixName, 
+                        VARIANT* OffXValues, 
+                        VARIANT* OffYValues, 
+                        VARIANT* OffPhiValues);
+        [id(0x000000bb)]
+        VARIANT_BOOL IsCollectBufferMode();
+        [id(0x000000bc)]
+        void SetCollectBufferMode(VARIANT_BOOL __MIDL___DLMOSActX0000);
+        [id(0x000000bd)]
+        void SetNumBurstPulses(
+                        eQPType qptype, 
+                        long Index, 
+                        long val);
+        [id(0x000000be)]
+        void GetNumBurstPulses(
+                        eQPType qptype, 
+                        long Index, 
+                        long val);
+        [id(0x000000bf)]
+        VARIANT_BOOL EnableJobPage(
+                        BSTR PaneName, 
+                        VARIANT_BOOL enabled);
+        [id(0x000000c0)]
+        VARIANT_BOOL IsJobPageEnabled(BSTR PaneName);
+        [id(0x000000c1)]
+        VARIANT_BOOL IsAxisEnabled(eAxisType eAxis);
+        [id(0x000000c2)]
+        VARIANT_BOOL LoadDefaultTemplate();
+        [id(0x000000c3)]
+        void AddImport(BSTR FileName);
+        [id(0x000000c4), propget]
+        IDispatch* MOInfos();
+        [id(0x000000c5)]
+        void SetMOInfoFilter(LMOSMOTypeConstants filter);
+        [id(0x000000c6)]
+        void LoadXMLT(
+                        BSTR XMLString, 
+                        BSTR TemplateName);
+        [id(0x000000c7)]
+        VARIANT_BOOL MoveGalvoGroupShadow(
+                        long shadowNr, 
+                        double xpos, 
+                        double ypos);
+        [id(0x000000c8)]
+        long GetGalvoGroupShadowCount();
+        [id(0x000000c9)]
+        void RemoveGalvoGroupShadow(int shadowNr);
+        [id(0x000000ca)]
+        long GetGalvoGroupShadowPos(
+                        int shadowNr, 
+                        double* xpos, 
+                        double* ypos);
+        [id(0x000000cb)]
+        long GetGalvoGroupShadowWidth(
+                        int shadowNr, 
+                        double* Width);
+};

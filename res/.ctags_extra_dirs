@@ -7,6 +7,8 @@ src/submodules/mongoose
 src/submodules/sds
 src/submodules/unity/src
 src/submodules/cimgui
+src/submodules/cimnodes
+src/submodules/cimplot
 src/submodules/mxml
 src/submodules/lvgl
 src/submodules/lv_drivers

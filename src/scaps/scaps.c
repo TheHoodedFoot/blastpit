@@ -263,12 +263,13 @@ GetNextPen()
 {  // Read the next pen from the file or EOF
 
 	t_pen_properties pen;
-	pen.pen_number = 0;  // Pen 0 is invalid
+	pen.pen_number = 0;  // 0 signifies to calling function that pen is invalid
 	char* line;
 	char* token;
 	int   i;
+	char  buffer[256];
 
-	line = fgets( pen.pen_name, sizeof( pen.pen_name ), stdin );
+	line = fgets( buffer, sizeof( buffer ), stdin );
 
 	// If the line is empty, return EOF
 

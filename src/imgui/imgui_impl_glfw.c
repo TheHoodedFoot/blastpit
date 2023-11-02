@@ -302,7 +302,7 @@ ImGui_ImplGlfw_UpdateMousePosAndButtons()
 #ifdef __EMSCRIPTEN__
 	const bool focused = true;  // Emscripten
 #else
-	const bool focused			    = glfwGetWindowAttrib( g_Window, GLFW_FOCUSED ) != 0;
+	const bool focused = glfwGetWindowAttrib( g_Window, GLFW_FOCUSED ) != 0;
 #endif
 	if ( focused ) {
 		if ( io->WantSetMousePos ) {

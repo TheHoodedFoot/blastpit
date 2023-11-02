@@ -279,7 +279,8 @@ class AutoshadowModule(inkex.EffectExtension):
                     + ".VLM"
                 )
             else:
-                self.inputfile = None
+                self.inputfile = "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
+
         except AttributeError:
             self.inputfile = None
 

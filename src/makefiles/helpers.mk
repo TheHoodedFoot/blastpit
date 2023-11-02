@@ -1,12 +1,10 @@
 
 tags:	
 	@rm -f $(PROJECT_ROOT)/{.tags,.tagsextra} >/dev/null 2>/dev/null || /bin/true
-	@(${GIT_HOOKS}/ctags >/dev/null 2>&1 &)
+	@$(MAKE) .tags
 
 .tags:
-	@(${GIT_HOOKS}/ctags >/dev/null 2>&1 &)
-
-
+	@(timeout 60.0s nice -n 19 ${GIT_HOOKS}/ctags >/dev/null 2>&1 &)
 
 mxml_help:
 	xdg-open "file:///$(SUBMODULES_DIR)/mxml/doc/mxml.html"

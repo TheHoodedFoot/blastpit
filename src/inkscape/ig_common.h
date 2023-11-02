@@ -2,11 +2,7 @@
 #define IG_COMMON
 
 #include "GLFW/glfw3.h"
-// #include <libpq-fe.h>
-// #include <mxml.h>
-// #include <sds.h>
 #include <stdbool.h>
-
 
 enum constants
 {
@@ -21,7 +17,7 @@ typedef struct
 	struct ImGuiIO*	     io;
 	int		     width;
 	int		     height;
-	bool ( *imguiCallback )( void* );
+	bool		     ( *imguiCallback )( void* );
 } t_glfw_data;
 
 bool LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, int* out_height );

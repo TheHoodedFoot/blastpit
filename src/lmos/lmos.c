@@ -37,23 +37,24 @@ SetupCOM( t_lmos_struct* this )
 	}
 
 	// Get IExample.DLL's IClassFactory
-	if ( ( hr = CoGetClassObject( &CLSID_IExample,
+	if ( ( hr = CoGetClassObject( &CLSID_Lmos,
 				      CLSCTX_INPROC_SERVER,
 				      0,
-				      &IID_IClassFactory,
+				      &IID_IUnknown,
 				      (void**)&( this->classFactory ) ) ) ) {
 		MessageBox( 0, "Can't get IClassFactory", "CoGetClassObject error", MB_OK | MB_ICONEXCLAMATION );
 		CoUninitialize();
-		return ( 0 );
+		printf("result is %d\n", hr);
+		return ( hr );
 	}
 
 	// Create an IExample object
 	if ( ( hr = this->classFactory->lpVtbl->CreateInstance(
-		       this->classFactory, 0, &IID_IExample, (void**)&( this->lmosObject ) ) ) ) {
+		       this->classFactory, 0, &IID_IUnknown, (void**)&( this->lmosObject ) ) ) ) {
 		this->classFactory->lpVtbl->Release( this->classFactory );
 		MessageBox( 0, "Can't create IExample object", "CreateInstance error", MB_OK | MB_ICONEXCLAMATION );
 		CoUninitialize();
-		return ( 0 );
+		return ( hr );
 	}
 
 	// Release the IClassFactory. We don't need it now that we have the one
@@ -67,7 +68,8 @@ void
 ShutdownCOM( t_lmos_struct* this )
 {
 	// Release the IExample now that we're done with it
-	this->lmosObject->lpVtbl->Release( this->lmosObject );
+	IUnknown *pUnknown = (IUnknown *)this->lmosObject;
+	pUnknown->lpVtbl->Release( pUnknown );
 
 	// When finally done with OLE, free it
 	CoUninitialize();
@@ -101,9 +103,11 @@ main( int argc, char** argv )
 
 	// Setup COM
 	if ( SetupCOM( &this ) == 0 ) {
+		printf("SetupCOM failed.\n");
 		exit( 71 );
 	}
 
+	printf("SetupCOM completed successfully.\n");
 	ShutdownCOM( &this );
 
 	return ( 0 );
@@ -170,3 +174,13 @@ SetLaserable
 RedrawLayout
 SetSuppressAutoRedraw
 */
+
+
+
+// Windows Registry Editor Version 5.00
+//
+// [HKEY_CLASSES_ROOT\LMOSACTX.LMOSActXCtrl.1\CLSID]
+// @="{18213698-A9C9-11D1-A220-0060973058F6}"
+//
+//
+

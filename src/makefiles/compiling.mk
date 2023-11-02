@@ -9,8 +9,8 @@ $(BUILD_DIR)/blastpy_wrap.c:	$(LIBBLASTPIT_OBJS) # This forces rerunning swig on
 $(BUILD_DIR)/blastpy_wrap.o:	$(BUILD_DIR)/blastpy_wrap.c | $(BUILD_DIR)
 	$(CC) -fPIC -I$(PROJECT_ROOT)/src/libblastpit -I$(SUBMODULES_DIR)/mongoose -o $@ -c $^ $(PYTHON_INCS)
 
-$(BUILD_DIR)/_blastpy.so:	$(BUILD_DIR)/blastpy_wrap.o $(BLASTPY_FILES) $(TRACY_OBJS)
-	$(CXX) $(CPPFLAGS) -shared $(SANLDFLAGS) $(SANFLAGS) $(SHARED_SANFLAGS) $(BLASTPY_FILES) -o $@ $(BLASTPY_LIBS) $(LIBBLASTPIT_OBJS) $(EXTERNAL_OBJS) $(TRACY_OBJS)
+$(BUILD_DIR)/_blastpy.so:	$(BUILD_DIR)/blastpy_wrap.o $(BLASTPY_FILES) $(TRACY_OBJS) $(BUILD_DIR)/libblastpit.a $(BUILD_DIR)/external_libs.a
+	$(CXX) $(CPPFLAGS) -shared $(SANLDFLAGS) $(SANFLAGS) $(SHARED_SANFLAGS) $(BLASTPY_FILES) -o $@ $(BLASTPY_LIBS) $(BUILD_DIR)/libblastpit.a $(BUILD_DIR)/external_libs.a $(TRACY_OBJS)
 
 $(BUILD_DIR)/unity_fixture.o: $(UNITY_FIXTURE_DIR)/unity_fixture.c | $(BUILD_DIR)
 	$(CC) $(EXTERNAL_CPPFLAGS) $(SANFLAGS) $(UNITY_DEFS) $(INCFLAGS) -c $^ -o $@

@@ -90,6 +90,9 @@
 ; [submodule "src/submodules/zig-imgui"]
 ; 	path = src/submodules/zig-imgui
 ; 	url = https://github.com/SpexGuy/Zig-ImGui.git
+; [submodule "src/submodules/sds"]
+; 	path = src/submodules/sds
+; 	url = https://github.com/antirez/sds.git
 [submodule "src/submodules/sds"]
 	path = src/submodules/sds
 	url = https://github.com/antirez/sds.git

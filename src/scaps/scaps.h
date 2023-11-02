@@ -10,7 +10,16 @@
 
 
 // SCAPS.ScSamlightClientCtrlEx
+//
+// HKEY_CLASSES_ROOT/CLSID
+// HKEY_CLASSES_ROOT/SCAPS.ScSamlightClientCtrlEx/CLSID
+// HKEY_LOCAL_MACHINE/Software/Classes/CLSID
+// HKEY_LOCAL_MACHINE/Software/Classes/SCAPS.ScSamlightClientCtrlEx/CLSID
 DEFINE_GUID( CLSID_IExample, 0x3E6FBC49, 0x6C3D, 0x4c10, 0x81, 0xDD, 0xDA, 0xD7, 0x4E, 0x7B, 0x39, 0xAC );
+// HKEY_CLASSES_ROOT/Interface
+// HKEY_CLASSES_ROOT/Wow6432Node/Interface
+// HKEY_LOCAL_MACHINE/Software/Classes/Interface
+// HKEY_LOCAL_MACHINE/Software/Classes/Wow6432Node/Interface
 DEFINE_GUID( IID_IExample, 0xD81CCA6E, 0x4FEA, 0x49b3, 0xA8, 0x2E, 0x32, 0x13, 0x7F, 0x10, 0x17, 0x28 );
 
 typedef struct

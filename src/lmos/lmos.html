@@ -1,0 +1,2510 @@
+<h1 align=center>LMOSActX Control Reference</h1>
+<p>The LMOSActX Control COM object is a QAxObject with the CLSID {18213698-a9c9-11d1-a220-0060973058f6}.</p>
+<h3>Interfaces</h3>
+<ul>
+<li>_DLMOSActX
+</ul>
+<h3>Event Interfaces</h3>
+<ul>
+<li>_DLMOSActXEvents
+<li>IPropertyNotifySink
+</ul>
+<h2>Public Slots:</h2>
+<ul>
+<li>void <a href="#AboutBox"><b>AboutBox</b></a>();</li>
+<li>bool <a href="#ActivateJobPage"><b>ActivateJobPage</b></a>(QString PaneName);</li>
+<li>void <a href="#ActivateZoomWindow"><b>ActivateZoomWindow</b></a>(bool newState);</li>
+<li>void <a href="#AddGlobalQPSet"><b>AddGlobalQPSet</b></a>(QString Name, double CURRENT, int SPEED, int FREQUENCY);</li>
+<li>void <a href="#AddImport"><b>AddImport</b></a>(QString FileName);</li>
+<li>void <a href="#AddLocalQPSet"><b>AddLocalQPSet</b></a>(QString Name, double CURRENT, int SPEED, int FREQUENCY);</li>
+<li>void <a href="#BeamOn"><b>BeamOn</b></a>(bool bOn);</li>
+<li>bool <a href="#CancelJob"><b>CancelJob</b></a>();</li>
+<li>bool <a href="#ClearAlarms"><b>ClearAlarms</b></a>();</li>
+<li>bool <a href="#ClearLayout"><b>ClearLayout</b></a>();</li>
+<li>bool <a href="#DrawingAngleOffset"><b>DrawingAngleOffset</b></a>(double dAngle);</li>
+<li>bool <a href="#DrawingGetDimension"><b>DrawingGetDimension</b></a>(double& dWidth, double& dHeight);</li>
+<li>QString <a href="#DrawingGetGalvoHead"><b>DrawingGetGalvoHead</b></a>();</li>
+<li>bool <a href="#DrawingGetPosValues"><b>DrawingGetPosValues</b></a>(double& dX, double& dY, double& dAngle);</li>
+<li>bool <a href="#DrawingPosOffset"><b>DrawingPosOffset</b></a>(double dX, double dY);</li>
+<li>bool <a href="#DrawingSetDimension"><b>DrawingSetDimension</b></a>(double dWidth, double dHeight);</li>
+<li>bool <a href="#DrawingSetPosValues"><b>DrawingSetPosValues</b></a>(double dX, double dY, double dAngle);</li>
+<li>void <a href="#DriftCorr"><b>DriftCorr</b></a>(double lambda1, double lambda2, double deltax, double deltay, int hindex);</li>
+<li>void <a href="#DriftCorrInternal"><b>DriftCorrInternal</b></a>(eHeads Head, eDriftModes mode);</li>
+<li>bool <a href="#EnableJobPage"><b>EnableJobPage</b></a>(QString PaneName, bool enabled);</li>
+<li>bool <a href="#ExportAsLogo"><b>ExportAsLogo</b></a>(QString LogoName, bool ExportEllipsesAsPolylines, int IncrementsPerFullEllipse);</li>
+<li>bool <a href="#ExportPl0"><b>ExportPl0</b></a>(QString PL0FileName, bool bShowInitDlg);</li>
+<li>bool <a href="#ExportVISFile"><b>ExportVISFile</b></a>(QString VISFileName);</li>
+<li>bool <a href="#FileName2"><b>FileName2</b></a>(QString FName);</li>
+<li>QVariant <a href="#GetAlarms"><b>GetAlarms</b></a>();</li>
+<li>bool <a href="#GetAxisUsedInVLM"><b>GetAxisUsedInVLM</b></a>(eAxisType eAxis);</li>
+<li>bool <a href="#GetBackgroundProperties"><b>GetBackgroundProperties</b></a>(QString MOName, bool& ShowFrame, bool& DrawFrame, bool& BackgroundBitmap, QString& BitmapName, bool& BackgroundColor, int& Color);</li>
+<li>bool <a href="#GetDimension"><b>GetDimension</b></a>(QString ObjectName, double& dWidth, double& dHeight);</li>
+<li>int <a href="#GetGalvoGroupShadowCount"><b>GetGalvoGroupShadowCount</b></a>();</li>
+<li>int <a href="#GetGalvoGroupShadowPos"><b>GetGalvoGroupShadowPos</b></a>(int shadowNr, double& xpos, double& ypos);</li>
+<li>int <a href="#GetGalvoGroupShadowWidth"><b>GetGalvoGroupShadowWidth</b></a>(int shadowNr, double& Width);</li>
+<li>QVariant <a href="#GetGlobalHatchSetNames"><b>GetGlobalHatchSetNames</b></a>();</li>
+<li>bool <a href="#GetGlobalQPSet"><b>GetGlobalQPSet</b></a>(QString QPSetName, double& CURRENT, int& SPEED, int& FREQUENCY);</li>
+<li>QVariant <a href="#GetGlobalQPSetNames"><b>GetGlobalQPSetNames</b></a>();</li>
+<li>bool <a href="#GetHatchParam"><b>GetHatchParam</b></a>(QString hpname, eHSType hstype, eHatchParamType partype, QVariant& varVal);</li>
+<li>bool <a href="#GetHatchProperties"><b>GetHatchProperties</b></a>(QString MOName, bool& Unidirectional, bool& Bidirectional, bool& Meandering, bool& OnTheFly, double& LineExcess, bool& NoOutline, bool& Inverse, bool& OutlineCorrection, bool& AutoLineWitdth, bool& OptimizeJumps, double& HatchAngle, double& FromOutline, double& Overlap);</li>
+<li>bool <a href="#GetIODefinitions"><b>GetIODefinitions</b></a>(eIODirection eDir, QVariant bitfunction);</li>
+<li>bool <a href="#GetLayerProperties"><b>GetLayerProperties</b></a>(QString MOName, QString& LayerName);</li>
+<li>QVariant <a href="#GetLocalQPSetNames"><b>GetLocalQPSetNames</b></a>();</li>
+<li>QString <a href="#GetLogo"><b>GetLogo</b></a>(QString ObjectName);</li>
+<li>QString <a href="#GetLogoFilesPath"><b>GetLogoFilesPath</b></a>();</li>
+<li>bool <a href="#GetLogoProperties"><b>GetLogoProperties</b></a>(QString LogoName, QString& FileName, bool& OriginalSize, double& xScale, double& yScale, double& Slant, bool& Hatch);</li>
+<li>QString <a href="#GetMODescription"><b>GetMODescription</b></a>(QString MOName);</li>
+<li>QVariant <a href="#GetMONames"><b>GetMONames</b></a>();</li>
+<li>bool <a href="#GetMOQPSet"><b>GetMOQPSet</b></a>(QString MOName, QString& QPSetName, LMOSQPSetTypeConstants& QPSetType);</li>
+<li>LMOSMOTypeConstants <a href="#GetMOType"><b>GetMOType</b></a>(QString MOName);</li>
+<li>QString <a href="#GetMarkingFilesPath"><b>GetMarkingFilesPath</b></a>();</li>
+<li>int <a href="#GetMatrixCellAmount"><b>GetMatrixCellAmount</b></a>(QString MatrixName);</li>
+<li>bool <a href="#GetMatrixCellProperties"><b>GetMatrixCellProperties</b></a>(QString MatrixName, double& Width, double& Height, double& XOffset, double& YOffset, double& XShift, double& YShift, double& Orientation);</li>
+<li>QString <a href="#GetMatrixCustomType"><b>GetMatrixCustomType</b></a>(QString MatrixName);</li>
+<li>bool <a href="#GetMatrixGroupData"><b>GetMatrixGroupData</b></a>(QString MatrixName, int Index, double& X, int& xElements, double& Y, int& yElements);</li>
+<li>bool <a href="#GetMatrixGroupProperties"><b>GetMatrixGroupProperties</b></a>(QString MatrixName, double& X, int& xElements, double& Y, int& yElements);</li>
+<li>bool <a href="#GetMatrixInterleaveProperties"><b>GetMatrixInterleaveProperties</b></a>(QString MatrixName, double& X, double& Y);</li>
+<li>int <a href="#GetMatrixMaxBinCount"><b>GetMatrixMaxBinCount</b></a>(QString MatrixName);</li>
+<li>bool <a href="#GetMatrixOptionProperties"><b>GetMatrixOptionProperties</b></a>(QString MatrixName, QString& CustomType, bool& ColoredCell, bool& ShowReferenceCell, bool& BinLayoutStatic, bool& BinLayoutDynamic, int& maxBin, bool& Multiplexed);</li>
+<li>bool <a href="#GetMatrixRowsAndColsCnt"><b>GetMatrixRowsAndColsCnt</b></a>(QString MatrixName, int& RowCnt, int& ColCnt);</li>
+<li>int <a href="#GetMissingResources"><b>GetMissingResources</b></a>(QVariant& list);</li>
+<li>int <a href="#GetNoMarkMOCount"><b>GetNoMarkMOCount</b></a>();</li>
+<li>void <a href="#GetNumBurstPulses"><b>GetNumBurstPulses</b></a>(eQPType qptype, int Index, int val);</li>
+<li>bool <a href="#GetPosValues"><b>GetPosValues</b></a>(QString ObjectName, double& dX, double& dY, double& dAngle);</li>
+<li>bool <a href="#GetPosValuesAbs"><b>GetPosValuesAbs</b></a>(QString ObjectName, int lMatrixCellIndex, double& dX, double& dY, double& dAngle);</li>
+<li>LMOSPowerActuatingVariable <a href="#GetQPSetActuatingVariable"><b>GetQPSetActuatingVariable</b></a>(QString qpname, eQPType qptype);</li>
+<li>bool <a href="#GetQPSetProperties"><b>GetQPSetProperties</b></a>(QString QPSetName, LMOSQPSetTypeConstants QPSetType, QString MOName, QVariant& PropertyNames, QVariant& PropertyValues);</li>
+<li>bool <a href="#GetQualityParam"><b>GetQualityParam</b></a>(QString qpname, eQPType qptype, eParamType partype, QVariant& varVal);</li>
+<li>int <a href="#GetResources"><b>GetResources</b></a>(QVariant& list);</li>
+<li>bool <a href="#GetRuntimeHeadOffset"><b>GetRuntimeHeadOffset</b></a>(double& X, double& Y, int hindex);</li>
+<li>ShutterStateConstants <a href="#GetShutterState"><b>GetShutterState</b></a>();</li>
+<li>bool <a href="#GetSignal"><b>GetSignal</b></a>(eSignalConstants Signal);</li>
+<li>bool <a href="#GetSizePosProperties"><b>GetSizePosProperties</b></a>(QString MOName, double& PositionX, double& PositionY, double& SizeDX, double& SizeDY, double& Angle, bool& PreserveAspectRatio, bool& FlipHorizontal, bool& FlipVertical, OrientationConstants& RefPoint);</li>
+<li>bool <a href="#GetSurfaceRadius"><b>GetSurfaceRadius</b></a>(double& radius);</li>
+<li>bool <a href="#GetSurfaceRefPoint"><b>GetSurfaceRefPoint</b></a>(double& RefX, double& RefY, double& RefZ);</li>
+<li>bool <a href="#GetSurfaceVector"><b>GetSurfaceVector</b></a>(double& VecX, double& VecY, double& VecZ);</li>
+<li>bool <a href="#GetSystemParameter"><b>GetSystemParameter</b></a>(eSystemParameterGet partype, QVariant& varVal);</li>
+<li>QString <a href="#GetText"><b>GetText</b></a>(QString ObjectName);</li>
+<li>bool <a href="#ImportDXFFile"><b>ImportDXFFile</b></a>(QString DXFFileName);</li>
+<li>void <a href="#ImportDXFFile2"><b>ImportDXFFile2</b></a>(QString DXFFileName);</li>
+<li>bool <a href="#ImportLogoFile"><b>ImportLogoFile</b></a>(QString XMLFileName);</li>
+<li>bool <a href="#ImportLogoFile2"><b>ImportLogoFile2</b></a>(QString XMLFileName);</li>
+<li>bool <a href="#ImportPSFile"><b>ImportPSFile</b></a>(QString PSFileName);</li>
+<li>void <a href="#ImportPSFile2"><b>ImportPSFile2</b></a>(QString PSFileName);</li>
+<li>bool <a href="#ImportXMLFile"><b>ImportXMLFile</b></a>(QString XMLFileName);</li>
+<li>void <a href="#ImportXMLFile2"><b>ImportXMLFile2</b></a>(QString XMLFileName);</li>
+<li>bool <a href="#InitMachine"><b>InitMachine</b></a>();</li>
+<li>bool <a href="#InitMachineEx"><b>InitMachineEx</b></a>(eMachineModuleConstants ModulesMask);</li>
+<li>bool <a href="#IsAxisEnabled"><b>IsAxisEnabled</b></a>(eAxisType eAxis);</li>
+<li>bool <a href="#IsCollectBufferMode"><b>IsCollectBufferMode</b></a>();</li>
+<li>bool <a href="#IsFeatureLicensed"><b>IsFeatureLicensed</b></a>(QString feature);</li>
+<li>bool <a href="#IsJobPageEnabled"><b>IsJobPageEnabled</b></a>(QString PaneName);</li>
+<li>int <a href="#IsMOName"><b>IsMOName</b></a>(QString MOName);</li>
+<li>bool <a href="#JobLoaded"><b>JobLoaded</b></a>();</li>
+<li>IDispatch* <a href="#Layer"><b>Layer</b></a>(QString Name);</li>
+<li>bool <a href="#LoadDefaultTemplate"><b>LoadDefaultTemplate</b></a>();</li>
+<li>bool <a href="#LoadInclinedPlaneFCR"><b>LoadInclinedPlaneFCR</b></a>(double dAlpha, double dBeta, double dBeamOrigin, double dPlaneIntersectionOffset, int lPlaneIntersectionOrientation, int lHeadIndex);</li>
+<li>bool <a href="#LoadJob"><b>LoadJob</b></a>();</li>
+<li>bool <a href="#LoadXML"><b>LoadXML</b></a>(QString XMLString);</li>
+<li>void <a href="#LoadXML2"><b>LoadXML2</b></a>(QString XMLString);</li>
+<li>void <a href="#LoadXMLT"><b>LoadXMLT</b></a>(QString XMLString, QString TemplateName);</li>
+<li>bool <a href="#MatrixAssignBinLayout"><b>MatrixAssignBinLayout</b></a>(QString MatrixName, int BinNum, QString LayoutName);</li>
+<li>bool <a href="#MatrixAssignBinText"><b>MatrixAssignBinText</b></a>(QString MatrixName, int BinNum, QString ObjectName, QString BinText);</li>
+<li>int <a href="#MatrixQueryBin"><b>MatrixQueryBin</b></a>(QString MatrixName, int CellIndex);</li>
+<li>QString <a href="#MatrixQueryBinText"><b>MatrixQueryBinText</b></a>(QString MatrixName, int BinNum, QString ObjectName);</li>
+<li>bool <a href="#MatrixQueryCellsPerPart"><b>MatrixQueryCellsPerPart</b></a>(QString MatrixName, int PartIndex, int& CellStartIndex, int& CellCnt);</li>
+<li>bool <a href="#MatrixQueryPartCnt"><b>MatrixQueryPartCnt</b></a>(QString MatrixName, int& PartCnt);</li>
+<li>bool <a href="#MatrixSelectBin"><b>MatrixSelectBin</b></a>(QString MatrixName, int CellIndex, int BinNum);</li>
+<li>bool <a href="#MatrixSelectBinAll"><b>MatrixSelectBinAll</b></a>(QString MatrixName, QVariant& BinValues);</li>
+<li>bool <a href="#MoveA"><b>MoveA</b></a>(QString ObjectName, double dX, double dY);</li>
+<li>bool <a href="#MoveGalvoGroupShadow"><b>MoveGalvoGroupShadow</b></a>(int shadowNr, double xpos, double ypos);</li>
+<li>bool <a href="#PLCCommand"><b>PLCCommand</b></a>(QString ID1, QString ID2, QString Command);</li>
+<li>bool <a href="#PLCCommandEx"><b>PLCCommandEx</b></a>(QString ID1, QString ID2, QVariant Command);</li>
+<li>bool <a href="#ReadByte"><b>ReadByte</b></a>(InPortConstants Port, int bMask, int& InByte);</li>
+<li>bool <a href="#ReadIOBit"><b>ReadIOBit</b></a>(QVariant bitfunction, QVariant& Result);</li>
+<li>void <a href="#RedrawLayout"><b>RedrawLayout</b></a>();</li>
+<li>void <a href="#RemoveGalvoGroupShadow"><b>RemoveGalvoGroupShadow</b></a>(int shadowNr);</li>
+<li>void <a href="#RemoveGlobalQPSet"><b>RemoveGlobalQPSet</b></a>(QString Name);</li>
+<li>void <a href="#RemoveLocalQPSet"><b>RemoveLocalQPSet</b></a>(QString Name);</li>
+<li>bool <a href="#ReplaceDrawing"><b>ReplaceDrawing</b></a>(QString FileName);</li>
+<li>bool <a href="#ReplaceGlobalQPSet"><b>ReplaceGlobalQPSet</b></a>(QString OriginalQPSetName, QString NewQPSetName);</li>
+<li>bool <a href="#ReplaceLocalQPSet"><b>ReplaceLocalQPSet</b></a>(QString OriginalQPSetName, QString NewQPSetName);</li>
+<li>bool <a href="#RotateA"><b>RotateA</b></a>(QString ObjectName, double dAngle);</li>
+<li>void <a href="#RotateView"><b>RotateView</b></a>(double Angle);</li>
+<li>bool <a href="#Save"><b>Save</b></a>(QString FileName);</li>
+<li>bool <a href="#SaveAsVersion"><b>SaveAsVersion</b></a>(QString FileName, LMOSSaveAsVersionConstants SaveVersion);</li>
+<li>void <a href="#SaveGlobalHatchSets"><b>SaveGlobalHatchSets</b></a>();</li>
+<li>void <a href="#SaveGlobalQPSets"><b>SaveGlobalQPSets</b></a>();</li>
+<li>bool <a href="#SaveImage"><b>SaveImage</b></a>(int resx, int resy, QString FileName);</li>
+<li>bool <a href="#SaveImageWithRuler"><b>SaveImageWithRuler</b></a>(int resx, int resy, QString FileName);</li>
+<li>bool <a href="#SelectShadow"><b>SelectShadow</b></a>(int ShadowIndex);</li>
+<li>bool <a href="#SelectSingleStep"><b>SelectSingleStep</b></a>(int StepIndex);</li>
+<li>void <a href="#SetAutoSignalJobEnd"><b>SetAutoSignalJobEnd</b></a>(bool AutoSignalJobEnd);</li>
+<li>void <a href="#SetAutoSignalMarkingEnd"><b>SetAutoSignalMarkingEnd</b></a>(bool AutoSignalMarkingEnd);</li>
+<li>void <a href="#SetAxisUsedInVLM"><b>SetAxisUsedInVLM</b></a>(eAxisType eAxis, bool Value);</li>
+<li>void <a href="#SetCollectBufferMode"><b>SetCollectBufferMode</b></a>(bool __MIDL___DLMOSActX0000);</li>
+<li>bool <a href="#SetDimension"><b>SetDimension</b></a>(QString ObjectName, double dWidth, double dHeight);</li>
+<li>void <a href="#SetDummy1"><b>SetDummy1</b></a>(int Dummy1);</li>
+<li>void <a href="#SetDummy2"><b>SetDummy2</b></a>(int Dummy2);</li>
+<li>void <a href="#SetFileName"><b>SetFileName</b></a>(QString FileName);</li>
+<li>bool <a href="#SetGlobalQPSet"><b>SetGlobalQPSet</b></a>(QString QPSetName, double CURRENT, int SPEED, int FREQUENCY, bool bSave);</li>
+<li>void <a href="#SetHasMatrix"><b>SetHasMatrix</b></a>(bool HasMatrix);</li>
+<li>bool <a href="#SetHatchParam"><b>SetHatchParam</b></a>(QString hpname, eHSType hstype, eHatchParamType partype, QVariant varVal);</li>
+<li>bool <a href="#SetHatchProperties"><b>SetHatchProperties</b></a>(QString MOName, bool Unidirectional, bool Bidirectional, bool Meandering, bool OnTheFly, double LineExcess, bool NoOutline, bool Inverse, bool OutlineCorrection, bool AutoLineWidth, bool OptimizeJumps, double HatchAngle, double FromOutline, double Overlap);</li>
+<li>bool <a href="#SetLaserable"><b>SetLaserable</b></a>(QString MOName, bool bFlag);</li>
+<li>bool <a href="#SetLogo"><b>SetLogo</b></a>(QString ObjectName, QString VariableValue);</li>
+<li>bool <a href="#SetMODescription"><b>SetMODescription</b></a>(QString MOName, QString description);</li>
+<li>void <a href="#SetMOInfoFilter"><b>SetMOInfoFilter</b></a>(LMOSMOTypeConstants filter);</li>
+<li>bool <a href="#SetMOLayer"><b>SetMOLayer</b></a>(QString MOName, QString LayerName);</li>
+<li>bool <a href="#SetMatrixCellAngle"><b>SetMatrixCellAngle</b></a>(QString MatrixName, double dAngle);</li>
+<li>bool <a href="#SetMatrixCellOccupation"><b>SetMatrixCellOccupation</b></a>(QString MatrixName, int iCellIndex, bool IsOccupied);</li>
+<li>bool <a href="#SetMatrixCellOccupationAll"><b>SetMatrixCellOccupationAll</b></a>(QString MatrixName, QVariant& OccValues);</li>
+<li>bool <a href="#SetMatrixCellOffset"><b>SetMatrixCellOffset</b></a>(QString MatrixName, int iCellIndex, double OffX, double OffY, double OffPhi);</li>
+<li>bool <a href="#SetMatrixCellOffsetAll"><b>SetMatrixCellOffsetAll</b></a>(QString MatrixName, QVariant& OffXValues, QVariant& OffYValues, QVariant& OffPhiValues);</li>
+<li>bool <a href="#SetMatrixMaxBinCount"><b>SetMatrixMaxBinCount</b></a>(QString MatrixName, int MaxBinCount);</li>
+<li>bool <a href="#SetMatrixRefCell"><b>SetMatrixRefCell</b></a>(QString MatrixName, int iIndex, bool bDrawRefCellOnly);</li>
+<li>void <a href="#SetNumBurstPulses"><b>SetNumBurstPulses</b></a>(eQPType qptype, int Index, int val);</li>
+<li>bool <a href="#SetPosValues"><b>SetPosValues</b></a>(QString ObjectName, double dX, double dY, double dAngle);</li>
+<li>bool <a href="#SetQPSetActuatingVariable"><b>SetQPSetActuatingVariable</b></a>(QString qpname, eQPType qptype, LMOSPowerActuatingVariable actVariable);</li>
+<li>bool <a href="#SetQualityParam"><b>SetQualityParam</b></a>(QString qpname, eQPType qptype, eParamType partype, QVariant varVal, bool bSave);</li>
+<li>bool <a href="#SetRuntimeHeadOffset"><b>SetRuntimeHeadOffset</b></a>(double X, double Y, int hindex);</li>
+<li>void <a href="#SetSignal"><b>SetSignal</b></a>(eSignalConstants Signal, bool Value);</li>
+<li>void <a href="#SetSuppressAutoRedraw"><b>SetSuppressAutoRedraw</b></a>(bool SuppressAutoRedraw);</li>
+<li>bool <a href="#SetSurfaceRadius"><b>SetSurfaceRadius</b></a>(double radius);</li>
+<li>bool <a href="#SetSurfaceRefPoint"><b>SetSurfaceRefPoint</b></a>(double RefX, double RefY, double RefZ);</li>
+<li>bool <a href="#SetSurfaceVector"><b>SetSurfaceVector</b></a>(double VecX, double VecY, double VecZ);</li>
+<li>bool <a href="#SetSystemParameter"><b>SetSystemParameter</b></a>(eSystemParameterSet partype, QVariant varVal);</li>
+<li>bool <a href="#SetText"><b>SetText</b></a>(QString ObjectName, QString VariableValue);</li>
+<li>void <a href="#ShowMarkingArea"><b>ShowMarkingArea</b></a>();</li>
+<li>void <a href="#ShowMarkingAreaZoom"><b>ShowMarkingAreaZoom</b></a>();</li>
+<li>void <a href="#ShowMatrixCell"><b>ShowMatrixCell</b></a>();</li>
+<li>void <a href="#ShowMatrixCell2"><b>ShowMatrixCell2</b></a>(QString MatrixName);</li>
+<li>void <a href="#ShowMatrixCellZoom"><b>ShowMatrixCellZoom</b></a>();</li>
+<li>void <a href="#ShowWholeDrawing"><b>ShowWholeDrawing</b></a>();</li>
+<li>bool <a href="#ShowZoomWindow"><b>ShowZoomWindow</b></a>(int topLeftX, int topLeftY, int bottomRightX, int bottomRightY);</li>
+<li>bool <a href="#SplitDrawing"><b>SplitDrawing</b></a>(double offset, double Overlap);</li>
+<li>bool <a href="#StartMarking"><b>StartMarking</b></a>();</li>
+<li>void <a href="#StartPosHelp"><b>StartPosHelp</b></a>(QString ObjectName);</li>
+<li>void <a href="#StartPosHelpLast"><b>StartPosHelpLast</b></a>(QString ObjectName);</li>
+<li>void <a href="#StdCorr"><b>StdCorr</b></a>(int hindex);</li>
+<li>bool <a href="#StopMarking"><b>StopMarking</b></a>();</li>
+<li>void <a href="#StopPosHelp"><b>StopPosHelp</b></a>();</li>
+<li>void <a href="#SynchronizeMarking"><b>SynchronizeMarking</b></a>();</li>
+<li>bool <a href="#TTLFieldCorr"><b>TTLFieldCorr</b></a>(QString FileName, int Action, int Head);</li>
+<li>bool <a href="#TTLGetAbsPosValues"><b>TTLGetAbsPosValues</b></a>(QString ObjectName, int lMatrixCellIndex, double& dX, double& dY, double& dAngle);</li>
+<li>bool <a href="#TTLPxCamera"><b>TTLPxCamera</b></a>(double dX, double dY);</li>
+<li>bool <a href="#TTLPxLaser"><b>TTLPxLaser</b></a>(double dX, double dY);</li>
+<li>bool <a href="#TermMachine"><b>TermMachine</b></a>();</li>
+<li>bool <a href="#TermMachineEx"><b>TermMachineEx</b></a>(eMachineModuleConstants ModulesMask);</li>
+<li>IDispatch* <a href="#TextObjects"><b>TextObjects</b></a>(QString MOName);</li>
+<li>IDispatch* <a href="#Variable"><b>Variable</b></a>(int Index);</li>
+<li>bool <a href="#WaitOnByte"><b>WaitOnByte</b></a>(InPortConstants Port, int bMask, int bData, int lTimeOut);</li>
+<li>bool <a href="#WaitOnIOBit"><b>WaitOnIOBit</b></a>(QVariant bitfunction, QVariant values, int timeout);</li>
+<li>bool <a href="#WriteByte"><b>WriteByte</b></a>(OutPortConstants Port, int bMask, int bData);</li>
+<li>bool <a href="#WriteIOBit"><b>WriteIOBit</b></a>(QVariant bitfunction, QVariant values);</li>
+</ul>
+<h2>Signals:</h2>
+<ul>
+<li>void <a href="#ALARM"><b>ALARM</b></a>(int LAlarm, QString description, QString MOName, int MOId);</li>
+<li>void <a href="#CurrentChanged"><b>CurrentChanged</b></a>(double dCurrent);</li>
+<li>void <a href="#Disconnect"><b>Disconnect</b></a>();</li>
+<li>void <a href="#ExchangeDataToActX"><b>ExchangeDataToActX</b></a>(QString& Names, QString& values);</li>
+<li>void <a href="#ExternalStart"><b>ExternalStart</b></a>();</li>
+<li>void <a href="#ExternalStop"><b>ExternalStop</b></a>();</li>
+<li>void <a href="#FrequencyChanged"><b>FrequencyChanged</b></a>(int lFrequency);</li>
+<li>void <a href="#ImageBegin"><b>ImageBegin</b></a>();</li>
+<li>void <a href="#ImageEnd"><b>ImageEnd</b></a>();</li>
+<li>void <a href="#ImageEnd2"><b>ImageEnd2</b></a>(double dExecutionTime, ImageResultConstants Result);</li>
+<li>void <a href="#JobBegin"><b>JobBegin</b></a>();</li>
+<li>void <a href="#JobEnd"><b>JobEnd</b></a>();</li>
+<li>void <a href="#JobPageBegin"><b>JobPageBegin</b></a>(QString JobPageName);</li>
+<li>void <a href="#JobPageEnd"><b>JobPageEnd</b></a>(QString JobPageName);</li>
+<li>void <a href="#LaserPowerChanged"><b>LaserPowerChanged</b></a>(double dCurrent, QString& UnitText);</li>
+<li>void <a href="#LoadVLM"><b>LoadVLM</b></a>(QString FileName);</li>
+<li>void <a href="#MOBegin"><b>MOBegin</b></a>();</li>
+<li>void <a href="#MOBeginName"><b>MOBeginName</b></a>(QString& ObjectName);</li>
+<li>void <a href="#MOEnd"><b>MOEnd</b></a>();</li>
+<li>void <a href="#MOEndName"><b>MOEndName</b></a>(QString& ObjectName);</li>
+<li>void <a href="#MatrixBegin"><b>MatrixBegin</b></a>(QString& Name);</li>
+<li>void <a href="#MatrixCellBegin"><b>MatrixCellBegin</b></a>(QString& Name, int CellIndex, bool IsSlaveCell);</li>
+<li>void <a href="#MatrixCellEnd"><b>MatrixCellEnd</b></a>(QString& Name, int CellIndex, bool IsSlaveCell);</li>
+<li>void <a href="#MatrixEnd"><b>MatrixEnd</b></a>(QString& Name);</li>
+<li>void <a href="#MatrixPartBegin"><b>MatrixPartBegin</b></a>(QString& Name, int PartIndex, int CntCellsInPart);</li>
+<li>void <a href="#MatrixPartEnd"><b>MatrixPartEnd</b></a>(QString& Name, int PartIndex, int CntCellsInPart);</li>
+<li>void <a href="#MessageMap"><b>MessageMap</b></a>(QString& Message);</li>
+<li>void <a href="#MouseDown"><b>MouseDown</b></a>(int button, int shift, double X, double Y);</li>
+<li>void <a href="#MouseUp"><b>MouseUp</b></a>(int button, int shift, double X, double Y);</li>
+<li>void <a href="#PLCEvent"><b>PLCEvent</b></a>(QString& ID1, QString& ID2, QString& Message);</li>
+<li>void <a href="#ShutterStateChanged"><b>ShutterStateChanged</b></a>(ShutterStateConstants state);</li>
+<li>void <a href="#SpeedChanged"><b>SpeedChanged</b></a>(int lSpeed);</li>
+<li>void <a href="#SubStateChanged"><b>SubStateChanged</b></a>(eLaserSubStateConstants newSubState);</li>
+<li>void <a href="#exception"><b>exception</b></a>(int code, QString source, QString disc, QString help);</li>
+<li>void <a href="#propertyChanged"><b>propertyChanged</b></a>(QString name);</li>
+<li>void <a href="#signal"><b>signal</b></a>(QString name, int argc, void* argv);</li>
+</ul>
+<h2>Properties:</h2>
+<ul>
+<li>QString <a href="#objectName"><b>objectName</b></a>;</li>
+<li>IDispatch* <a href="#AllComponents"><b>AllComponents</b></a>;</li>
+<li>IDispatch* <a href="#AllMachineCfgParams"><b>AllMachineCfgParams</b></a>;</li>
+<li>bool <a href="#AutoSignalJobEnd"><b>AutoSignalJobEnd</b></a>;</li>
+<li>bool <a href="#AutoSignalMarkingEnd"><b>AutoSignalMarkingEnd</b></a>;</li>
+<li>IDispatch* <a href="#Axis"><b>Axis</b></a>;</li>
+<li>int <a href="#Dummy1"><b>Dummy1</b></a>;</li>
+<li>int <a href="#Dummy2"><b>Dummy2</b></a>;</li>
+<li>QString <a href="#FileName"><b>FileName</b></a>;</li>
+<li>IDispatch* <a href="#GlobalVariables"><b>GlobalVariables</b></a>;</li>
+<li>bool <a href="#HasMatrix"><b>HasMatrix</b></a>;</li>
+<li>IDispatch* <a href="#JobPages"><b>JobPages</b></a>;</li>
+<li>IDispatch* <a href="#Layers"><b>Layers</b></a>;</li>
+<li>IDispatch* <a href="#LocalVariables"><b>LocalVariables</b></a>;</li>
+<li>IDispatch* <a href="#MOInfos"><b>MOInfos</b></a>;</li>
+<li>IDispatch* <a href="#MachineCfg"><b>MachineCfg</b></a>;</li>
+<li>IDispatch* <a href="#PowerDlg"><b>PowerDlg</b></a>;</li>
+<li>bool <a href="#SuppressAutoRedraw"><b>SuppressAutoRedraw</b></a>;</li>
+<li>QString <a href="#VLMBuildLevel"><b>VLMBuildLevel</b></a>;</li>
+<li>QString <a href="#VLMVersion"><b>VLMVersion</b></a>;</li>
+<li>int <a href="#VariableCnt"><b>VariableCnt</b></a>;</li>
+<li>QString <a href="#control"><b>control</b></a>;</li>
+</ul>
+<hr><h2>Member Type Documentation</h2>
+<h3><a name=ALARM></a>ALARM</h3>
+<ul>
+<li>ALARM_NONE	=0</li>
+<li>ALARM_LASER_COMM	=1</li>
+<li>ALARM_LASER	=2</li>
+<li>ALARM_LASER_POWER	=3</li>
+<li>ALARM_PLC_COMM	=4</li>
+<li>ALARM_PLC_AXES	=5</li>
+<li>ALARM_BEAMSWITCH	=6</li>
+<li>ALARM_APERTURE	=7</li>
+<li>ALARM_STEPANDREPEAT	=8</li>
+<li>ALARM_GALVO	=9</li>
+<li>ALARM_MO_EXECUTE	=10</li>
+<li>ALARM_MO_RESOURCE	=11</li>
+<li>ALARM_UNKNOWN	=12</li>
+<li>ALARM_STOP	=13</li>
+<li>ALARM_XXDRIVER	=14</li>
+<li>ALARM_FIELD_CORR	=15</li>
+<li>ALARM_NO_MARK	=16</li>
+<li>ALARM_CONTROLLER	=17</li>
+<li>ALARM_ASC	=18</li>
+<li>ALARM_SHADOW	=19</li>
+<li>ALARM_MISSING_AXIS	=20</li>
+<li>ALARM_SHUTTER_PROCESS	=21</li>
+<li>ALARM_3D_CORRECTION	=22</li>
+<li>ALARM_FFM	=23</li>
+<li>ALARM_LICENSE	=24</li>
+<li>ALARM_PARAMETER	=25</li>
+<li>ALARM_LAST_ALARM	=26</li>
+</ul>
+<h3><a name=FrameModeConstants></a>FrameModeConstants</h3>
+<ul>
+<li>lmosKeepTextHeight	=3</li>
+<li>lmosKeepRatio	=7</li>
+<li>lmosSizeToFrame	=1</li>
+</ul>
+<h3><a name=ImageResultConstants></a>ImageResultConstants</h3>
+<ul>
+<li>ImageOK	=0</li>
+<li>ImageStop	=1</li>
+<li>ImageWarning	=2</li>
+<li>ImageError	=3</li>
+</ul>
+<h3><a name=InPortConstants></a>InPortConstants</h3>
+<ul>
+<li>Port1B	=0</li>
+<li>Port1C_In	=1</li>
+<li>Port1D	=2</li>
+<li>Port1E	=3</li>
+</ul>
+<h3><a name=LMOSActXErrorConstants></a>LMOSActXErrorConstants</h3>
+<ul>
+<li>lmosErrorInvalidLayerName	=1536</li>
+<li>lmosErrorInvalidVariableIndex	=1537</li>
+<li>lmosErrorInvalidVariableValue	=1538</li>
+<li>lmosErrorNoPowerMeasurementInstalled	=1539</li>
+<li>lmosErrorNoPowerMeasurementWhileMarking	=1540</li>
+<li>lmosErrorNoMO	=1541</li>
+<li>lmosErrorNoTree	=1542</li>
+<li>lmosErrorNoDCPcld	=1543</li>
+<li>lmosErrorAlarm	=1544</li>
+<li>lmosErrorInvalidState	=1545</li>
+<li>lmosErrorNoAxis	=1546</li>
+<li>lmosErrorImport	=1547</li>
+<li>lmosErrorGlobalVars	=1548</li>
+<li>lmosErrorCorrection	=1549</li>
+<li>lmosErrorSizePos	=1550</li>
+<li>lmosErrorMOQPSet	=1551</li>
+<li>lmosErrorQPSetProperties	=1648</li>
+<li>lmosErrorSelectBinAll	=1649</li>
+<li>lmosErrorSetOccAll	=1650</li>
+<li>lmosErrorNoVLMJob	=1651</li>
+<li>lmosErrorSetCellOffsetAll	=1652</li>
+</ul>
+<h3><a name=LMOSMOTypeConstants></a>LMOSMOTypeConstants</h3>
+<ul>
+<li>lmosMOUndefined	=0</li>
+<li>lmosMORoot	=22</li>
+<li>lmosMOGroup	=16</li>
+<li>lmosMOMaxMarkingArea	=19</li>
+<li>lmosMOGalvoGroupShadow	=18</li>
+<li>lmosMOGalvoHeadShadow	=20</li>
+<li>lmosMOProxy	=21</li>
+<li>lmosMOBarcode	=1</li>
+<li>lmosMOMatrixCode	=8</li>
+<li>lmosMOBezier	=2</li>
+<li>lmosMOBitmap	=3</li>
+<li>lmosMOEllipse	=5</li>
+<li>lmosMOLogo	=6</li>
+<li>lmosMOPolyLine	=9</li>
+<li>lmosMORectangle	=10</li>
+<li>lmosMOText	=11</li>
+<li>lmosMORingText	=12</li>
+<li>lmosMOBurst	=4</li>
+<li>lmosMOInfoglyph	=14</li>
+<li>lmosMOVLMRef	=13</li>
+<li>lmosMOMatrix	=7</li>
+<li>lmosMOMatrixCell	=15</li>
+<li>lmosMOTable	=17</li>
+<li>lmosMOMatrixcodeGroup	=23</li>
+</ul>
+<h3><a name=LMOSPowerActuatingVariable></a>LMOSPowerActuatingVariable</h3>
+<ul>
+<li>ACTVAR_PUMP_POWER	=0</li>
+<li>ACTVAR_OUTPUT_POWER	=1</li>
+<li>ACTVAR_POD_POWER	=2</li>
+<li>ACTVAR_POD_OUTPUT_POWER	=3</li>
+</ul>
+<h3><a name=LMOSQPSetTypeConstants></a>LMOSQPSetTypeConstants</h3>
+<ul>
+<li>lmosQPTypeIndividual	=10</li>
+<li>lmosQPTypeLocal	=11</li>
+<li>lmosQPTypeGlobal	=12</li>
+</ul>
+<h3><a name=LMOSSaveAsVersionConstants></a>LMOSSaveAsVersionConstants</h3>
+<ul>
+<li>lmosSaveAsCurrentVersion	=0</li>
+<li>lmosSaveAsVersion32	=1</li>
+<li>lmosSaveAsVersion36	=2</li>
+<li>lmosSaveAsVersion46	=3</li>
+</ul>
+<h3><a name=MachineCfgCategoryConstants></a>MachineCfgCategoryConstants</h3>
+<ul>
+<li>lmosCategorySetup	=0</li>
+<li>lmosCategoryGalvo1	=1</li>
+<li>lmosCategoryGalvo2	=2</li>
+<li>lmosCategoryGalvoControl	=3</li>
+<li>lmosCategoryAxes	=4</li>
+<li>lmosCategoryAperture	=5</li>
+<li>lmosCategoryMisc	=6</li>
+</ul>
+<h3><a name=MachineCfgValueConstants></a>MachineCfgValueConstants</h3>
+<ul>
+<li>lmosValueXAxisEndless	=0</li>
+<li>lmosValueYAxisEndless	=1</li>
+<li>lmosValueZAxisEndless	=2</li>
+<li>lmosValueVAxisEndless	=3</li>
+<li>lmosValueWAxisEndless	=4</li>
+</ul>
+<h3><a name=OrientationConstants></a>OrientationConstants</h3>
+<ul>
+<li>lmosLeftTop	=0</li>
+<li>lmosCenterTop	=1</li>
+<li>lmosRightTop	=2</li>
+<li>lmosLeftCenter	=3</li>
+<li>lmosCenterCenter	=4</li>
+<li>lmosRightCenter	=5</li>
+<li>lmosLeftBottom	=6</li>
+<li>lmosCenterBottom	=7</li>
+<li>lmosRightBottom	=8</li>
+</ul>
+<h3><a name=OutPortConstants></a>OutPortConstants</h3>
+<ul>
+<li>Port1A	=0</li>
+<li>Port1C	=1</li>
+<li>Port2A	=2</li>
+<li>Port2B	=3</li>
+<li>Port2C	=4</li>
+</ul>
+<h3><a name=ShutterStateConstants></a>ShutterStateConstants</h3>
+<ul>
+<li>StateClosed	=0</li>
+<li>StateOpen	=1</li>
+<li>StateError	=-1</li>
+</ul>
+<h3><a name=eAperture></a>eAperture</h3>
+<ul>
+<li>SMALL_APERTURE	=1</li>
+<li>LARGE_APERTURE	=2</li>
+</ul>
+<h3><a name=eAxisErrorType></a>eAxisErrorType</h3>
+<ul>
+<li>AXIS_ERROR_GENERAL	=0</li>
+<li>AXIS_ERROR_NO_REF	=1</li>
+<li>AXIS_ERROR_MOVING_ACTIVE	=2</li>
+<li>AXIS_ERROR_SW_LIMIT_MIN	=3</li>
+<li>AXIS_ERROR_SW_LIMIT_MAX	=4</li>
+<li>AXIS_ERROR_HW_LIMIT_MIN	=5</li>
+<li>AXIS_ERROR_HW_LIMIT_MAX	=6</li>
+</ul>
+<h3><a name=eAxisParamType></a>eAxisParamType</h3>
+<ul>
+<li>VELOCITY	=2</li>
+<li>ACCELERATION	=3</li>
+<li>DECELERATION	=4</li>
+<li>SCALE_USR	=5</li>
+<li>SCALE_INC	=6</li>
+<li>MIN_VELOCITY	=19</li>
+<li>MAX_VELOCITY	=20</li>
+<li>SETACTUAL_POSITION	=32</li>
+<li>ACCELERATION_MIN	=33</li>
+<li>ACCELERATION_MAX	=34</li>
+<li>DECELERATION_MIN	=35</li>
+<li>DECELERATION_MAX	=36</li>
+<li>DECEL_IDENTICAL_ACCEL	=37</li>
+<li>VELOCITY_ROT	=38</li>
+<li>ACCELERATION_ROT	=39</li>
+<li>DECELERATION_ROT	=40</li>
+</ul>
+<h3><a name=eAxisStateType></a>eAxisStateType</h3>
+<ul>
+<li>AXIS_STATE_OPERATING	=0</li>
+<li>AXIS_STATE_IN_POSITION	=1</li>
+<li>AXIS_STATE_REFERENCED	=2</li>
+</ul>
+<h3><a name=eAxisType></a>eAxisType</h3>
+<ul>
+<li>R_AXIS	=9</li>
+<li>S_AXIS	=10</li>
+<li>T_AXIS	=11</li>
+<li>U_AXIS	=12</li>
+<li>V_AXIS	=13</li>
+<li>W_AXIS	=14</li>
+<li>X_AXIS	=15</li>
+<li>Y_AXIS	=16</li>
+<li>Z_AXIS	=17</li>
+<li>NO_AXIS	=30</li>
+</ul>
+<h3><a name=eDriftModes></a>eDriftModes</h3>
+<ul>
+<li>CALIBRATE	=0</li>
+<li>MEASURE	=1</li>
+</ul>
+<h3><a name=eHSType></a>eHSType</h3>
+<ul>
+<li>LOCAL_HATCH_SET	=0</li>
+<li>GLOBAL_HATCH_SET	=1</li>
+</ul>
+<h3><a name=eHatchParamType></a>eHatchParamType</h3>
+<ul>
+<li>Unidirectional	=0</li>
+<li>Bidirectional	=1</li>
+<li>Meandering	=2</li>
+<li>ON_THE_FLY	=3</li>
+<li>LINE_EXCESS	=4</li>
+<li>NO_OUTLINE	=5</li>
+<li>Inverse	=6</li>
+<li>AUTO_LINEWIDTH	=7</li>
+<li>OPTIMIZE_JUMPS	=8</li>
+<li>HATCH_ANGLE	=9</li>
+<li>HATCH_ANGLE_STEP	=10</li>
+<li>Overlap	=11</li>
+<li>REPEAT_COUNT	=12</li>
+<li>DISTANCE_TO_OUTLINE	=13</li>
+<li>DISTANCE_TO_OUTLINE_STEP	=14</li>
+<li>OUTLINE_OFFSET	=15</li>
+<li>HATCH_TO_OUTLINE	=16</li>
+<li>OUTLINE_CORRECTION	=17</li>
+<li>INTERLEAVE	=18</li>
+</ul>
+<h3><a name=eHeads></a>eHeads</h3>
+<ul>
+<li>HEAD1	=0</li>
+<li>HEAD2	=1</li>
+</ul>
+<h3><a name=eIODirection></a>eIODirection</h3>
+<ul>
+<li>INBIT	=0</li>
+<li>OUTBIT	=1</li>
+</ul>
+<h3><a name=eJogType></a>eJogType</h3>
+<ul>
+<li>JOG_STOP	=0</li>
+<li>JOG_NEG_SLOW	=1</li>
+<li>JOG_POS_SLOW	=2</li>
+<li>JOG_NEG_FAST	=3</li>
+<li>JOG_POS_FAST	=4</li>
+</ul>
+<h3><a name=eLaserSubStateConstants></a>eLaserSubStateConstants</h3>
+<ul>
+<li>laserSubStateInstable	=0</li>
+<li>laserSubStateStable	=1</li>
+<li>laserSubStateConservation	=2</li>
+<li>laserSubStateWarmup	=3</li>
+</ul>
+<h3><a name=eMachineModuleConstants></a>eMachineModuleConstants</h3>
+<ul>
+<li>Mod_Nothing	=0</li>
+<li>Mod_Mico	=1</li>
+<li>Mod_BeamSwitch	=2</li>
+<li>Mod_Aperture	=4</li>
+<li>Mod_Axes	=8</li>
+<li>Mod_Driver	=16</li>
+<li>Mod_PowerConfig	=32</li>
+<li>Mod_PosHelp	=64</li>
+<li>Mod_All	=127</li>
+<li>No_Mico	=65536</li>
+<li>No_BeamSwitch	=131072</li>
+<li>No_Aperture	=262144</li>
+<li>No_Axes	=524288</li>
+<li>No_Driver	=1048576</li>
+<li>No_PowerConfig	=2097152</li>
+<li>No_PosHelp	=4194304</li>
+<li>LaserMarker_Source_of_ShutDown	=134217728</li>
+</ul>
+<h3><a name=eParamType></a>eParamType</h3>
+<ul>
+<li>CURRENT	=0</li>
+<li>FREQUENCY	=1</li>
+<li>SPEED	=2</li>
+<li>LIMIT	=3</li>
+<li>STEP	=4</li>
+<li>DELAY_BEAM_ON	=5</li>
+<li>DELAY_BEAM_OFF	=6</li>
+<li>DELAY_CORNER	=7</li>
+<li>DELAY_JUMP_MAX	=8</li>
+<li>DELAY_JUMP_MIN	=9</li>
+<li>DELAY_SATUR	=10</li>
+<li>APERTURE_SIZE	=11</li>
+<li>PARAMETER_ID	=12</li>
+<li>DELAY_AFTER_GATE	=13</li>
+<li>DELAY_OTF_BEGIN	=14</li>
+<li>DELAY_OTF_END	=15</li>
+<li>JUMP_SPEED	=16</li>
+<li>PULSE_WIDTH	=17</li>
+<li>LINE_WIDTH	=18</li>
+<li>GREY_TABLE	=19</li>
+<li>OUTPUT_POWER	=20</li>
+<li>POD_POWER	=21</li>
+<li>POWERSUPPLY_VALUE	=22</li>
+</ul>
+<h3><a name=eQPType></a>eQPType</h3>
+<ul>
+<li>LOCAL_QPSET	=0</li>
+<li>GLOBAL_QPSET	=1</li>
+</ul>
+<h3><a name=eResourceTypes></a>eResourceTypes</h3>
+<ul>
+<li>ResFont	=0</li>
+<li>ResLPSet	=1</li>
+<li>ResFile	=2</li>
+<li>ResVar	=3</li>
+<li>ResHPSet	=4</li>
+</ul>
+<h3><a name=eSignalConstants></a>eSignalConstants</h3>
+<ul>
+<li>JobEnd	=0</li>
+<li>MarkingEnd	=1</li>
+<li>SystemReady	=2</li>
+</ul>
+<h3><a name=eSystemParameterGet></a>eSystemParameterGet</h3>
+<ul>
+<li>SHUTTER_OPEN	=0</li>
+<li>WATER_TEMP	=1</li>
+<li>CABINET_TEMP	=2</li>
+<li>FREQUENCY_ACT	=3</li>
+<li>CURRENT_ACT	=4</li>
+<li>LASER_STATE	=5</li>
+<li>LASER_ACTIVE	=6</li>
+<li>WATER_FLOW_MIN_PROG	=7</li>
+<li>WATER_FLOW	=8</li>
+<li>VALVE_LEVEL	=9</li>
+<li>EXT_WATER_VALVE	=10</li>
+<li>OPERATION_TIME_SYSTEM	=11</li>
+<li>BEAM_ON	=12</li>
+<li>POWER_ACT	=13</li>
+<li>OPERATION_TIME_DIODE	=14</li>
+</ul>
+<h3><a name=eSystemParameterSet></a>eSystemParameterSet</h3>
+<ul>
+<li>SHUTTER_OPEN_SET	=0</li>
+<li>FREQUENCY_ACT_SET	=1</li>
+<li>CURRENT_ACT_SET	=2</li>
+<li>LASER_ACTIVE_SET	=3</li>
+</ul>
+<h3><a name=pgErrorConstants></a>pgErrorConstants</h3>
+<ul>
+<li>pgNoReferenceMeasurement	=1792</li>
+<li>pgAlreadyActiveMeasurement	=1793</li>
+</ul>
+<h3><a name=pgHandleEventConstants></a>pgHandleEventConstants</h3>
+<ul>
+<li>pgSystemStart	=1</li>
+<li>pgJobLoad	=2</li>
+<li>pgStartMarking	=3</li>
+</ul>
+<h3><a name=pgResultConstants></a>pgResultConstants</h3>
+<ul>
+<li>pgResultNothing	=0</li>
+<li>pgResultValidationOk	=1</li>
+<li>pgResultValidationFailed	=2</li>
+<li>pgResultRegulationOk	=3</li>
+<li>pgResultCancel	=4</li>
+<li>pgResultError	=5</li>
+</ul>
+<hr><h2>Member Function Documentation</h2>
+<h3><a name=AboutBox></a>void AboutBox ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(AboutBox()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("AboutBox()");</pre>
+
+<h3><a name=ActivateJobPage></a>bool ActivateJobPage (QString PaneName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ActivateJobPage(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ActivateJobPage(QString)", params).toBool();</pre>
+
+<h3><a name=ActivateZoomWindow></a>void ActivateZoomWindow (bool newState)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(ActivateZoomWindow(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("ActivateZoomWindow(bool)", params);</pre>
+
+<h3><a name=AddGlobalQPSet></a>void AddGlobalQPSet (QString Name, double CURRENT, int SPEED, int FREQUENCY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 130 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double, int, int)), object, SLOT(AddGlobalQPSet(QString, double, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("AddGlobalQPSet(QString, double, int, int)", params);</pre>
+
+<h3><a name=AddImport></a>void AddImport (QString FileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(AddImport(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("AddImport(QString)", params);</pre>
+
+<h3><a name=AddLocalQPSet></a>void AddLocalQPSet (QString Name, double CURRENT, int SPEED, int FREQUENCY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 132 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double, int, int)), object, SLOT(AddLocalQPSet(QString, double, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("AddLocalQPSet(QString, double, int, int)", params);</pre>
+
+<h3><a name=BeamOn></a>void BeamOn (bool bOn)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(BeamOn(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("BeamOn(bool)", params);</pre>
+
+<h3><a name=CancelJob></a>bool CancelJob ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 21 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(CancelJob()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("CancelJob()").toBool();</pre>
+
+<h3><a name=ClearAlarms></a>bool ClearAlarms ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 146 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ClearAlarms()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("ClearAlarms()").toBool();</pre>
+
+<h3><a name=ClearLayout></a>bool ClearLayout ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 22 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ClearLayout()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("ClearLayout()").toBool();</pre>
+
+<h3><a name=DrawingAngleOffset></a>bool DrawingAngleOffset (double dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 23 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double)), object, SLOT(DrawingAngleOffset(double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("DrawingAngleOffset(double)", params).toBool();</pre>
+
+<h3><a name=DrawingGetDimension></a>bool DrawingGetDimension (double& dWidth, double& dHeight)<tt> [slot]</tt></h3>
+<p>For more information, see help context 24 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double&, double&)), object, SLOT(DrawingGetDimension(double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("DrawingGetDimension(double&, double&)", params).toBool();</pre>
+
+<h3><a name=DrawingGetGalvoHead></a>QString DrawingGetGalvoHead ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(DrawingGetGalvoHead()));</pre>
+<p>Or call the function directly:<pre>
+	QString result = object->dynamicCall("DrawingGetGalvoHead()").toString();</pre>
+
+<h3><a name=DrawingGetPosValues></a>bool DrawingGetPosValues (double& dX, double& dY, double& dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 25 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double&, double&, double&)), object, SLOT(DrawingGetPosValues(double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("DrawingGetPosValues(double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=DrawingPosOffset></a>bool DrawingPosOffset (double dX, double dY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 26 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double)), object, SLOT(DrawingPosOffset(double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("DrawingPosOffset(double, double)", params).toBool();</pre>
+
+<h3><a name=DrawingSetDimension></a>bool DrawingSetDimension (double dWidth, double dHeight)<tt> [slot]</tt></h3>
+<p>For more information, see help context 157 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double)), object, SLOT(DrawingSetDimension(double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("DrawingSetDimension(double, double)", params).toBool();</pre>
+
+<h3><a name=DrawingSetPosValues></a>bool DrawingSetPosValues (double dX, double dY, double dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 27 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double, double)), object, SLOT(DrawingSetPosValues(double, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("DrawingSetPosValues(double, double, double)", params).toBool();</pre>
+
+<h3><a name=DriftCorr></a>void DriftCorr (double lambda1, double lambda2, double deltax, double deltay, int hindex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double, double, double, int)), object, SLOT(DriftCorr(double, double, double, double, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("DriftCorr(double, double, double, double, int)", params);</pre>
+
+<h3><a name=DriftCorrInternal></a>void DriftCorrInternal (eHeads Head, eDriftModes mode)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eHeads, eDriftModes)), object, SLOT(DriftCorrInternal(eHeads, eDriftModes)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("DriftCorrInternal(eHeads, eDriftModes)", params);</pre>
+
+<h3><a name=EnableJobPage></a>bool EnableJobPage (QString PaneName, bool enabled)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool)), object, SLOT(EnableJobPage(QString, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("EnableJobPage(QString, bool)", params).toBool();</pre>
+
+<h3><a name=ExportAsLogo></a>bool ExportAsLogo (QString LogoName, bool ExportEllipsesAsPolylines, int IncrementsPerFullEllipse)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool, int)), object, SLOT(ExportAsLogo(QString, bool, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ExportAsLogo(QString, bool, int)", params).toBool();</pre>
+
+<h3><a name=ExportPl0></a>bool ExportPl0 (QString PL0FileName, bool bShowInitDlg)<tt> [slot]</tt></h3>
+<p>For more information, see help context 138 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool)), object, SLOT(ExportPl0(QString, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ExportPl0(QString, bool)", params).toBool();</pre>
+
+<h3><a name=ExportVISFile></a>bool ExportVISFile (QString VISFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 28 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ExportVISFile(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ExportVISFile(QString)", params).toBool();</pre>
+
+<h3><a name=FileName2></a>bool FileName2 (QString FName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 29 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(FileName2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("FileName2(QString)", params).toBool();</pre>
+
+<h3><a name=GetAlarms></a>QVariant GetAlarms ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 145 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetAlarms()));</pre>
+<p>Or call the function directly:<pre>
+	QVariant result = object->dynamicCall("GetAlarms()");</pre>
+
+<h3><a name=GetAxisUsedInVLM></a>bool GetAxisUsedInVLM (eAxisType eAxis)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eAxisType)), object, SLOT(GetAxisUsedInVLM(eAxisType)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetAxisUsedInVLM(eAxisType)", params).toBool();</pre>
+
+<h3><a name=GetBackgroundProperties></a>bool GetBackgroundProperties (QString MOName, bool& ShowFrame, bool& DrawFrame, bool& BackgroundBitmap, QString& BitmapName, bool& BackgroundColor, int& Color)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool&, bool&, bool&, QString&, bool&, int&)), object, SLOT(GetBackgroundProperties(QString, bool&, bool&, bool&, QString&, bool&, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetBackgroundProperties(QString, bool&, bool&, bool&, QString&, bool&, int&)", params).toBool();</pre>
+
+<h3><a name=GetDimension></a>bool GetDimension (QString ObjectName, double& dWidth, double& dHeight)<tt> [slot]</tt></h3>
+<p>For more information, see help context 30 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, double&)), object, SLOT(GetDimension(QString, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetDimension(QString, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetGalvoGroupShadowCount></a>int GetGalvoGroupShadowCount ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetGalvoGroupShadowCount()));</pre>
+<p>Or call the function directly:<pre>
+	int result = object->dynamicCall("GetGalvoGroupShadowCount()").toInt();</pre>
+
+<h3><a name=GetGalvoGroupShadowPos></a>int GetGalvoGroupShadowPos (int shadowNr, double& xpos, double& ypos)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int, double&, double&)), object, SLOT(GetGalvoGroupShadowPos(int, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("GetGalvoGroupShadowPos(int, double&, double&)", params).toInt();</pre>
+
+<h3><a name=GetGalvoGroupShadowWidth></a>int GetGalvoGroupShadowWidth (int shadowNr, double& Width)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int, double&)), object, SLOT(GetGalvoGroupShadowWidth(int, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("GetGalvoGroupShadowWidth(int, double&)", params).toInt();</pre>
+
+<h3><a name=GetGlobalHatchSetNames></a>QVariant GetGlobalHatchSetNames ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 179 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetGlobalHatchSetNames()));</pre>
+<p>Or call the function directly:<pre>
+	QVariant result = object->dynamicCall("GetGlobalHatchSetNames()");</pre>
+
+<h3><a name=GetGlobalQPSet></a>bool GetGlobalQPSet (QString QPSetName, double& CURRENT, int& SPEED, int& FREQUENCY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 39 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, int&, int&)), object, SLOT(GetGlobalQPSet(QString, double&, int&, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetGlobalQPSet(QString, double&, int&, int&)", params).toBool();</pre>
+
+<h3><a name=GetGlobalQPSetNames></a>QVariant GetGlobalQPSetNames ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 135 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetGlobalQPSetNames()));</pre>
+<p>Or call the function directly:<pre>
+	QVariant result = object->dynamicCall("GetGlobalQPSetNames()");</pre>
+
+<h3><a name=GetHatchParam></a>bool GetHatchParam (QString hpname, eHSType hstype, eHatchParamType partype, QVariant& varVal)<tt> [slot]</tt></h3>
+<p>For more information, see help context 180 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, eHSType, eHatchParamType, QVariant&)), object, SLOT(GetHatchParam(QString, eHSType, eHatchParamType, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetHatchParam(QString, eHSType, eHatchParamType, QVariant&)", params).toBool();</pre>
+
+<h3><a name=GetHatchProperties></a>bool GetHatchProperties (QString MOName, bool& Unidirectional, bool& Bidirectional, bool& Meandering, bool& OnTheFly, double& LineExcess, bool& NoOutline, bool& Inverse, bool& OutlineCorrection, bool& AutoLineWitdth, bool& OptimizeJumps, double& HatchAngle, double& FromOutline, double& Overlap)<tt> [slot]</tt></h3>
+<p>For more information, see help context 188 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool&, bool&, bool&, bool&, double&, bool&, bool&, bool&, bool&, bool&, double&, double&, double&)), object, SLOT(GetHatchProperties(QString, bool&, bool&, bool&, bool&, double&, bool&, bool&, bool&, bool&, bool&, double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetHatchProperties(QString, bool&, bool&, bool&, bool&, double&, bool&, bool&, bool&, bool&, bool&, double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetIODefinitions></a>bool GetIODefinitions (eIODirection eDir, QVariant bitfunction)<tt> [slot]</tt></h3>
+<p>For more information, see help context 177 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eIODirection, QVariant)), object, SLOT(GetIODefinitions(eIODirection, QVariant)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetIODefinitions(eIODirection, QVariant)", params).toBool();</pre>
+
+<h3><a name=GetLayerProperties></a>bool GetLayerProperties (QString MOName, QString& LayerName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 186 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString&)), object, SLOT(GetLayerProperties(QString, QString&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetLayerProperties(QString, QString&)", params).toBool();</pre>
+
+<h3><a name=GetLocalQPSetNames></a>QVariant GetLocalQPSetNames ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 136 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetLocalQPSetNames()));</pre>
+<p>Or call the function directly:<pre>
+	QVariant result = object->dynamicCall("GetLocalQPSetNames()");</pre>
+
+<h3><a name=GetLogo></a>QString GetLogo (QString ObjectName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetLogo(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QString result = object->dynamicCall("GetLogo(QString)", params).toString();</pre>
+
+<h3><a name=GetLogoFilesPath></a>QString GetLogoFilesPath ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetLogoFilesPath()));</pre>
+<p>Or call the function directly:<pre>
+	QString result = object->dynamicCall("GetLogoFilesPath()").toString();</pre>
+
+<h3><a name=GetLogoProperties></a>bool GetLogoProperties (QString LogoName, QString& FileName, bool& OriginalSize, double& xScale, double& yScale, double& Slant, bool& Hatch)<tt> [slot]</tt></h3>
+<p>For more information, see help context 187 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString&, bool&, double&, double&, double&, bool&)), object, SLOT(GetLogoProperties(QString, QString&, bool&, double&, double&, double&, bool&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetLogoProperties(QString, QString&, bool&, double&, double&, double&, bool&)", params).toBool();</pre>
+
+<h3><a name=GetMODescription></a>QString GetMODescription (QString MOName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 36 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetMODescription(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QString result = object->dynamicCall("GetMODescription(QString)", params).toString();</pre>
+
+<h3><a name=GetMONames></a>QVariant GetMONames ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 137 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetMONames()));</pre>
+<p>Or call the function directly:<pre>
+	QVariant result = object->dynamicCall("GetMONames()");</pre>
+
+<h3><a name=GetMOQPSet></a>bool GetMOQPSet (QString MOName, QString& QPSetName, LMOSQPSetTypeConstants& QPSetType)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString&, LMOSQPSetTypeConstants&)), object, SLOT(GetMOQPSet(QString, QString&, LMOSQPSetTypeConstants&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMOQPSet(QString, QString&, LMOSQPSetTypeConstants&)", params).toBool();</pre>
+
+<h3><a name=GetMOType></a>LMOSMOTypeConstants GetMOType (QString MOName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetMOType(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	LMOSMOTypeConstants result = object->dynamicCall("GetMOType(QString)", params).toInt();</pre>
+
+<h3><a name=GetMarkingFilesPath></a>QString GetMarkingFilesPath ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 31 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetMarkingFilesPath()));</pre>
+<p>Or call the function directly:<pre>
+	QString result = object->dynamicCall("GetMarkingFilesPath()").toString();</pre>
+
+<h3><a name=GetMatrixCellAmount></a>int GetMatrixCellAmount (QString MatrixName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 32 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetMatrixCellAmount(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("GetMatrixCellAmount(QString)", params).toInt();</pre>
+
+<h3><a name=GetMatrixCellProperties></a>bool GetMatrixCellProperties (QString MatrixName, double& Width, double& Height, double& XOffset, double& YOffset, double& XShift, double& YShift, double& Orientation)<tt> [slot]</tt></h3>
+<p>For more information, see help context 182 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, double&, double&, double&, double&, double&, double&)), object, SLOT(GetMatrixCellProperties(QString, double&, double&, double&, double&, double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMatrixCellProperties(QString, double&, double&, double&, double&, double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetMatrixCustomType></a>QString GetMatrixCustomType (QString MatrixName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 34 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetMatrixCustomType(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QString result = object->dynamicCall("GetMatrixCustomType(QString)", params).toString();</pre>
+
+<h3><a name=GetMatrixGroupData></a>bool GetMatrixGroupData (QString MatrixName, int Index, double& X, int& xElements, double& Y, int& yElements)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, double&, int&, double&, int&)), object, SLOT(GetMatrixGroupData(QString, int, double&, int&, double&, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMatrixGroupData(QString, int, double&, int&, double&, int&)", params).toBool();</pre>
+
+<h3><a name=GetMatrixGroupProperties></a>bool GetMatrixGroupProperties (QString MatrixName, double& X, int& xElements, double& Y, int& yElements)<tt> [slot]</tt></h3>
+<p>For more information, see help context 184 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, int&, double&, int&)), object, SLOT(GetMatrixGroupProperties(QString, double&, int&, double&, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMatrixGroupProperties(QString, double&, int&, double&, int&)", params).toBool();</pre>
+
+<h3><a name=GetMatrixInterleaveProperties></a>bool GetMatrixInterleaveProperties (QString MatrixName, double& X, double& Y)<tt> [slot]</tt></h3>
+<p>For more information, see help context 183 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, double&)), object, SLOT(GetMatrixInterleaveProperties(QString, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMatrixInterleaveProperties(QString, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetMatrixMaxBinCount></a>int GetMatrixMaxBinCount (QString MatrixName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 35 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetMatrixMaxBinCount(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("GetMatrixMaxBinCount(QString)", params).toInt();</pre>
+
+<h3><a name=GetMatrixOptionProperties></a>bool GetMatrixOptionProperties (QString MatrixName, QString& CustomType, bool& ColoredCell, bool& ShowReferenceCell, bool& BinLayoutStatic, bool& BinLayoutDynamic, int& maxBin, bool& Multiplexed)<tt> [slot]</tt></h3>
+<p>For more information, see help context 185 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString&, bool&, bool&, bool&, bool&, int&, bool&)), object, SLOT(GetMatrixOptionProperties(QString, QString&, bool&, bool&, bool&, bool&, int&, bool&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMatrixOptionProperties(QString, QString&, bool&, bool&, bool&, bool&, int&, bool&)", params).toBool();</pre>
+
+<h3><a name=GetMatrixRowsAndColsCnt></a>bool GetMatrixRowsAndColsCnt (QString MatrixName, int& RowCnt, int& ColCnt)<tt> [slot]</tt></h3>
+<p>For more information, see help context 33 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int&, int&)), object, SLOT(GetMatrixRowsAndColsCnt(QString, int&, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetMatrixRowsAndColsCnt(QString, int&, int&)", params).toBool();</pre>
+
+<h3><a name=GetMissingResources></a>int GetMissingResources (QVariant& list)<tt> [slot]</tt></h3>
+<p>For more information, see help context 158 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QVariant&)), object, SLOT(GetMissingResources(QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("GetMissingResources(QVariant&)", params).toInt();</pre>
+
+<h3><a name=GetNoMarkMOCount></a>int GetNoMarkMOCount ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetNoMarkMOCount()));</pre>
+<p>Or call the function directly:<pre>
+	int result = object->dynamicCall("GetNoMarkMOCount()").toInt();</pre>
+
+<h3><a name=GetNumBurstPulses></a>void GetNumBurstPulses (eQPType qptype, int Index, int val)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eQPType, int, int)), object, SLOT(GetNumBurstPulses(eQPType, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("GetNumBurstPulses(eQPType, int, int)", params);</pre>
+
+<h3><a name=GetPosValues></a>bool GetPosValues (QString ObjectName, double& dX, double& dY, double& dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 37 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, double&, double&)), object, SLOT(GetPosValues(QString, double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetPosValues(QString, double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetPosValuesAbs></a>bool GetPosValuesAbs (QString ObjectName, int lMatrixCellIndex, double& dX, double& dY, double& dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 38 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, double&, double&, double&)), object, SLOT(GetPosValuesAbs(QString, int, double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetPosValuesAbs(QString, int, double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetQPSetActuatingVariable></a>LMOSPowerActuatingVariable GetQPSetActuatingVariable (QString qpname, eQPType qptype)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, eQPType)), object, SLOT(GetQPSetActuatingVariable(QString, eQPType)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	LMOSPowerActuatingVariable result = object->dynamicCall("GetQPSetActuatingVariable(QString, eQPType)", params).toInt();</pre>
+
+<h3><a name=GetQPSetProperties></a>bool GetQPSetProperties (QString QPSetName, LMOSQPSetTypeConstants QPSetType, QString MOName, QVariant& PropertyNames, QVariant& PropertyValues)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, LMOSQPSetTypeConstants, QString, QVariant&, QVariant&)), object, SLOT(GetQPSetProperties(QString, LMOSQPSetTypeConstants, QString, QVariant&, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetQPSetProperties(QString, LMOSQPSetTypeConstants, QString, QVariant&, QVariant&)", params).toBool();</pre>
+
+<h3><a name=GetQualityParam></a>bool GetQualityParam (QString qpname, eQPType qptype, eParamType partype, QVariant& varVal)<tt> [slot]</tt></h3>
+<p>For more information, see help context 139 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, eQPType, eParamType, QVariant&)), object, SLOT(GetQualityParam(QString, eQPType, eParamType, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetQualityParam(QString, eQPType, eParamType, QVariant&)", params).toBool();</pre>
+
+<h3><a name=GetResources></a>int GetResources (QVariant& list)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QVariant&)), object, SLOT(GetResources(QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("GetResources(QVariant&)", params).toInt();</pre>
+
+<h3><a name=GetRuntimeHeadOffset></a>bool GetRuntimeHeadOffset (double& X, double& Y, int hindex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double&, double&, int)), object, SLOT(GetRuntimeHeadOffset(double&, double&, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetRuntimeHeadOffset(double&, double&, int)", params).toBool();</pre>
+
+<h3><a name=GetShutterState></a>ShutterStateConstants GetShutterState ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 155 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(GetShutterState()));</pre>
+<p>Or call the function directly:<pre>
+	ShutterStateConstants result = object->dynamicCall("GetShutterState()").toInt();</pre>
+
+<h3><a name=GetSignal></a>bool GetSignal (eSignalConstants Signal)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eSignalConstants)), object, SLOT(GetSignal(eSignalConstants)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetSignal(eSignalConstants)", params).toBool();</pre>
+
+<h3><a name=GetSizePosProperties></a>bool GetSizePosProperties (QString MOName, double& PositionX, double& PositionY, double& SizeDX, double& SizeDY, double& Angle, bool& PreserveAspectRatio, bool& FlipHorizontal, bool& FlipVertical, OrientationConstants& RefPoint)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double&, double&, double&, double&, double&, bool&, bool&, bool&, OrientationConstants&)), object, SLOT(GetSizePosProperties(QString, double&, double&, double&, double&, double&, bool&, bool&, bool&, OrientationConstants&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetSizePosProperties(QString, double&, double&, double&, double&, double&, bool&, bool&, bool&, OrientationConstants&)", params).toBool();</pre>
+
+<h3><a name=GetSurfaceRadius></a>bool GetSurfaceRadius (double& radius)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double&)), object, SLOT(GetSurfaceRadius(double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetSurfaceRadius(double&)", params).toBool();</pre>
+
+<h3><a name=GetSurfaceRefPoint></a>bool GetSurfaceRefPoint (double& RefX, double& RefY, double& RefZ)<tt> [slot]</tt></h3>
+<p>For more information, see help context 172 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double&, double&, double&)), object, SLOT(GetSurfaceRefPoint(double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetSurfaceRefPoint(double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetSurfaceVector></a>bool GetSurfaceVector (double& VecX, double& VecY, double& VecZ)<tt> [slot]</tt></h3>
+<p>For more information, see help context 173 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double&, double&, double&)), object, SLOT(GetSurfaceVector(double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetSurfaceVector(double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=GetSystemParameter></a>bool GetSystemParameter (eSystemParameterGet partype, QVariant& varVal)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eSystemParameterGet, QVariant&)), object, SLOT(GetSystemParameter(eSystemParameterGet, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("GetSystemParameter(eSystemParameterGet, QVariant&)", params).toBool();</pre>
+
+<h3><a name=GetText></a>QString GetText (QString ObjectName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 40 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(GetText(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QString result = object->dynamicCall("GetText(QString)", params).toString();</pre>
+
+<h3><a name=ImportDXFFile></a>bool ImportDXFFile (QString DXFFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 149 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportDXFFile(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ImportDXFFile(QString)", params).toBool();</pre>
+
+<h3><a name=ImportDXFFile2></a>void ImportDXFFile2 (QString DXFFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 150 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportDXFFile2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("ImportDXFFile2(QString)", params);</pre>
+
+<h3><a name=ImportLogoFile></a>bool ImportLogoFile (QString XMLFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 190 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportLogoFile(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ImportLogoFile(QString)", params).toBool();</pre>
+
+<h3><a name=ImportLogoFile2></a>bool ImportLogoFile2 (QString XMLFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 191 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportLogoFile2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ImportLogoFile2(QString)", params).toBool();</pre>
+
+<h3><a name=ImportPSFile></a>bool ImportPSFile (QString PSFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 170 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportPSFile(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ImportPSFile(QString)", params).toBool();</pre>
+
+<h3><a name=ImportPSFile2></a>void ImportPSFile2 (QString PSFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 171 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportPSFile2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("ImportPSFile2(QString)", params);</pre>
+
+<h3><a name=ImportXMLFile></a>bool ImportXMLFile (QString XMLFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 42 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportXMLFile(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ImportXMLFile(QString)", params).toBool();</pre>
+
+<h3><a name=ImportXMLFile2></a>void ImportXMLFile2 (QString XMLFileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 151 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ImportXMLFile2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("ImportXMLFile2(QString)", params);</pre>
+
+<h3><a name=InitMachine></a>bool InitMachine ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 44 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(InitMachine()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("InitMachine()").toBool();</pre>
+
+<h3><a name=InitMachineEx></a>bool InitMachineEx (eMachineModuleConstants ModulesMask)<tt> [slot]</tt></h3>
+<p>For more information, see help context 44 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eMachineModuleConstants)), object, SLOT(InitMachineEx(eMachineModuleConstants)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("InitMachineEx(eMachineModuleConstants)", params).toBool();</pre>
+
+<h3><a name=IsAxisEnabled></a>bool IsAxisEnabled (eAxisType eAxis)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eAxisType)), object, SLOT(IsAxisEnabled(eAxisType)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("IsAxisEnabled(eAxisType)", params).toBool();</pre>
+
+<h3><a name=IsCollectBufferMode></a>bool IsCollectBufferMode ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(IsCollectBufferMode()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("IsCollectBufferMode()").toBool();</pre>
+
+<h3><a name=IsFeatureLicensed></a>bool IsFeatureLicensed (QString feature)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(IsFeatureLicensed(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("IsFeatureLicensed(QString)", params).toBool();</pre>
+
+<h3><a name=IsJobPageEnabled></a>bool IsJobPageEnabled (QString PaneName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(IsJobPageEnabled(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("IsJobPageEnabled(QString)", params).toBool();</pre>
+
+<h3><a name=IsMOName></a>int IsMOName (QString MOName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 43 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(IsMOName(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("IsMOName(QString)", params).toInt();</pre>
+
+<h3><a name=JobLoaded></a>bool JobLoaded ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 45 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(JobLoaded()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("JobLoaded()").toBool();</pre>
+
+<h3><a name=Layer></a>IDispatch* Layer (QString Name)<tt> [slot]</tt></h3>
+<p>For more information, see help context 46 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(Layer(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QAxObject * result = object->querySubObject("Layer(QString)", params);</pre>
+
+<h3><a name=LoadDefaultTemplate></a>bool LoadDefaultTemplate ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(LoadDefaultTemplate()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("LoadDefaultTemplate()").toBool();</pre>
+
+<h3><a name=LoadInclinedPlaneFCR></a>bool LoadInclinedPlaneFCR (double dAlpha, double dBeta, double dBeamOrigin, double dPlaneIntersectionOffset, int lPlaneIntersectionOrientation, int lHeadIndex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 127 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double, double, double, int, int)), object, SLOT(LoadInclinedPlaneFCR(double, double, double, double, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("LoadInclinedPlaneFCR(double, double, double, double, int, int)", params).toBool();</pre>
+
+<h3><a name=LoadJob></a>bool LoadJob ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 47 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(LoadJob()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("LoadJob()").toBool();</pre>
+
+<h3><a name=LoadXML></a>bool LoadXML (QString XMLString)<tt> [slot]</tt></h3>
+<p>For more information, see help context 152 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(LoadXML(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("LoadXML(QString)", params).toBool();</pre>
+
+<h3><a name=LoadXML2></a>void LoadXML2 (QString XMLString)<tt> [slot]</tt></h3>
+<p>For more information, see help context 153 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(LoadXML2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("LoadXML2(QString)", params);</pre>
+
+<h3><a name=LoadXMLT></a>void LoadXMLT (QString XMLString, QString TemplateName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(LoadXMLT(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("LoadXMLT(QString, QString)", params);</pre>
+
+<h3><a name=MatrixAssignBinLayout></a>bool MatrixAssignBinLayout (QString MatrixName, int BinNum, QString LayoutName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 48 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, QString)), object, SLOT(MatrixAssignBinLayout(QString, int, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MatrixAssignBinLayout(QString, int, QString)", params).toBool();</pre>
+
+<h3><a name=MatrixAssignBinText></a>bool MatrixAssignBinText (QString MatrixName, int BinNum, QString ObjectName, QString BinText)<tt> [slot]</tt></h3>
+<p>For more information, see help context 49 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, QString, QString)), object, SLOT(MatrixAssignBinText(QString, int, QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MatrixAssignBinText(QString, int, QString, QString)", params).toBool();</pre>
+
+<h3><a name=MatrixQueryBin></a>int MatrixQueryBin (QString MatrixName, int CellIndex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 50 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int)), object, SLOT(MatrixQueryBin(QString, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	int result = object->dynamicCall("MatrixQueryBin(QString, int)", params).toInt();</pre>
+
+<h3><a name=MatrixQueryBinText></a>QString MatrixQueryBinText (QString MatrixName, int BinNum, QString ObjectName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 51 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, QString)), object, SLOT(MatrixQueryBinText(QString, int, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QString result = object->dynamicCall("MatrixQueryBinText(QString, int, QString)", params).toString();</pre>
+
+<h3><a name=MatrixQueryCellsPerPart></a>bool MatrixQueryCellsPerPart (QString MatrixName, int PartIndex, int& CellStartIndex, int& CellCnt)<tt> [slot]</tt></h3>
+<p>For more information, see help context 52 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, int&, int&)), object, SLOT(MatrixQueryCellsPerPart(QString, int, int&, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MatrixQueryCellsPerPart(QString, int, int&, int&)", params).toBool();</pre>
+
+<h3><a name=MatrixQueryPartCnt></a>bool MatrixQueryPartCnt (QString MatrixName, int& PartCnt)<tt> [slot]</tt></h3>
+<p>For more information, see help context 53 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int&)), object, SLOT(MatrixQueryPartCnt(QString, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MatrixQueryPartCnt(QString, int&)", params).toBool();</pre>
+
+<h3><a name=MatrixSelectBin></a>bool MatrixSelectBin (QString MatrixName, int CellIndex, int BinNum)<tt> [slot]</tt></h3>
+<p>For more information, see help context 54 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, int)), object, SLOT(MatrixSelectBin(QString, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MatrixSelectBin(QString, int, int)", params).toBool();</pre>
+
+<h3><a name=MatrixSelectBinAll></a>bool MatrixSelectBinAll (QString MatrixName, QVariant& BinValues)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QVariant&)), object, SLOT(MatrixSelectBinAll(QString, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MatrixSelectBinAll(QString, QVariant&)", params).toBool();</pre>
+
+<h3><a name=MoveA></a>bool MoveA (QString ObjectName, double dX, double dY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 55 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double, double)), object, SLOT(MoveA(QString, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MoveA(QString, double, double)", params).toBool();</pre>
+
+<h3><a name=MoveGalvoGroupShadow></a>bool MoveGalvoGroupShadow (int shadowNr, double xpos, double ypos)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int, double, double)), object, SLOT(MoveGalvoGroupShadow(int, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("MoveGalvoGroupShadow(int, double, double)", params).toBool();</pre>
+
+<h3><a name=PLCCommand></a>bool PLCCommand (QString ID1, QString ID2, QString Command)<tt> [slot]</tt></h3>
+<p>For more information, see help context 56 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString, QString)), object, SLOT(PLCCommand(QString, QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("PLCCommand(QString, QString, QString)", params).toBool();</pre>
+
+<h3><a name=PLCCommandEx></a>bool PLCCommandEx (QString ID1, QString ID2, QVariant Command)<tt> [slot]</tt></h3>
+<p>For more information, see help context 124 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString, QVariant)), object, SLOT(PLCCommandEx(QString, QString, QVariant)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("PLCCommandEx(QString, QString, QVariant)", params).toBool();</pre>
+
+<h3><a name=ReadByte></a>bool ReadByte (InPortConstants Port, int bMask, int& InByte)<tt> [slot]</tt></h3>
+<p>For more information, see help context 58 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(InPortConstants, int, int&)), object, SLOT(ReadByte(InPortConstants, int, int&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ReadByte(InPortConstants, int, int&)", params).toBool();</pre>
+
+<h3><a name=ReadIOBit></a>bool ReadIOBit (QVariant bitfunction, QVariant& Result)<tt> [slot]</tt></h3>
+<p>For more information, see help context 165 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QVariant, QVariant&)), object, SLOT(ReadIOBit(QVariant, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ReadIOBit(QVariant, QVariant&)", params).toBool();</pre>
+
+<h3><a name=RedrawLayout></a>void RedrawLayout ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 59 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(RedrawLayout()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("RedrawLayout()");</pre>
+
+<h3><a name=RemoveGalvoGroupShadow></a>void RemoveGalvoGroupShadow (int shadowNr)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(RemoveGalvoGroupShadow(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("RemoveGalvoGroupShadow(int)", params);</pre>
+
+<h3><a name=RemoveGlobalQPSet></a>void RemoveGlobalQPSet (QString Name)<tt> [slot]</tt></h3>
+<p>For more information, see help context 131 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(RemoveGlobalQPSet(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("RemoveGlobalQPSet(QString)", params);</pre>
+
+<h3><a name=RemoveLocalQPSet></a>void RemoveLocalQPSet (QString Name)<tt> [slot]</tt></h3>
+<p>For more information, see help context 133 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(RemoveLocalQPSet(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("RemoveLocalQPSet(QString)", params);</pre>
+
+<h3><a name=ReplaceDrawing></a>bool ReplaceDrawing (QString FileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ReplaceDrawing(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ReplaceDrawing(QString)", params).toBool();</pre>
+
+<h3><a name=ReplaceGlobalQPSet></a>bool ReplaceGlobalQPSet (QString OriginalQPSetName, QString NewQPSetName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 60 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(ReplaceGlobalQPSet(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ReplaceGlobalQPSet(QString, QString)", params).toBool();</pre>
+
+<h3><a name=ReplaceLocalQPSet></a>bool ReplaceLocalQPSet (QString OriginalQPSetName, QString NewQPSetName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 61 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(ReplaceLocalQPSet(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ReplaceLocalQPSet(QString, QString)", params).toBool();</pre>
+
+<h3><a name=RotateA></a>bool RotateA (QString ObjectName, double dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 62 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double)), object, SLOT(RotateA(QString, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("RotateA(QString, double)", params).toBool();</pre>
+
+<h3><a name=RotateView></a>void RotateView (double Angle)<tt> [slot]</tt></h3>
+<p>Rotate preview window by Angle
+For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double)), object, SLOT(RotateView(double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("RotateView(double)", params);</pre>
+
+<h3><a name=Save></a>bool Save (QString FileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 63 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(Save(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("Save(QString)", params).toBool();</pre>
+
+<h3><a name=SaveAsVersion></a>bool SaveAsVersion (QString FileName, LMOSSaveAsVersionConstants SaveVersion)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, LMOSSaveAsVersionConstants)), object, SLOT(SaveAsVersion(QString, LMOSSaveAsVersionConstants)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SaveAsVersion(QString, LMOSSaveAsVersionConstants)", params).toBool();</pre>
+
+<h3><a name=SaveGlobalHatchSets></a>void SaveGlobalHatchSets ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 178 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(SaveGlobalHatchSets()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("SaveGlobalHatchSets()");</pre>
+
+<h3><a name=SaveGlobalQPSets></a>void SaveGlobalQPSets ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 134 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(SaveGlobalQPSets()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("SaveGlobalQPSets()");</pre>
+
+<h3><a name=SaveImage></a>bool SaveImage (int resx, int resy, QString FileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int, int, QString)), object, SLOT(SaveImage(int, int, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SaveImage(int, int, QString)", params).toBool();</pre>
+
+<h3><a name=SaveImageWithRuler></a>bool SaveImageWithRuler (int resx, int resy, QString FileName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int, int, QString)), object, SLOT(SaveImageWithRuler(int, int, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SaveImageWithRuler(int, int, QString)", params).toBool();</pre>
+
+<h3><a name=SelectShadow></a>bool SelectShadow (int ShadowIndex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 176 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(SelectShadow(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SelectShadow(int)", params).toBool();</pre>
+
+<h3><a name=SelectSingleStep></a>bool SelectSingleStep (int StepIndex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 65 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(SelectSingleStep(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SelectSingleStep(int)", params).toBool();</pre>
+
+<h3><a name=SetAutoSignalJobEnd></a>void SetAutoSignalJobEnd (bool AutoSignalJobEnd)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(SetAutoSignalJobEnd(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetAutoSignalJobEnd(bool)", params);</pre>
+
+<h3><a name=SetAutoSignalMarkingEnd></a>void SetAutoSignalMarkingEnd (bool AutoSignalMarkingEnd)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(SetAutoSignalMarkingEnd(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetAutoSignalMarkingEnd(bool)", params);</pre>
+
+<h3><a name=SetAxisUsedInVLM></a>void SetAxisUsedInVLM (eAxisType eAxis, bool Value)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eAxisType, bool)), object, SLOT(SetAxisUsedInVLM(eAxisType, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetAxisUsedInVLM(eAxisType, bool)", params);</pre>
+
+<h3><a name=SetCollectBufferMode></a>void SetCollectBufferMode (bool __MIDL___DLMOSActX0000)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(SetCollectBufferMode(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetCollectBufferMode(bool)", params);</pre>
+
+<h3><a name=SetDimension></a>bool SetDimension (QString ObjectName, double dWidth, double dHeight)<tt> [slot]</tt></h3>
+<p>For more information, see help context 122 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double, double)), object, SLOT(SetDimension(QString, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetDimension(QString, double, double)", params).toBool();</pre>
+
+<h3><a name=SetDummy1></a>void SetDummy1 (int Dummy1)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(SetDummy1(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetDummy1(int)", params);</pre>
+
+<h3><a name=SetDummy2></a>void SetDummy2 (int Dummy2)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(SetDummy2(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetDummy2(int)", params);</pre>
+
+<h3><a name=SetFileName></a>void SetFileName (QString FileName)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(SetFileName(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetFileName(QString)", params);</pre>
+
+<h3><a name=SetGlobalQPSet></a>bool SetGlobalQPSet (QString QPSetName, double CURRENT, int SPEED, int FREQUENCY, bool bSave)<tt> [slot]</tt></h3>
+<p>For more information, see help context 64 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double, int, int, bool)), object, SLOT(SetGlobalQPSet(QString, double, int, int, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetGlobalQPSet(QString, double, int, int, bool)", params).toBool();</pre>
+
+<h3><a name=SetHasMatrix></a>void SetHasMatrix (bool HasMatrix)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(SetHasMatrix(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetHasMatrix(bool)", params);</pre>
+
+<h3><a name=SetHatchParam></a>bool SetHatchParam (QString hpname, eHSType hstype, eHatchParamType partype, QVariant varVal)<tt> [slot]</tt></h3>
+<p>For more information, see help context 181 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, eHSType, eHatchParamType, QVariant)), object, SLOT(SetHatchParam(QString, eHSType, eHatchParamType, QVariant)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetHatchParam(QString, eHSType, eHatchParamType, QVariant)", params).toBool();</pre>
+
+<h3><a name=SetHatchProperties></a>bool SetHatchProperties (QString MOName, bool Unidirectional, bool Bidirectional, bool Meandering, bool OnTheFly, double LineExcess, bool NoOutline, bool Inverse, bool OutlineCorrection, bool AutoLineWidth, bool OptimizeJumps, double HatchAngle, double FromOutline, double Overlap)<tt> [slot]</tt></h3>
+<p>For more information, see help context 189 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool, bool, bool, bool, double, bool, bool, bool, bool, bool, double, double, double)), object, SLOT(SetHatchProperties(QString, bool, bool, bool, bool, double, bool, bool, bool, bool, bool, double, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetHatchProperties(QString, bool, bool, bool, bool, double, bool, bool, bool, bool, bool, double, double, double)", params).toBool();</pre>
+
+<h3><a name=SetLaserable></a>bool SetLaserable (QString MOName, bool bFlag)<tt> [slot]</tt></h3>
+<p>For more information, see help context 66 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, bool)), object, SLOT(SetLaserable(QString, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetLaserable(QString, bool)", params).toBool();</pre>
+
+<h3><a name=SetLogo></a>bool SetLogo (QString ObjectName, QString VariableValue)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(SetLogo(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetLogo(QString, QString)", params).toBool();</pre>
+
+<h3><a name=SetMODescription></a>bool SetMODescription (QString MOName, QString description)<tt> [slot]</tt></h3>
+<p>For more information, see help context 72 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(SetMODescription(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMODescription(QString, QString)", params).toBool();</pre>
+
+<h3><a name=SetMOInfoFilter></a>void SetMOInfoFilter (LMOSMOTypeConstants filter)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(LMOSMOTypeConstants)), object, SLOT(SetMOInfoFilter(LMOSMOTypeConstants)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetMOInfoFilter(LMOSMOTypeConstants)", params);</pre>
+
+<h3><a name=SetMOLayer></a>bool SetMOLayer (QString MOName, QString LayerName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 169 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(SetMOLayer(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMOLayer(QString, QString)", params).toBool();</pre>
+
+<h3><a name=SetMatrixCellAngle></a>bool SetMatrixCellAngle (QString MatrixName, double dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 67 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double)), object, SLOT(SetMatrixCellAngle(QString, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixCellAngle(QString, double)", params).toBool();</pre>
+
+<h3><a name=SetMatrixCellOccupation></a>bool SetMatrixCellOccupation (QString MatrixName, int iCellIndex, bool IsOccupied)<tt> [slot]</tt></h3>
+<p>For more information, see help context 68 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, bool)), object, SLOT(SetMatrixCellOccupation(QString, int, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixCellOccupation(QString, int, bool)", params).toBool();</pre>
+
+<h3><a name=SetMatrixCellOccupationAll></a>bool SetMatrixCellOccupationAll (QString MatrixName, QVariant& OccValues)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QVariant&)), object, SLOT(SetMatrixCellOccupationAll(QString, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixCellOccupationAll(QString, QVariant&)", params).toBool();</pre>
+
+<h3><a name=SetMatrixCellOffset></a>bool SetMatrixCellOffset (QString MatrixName, int iCellIndex, double OffX, double OffY, double OffPhi)<tt> [slot]</tt></h3>
+<p>For more information, see help context 69 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, double, double, double)), object, SLOT(SetMatrixCellOffset(QString, int, double, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixCellOffset(QString, int, double, double, double)", params).toBool();</pre>
+
+<h3><a name=SetMatrixCellOffsetAll></a>bool SetMatrixCellOffsetAll (QString MatrixName, QVariant& OffXValues, QVariant& OffYValues, QVariant& OffPhiValues)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QVariant&, QVariant&, QVariant&)), object, SLOT(SetMatrixCellOffsetAll(QString, QVariant&, QVariant&, QVariant&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixCellOffsetAll(QString, QVariant&, QVariant&, QVariant&)", params).toBool();</pre>
+
+<h3><a name=SetMatrixMaxBinCount></a>bool SetMatrixMaxBinCount (QString MatrixName, int MaxBinCount)<tt> [slot]</tt></h3>
+<p>For more information, see help context 70 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int)), object, SLOT(SetMatrixMaxBinCount(QString, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixMaxBinCount(QString, int)", params).toBool();</pre>
+
+<h3><a name=SetMatrixRefCell></a>bool SetMatrixRefCell (QString MatrixName, int iIndex, bool bDrawRefCellOnly)<tt> [slot]</tt></h3>
+<p>For more information, see help context 71 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, bool)), object, SLOT(SetMatrixRefCell(QString, int, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetMatrixRefCell(QString, int, bool)", params).toBool();</pre>
+
+<h3><a name=SetNumBurstPulses></a>void SetNumBurstPulses (eQPType qptype, int Index, int val)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eQPType, int, int)), object, SLOT(SetNumBurstPulses(eQPType, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetNumBurstPulses(eQPType, int, int)", params);</pre>
+
+<h3><a name=SetPosValues></a>bool SetPosValues (QString ObjectName, double dX, double dY, double dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 73 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, double, double, double)), object, SLOT(SetPosValues(QString, double, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetPosValues(QString, double, double, double)", params).toBool();</pre>
+
+<h3><a name=SetQPSetActuatingVariable></a>bool SetQPSetActuatingVariable (QString qpname, eQPType qptype, LMOSPowerActuatingVariable actVariable)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, eQPType, LMOSPowerActuatingVariable)), object, SLOT(SetQPSetActuatingVariable(QString, eQPType, LMOSPowerActuatingVariable)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetQPSetActuatingVariable(QString, eQPType, LMOSPowerActuatingVariable)", params).toBool();</pre>
+
+<h3><a name=SetQualityParam></a>bool SetQualityParam (QString qpname, eQPType qptype, eParamType partype, QVariant varVal, bool bSave)<tt> [slot]</tt></h3>
+<p>For more information, see help context 140 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, eQPType, eParamType, QVariant, bool)), object, SLOT(SetQualityParam(QString, eQPType, eParamType, QVariant, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetQualityParam(QString, eQPType, eParamType, QVariant, bool)", params).toBool();</pre>
+
+<h3><a name=SetRuntimeHeadOffset></a>bool SetRuntimeHeadOffset (double X, double Y, int hindex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double, int)), object, SLOT(SetRuntimeHeadOffset(double, double, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetRuntimeHeadOffset(double, double, int)", params).toBool();</pre>
+
+<h3><a name=SetSignal></a>void SetSignal (eSignalConstants Signal, bool Value)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eSignalConstants, bool)), object, SLOT(SetSignal(eSignalConstants, bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetSignal(eSignalConstants, bool)", params);</pre>
+
+<h3><a name=SetSuppressAutoRedraw></a>void SetSuppressAutoRedraw (bool SuppressAutoRedraw)<tt> [slot]</tt></h3>
+<p>
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(bool)), object, SLOT(SetSuppressAutoRedraw(bool)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("SetSuppressAutoRedraw(bool)", params);</pre>
+
+<h3><a name=SetSurfaceRadius></a>bool SetSurfaceRadius (double radius)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double)), object, SLOT(SetSurfaceRadius(double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetSurfaceRadius(double)", params).toBool();</pre>
+
+<h3><a name=SetSurfaceRefPoint></a>bool SetSurfaceRefPoint (double RefX, double RefY, double RefZ)<tt> [slot]</tt></h3>
+<p>For more information, see help context 174 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double, double)), object, SLOT(SetSurfaceRefPoint(double, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetSurfaceRefPoint(double, double, double)", params).toBool();</pre>
+
+<h3><a name=SetSurfaceVector></a>bool SetSurfaceVector (double VecX, double VecY, double VecZ)<tt> [slot]</tt></h3>
+<p>For more information, see help context 175 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double, double)), object, SLOT(SetSurfaceVector(double, double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetSurfaceVector(double, double, double)", params).toBool();</pre>
+
+<h3><a name=SetSystemParameter></a>bool SetSystemParameter (eSystemParameterSet partype, QVariant varVal)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eSystemParameterSet, QVariant)), object, SLOT(SetSystemParameter(eSystemParameterSet, QVariant)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetSystemParameter(eSystemParameterSet, QVariant)", params).toBool();</pre>
+
+<h3><a name=SetText></a>bool SetText (QString ObjectName, QString VariableValue)<tt> [slot]</tt></h3>
+<p>For more information, see help context 74 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, QString)), object, SLOT(SetText(QString, QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SetText(QString, QString)", params).toBool();</pre>
+
+<h3><a name=ShowMarkingArea></a>void ShowMarkingArea ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 75 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ShowMarkingArea()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("ShowMarkingArea()");</pre>
+
+<h3><a name=ShowMarkingAreaZoom></a>void ShowMarkingAreaZoom ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ShowMarkingAreaZoom()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("ShowMarkingAreaZoom()");</pre>
+
+<h3><a name=ShowMatrixCell></a>void ShowMatrixCell ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 76 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ShowMatrixCell()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("ShowMatrixCell()");</pre>
+
+<h3><a name=ShowMatrixCell2></a>void ShowMatrixCell2 (QString MatrixName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 77 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(ShowMatrixCell2(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("ShowMatrixCell2(QString)", params);</pre>
+
+<h3><a name=ShowMatrixCellZoom></a>void ShowMatrixCellZoom ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 141 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ShowMatrixCellZoom()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("ShowMatrixCellZoom()");</pre>
+
+<h3><a name=ShowWholeDrawing></a>void ShowWholeDrawing ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 78 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(ShowWholeDrawing()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("ShowWholeDrawing()");</pre>
+
+<h3><a name=ShowZoomWindow></a>bool ShowZoomWindow (int topLeftX, int topLeftY, int bottomRightX, int bottomRightY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int, int, int, int)), object, SLOT(ShowZoomWindow(int, int, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("ShowZoomWindow(int, int, int, int)", params).toBool();</pre>
+
+<h3><a name=SplitDrawing></a>bool SplitDrawing (double offset, double Overlap)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double)), object, SLOT(SplitDrawing(double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("SplitDrawing(double, double)", params).toBool();</pre>
+
+<h3><a name=StartMarking></a>bool StartMarking ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 79 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(StartMarking()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("StartMarking()").toBool();</pre>
+
+<h3><a name=StartPosHelp></a>void StartPosHelp (QString ObjectName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 125 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(StartPosHelp(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("StartPosHelp(QString)", params);</pre>
+
+<h3><a name=StartPosHelpLast></a>void StartPosHelpLast (QString ObjectName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(StartPosHelpLast(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("StartPosHelpLast(QString)", params);</pre>
+
+<h3><a name=StdCorr></a>void StdCorr (int hindex)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(StdCorr(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	object->dynamicCall("StdCorr(int)", params);</pre>
+
+<h3><a name=StopMarking></a>bool StopMarking ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 80 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(StopMarking()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("StopMarking()").toBool();</pre>
+
+<h3><a name=StopPosHelp></a>void StopPosHelp ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 126 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(StopPosHelp()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("StopPosHelp()");</pre>
+
+<h3><a name=SynchronizeMarking></a>void SynchronizeMarking ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 82 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(SynchronizeMarking()));</pre>
+<p>Or call the function directly:<pre>
+	object->dynamicCall("SynchronizeMarking()");</pre>
+
+<h3><a name=TTLFieldCorr></a>bool TTLFieldCorr (QString FileName, int Action, int Head)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, int)), object, SLOT(TTLFieldCorr(QString, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("TTLFieldCorr(QString, int, int)", params).toBool();</pre>
+
+<h3><a name=TTLGetAbsPosValues></a>bool TTLGetAbsPosValues (QString ObjectName, int lMatrixCellIndex, double& dX, double& dY, double& dAngle)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString, int, double&, double&, double&)), object, SLOT(TTLGetAbsPosValues(QString, int, double&, double&, double&)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("TTLGetAbsPosValues(QString, int, double&, double&, double&)", params).toBool();</pre>
+
+<h3><a name=TTLPxCamera></a>bool TTLPxCamera (double dX, double dY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double)), object, SLOT(TTLPxCamera(double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("TTLPxCamera(double, double)", params).toBool();</pre>
+
+<h3><a name=TTLPxLaser></a>bool TTLPxLaser (double dX, double dY)<tt> [slot]</tt></h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(double, double)), object, SLOT(TTLPxLaser(double, double)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("TTLPxLaser(double, double)", params).toBool();</pre>
+
+<h3><a name=TermMachine></a>bool TermMachine ()<tt> [slot]</tt></h3>
+<p>For more information, see help context 83 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal()), object, SLOT(TermMachine()));</pre>
+<p>Or call the function directly:<pre>
+	bool result = object->dynamicCall("TermMachine()").toBool();</pre>
+
+<h3><a name=TermMachineEx></a>bool TermMachineEx (eMachineModuleConstants ModulesMask)<tt> [slot]</tt></h3>
+<p>For more information, see help context 83 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(eMachineModuleConstants)), object, SLOT(TermMachineEx(eMachineModuleConstants)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("TermMachineEx(eMachineModuleConstants)", params).toBool();</pre>
+
+<h3><a name=TextObjects></a>IDispatch* TextObjects (QString MOName)<tt> [slot]</tt></h3>
+<p>For more information, see help context 84 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QString)), object, SLOT(TextObjects(QString)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QAxObject * result = object->querySubObject("TextObjects(QString)", params);</pre>
+
+<h3><a name=Variable></a>IDispatch* Variable (int Index)<tt> [slot]</tt></h3>
+<p>For more information, see help context 85 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(int)), object, SLOT(Variable(int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	QAxObject * result = object->querySubObject("Variable(int)", params);</pre>
+
+<h3><a name=WaitOnByte></a>bool WaitOnByte (InPortConstants Port, int bMask, int bData, int lTimeOut)<tt> [slot]</tt></h3>
+<p>For more information, see help context 89 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(InPortConstants, int, int, int)), object, SLOT(WaitOnByte(InPortConstants, int, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("WaitOnByte(InPortConstants, int, int, int)", params).toBool();</pre>
+
+<h3><a name=WaitOnIOBit></a>bool WaitOnIOBit (QVariant bitfunction, QVariant values, int timeout)<tt> [slot]</tt></h3>
+<p>For more information, see help context 166 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QVariant, QVariant, int)), object, SLOT(WaitOnIOBit(QVariant, QVariant, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("WaitOnIOBit(QVariant, QVariant, int)", params).toBool();</pre>
+
+<h3><a name=WriteByte></a>bool WriteByte (OutPortConstants Port, int bMask, int bData)<tt> [slot]</tt></h3>
+<p>For more information, see help context 90 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(OutPortConstants, int, int)), object, SLOT(WriteByte(OutPortConstants, int, int)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("WriteByte(OutPortConstants, int, int)", params).toBool();</pre>
+
+<h3><a name=WriteIOBit></a>bool WriteIOBit (QVariant bitfunction, QVariant values)<tt> [slot]</tt></h3>
+<p>For more information, see help context 167 in LMOSActX.hlp.
+<p>Connect a signal to this slot:<pre>
+	QObject::connect(sender, SIGNAL(someSignal(QVariant, QVariant)), object, SLOT(WriteIOBit(QVariant, QVariant)));</pre>
+<p>Or call the function directly:<pre>
+	QVariantList params = ...
+	bool result = object->dynamicCall("WriteIOBit(QVariant, QVariant)", params).toBool();</pre>
+
+<h3><a name=ALARM></a>void ALARM (int LAlarm, QString description, QString MOName, int MOId)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ALARM(int, QString, QString, int)), receiver, SLOT(someSlot(int, QString, QString, int)));</pre>
+
+<h3><a name=CurrentChanged></a>void CurrentChanged (double dCurrent)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(CurrentChanged(double)), receiver, SLOT(someSlot(double)));</pre>
+
+<h3><a name=Disconnect></a>void Disconnect ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(Disconnect()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=ExchangeDataToActX></a>void ExchangeDataToActX (QString& Names, QString& values)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ExchangeDataToActX(QString&, QString&)), receiver, SLOT(someSlot(QString&, QString&)));</pre>
+
+<h3><a name=ExternalStart></a>void ExternalStart ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ExternalStart()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=ExternalStop></a>void ExternalStop ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ExternalStop()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=FrequencyChanged></a>void FrequencyChanged (int lFrequency)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(FrequencyChanged(int)), receiver, SLOT(someSlot(int)));</pre>
+
+<h3><a name=ImageBegin></a>void ImageBegin ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ImageBegin()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=ImageEnd></a>void ImageEnd ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ImageEnd()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=ImageEnd2></a>void ImageEnd2 (double dExecutionTime, ImageResultConstants Result)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ImageEnd2(double, ImageResultConstants)), receiver, SLOT(someSlot(double, ImageResultConstants)));</pre>
+
+<h3><a name=JobBegin></a>void JobBegin ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(JobBegin()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=JobEnd></a>void JobEnd ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(JobEnd()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=JobPageBegin></a>void JobPageBegin (QString JobPageName)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(JobPageBegin(QString)), receiver, SLOT(someSlot(QString)));</pre>
+
+<h3><a name=JobPageEnd></a>void JobPageEnd (QString JobPageName)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(JobPageEnd(QString)), receiver, SLOT(someSlot(QString)));</pre>
+
+<h3><a name=LaserPowerChanged></a>void LaserPowerChanged (double dCurrent, QString& UnitText)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(LaserPowerChanged(double, QString&)), receiver, SLOT(someSlot(double, QString&)));</pre>
+
+<h3><a name=LoadVLM></a>void LoadVLM (QString FileName)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(LoadVLM(QString)), receiver, SLOT(someSlot(QString)));</pre>
+
+<h3><a name=MOBegin></a>void MOBegin ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MOBegin()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=MOBeginName></a>void MOBeginName (QString& ObjectName)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MOBeginName(QString&)), receiver, SLOT(someSlot(QString&)));</pre>
+
+<h3><a name=MOEnd></a>void MOEnd ()<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MOEnd()), receiver, SLOT(someSlot()));</pre>
+
+<h3><a name=MOEndName></a>void MOEndName (QString& ObjectName)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MOEndName(QString&)), receiver, SLOT(someSlot(QString&)));</pre>
+
+<h3><a name=MatrixBegin></a>void MatrixBegin (QString& Name)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MatrixBegin(QString&)), receiver, SLOT(someSlot(QString&)));</pre>
+
+<h3><a name=MatrixCellBegin></a>void MatrixCellBegin (QString& Name, int CellIndex, bool IsSlaveCell)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MatrixCellBegin(QString&, int, bool)), receiver, SLOT(someSlot(QString&, int, bool)));</pre>
+
+<h3><a name=MatrixCellEnd></a>void MatrixCellEnd (QString& Name, int CellIndex, bool IsSlaveCell)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MatrixCellEnd(QString&, int, bool)), receiver, SLOT(someSlot(QString&, int, bool)));</pre>
+
+<h3><a name=MatrixEnd></a>void MatrixEnd (QString& Name)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MatrixEnd(QString&)), receiver, SLOT(someSlot(QString&)));</pre>
+
+<h3><a name=MatrixPartBegin></a>void MatrixPartBegin (QString& Name, int PartIndex, int CntCellsInPart)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MatrixPartBegin(QString&, int, int)), receiver, SLOT(someSlot(QString&, int, int)));</pre>
+
+<h3><a name=MatrixPartEnd></a>void MatrixPartEnd (QString& Name, int PartIndex, int CntCellsInPart)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MatrixPartEnd(QString&, int, int)), receiver, SLOT(someSlot(QString&, int, int)));</pre>
+
+<h3><a name=MessageMap></a>void MessageMap (QString& Message)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MessageMap(QString&)), receiver, SLOT(someSlot(QString&)));</pre>
+
+<h3><a name=MouseDown></a>void MouseDown (int button, int shift, double X, double Y)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MouseDown(int, int, double, double)), receiver, SLOT(someSlot(int, int, double, double)));</pre>
+
+<h3><a name=MouseUp></a>void MouseUp (int button, int shift, double X, double Y)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(MouseUp(int, int, double, double)), receiver, SLOT(someSlot(int, int, double, double)));</pre>
+
+<h3><a name=PLCEvent></a>void PLCEvent (QString& ID1, QString& ID2, QString& Message)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(PLCEvent(QString&, QString&, QString&)), receiver, SLOT(someSlot(QString&, QString&, QString&)));</pre>
+
+<h3><a name=ShutterStateChanged></a>void ShutterStateChanged (ShutterStateConstants state)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(ShutterStateChanged(ShutterStateConstants)), receiver, SLOT(someSlot(ShutterStateConstants)));</pre>
+
+<h3><a name=SpeedChanged></a>void SpeedChanged (int lSpeed)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(SpeedChanged(int)), receiver, SLOT(someSlot(int)));</pre>
+
+<h3><a name=SubStateChanged></a>void SubStateChanged (eLaserSubStateConstants newSubState)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(SubStateChanged(eLaserSubStateConstants)), receiver, SLOT(someSlot(eLaserSubStateConstants)));</pre>
+
+<h3><a name=exception></a>void exception (int code, QString source, QString disc, QString help)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(exception(int, QString, QString, QString)), receiver, SLOT(someSlot(int, QString, QString, QString)));</pre>
+
+<h3><a name=propertyChanged></a>void propertyChanged (QString name)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(propertyChanged(QString)), receiver, SLOT(someSlot(QString)));</pre>
+
+<h3><a name=signal></a>void signal (QString name, int argc, void* argv)<tt> [signal]</tt></h3>
+<p>
+<p>Connect a slot to this signal:<pre>
+	QObject::connect(object, SIGNAL(signal(QString, int, void*)), receiver, SLOT(someSlot(QString, int, void*)));</pre>
+
+<hr><h2>Property Documentation</h2>
+<h3><a name=objectName></a>QString objectName</h3>
+<p>
+<p>Read this property's value using QObject::property:<pre>
+	QString val = object->property("objectName").toString();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	QString newValue = ...
+	object->setProperty("objectName", newValue);
+</pre>
+Or using the <a href="#setObjectName">setObjectName</a> slot.
+
+<h3><a name=AllComponents></a>IDispatch* AllComponents</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("AllComponents").toIDispatch*();
+</pre>
+
+<h3><a name=AllMachineCfgParams></a>IDispatch* AllMachineCfgParams</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("AllMachineCfgParams").toIDispatch*();
+</pre>
+
+<h3><a name=AutoSignalJobEnd></a>bool AutoSignalJobEnd</h3>
+<p>For more information, see help context 18 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	bool val = object->property("AutoSignalJobEnd").toBool();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	bool newValue = ...
+	object->setProperty("AutoSignalJobEnd", newValue);
+</pre>
+Or using the <a href="#SetAutoSignalJobEnd">SetAutoSignalJobEnd</a> slot.
+
+<h3><a name=AutoSignalMarkingEnd></a>bool AutoSignalMarkingEnd</h3>
+<p>For more information, see help context 19 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	bool val = object->property("AutoSignalMarkingEnd").toBool();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	bool newValue = ...
+	object->setProperty("AutoSignalMarkingEnd", newValue);
+</pre>
+Or using the <a href="#SetAutoSignalMarkingEnd">SetAutoSignalMarkingEnd</a> slot.
+
+<h3><a name=Axis></a>IDispatch* Axis</h3>
+<p>For more information, see help context 20 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("Axis").toIDispatch*();
+</pre>
+
+<h3><a name=Dummy1></a>int Dummy1</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	int val = object->property("Dummy1").toInt();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	int newValue = ...
+	object->setProperty("Dummy1", newValue);
+</pre>
+Or using the <a href="#SetDummy1">SetDummy1</a> slot.
+
+<h3><a name=Dummy2></a>int Dummy2</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	int val = object->property("Dummy2").toInt();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	int newValue = ...
+	object->setProperty("Dummy2", newValue);
+</pre>
+Or using the <a href="#SetDummy2">SetDummy2</a> slot.
+
+<h3><a name=FileName></a>QString FileName</h3>
+<p>For more information, see help context 29 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	QString val = object->property("FileName").toString();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	QString newValue = ...
+	object->setProperty("FileName", newValue);
+</pre>
+Or using the <a href="#SetFileName">SetFileName</a> slot.
+
+<h3><a name=GlobalVariables></a>IDispatch* GlobalVariables</h3>
+<p>For more information, see help context 85 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("GlobalVariables").toIDispatch*();
+</pre>
+
+<h3><a name=HasMatrix></a>bool HasMatrix</h3>
+<p>For more information, see help context 41 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	bool val = object->property("HasMatrix").toBool();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	bool newValue = ...
+	object->setProperty("HasMatrix", newValue);
+</pre>
+Or using the <a href="#SetHasMatrix">SetHasMatrix</a> slot.
+
+<h3><a name=JobPages></a>IDispatch* JobPages</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("JobPages").toIDispatch*();
+</pre>
+
+<h3><a name=Layers></a>IDispatch* Layers</h3>
+<p>For more information, see help context 46 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("Layers").toIDispatch*();
+</pre>
+
+<h3><a name=LocalVariables></a>IDispatch* LocalVariables</h3>
+<p>For more information, see help context 85 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("LocalVariables").toIDispatch*();
+</pre>
+
+<h3><a name=MOInfos></a>IDispatch* MOInfos</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("MOInfos").toIDispatch*();
+</pre>
+
+<h3><a name=MachineCfg></a>IDispatch* MachineCfg</h3>
+<p>For more information, see help context 0 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("MachineCfg").toIDispatch*();
+</pre>
+
+<h3><a name=PowerDlg></a>IDispatch* PowerDlg</h3>
+<p>For more information, see help context 57 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	IDispatch* val = object->property("PowerDlg").toIDispatch*();
+</pre>
+
+<h3><a name=SuppressAutoRedraw></a>bool SuppressAutoRedraw</h3>
+<p>For more information, see help context 81 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	bool val = object->property("SuppressAutoRedraw").toBool();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	bool newValue = ...
+	object->setProperty("SuppressAutoRedraw", newValue);
+</pre>
+Or using the <a href="#SetSuppressAutoRedraw">SetSuppressAutoRedraw</a> slot.
+
+<h3><a name=VLMBuildLevel></a>QString VLMBuildLevel</h3>
+<p>For more information, see help context 87 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	QString val = object->property("VLMBuildLevel").toString();
+</pre>
+
+<h3><a name=VLMVersion></a>QString VLMVersion</h3>
+<p>For more information, see help context 88 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	QString val = object->property("VLMVersion").toString();
+</pre>
+
+<h3><a name=VariableCnt></a>int VariableCnt</h3>
+<p>For more information, see help context 86 in LMOSActX.hlp.
+<p>Read this property's value using QObject::property:<pre>
+	int val = object->property("VariableCnt").toInt();
+</pre>
+
+<h3><a name=control></a>QString control</h3>
+<p>
+<p>Read this property's value using QObject::property:<pre>
+	QString val = object->property("control").toString();
+</pre>
+Set this property' value using QObject::setProperty:<pre>
+	QString newValue = ...
+	object->setProperty("control", newValue);
+</pre>
+Or using the <a href="#setControl">setControl</a> slot.
+

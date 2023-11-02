@@ -21,7 +21,7 @@ fi
 
 [ ${DEBUG} ] && echo -e "Updating ${TAGS_FILE}...\n"
 cd ${GIT_ROOT}
-timeout -k 60s -- ctags --fields=+l --tag-relative=yes -Rf${TAGS_FILE}.$$ --c-kinds=+p \
+timeout 60.0 ctags --fields=+l --tag-relative=yes -Rf${TAGS_FILE}.$$ --c-kinds=+p \
 	--exclude=.git \
 	--exclude=worktree \
 	--exclude=build \
@@ -48,14 +48,14 @@ if [ -f ${EXTRA_DIRS_FILE} ]; then
 			[ ${DEBUG} ] && echo "Processing directory ${EXTRA_DIR}"
 			CURRENT_DIR=`pwd`
 			pushd ${EXTRA_DIR}
-			timeout -k 60s -- ctags --append --fields=+l --tag-relative=yes -Rf${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p \
+			timeout 60s ctags --append --fields=+l --tag-relative=yes -Rf${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p \
 			--exclude="*.js"
 			popd
 		else
 			if [ -f ${EXTRA_DIR} ]; then
 				# Is a file, not a directory, so no recursion
 				[ ${DEBUG} ] && echo "Processing file ${EXTRA_DIR}"
-				timeout -k 60s -- ctags --append --fields=+l --tag-relative=yes -f${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p --exclude="*.js" ${EXTRA_DIR}
+				timeout 60s ctags --append --fields=+l --tag-relative=yes -f${CURRENT_DIR}/${EXTRA_TAGS_FILE}.$$ --c-kinds=+p --exclude="*.js" ${EXTRA_DIR}
 			fi
 		fi
 	done
