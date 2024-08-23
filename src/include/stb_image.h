@@ -408,12 +408,12 @@ extern "C"
 
 	typedef struct
 	{
-		int  ( *read )( void* user,
-				char* data,
-				int   size );  // fill 'data' with 'size' bytes.  return number of bytes actually read
+		int ( *read )( void* user,
+			       char* data,
+			       int   size );  // fill 'data' with 'size' bytes.  return number of bytes actually read
 		void ( *skip )( void* user,
-				int   n );      // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
-		int  ( *eof )( void* user );  // returns nonzero if we are at end of file/data
+				int   n );     // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
+		int ( *eof )( void* user );  // returns nonzero if we are at end of file/data
 	} stbi_io_callbacks;
 
 	////////////////////////////////////

@@ -86,9 +86,9 @@ broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
 		// uint16_t port = (uint16_t)( con->peer.port << 8 ) | ( con->peer.port >> 8 );
 		// BPLOG( kLvlDebug, "broadcastServer: port %d\n", port );
 		BPLOG( kLvlDebug, "msg.len %lu\n", msg.len );
-		BPLOG( kLvlEverything, "msg.ptr %s\n", msg.ptr );
+		BPLOG( kLvlEverything, "msg.ptr %s\n", msg.buf );
 		if ( con != nconn ) {
-			mg_ws_send( con, msg.ptr, msg.len, WEBSOCKET_OP_TEXT );
+			mg_ws_send( con, msg.buf, msg.len, WEBSOCKET_OP_TEXT );
 		} else {
 			BPLOG( kLvlEverything, "%s: Not sending to duplicate nc\n", __func__ );
 		}
@@ -107,15 +107,15 @@ broadcastClient( struct mg_connection* nconn, const struct mg_str msg )
 
 	BPLOG( kLvlDebug, "%s: Client sending message to server\n", __func__ );
 	BPLOG( kLvlDebug, "nc: %p\n", (void*)nconn );
-	BPLOG( kLvlEverything, "msg.ptr: %p\n", (void*)msg.ptr );
+	BPLOG( kLvlEverything, "msg.ptr: %p\n", (void*)msg.buf );
 	BPLOG( kLvlDebug, "msg.len: %lu\n", msg.len );
-	mg_ws_send( nconn, msg.ptr, msg.len, WEBSOCKET_OP_TEXT );
+	mg_ws_send( nconn, msg.buf, msg.len, WEBSOCKET_OP_TEXT );
 
 	TracyCZoneEnd( broadcastClient );
 }
 
 static void
-server_event_handler( struct mg_connection* nconn, int event, void* ev_data, void* fn_data )
+server_event_handler( struct mg_connection* nconn, int event, void* ev_data )
 {  // Callback when listening server receives an event
 
 	TracyCZone( server_event_handler, true );
@@ -135,8 +135,8 @@ server_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 			// Parse message
 
 			// Call our message handler callback
-			if ( ( (t_Websocket*)fn_data )->messageReceived ) {
-				( (t_Websocket*)fn_data )->messageReceived( ev_data, NULL );
+			if ( ( (t_Websocket*)nconn->fn_data )->messageReceived ) {
+				( (t_Websocket*)nconn->fn_data )->messageReceived( ev_data, NULL );
 			} else {
 				BPLOG( kLvlWarn,
 				       "server MG_EV_WS_MSG: Message received but no message handler callback set for "
@@ -145,7 +145,7 @@ server_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 			}
 
 			/* New websocket message. Tell everybody. */
-			struct mg_str ws_string = mg_str_n( (char*)websock_msg->data.ptr, websock_msg->data.len );
+			struct mg_str ws_string = mg_str_n( (char*)websock_msg->data.buf, websock_msg->data.len );
 			if ( websock_msg->data.len == 0 ) {
 				BPLOG( kLvlWarn,
 				       "server MG_EV_WS_MSG: (nc = %p) Message received has length of zero. Not "
@@ -210,7 +210,7 @@ server_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 }
 
 static void
-client_event_handler( struct mg_connection* nconn, int event, void* ev_data, void* fn_data )
+client_event_handler( struct mg_connection* nconn, int event, void* ev_data )
 {
 	TracyCZone( client_event_handler, true );
 
@@ -232,7 +232,7 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 		}
 		case MG_EV_WS_OPEN: {
 			BPLOG( kLvlDebug, "%s: MG_EV_WS_OPEN\n", __func__ );
-			( (t_Websocket*)fn_data )->isConnected = true;
+			( (t_Websocket*)nconn->fn_data )->isConnected = true;
 			break;
 		}
 		case MG_EV_POLL: {
@@ -245,7 +245,7 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 			BPLOG( kLvlDebug, "client_event_handler: Message received by nc %p\n", (void*)nconn );
 
 			// Call our message handler callback
-			t_Websocket* websock = (t_Websocket*)fn_data;
+			t_Websocket* websock = (t_Websocket*)nconn->fn_data;
 			if ( websock->messageReceived ) {
 				BPLOG( kLvlDebug, "%s: Calling messageReceivedCpp callback\n", __func__ );
 				websock->messageReceived( ev_data, websock->object );
@@ -269,7 +269,7 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 			*( (char*)message + (int)websock_msg->data.len ) = 0;
 
 			void* destination =
-				memmove( message, websock_msg->data.ptr, (int)websock_msg->data.len );	// NOLINT
+				memmove( message, websock_msg->data.buf, (int)websock_msg->data.len );	// NOLINT
 
 			(void)destination;
 			assert( destination );
@@ -280,7 +280,7 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data, voi
 			BPLOG( kLvlDebug, "%s: MG_EV_CLOSE\n", __func__ );
 			// if (((t_Websocket *)nc->user_data)->isConnected)
 			// 	printf("-- Disconnected\n");
-			( (t_Websocket*)fn_data )->isConnected = false;
+			( (t_Websocket*)nconn->fn_data )->isConnected = false;
 			break;
 		}
 		case MG_EV_WRITE: {
@@ -579,7 +579,7 @@ ExtractWsMessageData( void* ev_data )
 
 	struct mg_ws_message* websock_msg = (struct mg_ws_message*)ev_data;
 	retval.size			  = (int)websock_msg->data.len;
-	retval.data			  = websock_msg->data.ptr;
+	retval.data			  = websock_msg->data.buf;
 
 	return retval;
 }

@@ -32,9 +32,9 @@ extern "C"
 		bool		      evloopIsRunning;
 		bool		      isServer;
 		bool		      isConnected;
-		void		      ( *messageReceived )( void*, void* );  // Callback
-		void*		      object;				     // Reference to the c++ Parser:: instance
-		t_Node*		      messageStack;			     // Linked list of received messages
+		void ( *messageReceived )( void*, void* );  // Callback
+		void*	object;				    // Reference to the c++ Parser:: instance
+		t_Node* messageStack;			    // Linked list of received messages
 	} t_Websocket;
 
 	// Constructor and destructor

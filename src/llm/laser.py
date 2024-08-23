@@ -2,40 +2,39 @@
 
 # Inkscape extension for blaspit
 
-import csv
-import datetime
-import io
-import json
-import math
-import os
-import re
 import socket
+import math
+import time
+import re
+import csv
+
+# from StringIO import StringIO
+import io
+import inkex
+import os
+import json
+import datetime
+
+# For duplicating and processing the SVG file
+from subprocess import Popen, PIPE
+from shutil import copy2
 
 # Needed until blastpy is installed system-wide
 import sys
 from os.path import expanduser
-from shutil import copy2
-
-# For duplicating and processing the SVG file
-from subprocess import PIPE, Popen
-
-import inkex
 
 sys.path.append(expanduser("~") + "/projects/blastpit/build")
 import blastpy
 
-# Import local environment variables and configuration
-from dotenv import load_dotenv
-
-if load_dotenv(dotenv_path=".env", verbose=True) is False:
-    print(f"Error loading dotenv (cwd: {os.getcwd()})", file=sys.stderr)
+# Import our machine-specific constants
+sys.path.append(expanduser("~") + "/projects/blastpit/.git/untracked")
+import myconfig
 
 # Laser constants
 SAGITTA = 0.5  # Focal range
 ROTARY_Z_LEVEL = 77.0  # Height from table to centre of rotation
 ROTARY_OVERLAP = 0.0  # Shadow overlap
 MINIMUM_Z_HEIGHT = 45.0
-MAXIMUM_Z_HEIGHT = 120.0
 
 # Global layer array
 layers = []
@@ -64,6 +63,7 @@ def addColourLayer(xml, colour, height=120):
     xml.addLayer("bp_" + colour, round(height, 2), red, green, blue)
 
     nb = ["bp_" + colour, round(height, 2)]
+    # print >> sys.stderr, nb
 
     layers.append(nb)
 
@@ -73,7 +73,7 @@ class Laser(inkex.Effect):
         inkex.Effect.__init__(self)
 
     def setupServer(self):
-        # Connect to server
+        # Attempt to connect to server. Return None on failure
         try:
             bp = blastpy.connectToServer(
                 self.blast, self.server, "INKSCAPE", 1000, True
@@ -90,15 +90,10 @@ class Laser(inkex.Effect):
         else:
             return bp
 
-    def _update_attribute(self, attribute: str, type_, data):
-        try:
-            value = type_(data[attribute])
-            setattr(self, attribute, value)
-        except:
-            pass
-
     def effect(self):
-        # Find the ring or flat data
+        # Extract json data
+
+        # Defaults
         self.rofin = "flat"
         self.height = 120.0
         self.mode = "save"
@@ -106,65 +101,71 @@ class Laser(inkex.Effect):
         self.frequency = 60000
         self.freqstep = 0
         self.speed = 500
-        self.server = os.getenv("WS_SERVER_REMOTE")
+        self.server = myconfig.WS_SERVER_REMOTE
         self.filename = None
         self.customer = None
 
-        # Defaults
+        key_to_attribute = {
+            "current": "current",
+            "freqstep": "freqstep",
+            "frequency": "frequency",
+            "mode": "mode",
+            "speed": "speed",
+            "server": "server",
+            "filename": "filename",
+            "customer": "customer",
+            "angle": "angle",
+            "diameter": "diameter",
+            "height": "height",
+            "sectors": "sectors",
+            "width": "width",
+        }
+
         for group in self.document.getroot():
             for child in group:
                 if (
                     "{http://www.inkscape.org/namespaces/inkscape}label"
                     in child.attrib.keys()
+                ) and (
+                    "laserdata"
+                    in child.attrib[
+                        "{http://www.inkscape.org/namespaces/inkscape}label"
+                    ]
                 ):
-                    if (
-                        "laserdata"
-                        in child.attrib[
-                            "{http://www.inkscape.org/namespaces/inkscape}label"
-                        ]
-                    ):
-                        try:
-                            myjson = json.loads(child.text)
-                        except json.decoder.JSONDecodeError:
-                            continue
+                    try:
+                        myjson = json.loads(child.text)
+                    except json.decoder.JSONDecodeError:
+                        myjson = None
 
-                        self._update_attribute("current", float, myjson)
-                        self._update_attribute("freqstep", float, myjson)
-                        self._update_attribute("frequency", float, myjson)
-                        self._update_attribute("mode", str, myjson)
-                        self._update_attribute("speed", float, myjson)
-                        self._update_attribute("server", str, myjson)
-                        self._update_attribute("height", float, myjson)
-                        self._update_attribute("filename", str, myjson)
-                        self._update_attribute("customer", str, myjson)
-                        self._update_attribute("angle", float, myjson)
-                        if "angle" in myjson:
+                    if myjson is not None:
+                        for key, attribute in key_to_attribute.items():
+                            try:
+                                setattr(self, attribute, float(myjson[key]))
+                            except (ValueError, TypeError, KeyError):
+                                continue
+
+                        if hasattr(self, "angle") or hasattr(self, "diameter"):
                             self.rofin = "rotary"
-                        self._update_attribute("diameter", float, myjson)
-                        if "diameter" in myjson:
-                            self.rofin = "rotary"
-                        self._update_attribute("height", float, myjson)
-                        self._update_attribute("sectors", float, myjson)
-                        self._update_attribute("width", float, myjson)
 
         self.blast = blastpy.t_Blastpit()
 
-        # Find the current SVG drawing and copy to a temporary file
+        # Here we copy the current SVG drawing to a temporary file
         file = self.options.input_file
         tempfile = os.path.splitext(file)[0] + "-multicut.svg"
         copy2(file, tempfile)
 
-        # Pipe the SVG through an external program 'svg2bezier'
-        # to convert to cubic bezier splines. Store in '/tmp/out.txt'
+        # Now we Pipe the file through 'svg2bezier'
+        # to convert all geometries to simple bezier curves
+        SIMPLIFIED_CURVES_FILENAME = "/tmp/simple_curves.out"
         p = Popen(
-            "cat " + tempfile + " | svg2bezier > /tmp/out.txt",
+            "cat " + tempfile + " | svg2bezier > " + SIMPLIFIED_CURVES_FILENAME,
             shell=True,
             stdout=PIPE,
             stderr=PIPE,
         )
         f = p.communicate()[0]
 
-        fh = open("/tmp/out.txt", "r")
+        fh = open(SIMPLIFIED_CURVES_FILENAME, "r")
 
         freq = int(self.frequency)
 
@@ -182,10 +183,10 @@ class Laser(inkex.Effect):
             )
 
             SECTOR = 360.0 / SEGMENTS  # Needed in degrees for lmos
-            # SECTOR_WIDTH = (math.pi * float(self.diameter)) / SEGMENTS
-            # RINGWIDTH = self.options.width
             FOCAL_ADJUSTMENT = 0
 
+        # Read the splines from the file and convert
+        # into the XML format required by LMOS
         id = "error"
         geo = None
         group = None
@@ -200,16 +201,11 @@ class Laser(inkex.Effect):
         if self.rofin == "rotary":
             if int(self.angle) > 0:
                 convex = False
-                # print("Jig angle: " + str(self.angle), file=sys.stderr)
             else:
                 convex = True
-            xml.setCylinder(
-                float(self.diameter) / 2, float(self.width), SECTOR, convex
-            )
+            xml.setCylinder(float(self.diameter) / 2, float(self.width), SECTOR, convex)
 
-        # Iterate through the cubic bezier shapes.
-        # Ignore anything with a shadow id.
-        # Group shapes with the same colour.
+        # Loop through all of the simplified splines
         id_counter = 0
         for line in fh:
             if line.startswith("id:"):
@@ -218,6 +214,7 @@ class Laser(inkex.Effect):
                     continue
                 else:
                     ignore = 0
+
                 line = line[:-1]  # Remove newline
                 colour = line[-6:]  # Last six digits are the colour in hex
                 if (
@@ -242,9 +239,8 @@ class Laser(inkex.Effect):
                         addColourLayer(xml, colour, float(str(self.height)))
                     else:
                         addColourLayer(xml, colour, float(str(self.height)))
-                    # print >> sys.stderr, "Adding Qp set bp_" + colour
 
-                    # Create a QP set based on hex colour with a prefix 'bp_'
+                    # Create a QP set based on the hex colour but with a prefix 'bp_'
                     qp = ["bp_" + colour, self.current, self.speed, freq]
                     qpsets.append(qp)
                     freq += int(self.freqstep)
@@ -255,14 +251,14 @@ class Laser(inkex.Effect):
                     id = m.group(1)
                 else:
                     id = line
-                # group = xml.addGroup(
-                #     "g" + id, "bp_" + colour, "bp_" + colour, "Standard")
                 group = xml.addGroup(
                     "g" + id, "bp_" + colour, "bp_" + colour, "bp_0_01"
                 )
             else:
                 if ignore == 1:
                     continue
+                # If the line is bezier data, it will be
+                # four numbers separated by spaces
                 f = io.StringIO(line)
                 reader = csv.reader(f, delimiter=",")
                 nodes = []
@@ -321,14 +317,12 @@ class Laser(inkex.Effect):
                     geo = None
                     group = None
 
-        if (
-            self.mode == "save"
-            or self.mode == "upload"
-            or self.mode == "savexml"
-        ):
+        # All data has now been converted.
+        # Here we save the XML or send it over the network
+        if self.mode == "save" or self.mode == "upload" or self.mode == "savexml":
             blast = blastpy.blastpitNew()
             result = blastpy.connectToServer(
-                blast, self.server, int(os.getenv("WS_TIMEOUT_SHORT"))
+                blast, self.server, myconfig.WS_TIMEOUT_SHORT
             )
             if result != blastpy.kSuccess:
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
@@ -368,7 +362,7 @@ class Laser(inkex.Effect):
                 )
                 blastpy.BpUploadQueuedMessages(blast)
                 blastpy.BpWaitForReplyOrTimeout(
-                    blast, id.id, int(os.getenv("WS_TIMEOUT_UPLOAD"))
+                    blast, id.id, myconfig.WS_TIMEOUT_UPLOAD
                 )
 
             id = blastpy.BpQueueCommandArgs(
@@ -389,9 +383,7 @@ class Laser(inkex.Effect):
             blastpy.BpDisplayLmosWindow(blast, 1)
 
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(
-                blast, id.id, int(os.getenv("WS_TIMEOUT_LONG"))
-            )
+            blastpy.BpWaitForReplyOrTimeout(blast, id.id, myconfig.WS_TIMEOUT_LONG)
 
             for layer in layers:
                 blastpy.BpQueueCommandArgs(
@@ -421,19 +413,19 @@ class Laser(inkex.Effect):
                     None,
                 )
 
-            # blastpy.BpQueueCommandArgs(
-            #     blast,
-            #     blastpy.kLayerSetLaserable,
-            #     "layer",
-            #     "RofinStandard",
-            #     "laserable",
-            #     "0",
-            #     None,
-            #     None,
-            #     None,
-            #     None,
-            #     None,
-            # )
+            blastpy.BpQueueCommandArgs(
+                blast,
+                blastpy.kLayerSetLaserable,
+                "layer",
+                "RofinStandard",
+                "laserable",
+                "0",
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
             blastpy.BpQueueCommandArgs(
                 blast,
                 blastpy.kLayerSetExportable,
@@ -490,7 +482,9 @@ class Laser(inkex.Effect):
                     + ".VLM"
                 )
             else:
-                filename = "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
+                filename = (
+                    "C:\\Rofin\\VisualLaserMarker\\MarkingFiles\\inkscape_export.VLM"
+                )
 
             id = blastpy.BpQueueCommandArgs(
                 blast,
@@ -506,9 +500,7 @@ class Laser(inkex.Effect):
                 None,
             )
             blastpy.BpUploadQueuedMessages(blast)
-            blastpy.BpWaitForReplyOrTimeout(
-                blast, id.id, int(os.getenv("WS_TIMEOUT_LONG"))
-            )
+            blastpy.BpWaitForReplyOrTimeout(blast, id.id, myconfig.WS_TIMEOUT_LONG)
             if id.retval != blastpy.kSuccess:
                 print("Error saving VLM file", file=sys.stderr)
                 fh.close()
@@ -529,9 +521,7 @@ class Laser(inkex.Effect):
                     None,
                 )
                 blastpy.BpUploadQueuedMessages(blast)
-                blastpy.BpWaitForReplyOrTimeout(
-                    blast, id.id, int(os.getenv("WS_TIMEOUT_SHORT"))
-                )
+                blastpy.BpWaitForReplyOrTimeout(blast, id.id, myconfig.WS_TIMEOUT_SHORT)
                 if id.retval != blastpy.kSuccess:
                     print("Error patching shadows", file=sys.stderr)
 
@@ -542,9 +532,7 @@ class Laser(inkex.Effect):
         if self.mode == "position":
             blast = blastpy.t_Blastpit()
             if (
-                blastpy.bp_connectToServer(
-                    blast, self.server, "inkscape", 1000, True
-                )
+                blastpy.bp_connectToServer(blast, self.server, "inkscape", 1000, True)
                 != 0
             ):
                 print("Can't connect", file=sys.stderr)
@@ -563,7 +551,7 @@ class Laser(inkex.Effect):
             # We also need to upload the LPs
             blast = blastpy.blastpitNew()
             result = blastpy.connectToServer(
-                blast, self.server, int(os.getenv("WS_TIMEOUT_SHORT"))
+                blast, self.server, myconfig.WS_TIMEOUT_SHORT
             )
             if result != blastpy.kSuccess:
                 print("Can't connect to server (%d)" % result, file=sys.stderr)
@@ -595,26 +583,3 @@ class Laser(inkex.Effect):
 if __name__ == "__main__":
     e = Laser()
     e.run()
-
-# If any items are selected, export only those items
-# If no objects are selected, export all items on visible layers
-# Convert text to paths
-# Merge any paths whose bounding boxes overlap
-
-# inkscape --pipe --export-id-only --export-text-to-path --vacuum-defs --export-plain-svg -i text1085 -o - < drawing.svg
-# REMEMBER TO MERGE TEXT
-
-# for id_, node in self.selected.iteritems():
-#     # get value of attribute 'inkscape:label' from current node
-#     node_label = node.get(inkex.addNS('label', 'inkscape'),
-#        "No label set for this element")
-#     # report back
-#     inkex.debug("Label of object %s: %s" % (id_, node_label))
-#     # if label starts with "foo", modify it
-#     if node_label.startswith("foo"):
-#         new_label = node_label[0:3] + "bar"
-#         # set label to new value
-#         node.set(inkex.addNS('label', 'inkscape'), new_label)
-#     # report back current value of attribute 'inkscape:label'
-#     inkex.debug("Label of object %s: %s" % (id_,
-#           node.get(inkex.addNS('label', 'inkscape'))))

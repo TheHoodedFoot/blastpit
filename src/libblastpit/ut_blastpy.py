@@ -3,22 +3,9 @@ import os.path
 import sys
 import time
 import unittest
+from dotenv import load_dotenv
 
-# Configuration variables
-GIT_HIDDEN_CONFIG_DIR = os.getcwd() + "/.git/untracked"
-DEFAULT_CONFIG_DIR = os.getcwd() + "/res/cfg"
-
-if os.path.isfile(GIT_HIDDEN_CONFIG_DIR + "/myconfig.py"):
-    # Use the existing custom config
-    sys.path.append(GIT_HIDDEN_CONFIG_DIR)
-    import myconfig
-elif os.path.isfile(DEFAULT_CONFIG_DIR + "/myconfig.py"):
-    # Use the default config
-    sys.path.append(DEFAULT_CONFIG_DIR)
-    import myconfig
-else:
-    print("The blastpit python config (myconfig.py) is not available.")
-    exit(1)
+load_dotenv(dotenv_path=".git/.env")
 
 if not os.path.isfile(os.getcwd() + "/build/_blastpy.so"):
     print("The blastpit library is not available.")
@@ -29,7 +16,9 @@ import blastpy as bp
 
 
 # Helper functions needed due to lack of running event loop
-def PollUntilConnected(client, server, timeout=myconfig.WS_TIMEOUT_SHORT):
+def PollUntilConnected(
+    client, server, timeout=int(os.getenv("WS_TIMEOUT_SHORT"))
+):
     for i in range(timeout):
         bp.pollMessages(server)
         bp.pollMessages(client)
@@ -41,7 +30,7 @@ def PollUntilConnected(client, server, timeout=myconfig.WS_TIMEOUT_SHORT):
 
 
 def PollUntilMessageCount(
-    client, server, count=1, timeout=myconfig.WS_TIMEOUT_SHORT
+    client, server, count=1, timeout=int(os.getenv("WS_TIMEOUT_SHORT"))
 ):
     for i in range(timeout):
         bp.pollMessages(client)
@@ -57,7 +46,8 @@ class Testbp(unittest.TestCase):
     def setUp(self):
         self.server = bp.blastpitNew()
         self.assertEqual(
-            bp.kSuccess, bp.serverCreate(self.server, myconfig.WS_SERVER_TEST)
+            bp.kSuccess,
+            bp.serverCreate(self.server, os.getenv("WS_SERVER_TEST")),
         )
         # print("Creating server")
 
@@ -66,8 +56,8 @@ class Testbp(unittest.TestCase):
         self.client2 = bp.blastpitNew()
 
         # These next lines will give a timeout error because we don't poll
-        bp.connectToServer(self.client1, myconfig.WS_SERVER_TEST, 0)
-        bp.connectToServer(self.client2, myconfig.WS_SERVER_TEST, 0)
+        bp.connectToServer(self.client1, os.getenv("WS_SERVER_TEST"), 0)
+        bp.connectToServer(self.client2, os.getenv("WS_SERVER_TEST"), 0)
 
         PollUntilConnected(self.client1, self.server)
         PollUntilConnected(self.client2, self.server)
@@ -99,7 +89,9 @@ class Testbp(unittest.TestCase):
         return
         self.client = bp.blastpitNew()
         bp.connectToServer(
-            self.client, myconfig.WS_SERVER_TEST, myconfig.WS_TIMEOUT_SHORT
+            self.client,
+            os.getenv("WS_SERVER_TEST"),
+            os.getenv("WS_TIMEOUT_SHORT"),
         )
         PollUntilConnected(self.client, self.client)
 
@@ -132,7 +124,7 @@ if __name__ == "__main__":
 #         bp.bp_sendMessage(
 #             self.blast,
 #             88,
-#             myconfig.MQTT_ID,
+#             os.getenv("MQTT_ID"),
 #             "<command>Test</command>"))
 
 #     for i in range(10):
@@ -144,14 +136,14 @@ if __name__ == "__main__":
 #     self.assertEqual(
 #         "<?xml version=\"1.0\"?>\n<command id=\"88\">Test</command>\n",
 #         bp.bp_waitForXml(
-#             self.blast, 88, myconfig.TIMEOUT, False))
+#             self.blast, 88, os.getenv("TIMEOUT"), False))
 
 # def test_reconnect(self):
 #     self.assertEqual(0, bp.bp_getMessageCount(self.blast))
 #     bp.bp_sendMessage(
 #         self.blast,
 #         1,
-#         myconfig.MQTT_ID,
+#         os.getenv("MQTT_ID"),
 #         "<command>You are abcde!</command>")
 #     time.sleep(0.5)
 #     self.assertEqual(1, bp.bp_getMessageCount(self.blast))
@@ -163,7 +155,7 @@ if __name__ == "__main__":
 #     bp.bp_sendMessage(
 #         self.blast,
 #         9,
-#         myconfig.MQTT_ID,
+#         os.getenv("MQTT_ID"),
 #         "<command>You are abcde!</command>")
 #     time.sleep(1)
 #     self.assertEqual(1, bp.bp_getMessageCount(self.blast))
@@ -182,7 +174,7 @@ if __name__ == "__main__":
 #         # bp.bp_sendMessage(
 #         #     self.blast,
 #         #     i,
-#         #     myconfig.MQTT_ID,
+#         #     os.getenv("MQTT_ID"),
 #         #     "<command>You are abcde!</command>")
 #         string = bp.bp_waitForString(self.blast, i, 1000)
 #         # self.assertEqual( "You are abcde!", string)
@@ -192,6 +184,8 @@ if __name__ == "__main__":
 #     endTime = time.time()
 #     print("Total elapsed time: " + str(endTime - startTime))
 #     print("Max individual time: " + str(maxTime))
+
+
 # assertEqual(a, b) 	a == b
 # assertNotEqual(a, b) 	a != b
 # assertTrue(x) 	bool(x) is True

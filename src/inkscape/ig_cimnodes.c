@@ -123,6 +123,14 @@ cimCreateWidgets( t_cimnodes_data* self )
 	imnodes_Link( 26, 11, 13 );
 	imnodes_EndNodeEditor();
 
+	int  start_attr = 11, end_attr = 15;
+	bool snap;
+	if ( imnodes_IsLinkCreated_BoolPtr( &start_attr, &end_attr, &snap ) ) {
+		printf( "yes\n" );
+		printf( "%d -> %d\n", start_attr, end_attr );
+	}
+
+
 	// TODO: make the context static, dont create and destroy every frame
 	igEnd();
 }

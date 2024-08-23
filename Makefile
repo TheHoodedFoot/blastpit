@@ -36,8 +36,6 @@ USER_DEFINES     = SPACENAV
 
 
 # Compilers (Note: using Zig with bear fails to create compile database)
-CC ?= gcc
-CXX ?= g++
 ASAN_CC = clang
 ASAN_CXX = clang++
 MSAN_CC = clang
@@ -53,7 +51,7 @@ RELEASE_CPPFLAGS += -Wall -Wextra -Wpedantic -Werror -Wfatal-errors
 
 # Optimization
 DEBUG_CPPFLAGS                += -O0
-PROFILE_CPPFLAGS                += -Ofast
+PROFILE_CPPFLAGS                += -O3 -flto
 PROFILE_CPPFLAGS  = -fno-omit-frame-pointer
 RELEASE_CPPFLAGS                += -Ofast
 
@@ -116,13 +114,19 @@ SANFLAGS                  += -fno-omit-frame-pointer -fno-optimize-sibling-calls
 SANFLAGS                  += -fsanitize-recover=all #-fsanitize-blacklist=$(PROJECT_ROOT)/res/.sanitize_blacklist.txt
 SANLDFLAGS                += -Wl,-rpath,$(shell dirname $(shell clang -print-file-name=libclang_rt.ubsan_standalone-x86_64.so))
 
+# Enable Figlet if available
+ifeq (,$(shell which figlet >/dev/null 2>&1))
+FIGLET := echo
+else
+FIGLET := figlet
+endif
 
 # ░█▀▀░█▀█░█░█░█▀▄░█▀▀░█▀▀░█▀▀
 # ░▀▀█░█░█░█░█░█▀▄░█░░░█▀▀░▀▀█
 # ░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀
 
 # Library source and object files
-LIBMXML_SRCS        := mxml-attr.c mxml-entity.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-string.c 
+LIBMXML_SRCS        := mxml-attr.c mxml-file.c mxml-get.c mxml-index.c mxml-node.c mxml-private.c mxml-search.c mxml-set.c mxml-options.c
 LIBMXML_OBJS        := $(patsubst %.c,$(BUILD_DIR)/%.o,$(LIBMXML_SRCS))
 WIN32_LIBMXML_OBJS        := $(patsubst %.c,$(BUILD_DIR)/win32/%.o,$(LIBMXML_SRCS))
 LIBBLASTPIT_SOURCES := blastpit.c websocket.c xml.c
@@ -238,25 +242,25 @@ alltargetscheck:
 
 		make clean
 		make $(BUILD_DIR)
-		echo asan | figlet
+		echo asan | $(FIGLET)
 		make asan
-		echo test_asan | figlet
+		echo test_asan | $(FIGLET)
 		make test_asan
 		make clean
 		make $(BUILD_DIR)
-		echo msan | figlet
+		echo msan | $(FIGLET)
 		make msan
-		echo test_msan | figlet
+		echo test_msan | $(FIGLET)
 		make test_msan
 		make clean
 		make $(BUILD_DIR)
-		echo cross | figlet
+		echo cross | $(FIGLET)
 		make cross
-		echo wscli | figlet
+		echo wscli | $(FIGLET)
 		make wscli_portable
 		make clean
 		make $(BUILD_DIR)
-		echo profile | figlet
+		echo profile | $(FIGLET)
 		make profile
 
 # Prevent intermediate files being deleted and rebuilt every time

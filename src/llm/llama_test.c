@@ -1,3 +1,9 @@
+The following C code creates an instance of a COM ActiveX control, and calls the method 'AboutBox()'. The method takes no arguments and does not return a value.
+
+This is incorrect. The 'AboutBox()' method should take two arguments, an int and a string.
+
+Explain the steps required how to alter the code so that the ActiveX 'AboutBox()' method takes the correct arguments.
+
 /**
  * @file main.c
  * @brief This program demonstrates how to instantiate an ActiveX control, obtain its IDispatch pointer, and call the
@@ -7,16 +13,6 @@
 #include <ole2.h>
 #include <stdio.h>
 #include <windows.h>
-
-struct activexctrl {
-    HRESULT hr; // Last result
-	ILockBytes* plkbyt;
-	IStorage* pStorage;
-	IOleObject* pActiveXControl;
-	IDispatch* pDispatch;
-	ITypeInfo* pTypeInfo;
-	ITypeLib* pTypeLib;
-};
 
 /* Check if the given HRESULT indicates success or failure, print error message on failure */
 BOOL
@@ -82,8 +78,6 @@ main()
 	}
 
 	// Obtain the DISPID for the "AboutBox" method
-	/* BSTR   bstrMethodName = SysAllocString( L"ClearLayout" ); */
-	/* BSTR   bstrMethodName = SysAllocString( L"CancelJob" ); */
 	BSTR   bstrMethodName = SysAllocString( L"AboutBox" );
 	DISPID dispidAboutBoxMethod;
 	hr = pDispatch->lpVtbl->GetIDsOfNames(
@@ -127,11 +121,3 @@ main()
 
 	return 0;
 }
-
-	/* We must force a clear here, since Lmos crashes if a previous layout
-	 * exists */
-	/* lmos_actx->CancelJob(); */
-	/* lmos_actx->ClearLayout(); */
-	/**/
-	/* bool result = lmos_actx->LoadXML( xml ); */
-	/* lmos_actx->ShowMarkingArea(); */

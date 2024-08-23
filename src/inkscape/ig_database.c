@@ -25,7 +25,7 @@
 #include <sds.h>
 
 // PostgreSQL
-#include "libpq-fe.h"
+// #include "libpq-fe.h"
 
 #include "ig_common.h"
 #include "ig_database.h"
@@ -41,44 +41,6 @@
 ImVec2 ig2Empty = { 0, 0 };
 ImVec2 vertGap	= { 0, 20 };
 
-
-void
-dbRingWindow( t_database_data* self )
-{
-	(void)self;
-
-	igBegin( "Ring Generator", NULL, 0 );
-
-	// Ring diameter
-	static float diameter = 20.0f;
-	igInputFloat( "Diameter", &diameter, 0.1f, 1.0f, "%.1f", 0 );
-	static float width = 6.0f;
-	igInputFloat( "Width", &width, 0.1f, 1.0f, "%.1f", 0 );
-
-	// Internal or extenal engraving
-	static int radio = 0;
-	igRadioButton_IntPtr( "Inside", &radio, 0 );
-	igSameLine( 0, 0 );
-	igRadioButton_IntPtr( "Outside", &radio, 1 );
-	igDummy( vertGap );
-
-	// Generate SVG Button
-	igPushID_Int( 1 );
-	ImColor but_red_normal, but_red_hover, but_red_active;
-	ImColor_HSV( &but_red_normal, 0.0f, 0.6f, 0.6f, 1.0f );
-	ImColor_HSV( &but_red_hover, 0.0f, 0.7f, 0.7f, 1.0f );
-	ImColor_HSV( &but_red_active, 0.0f, 0.8f, 0.8f, 1.0f );
-	igPushStyleColor_Vec4( ImGuiCol_Button, but_red_normal.Value );
-	igPushStyleColor_Vec4( ImGuiCol_ButtonHovered, but_red_hover.Value );
-	igPushStyleColor_Vec4( ImGuiCol_ButtonActive, but_red_active.Value );
-
-	igButton( "Modify SVG", ig2Empty );
-
-	igPopStyleColor( 3 );  // This must match the number of pushes above
-	igPopID();
-
-	igEnd();
-}
 
 void
 dbTextWindow( t_database_data* self )
@@ -239,7 +201,6 @@ dbCreateWidgets( t_database_data* self )
 	}
 
 	dbDatabaseWindow( self );
-	dbRingWindow( self );
 	dbTextWindow( self );
 	dbSearchWindow( self );
 	dbImageWindow( self );
@@ -259,7 +220,9 @@ dbEventLoop( void* db_data )
 	self->fonts.result     = NULL;
 
 	if ( !self->conn ) {
-		self->conn	     = PSQLInit( "host = hilly, dbname = engraving" );
+        // Don't spam the connection check
+        /* if ( time(NULL) > self->last_db_check + DB_SPAM_DELAY */
+		self->conn	     = PSQLInit( "host = 192.168.1.20, dbname = engraving" );
 		self->customers.data = NULL;
 	}
 

@@ -1,0 +1,15 @@
+The following Python code is an extension for the Inkscape SVG editor. The
+code performs the following functions:
+
+* Read variables from the SVG data held in json format.
+* Convert the SVG drawing into simple bezier splines by using an external
+program 'svgtobezier'
+* Read back the converted spline data and process it into XML format
+  suitable for the program 'LMOS'
+* Group the splines by colour
+* Upload the XML data over the network
+
+Examine the code and indicate all areas where it can be improved. Your goal is
+to reduce redundancy, optimize the code where possible, and consolidate duplicate code into
+functions where possible.
+

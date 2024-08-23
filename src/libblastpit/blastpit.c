@@ -67,7 +67,9 @@ int
 serverCreate( t_Blastpit* self, const char* port )
 {  // Start a listening server
 
-	// assert( port != NULL );
+	if ( port == NULL ) {
+		return kInvalid;
+	}
 	if ( ( (t_Websocket*)self->ws )->isServer ) {
 		return kAlreadyInUse;  // Already in use
 	}

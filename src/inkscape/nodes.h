@@ -32,9 +32,9 @@ extern "C"
 	/// Data common to each instance of the same node type
 	typedef struct
 	{
-		enum NODE_TYPE type;			 ///< Unique identifier
-		const char*    name;			 ///< The node name as displayed in the titlebar
-		int	       ( *node_func )( void* );	 ///< Pointer to function that processes this node type
+		enum NODE_TYPE type;	      ///< Unique identifier
+		const char*    name;	      ///< The node name as displayed in the titlebar
+		int ( *node_func )( void* );  ///< Pointer to function that processes this node type
 	} t_node_cl;
 
 	/// Data common to each instance of the same attribute type

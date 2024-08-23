@@ -107,9 +107,11 @@ class Multipass:
         id = blastpy.BpWaitForSignalOrTimeout(
             self.blast,
             -16,
-            self.timeout
-            if self.timeout is not None
-            else myconfig.WS_TIMEOUT_MARKING,
+            (
+                self.timeout
+                if self.timeout is not None
+                else myconfig.WS_TIMEOUT_MARKING
+            ),
         )
 
         if id.id == -16:  # imageEnd2?

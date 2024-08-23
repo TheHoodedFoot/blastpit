@@ -8,12 +8,12 @@
 # When compiling C files for Tracy debugging,
 # do not #include "Tracy.hpp". Instead, #include "TracyC.h"
 
-TRACY_PROFILER_DIR = $(SUBMODULES_DIR)/tracy/profiler/build/unix
-TRACY_PROFILER_BINARY = $(TRACY_PROFILER_DIR)/Tracy-release
-TRACY_CAPTURE_DIR = $(SUBMODULES_DIR)/tracy/capture/build/unix
-TRACY_CAPTURE_BINARY = $(TRACY_CAPTURE_DIR)/capture-release
-TRACY_CSVEXPORT_DIR = $(SUBMODULES_DIR)/tracy/csvexport/build/unix
-TRACY_CSVEXPORT_BINARY = $(TRACY_CSVEXPORT_DIR)/csvexport-release
+TRACY_PROFILER_DIR = $(SUBMODULES_DIR)/tracy/profiler
+TRACY_PROFILER_BINARY = $(TRACY_PROFILER_DIR)/build/tracy-profiler
+TRACY_CAPTURE_DIR = $(SUBMODULES_DIR)/tracy/capture
+TRACY_CAPTURE_BINARY = $(TRACY_CAPTURE_DIR)/build/tracy-capture
+TRACY_CSVEXPORT_DIR = $(SUBMODULES_DIR)/tracy/csvexport
+TRACY_CSVEXPORT_BINARY = $(TRACY_CSVEXPORT_DIR)/build/tracy-csvexport
 
 tracy:	$(TRACY_PROFILER_BINARY)
 	$^ -a 127.0.0.1 &
@@ -23,6 +23,7 @@ tracycap:	$(TRACY_CAPTURE_BINARY)
 
 tracyexport:	$(TRACY_CSVEXPORT_BINARY)
 	$^ /tmp/tracycap.tracy > /tmp/tracyexport_$(PROJECT)_$(GIT_HEAD).csv
+	# rm -f /tmp/tracycap.tracy
 
 tracyopen:	$(TRACY_PROFILER_BINARY)
 	$^ /tmp/tracycap.tracy
@@ -30,11 +31,21 @@ tracyopen:	$(TRACY_PROFILER_BINARY)
 tracy_help:
 	xdg-open $(PROJECT_ROOT)/.git/untracked/docs/tracy.pdf
 
-$(TRACY_PROFILER_BINARY):	$(TRACY_PROFILER_DIR)
-	cd $(TRACY_PROFILER_DIR); CPLUS_INCLUDE_PATH=/usr/include/capstone LEGACY=1 make
+$(TRACY_PROFILER_DIR)/Makefile:
+	cmake -S $(TRACY_PROFILER_DIR) -B $(TRACY_PROFILER_DIR)/build -DCMAKE_BUILD_TYPE=Release -DLEGACY=TRUE -DDOWNLOAD_CAPSTONE=OFF -DFETCHCONTENT_QUIET=OFF
 
-$(TRACY_CAPTURE_BINARY):	$(TRACY_CAPTURE_DIR)
-	cd $(TRACY_CAPTURE_DIR); CPLUS_INCLUDE_PATH=/usr/include/capstone LEGACY=1 make
+$(TRACY_CAPTURE_DIR)/Makefile:
+	cmake -S $(TRACY_CAPTURE_DIR) -B $(TRACY_CAPTURE_DIR)/build -DCMAKE_BUILD_TYPE=Release -DLEGACY=TRUE -DDOWNLOAD_CAPSTONE=OFF -DFETCHCONTENT_QUIET=OFF
 
-$(TRACY_CSVEXPORT_BINARY):	$(TRACY_CSVEXPORT_DIR)
-	cd $(TRACY_CSVEXPORT_DIR); CPLUS_INCLUDE_PATH=/usr/include/capstone LEGACY=1 make
+$(TRACY_CSVEXPORT_DIR)/Makefile:
+	cmake -S $(TRACY_CSVEXPORT_DIR) -B $(TRACY_CSVEXPORT_DIR)/build -DCMAKE_BUILD_TYPE=Release -DLEGACY=TRUE -DDOWNLOAD_CAPSTONE=OFF -DFETCHCONTENT_QUIET=OFF
+
+$(TRACY_PROFILER_BINARY):	$(TRACY_PROFILER_DIR)/Makefile
+	make -C $(TRACY_PROFILER_DIR)/build
+
+$(TRACY_CAPTURE_BINARY):	$(TRACY_CAPTURE_DIR)/Makefile
+	make -C $(TRACY_CAPTURE_DIR)/build
+
+$(TRACY_CSVEXPORT_BINARY):	$(TRACY_CSVEXPORT_DIR)/Makefile
+	make -C $(TRACY_CSVEXPORT_DIR)/build
+

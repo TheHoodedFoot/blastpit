@@ -122,7 +122,10 @@ FileToXML( const char* filename )
 		return NULL;
 	}
 
-	mxml_node_t* xml = mxmlLoadFile( NULL, svg_in, MXML_OPAQUE_CALLBACK );
+	// MXML 4.0 requires on options object
+	mxml_options_t* mxmlopts = mxmlOptionsNew();
+	mxml_node_t*	xml	 = mxmlLoadFile( NULL, mxmlopts, svg_in );
+	mxmlOptionsDelete( mxmlopts );
 
 	if ( xml == NULL ) {
 		fprintf( stderr, "Unable to load SVG as XML.\n" );
@@ -146,7 +149,7 @@ findLaserdata( mxml_node_t* xml )
 
 	node = xml;
 	do {
-		node = mxmlFindElement( node, xml, "text", "inkscape:label", "laserdata", MXML_DESCEND );
+		node = mxmlFindElement( node, xml, "text", "inkscape:label", "laserdata", MXML_DESCEND_ALL );
 
 		if ( node ) {
 			string = mxmlGetOpaque( node );
@@ -207,7 +210,9 @@ writeSVGToFile( mxml_node_t* xml, const char* filename )
 	if ( !( svg_out = fopen( filename, "w" ) ) ) {
 		return false;
 	}
-	mxmlSaveFile( xml, svg_out, MXML_NO_CALLBACK );
+	mxml_options_t* mxmlopts = mxmlOptionsNew();
+	mxmlSaveFile( xml, mxmlopts, svg_out );
+	mxmlOptionsDelete( mxmlopts );
 	fclose( svg_out );
 	return true;
 }

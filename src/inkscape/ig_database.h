@@ -4,6 +4,7 @@
 #include <mxml.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "libpq-fe.h"  // PostgreSQL
 
@@ -16,6 +17,7 @@ typedef struct
 	FILE*	     fh_script_output;	// Output from popen()
 	mxml_node_t* svg;
 	PGconn*	     conn;
+    time_t		 last_db_check; // Time of last connection check
 	t_glfw_data  glfwdata;
 	t_db_query   customers;
 	t_db_query   fonts;

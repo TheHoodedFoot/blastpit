@@ -1,6 +1,6 @@
 # Blastpit
 
-![CI Status](https://buildbot.47or.com/badges/blastpit.svg)
+![Badge](https://git.47or.com/thf/blastpit/actions/workflows/demo.yaml/badge.svg)
 
 ## Description
 

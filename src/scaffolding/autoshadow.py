@@ -239,6 +239,7 @@ class Autoshadow:
             rect_pattern = re.compile("rect.*")
             path_pattern = re.compile("path.*")
             circle_pattern = re.compile("circle.*")
+            text_pattern = re.compile("text.*")
 
             for row in reader:
                 is_shadow = shadow_pattern.match(row[0])
@@ -248,10 +249,12 @@ class Autoshadow:
                 is_path = path_pattern.match(row[0])
                 is_rect = rect_pattern.match(row[0])
                 is_circle = circle_pattern.match(row[0])
+                is_text = text_pattern.match(row[0])
                 if (
                     is_path is not None
                     or is_rect is not None
                     or is_circle is not None
+                    or is_text is not None
                 ):
                     self.paths.append(
                         [
