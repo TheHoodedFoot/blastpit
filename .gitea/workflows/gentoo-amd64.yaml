@@ -16,34 +16,34 @@ jobs:
     runs-on: gentoo-amd64
 
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
-      - run: echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
+      # - run: echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
+      # - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
+      # - run: echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
 
       - uses: actions/checkout@v4
         with:
           submodules: recursive
           token: "${{ secrets.CLONE_TOKEN }}"
-      - run: echo "💡 The ${{ gitea.repository }} repository has been cloned to the runner."
+      # - run: echo "💡 The ${{ gitea.repository }} repository has been cloned to the runner."
 
-      - name: List files in the repository
-        run: |
-          ls ${{ gitea.workspace }}
-          ls ${{ gitea.workspace }}/src/submodules
+      # - name: List files in the repository
+      #   run: |
+      #     ls ${{ gitea.workspace }}
+      #     ls ${{ gitea.workspace }}/src/submodules
 
-      - name: make
-        run: make
+      - name: Build
+        run: make alltargetscheck
 
       - name: Set environment variables
         run: |
           echo "WS_TIMEOUT_SHORT=1000" >> ${GITHUB_ENV}
           echo "WS_SERVER_TEST=ws://127.0.0.1:7890" >> ${GITHUB_ENV}
-      - name: Run unit tests
+      - name: Unit tests
         run: make unit_tests
-      - name: Run system tests
+      - name: System tests
         run: make system_tests
 
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      # - run: echo "🍏 This job's status is ${{ job.status }}."
 
       - name: Send a Telegram message on failure
         uses: appleboy/telegram-action@master
