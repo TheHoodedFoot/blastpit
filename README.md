@@ -1,6 +1,6 @@
 # Blastpit
 
-![Badge](https://git.47or.com/thf/blastpit/actions/workflows/demo.yaml/badge.svg)
+![Badge](https://git.47or.com/thf/blastpit/actions/workflows/gentoo-amd64.yaml/badge.svg)
 
 ## Description
 
