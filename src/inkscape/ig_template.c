@@ -44,7 +44,6 @@
 #endif
 
 #include "cimnodes.h"
-#include "cimplot.h"
 #include "ig_common.h"
 #include "ig_template.h"
 #include "ink_common.h"
@@ -147,17 +146,6 @@ tmpl_SearchWindow( t_template_data* self )
 
 	static int slider = 1;
 	igSliderInt( "Record", &slider, 1, 1000, NULL, 0 );
-
-	bool dummy = 0;
-	ImPlot_ShowDemoWindow( &dummy );
-	//
-	// uint16_t   bar_data[11] = {0,1,2,3,4,5,6,7,8,9,10};
-	//
-	// if (ImPlot_BeginPlot("My Plot", ig2Empty, 0)) {
-	//    	    // ImPlot_PlotBarsG("My Bar Plot", bar_data, 11);
-	//    	    ImPlot_PlotBars_U16PtrInt("plot", bar_data, 11, 1, 0, 0, 0 ,0);
-	//    	    ImPlot_EndPlot();
-	// }
 
 	igEnd();
 }
@@ -342,7 +330,6 @@ main( int argc, char** argv )
 
 	// Initialise imnodes and implot context
 	self.inctx = imnodes_CreateContext();
-	self.ipctx = ImPlot_CreateContext();
 
 	// For now, just run the queries once before the loop
 	if ( !self.conn ) {
@@ -362,7 +349,6 @@ main( int argc, char** argv )
 	doEventLoop( &self.glfwdata, &self, NULL );
 
 	// Destroy imnodes and implot context
-	ImPlot_DestroyContext( self.ipctx );
 	imnodes_DestroyContext( self.inctx );
 
 	// Deactivate graphics

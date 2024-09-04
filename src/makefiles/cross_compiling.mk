@@ -8,6 +8,7 @@ emscripten_update:
 	git -C $(SUBMODULES_DIR)/emsdk pull
 	$(SUBMODULES_DIR)/emsdk/emsdk install latest
 	$(SUBMODULES_DIR)/emsdk/emsdk activate latest
+	echo "source src/submodules/emsdk/emsdk_env.sh to activate emscripten"
 
 # Build Mongoose example by cross-compiling with Zig
 mongoose:	$(BUILD_DIR)

@@ -16,7 +16,7 @@ t_Blastpit*
 blastpitNew( void )
 {  // Constructor
 
-	t_Blastpit* bp = (t_Blastpit*)calloc( sizeof( t_Blastpit ), 1 );
+	t_Blastpit* bp = (t_Blastpit*)calloc( 1, sizeof( t_Blastpit ) );
 	if ( bp ) {
 		bp->ws		   = (void*)websocketNew();
 		bp->highest_id	   = 0;

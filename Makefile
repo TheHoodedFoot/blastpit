@@ -42,8 +42,8 @@ MSAN_CC = clang
 MSAN_CXX = clang++
 CROSS_CC = zig cc -target x86-windows-gnu
 CROSS_CXX = zig c++ -target x86-windows-gnu
-PROFILE_CC = clang # Needed for tracy, which is c++
-PROFILE_CXX = clang++
+PROFILE_CC = gcc # Needed for tracy, which is c++
+PROFILE_CXX = g++
 
 # Compiler Warnings
 CPPFLAGS += -Wall -Wextra
@@ -187,9 +187,9 @@ TEST_BINARIES = $(patsubst %.c,$(BUILD_DIR)/%_x,$(TEST_SOURCES))
 # the target-specific variables defined above
 all: 		debug
 
-libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a $(BUILD_DIR)/libblastpit.a 
+libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/libblastpit.a #$(BUILD_DIR)/imgui_libs.a 
 debug:		.tags
-		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) libs targets python_targets wscli imgui
+		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) libs targets python_targets wscli #imgui
 
 # debug:	.tags targets wscli python_targets imgui lvgl
 # 		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
@@ -225,6 +225,7 @@ profile:	$(BUILD_DIR)
 alltargetscheck:
 		make clean
 		make $(BUILD_DIR)
+		make -j $(nproc) release
 		# We can't just build with zig cc
 		# because cimnodes fails to compile
 		# so we just don't compile imgui with zig cc
@@ -243,25 +244,25 @@ alltargetscheck:
 		make clean
 		make $(BUILD_DIR)
 		echo asan | $(FIGLET)
-		make asan
+		make -j $(nproc) asan
 		echo test_asan | $(FIGLET)
 		make test_asan
 		make clean
 		make $(BUILD_DIR)
 		echo msan | $(FIGLET)
-		make msan
+		make -j $(nproc) msan
 		echo test_msan | $(FIGLET)
 		make test_msan
 		make clean
 		make $(BUILD_DIR)
 		echo cross | $(FIGLET)
-		make cross
+		make -j $(nproc) cross
 		echo wscli | $(FIGLET)
-		make wscli_portable
+		make -j $(nproc) wscli_portable_x86
 		make clean
 		make $(BUILD_DIR)
 		echo profile | $(FIGLET)
-		make profile
+		make -j $(nproc) profile
 
 # Prevent intermediate files being deleted and rebuilt every time
 # .SECONDARY: 	$(LIBBLASTPIT_OBJS) $(TEST_OBJS)
@@ -275,8 +276,11 @@ asan:	targets
 msan:	targets
 
 release:	$(BUILD_DIR)
+		# We can't use our strict release flags with some submodules
+		# because they won't compile
 		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(EXTERNAL_OBJS)
-		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) targets python_targets cameras wscli imgui
+		CPPFLAGS="$(RELEASE_CPPFLAGS)" $(MAKE) $(LIBBLASTPIT_OBJS) $(UNITY_OBJS) $(TEST_BINARIES) targets python_targets cameras wscli
+		$(MAKE) imgui
 
 .INTERMEDIATE: $(EXTERNAL_OBJS) $(UNITY_OBJS) $(LIBBLASTPIT_OBJS) $(BUILD_DIR)/TracyClient.o
 $(BUILD_DIR)/external_libs.a:	$(EXTERNAL_OBJS) $(UNITY_OBJS)
@@ -304,7 +308,7 @@ test:	targets
 # ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
 clean:
-		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* 2>/dev/null || /bin/true
+		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
 		@rm -rf $(PROJECT_ROOT)/.{cache,ccls-cache,pytest_cache} 2>/dev/null || /bin/true
 		@rm -f $(PROJECT_ROOT)/{.tags,compile_command*.json} >/dev/null 2>/dev/null || /bin/true
 
@@ -327,7 +331,7 @@ include $(SRC_DIR)/makefiles/formatting.mk
 include $(SRC_DIR)/makefiles/fuzzing.mk
 include $(SRC_DIR)/makefiles/images.mk
 include $(SRC_DIR)/makefiles/imgui.mk
-include $(SRC_DIR)/makefiles/lvgl.mk
+#include $(SRC_DIR)/makefiles/lvgl.mk
 include $(SRC_DIR)/makefiles/python.mk
 include $(SRC_DIR)/makefiles/scaps.mk
 include $(SRC_DIR)/makefiles/testing.mk

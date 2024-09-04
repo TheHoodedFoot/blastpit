@@ -9,8 +9,6 @@
 #include <stdio.h>
 
 // Common
-#include "cimnodes.h"
-#include "cimplot.h"
 #include "ig_common.h"
 
 #include "libpq-fe.h"  // PostgreSQL
@@ -30,7 +28,6 @@ typedef struct
 	t_db_query	fonts;
 	t_db_query	job;
 	ImNodesContext* inctx;	// State for imnodes
-	ImPlotContext*	ipctx;	// State for implot
 } t_template_data;
 
 int  testPSQL( void );

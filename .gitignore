@@ -47,6 +47,7 @@
 *ropeproject*
 *vcproj.*
 *~
+.aider*
 .breakpoints
 .ccls-cache
 .depend
@@ -62,12 +63,14 @@ a.out
 build
 compile_commands.json
 doc/optogon
+doc/reference/Programming_in_Lua_4th_Edition.pdf
 eakins
 gdb.txt
 imgui.ini
 imgui_test
 main-gl*
 res/img/*.png
+src/emscripten/ems_node_generated*
 src/fuzzing/afl_o
 src/libblastpit/blastpy.py
 src/lmos/Makefile
@@ -80,4 +83,3 @@ todo.otl
 veho
 worktree
 zig-cache
-doc/reference/Programming_in_Lua_4th_Edition.pdf

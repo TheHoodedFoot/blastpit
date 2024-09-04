@@ -220,8 +220,8 @@ dbEventLoop( void* db_data )
 	self->fonts.result     = NULL;
 
 	if ( !self->conn ) {
-        // Don't spam the connection check
-        /* if ( time(NULL) > self->last_db_check + DB_SPAM_DELAY */
+		// Don't spam the connection check
+		/* if ( time(NULL) > self->last_db_check + DB_SPAM_DELAY */
 		self->conn	     = PSQLInit( "host = 192.168.1.20, dbname = engraving" );
 		self->customers.data = NULL;
 	}

@@ -6,17 +6,15 @@ CIMGUI_DIR         = $(SUBMODULES_DIR)/cimgui
 IMGUI_DIR          = $(CIMGUI_DIR)/imgui
 CIMNODES_DIR         = $(SUBMODULES_DIR)/cimnodes
 IMNODES_DIR         = $(SUBMODULES_DIR)/cimnodes/imnodes
-CIMPLOT_DIR         = $(SUBMODULES_DIR)/cimplot
-IMPLOT_DIR         = $(SUBMODULES_DIR)/cimplot/implot
 
 CIMGUI_CPP_INC     = -I$(CIMGUI_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/examples/libs/glfw/include
-CIMGUI_C_INC       = -I$(CIMGUI_DIR) -I$(CIMNODES_DIR) -I$(CIMPLOT_DIR) -I$(CIMGUI_DIR)/generator/output -I$(PROJECT_ROOT)/src/imgui -I$(PROJECT_ROOT)/src/include -I$(SUBMODULES_DIR)/mxml -I$(PROJECT_ROOT)/src/sds $(shell pkg-config --cflags libpq)
+CIMGUI_C_INC       = -I$(CIMGUI_DIR) -I$(CIMNODES_DIR) -I$(CIMGUI_DIR)/generator/output -I$(PROJECT_ROOT)/src/imgui -I$(PROJECT_ROOT)/src/include -I$(SUBMODULES_DIR)/mxml -I$(PROJECT_ROOT)/src/sds $(shell pkg-config --cflags libpq)
 
 CIMGUI_CPP_DEFINES = -DIMGUI_IMPL_API="extern \"C\"" -DIMGUI_IMPL_OPENGL_LOADER_GL3W -DIMNODES_NAMESPACE=imnodes
 CIMGUI_C_DEFINES   = -DIMGUI_IMPL_API=" " -DCIMGUI_USE_OPENGL3 -DBUILD_DIR=\"$(BUILD_DIR)/\" -DPROJECT_ROOT=\"$(PROJECT_ROOT)/\" -DIMNODES_NAMESPACE=imnodes
 CIMGUI_LIBS        = -lm -lGL -ldl -lglfw $(shell pkg-config --libs libpq)
 
-CIMGUI_SRCS        = cimgui imgui imgui_impl_glfw imgui_impl_opengl3 imgui_demo imgui_draw imgui_widgets imgui_tables gl3w ig_common ink_common psql imnodes implot implot_items implot_demo cimnodes cimplot
+CIMGUI_SRCS        = cimgui imgui imgui_impl_glfw imgui_impl_opengl3 imgui_demo imgui_draw imgui_widgets imgui_tables gl3w ig_common ink_common psql imnodes cimnodes 
 CIMGUI_OBJS        = $(patsubst %,$(BUILD_DIR)/%.o,$(notdir $(CIMGUI_SRCS)))
 # .SECONDARY:		$(CIMGUI_OBJS) $(BUILD_DIR)/ig_ringgen.o $(BUILD_DIR)/ig_multipass.o $(BUILD_DIR)/ig_common.o $(BUILD_DIR)/ig_database.o $(BUILD_DIR)/psql.o $(BUILD_DIR)/ig_cimnodes.o $(BUILD_DIR)/ig_template.o
 
@@ -54,12 +52,6 @@ $(BUILD_DIR)/%.o:	$(CIMNODES_DIR)/%.cpp | $(BUILD_DIR)
 
 $(BUILD_DIR)/%.o:	$(IMNODES_DIR)/%.cpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) -o $@ -I $(IMNODES_DIR) $(CIMGUI_CPP_DEFINES) -DIMGUI_DEFINE_MATH_OPERATORS -Wno-error $(CIMGUI_CPP_INC) -c $^
-
-$(BUILD_DIR)/%.o:	$(CIMPLOT_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CPPFLAGS) -o $@ -I $(CIMPLOT_DIR) -I $(IMPLOT_DIR) $(CIMGUI_CPP_DEFINES) $(CIMGUI_CPP_INC) -c $^
-
-$(BUILD_DIR)/%.o:	$(IMPLOT_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CPPFLAGS) -o $@ -I $(IMPLOT_DIR) $(CIMGUI_CPP_DEFINES) $(CIMGUI_CPP_INC) -c $^
 
 $(BUILD_DIR)/%.o:	$(IMGUI_DIR)/backends/%.cpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) -o $@ $(CIMGUI_CPP_DEFINES) $(CIMGUI_CPP_INC) -c $^
