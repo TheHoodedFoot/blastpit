@@ -16,11 +16,11 @@ system_tests: $(BUILD_DIR)/_blastpy.so
 
 test_asan:
 	@sh -c "$(PROJECT_ROOT)/res/bin/testrunner.sh -asan"
-	passed
+	@sh -c "if command -v passed &> /dev/null; then passed; fi"
 
 test_msan:
 	@sh -c "$(PROJECT_ROOT)/res/bin/testrunner.sh -msan"
-	passed
+	@sh -c "if command -v passed &> /dev/null; then passed; fi"
 
 test_inkscape:
 	pytest -vv $(SRC_DIR)/inkscape
