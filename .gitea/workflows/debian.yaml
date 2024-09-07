@@ -1,0 +1,29 @@
+---
+name: C/C++ Makefile CI - Debian
+run-name: ${{ gitea.actor }} is building ${{ gitea.repository }} 🚀
+
+on:
+  push:
+    branches:
+      - master
+      - staging
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: debian
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y nodejs git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: "${{ secrets.CLONE_TOKEN }}"
+...

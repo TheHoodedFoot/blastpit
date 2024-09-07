@@ -225,7 +225,7 @@ profile:	$(BUILD_DIR)
 alltargetscheck:
 		make clean
 		make $(BUILD_DIR)
-		make -j $(nproc) release
+		make release
 		# We can't just build with zig cc
 		# because cimnodes fails to compile
 		# so we just don't compile imgui with zig cc
@@ -244,25 +244,27 @@ alltargetscheck:
 		make clean
 		make $(BUILD_DIR)
 		echo asan | $(FIGLET)
-		make -j $(nproc) asan
+		make asan
 		echo test_asan | $(FIGLET)
 		make test_asan
 		make clean
 		make $(BUILD_DIR)
 		echo msan | $(FIGLET)
-		make -j $(nproc) msan
+		make msan
 		echo test_msan | $(FIGLET)
 		make test_msan
 		make clean
 		make $(BUILD_DIR)
 		echo cross | $(FIGLET)
-		make -j $(nproc) cross
+		make cross
 		echo wscli | $(FIGLET)
-		make -j $(nproc) wscli_portable_x86
-		make clean
-		make $(BUILD_DIR)
-		echo profile | $(FIGLET)
-		make -j $(nproc) profile
+		make wscli_portable_x86
+
+		# Temporarily removed due to arm64 Tracy failure
+		# make clean
+		# make $(BUILD_DIR)
+		# echo profile | $(FIGLET)
+		# make profile
 
 # Prevent intermediate files being deleted and rebuilt every time
 # .SECONDARY: 	$(LIBBLASTPIT_OBJS) $(TEST_OBJS)

@@ -1,0 +1,42 @@
+---
+name: C/C++ Makefile CI - Alpine
+
+on:
+  push:
+    branches:
+      - master
+      - staging
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: alpine
+
+    steps:
+      - name: Install dependencies
+        # This next line is the hack that gets this to work on Alpine
+        shell: "ash /var/run/act/workflow/0"
+        run: |
+          apk add nodejs git bash
+
+      - name: Checkout
+        # shell: ash
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: "${{ secrets.CLONE_TOKEN }}"
+
+      - name: Display environment
+        run: |
+          echo $PATH
+          ls "/"
+          ls "${{ gitea.workspace }}"
+          echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
+          # echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
+          # echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
+          # echo "${{ gitea.actor }} is building ${{ gitea.repository }} 🚀"
+          echo "🍏 This job's status is ${{ job.status }}."
+          echo ${GITHUB_ENV}
+...
