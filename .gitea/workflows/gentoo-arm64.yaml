@@ -6,7 +6,6 @@ on:
     branches:
       - master
       - develop
-      - staging
       - 'feat/*'
   pull_request:
     branches:
@@ -36,8 +35,8 @@ jobs:
       - name: Run system tests
         run: make system_tests
 
-      # - name: Build all targets
-      #   run: make alltargetscheck
+      - name: Build all targets
+        run: make alltargetscheck
 
       - name: Send a Telegram message on failure
         uses: appleboy/telegram-action@master

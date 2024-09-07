@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - master
-      - staging
+      - develop
   pull_request:
     branches:
       - master
@@ -20,15 +20,6 @@ jobs:
         with:
           submodules: recursive
           token: "${{ secrets.CLONE_TOKEN }}"
-      - run: echo "💡 The ${{ gitea.repository }} repository has been cloned to the runner."
-
-      # - name: List files in the repository
-      #   run: |
-      #     ls ${{ gitea.workspace }}
-      #     ls ${{ gitea.workspace }}/src/submodules
-
-      # - name: Build
-      #   run: make alltargetscheck
 
       - name: Set environment variables
         run: |
@@ -43,7 +34,8 @@ jobs:
       - name: Run system tests
         run: make system_tests
 
-      # - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Build all targets
+        run: make alltargetscheck
 
       - name: Send a Telegram message on failure
         uses: appleboy/telegram-action@master
