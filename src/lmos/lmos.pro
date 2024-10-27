@@ -66,7 +66,7 @@ LIBS += \
 win32 {
 	SOURCES += lmosactxlib.cpp
 	HEADERS += lmosactxlib.h
-	LIBS += -L $$PWD/../../build -lwsock32
+	LIBS += -L $$PWD/../../build -lwsock32 -lbcrypt
 }
 
 
