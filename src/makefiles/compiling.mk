@@ -30,11 +30,11 @@ $(BUILD_DIR)/ut_%.o:	$(LIBBLASTPIT_DIR)/ut_%.c | $(BUILD_DIR)
 	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
 
 $(BUILD_DIR)/%.o:	$(LIBBLASTPIT_DIR)/%.c | $(BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(TRACY_INCFLAGS) -c -fPIC $^ -o $@
+	$(CC) -MJ $@.json $(CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) $(TRACY_INCFLAGS) -c -fPIC $^ -o $@
 
 $(BUILD_DIR)/%.o:	$(SUBMODULES_DIR)/mongoose/%.c | $(BUILD_DIR)
-	$(CC) $(EXTERNAL_CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
+	$(CC) -MJ $@.json $(EXTERNAL_CPPFLAGS) $(SANFLAGS) $(INCFLAGS) $(UNITY_DEFS) -c -fPIC $^ -o $@
 
 $(BUILD_DIR)/%.o:	$(SUBMODULES_DIR)/mxml/%.c | $(BUILD_DIR)
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(EXTERNAL_CPPFLAGS) $(SANFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@
+	$(CC) -MJ $@.json $(EXTERNAL_CPPFLAGS) $(SANFLAGS) $(INCFLAGS) -c -fPIC $^ -o $@

@@ -36,6 +36,8 @@ USER_DEFINES     = SPACENAV
 
 
 # Compilers (Note: using Zig with bear fails to create compile database)
+DEBUG_CC = clang
+DEBUG_CXX = clang++
 ASAN_CC = clang
 ASAN_CXX = clang++
 MSAN_CC = clang
@@ -189,7 +191,7 @@ all: 		debug
 
 libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/libblastpit.a #$(BUILD_DIR)/imgui_libs.a 
 debug:		.tags
-		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) libs targets python_targets wscli #imgui
+		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) CC="$(DEBUG_CC)" CXX="$(DEBUG_CXX)" libs targets python_targets wscli #imgui
 
 # debug:	.tags targets wscli python_targets imgui lvgl
 # 		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
