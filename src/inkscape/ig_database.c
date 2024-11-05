@@ -118,7 +118,7 @@ dbImageWindow( t_database_data* self )
 	ImVec2 imv2_zero  = { 0.0f, 0.0f };
 	ImVec2 imv2_unity = { 1.0f, 1.0f };
 	ImVec4 imv4_unity = { 1.0f, 1.0f, 1.0f, 1.0f };
-	igImage( (void*)(intptr_t)my_image_texture, img_dims, imv2_zero, imv2_unity, imv4_unity, imv4_unity );
+	igImage( (ImTextureID)(intptr_t)my_image_texture, img_dims, imv2_zero, imv2_unity, imv4_unity, imv4_unity );
 	igEnd();
 }
 

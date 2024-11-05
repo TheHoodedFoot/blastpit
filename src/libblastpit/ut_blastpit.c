@@ -447,8 +447,8 @@ RetvalDbTest( void )
 	// RetvalDb db1 = {0, kInvalid, &db2};
 	// bp->retval_db = &db1;
 
-	BpAddRetvalToDb( bp, ( IdAck ){ 4, kBadLogic, NULL } );
-	BpAddRetvalToDb( bp, ( IdAck ){ 5, kBadXml, NULL } );
+	BpAddRetvalToDb( bp, (IdAck){ 4, kBadLogic, NULL } );
+	BpAddRetvalToDb( bp, (IdAck){ 5, kBadXml, NULL } );
 	// We need to rig the check against the highest id
 	bp->highest_id = 5;
 

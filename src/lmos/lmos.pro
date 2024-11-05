@@ -54,7 +54,6 @@ LIBS += \
 	$$OUT_PWD/websocket.o \
 	$$OUT_PWD/xml.o \
 	$$OUT_PWD/mxml-attr.o \
-	$$OUT_PWD/mxml-entity.o \
 	$$OUT_PWD/mxml-file.o \
 	$$OUT_PWD/mxml-get.o \
 	$$OUT_PWD/mxml-index.o \
@@ -62,12 +61,12 @@ LIBS += \
 	$$OUT_PWD/mxml-private.o \
 	$$OUT_PWD/mxml-search.o \
 	$$OUT_PWD/mxml-set.o \
-	$$OUT_PWD/mxml-string.o \
+	$$OUT_PWD/mxml-options.o \
 
 win32 {
 	SOURCES += lmosactxlib.cpp
 	HEADERS += lmosactxlib.h
-	LIBS += -L $$PWD/../../build -lwsock32
+	LIBS += -L $$PWD/../../build -lwsock32 -lbcrypt
 }
 
 

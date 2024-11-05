@@ -45,7 +45,7 @@
 
 #define IM_ARRAYSIZE( _ARR )	      ( (int)( sizeof( _ARR ) / sizeof( *_ARR ) ) )
 #define IM_UNUSED( _VAR )	      ( (void)_VAR )
-#define IM_OFFSETOF( _TYPE, _MEMBER ) ( ( size_t ) & ( ( (_TYPE*)0 )->_MEMBER ) )
+#define IM_OFFSETOF( _TYPE, _MEMBER ) ( (size_t)&( ( (_TYPE*)0 )->_MEMBER ) )
 
 #include <assert.h>
 #define IM_ASSERT( _EXPR ) assert( _EXPR )
@@ -298,7 +298,7 @@ ImGui_ImplGlfw_UpdateMousePosAndButtons()
 
 	// Update mouse position
 	const ImVec2 mouse_pos_backup = io->MousePos;
-	io->MousePos		      = ( ImVec2 ){ -FLT_MAX, -FLT_MAX };
+	io->MousePos		      = (ImVec2){ -FLT_MAX, -FLT_MAX };
 #ifdef __EMSCRIPTEN__
 	const bool focused = true;  // Emscripten
 #else
@@ -310,7 +310,7 @@ ImGui_ImplGlfw_UpdateMousePosAndButtons()
 		} else {
 			double mouse_x, mouse_y;
 			glfwGetCursorPos( g_Window, &mouse_x, &mouse_y );
-			io->MousePos = ( ImVec2 ){ (float)mouse_x, (float)mouse_y };
+			io->MousePos = (ImVec2){ (float)mouse_x, (float)mouse_y };
 		}
 	}
 }
@@ -406,9 +406,9 @@ ImGui_ImplGlfw_NewFrame()
 	int display_w, display_h;
 	glfwGetWindowSize( g_Window, &w, &h );
 	glfwGetFramebufferSize( g_Window, &display_w, &display_h );
-	io->DisplaySize = ( ImVec2 ){ (float)w, (float)h };
+	io->DisplaySize = (ImVec2){ (float)w, (float)h };
 	if ( w > 0 && h > 0 ) {
-		io->DisplayFramebufferScale = ( ImVec2 ){ (float)display_w / w, (float)display_h / h };
+		io->DisplayFramebufferScale = (ImVec2){ (float)display_w / w, (float)display_h / h };
 	}
 
 	// Setup time step
