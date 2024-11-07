@@ -29,15 +29,20 @@ EOF
 
 # Run in privileged mode to prevent Gentoo sandbox warnings
 # RUN --security=insecure USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw" emerge -pv virtual/wine app-emulation/qemu
-RUN USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32" emerge virtual/wine
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge --onlydeps app-emulation/wine-vanilla
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32" emerge virtual/wine
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge -1 clang:18 
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge xorg-server
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge xvfb-run
 
-RUN emerge app-shells/yash
+# RUN emerge app-shells/yash
 
 # Create an unprivileged user
-# RUN groupadd -g 1001 user
-# RUN useradd -m -u 1001 -g 1001 -G users -s /bin/bash user
+RUN groupadd -g 1001 user
+RUN useradd -m -u 1001 -g 1001 -G users -s /bin/bash user
 
-# Set user password
+# Clean up
+RUN rm -rf /var/cache/distfiles/*
 
 # Default command
-CMD [ "/bin/yash" ]
+CMD [ "/bin/bash" ]
