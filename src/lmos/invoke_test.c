@@ -12,10 +12,7 @@
 #include <windows.h>
 
 
-/* ░█▀▀░▀█▀░█▀▄░█░█░█▀▀░▀█▀░█▀▀ */
-/* ░▀▀█░░█░░█▀▄░█░█░█░░░░█░░▀▀█ */
-/* ░▀▀▀░░▀░░▀░▀░▀▀▀░▀▀▀░░▀░░▀▀▀ */
-
+// Structs
 struct activexctrl
 {
 	HRESULT	    hr;	 // Last result
@@ -28,14 +25,11 @@ struct activexctrl
 };
 
 
-// ░█▀▄░█▀▀░█▀▄░█░█░█▀▀░░░█░█░█▀▀░█░░░█▀█░█▀▀░█▀▄░█▀▀
-// ░█░█░█▀▀░█▀▄░█░█░█░█░░░█▀█░█▀▀░█░░░█▀▀░█▀▀░█▀▄░▀▀█
-// ░▀▀░░▀▀▀░▀▀░░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░▀▀▀░▀░░░▀▀▀░▀░▀░▀▀▀
-
-/* Check if the given HRESULT indicates success or failure, print error message on failure */
+// Debug helper functions
 BOOL
 CheckHR( HRESULT hr, LPCTSTR szMessage )
 {
+    // Check if the given HRESULT indicates success or failure, print error message on failure
 	if ( FAILED( hr ) ) {
 		MessageBox( 0, szMessage, "Error", MB_OK | MB_ICONEXCLAMATION );
 		fprintf( stderr, TEXT( "%s: 0x%08lX\n" ), szMessage, hr );
@@ -45,10 +39,7 @@ CheckHR( HRESULT hr, LPCTSTR szMessage )
 }
 
 
-// ░█░█░▀█▀░▀█▀░█░░░▀█▀░▀█▀░▀█▀░█▀▀░█▀▀
-// ░█░█░░█░░░█░░█░░░░█░░░█░░░█░░█▀▀░▀▀█
-// ░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀
-
+// Utility functions
 BSTR
 StringToBSTR( const char* string )
 {  // Allocates a BSTR from a char string (must be freed with SysFreeString)
@@ -71,10 +62,8 @@ GetDispId( IDispatch *pDispatch, const wchar_t *method, DISPID *dispid )
     return hr;
 }
 
-/* ░▀█▀░█▀▀░█▀▀░▀█▀░░░█▄█░█▀▀░▀█▀░█░█░█▀█░█▀▄░█▀▀ */
-/* ░░█░░█▀▀░▀▀█░░█░░░░█░█░█▀▀░░█░░█▀█░█░█░█░█░▀▀█ */
-/* ░░▀░░▀▀▀░▀▀▀░░▀░░░░▀░▀░▀▀▀░░▀░░▀░▀░▀▀▀░▀▀░░▀▀▀ */
 
+// Methods exposed by the ActiveX control
 int
 ShowAboutBox( IDispatch* pDispatch )
 {
@@ -122,16 +111,8 @@ ShowAboutBox( IDispatch* pDispatch )
 }
 
 int
-LoadFile( IDispatch* pDispatch )
+LoadFile( IDispatch* pDispatch, const unsigned short *filename )
 {
-	/* We must force a clear here, since Lmos crashes if a previous layout
-	 * exists */
-	/* lmos_actx->CancelJob(); */
-	/* lmos_actx->ClearLayout(); */
-	/**/
-	/* bool result = lmos_actx->LoadXML( xml ); */
-	/* lmos_actx->ShowMarkingArea(); */
-
 	// Obtain the DISPID for the "FileName2" method
 	BSTR	bstrMethodName = SysAllocString( L"FileName2" );
 	DISPID	dispidAboutBoxMethod;
@@ -153,7 +134,7 @@ LoadFile( IDispatch* pDispatch )
 	WORD   wFlags = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
 
 	// Call the method
-	BSTR	   bstrFileName = SysAllocString( L"dummy" );
+	BSTR	   bstrFileName = SysAllocString( filename );
 	VARIANTARG arg[1];
 	arg[0].vt      = VT_BSTR;
 	arg[0].bstrVal = bstrFileName;
@@ -181,24 +162,13 @@ LoadFile( IDispatch* pDispatch )
 }
 
 int
-GetVlmVersion(IDispatch *pDispatch)
+GetMarkingFilesPath(IDispatch *pDispatch)
 {
 
     printf("getting marking files path\n");
     DISPID dispid;
     GetDispId( pDispatch, L"GetMarkingFilesPath", &dispid );
 
-    // Obtain the DISPID for the "VLMVersion" method
-    /* BSTR   bstrMethodName = SysAllocString( L"VLMVersion" ); */
-    /* DISPID dispidAboutBoxMethod; */
-    /* hr = pDispatch->lpVtbl->GetIDsOfNames( */
-    /*     pDispatch, &IID_NULL, &bstrMethodName, 1, LOCALE_USER_DEFAULT, &dispidAboutBoxMethod ); */
-    /* SysFreeString( bstrMethodName ); */
-    /* if ( !CheckHR( hr, TEXT( "Failed to get DISPID for VLMVersion method" ) ) ) { */
-    /*     return 1; */
-    /* } */
-
-    // Prepare and invoke the "VLMVersion" method
     DISPPARAMS params = { NULL, NULL, 0, 0 };
     VARIANT	   retVal;
     VariantInit( &retVal );
@@ -222,13 +192,46 @@ GetVlmVersion(IDispatch *pDispatch)
     }
 
     if ( retVal.vt == VT_BSTR ) {
-        wprintf( L"VLM Version: %s\n", retVal.bstrVal );
+        wprintf( L"Marking Files Path: %s\n", retVal.bstrVal );
     } else {
-        fprintf( stderr, TEXT( "Failed to invoke VLMVersion method: wrong return type\n" ) );
+        fprintf( stderr, TEXT( "Failed to invoke GetMarkingFilesPath method: wrong return type\n" ) );
         return 1;
     }
 
     VariantClear( &retVal );
+    return 0;
+}
+
+int
+MethodBoolNoargs( IDispatch* pDispatch, const unsigned short *method )
+{
+	// Calls a method that takes no arguments and returns bool
+    DISPID dispid;
+    HRESULT hr = GetDispId( pDispatch, method, &dispid );
+    if (!CheckHR(hr, TEXT("Error getting DISPID for MethodBoolNoargs"))) return FALSE;
+
+	// Prepare and invoke the "AboutBox" method
+	DISPPARAMS params = { NULL, NULL, 0, 0 };
+	VARIANT	   retVal;
+	VariantInit( &retVal );
+	EXCEPINFO excepinfo;
+	memset( &excepinfo, 0, sizeof( excepinfo ) );
+	REFIID riid   = &IID_NULL;
+	LCID   lcid   = LOCALE_USER_DEFAULT;
+	WORD   wFlags = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
+
+	// Call the method
+	hr = pDispatch->lpVtbl->Invoke(
+		pDispatch, dispid, riid, lcid, wFlags, &params, &retVal, &excepinfo, NULL );
+
+	if ( !CheckHR( hr, TEXT( "Failed to invoke MethodBoolNoargs method" ) ) ) {
+		return 1;
+	}
+
+	// Release resources and clean up
+	VariantClear( &retVal );
+
+	return 0;
 }
 
 int
@@ -311,11 +314,11 @@ main()
 
     printf("Initializing control...\n");
     int result = InitializeActiveXControl(&lmos);
-    if(result) return -1;
+    if(result) {
+        fprintf( stderr, "Could not initialize Lmos control.\n");
+        return -1;
+    }
     
-    GetVlmVersion(lmos.pDispatch);
-    /* ShowAboutBox(lmos.pDispatch); */
-
 	// Show window
 	HRESULT hr = lmos.pActiveXControl->lpVtbl->DoVerb(
 		lmos.pActiveXControl, OLEIVERB_SHOW, NULL, (IOleClientSite*)lmos.pActiveXControl, 0, NULL, NULL );
@@ -323,7 +326,17 @@ main()
 		return 1;
 	}
 
+    // Resize window here
+
     // Run tests
+    GetMarkingFilesPath(lmos.pDispatch);
+    MethodBoolNoargs(lmos.pDispatch, L"CancelJob");
+    MethodBoolNoargs(lmos.pDispatch, L"ClearLayout");
+    LoadFile(lmos.pDispatch, L"V_cut_leaf_locket.VLM");
+    MethodBoolNoargs(lmos.pDispatch, L"ShowMarkingArea");
+    MethodBoolNoargs(lmos.pDispatch, L"AboutBox");
+
+    /* while(1) { Sleep(1); } */
 
     // Clean up
     printf("Releasing control...\n");
@@ -393,3 +406,5 @@ SetLaserable
 RedrawLayout
 SetSuppressAutoRedraw
 */
+
+
