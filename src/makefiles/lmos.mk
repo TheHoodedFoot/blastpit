@@ -128,7 +128,7 @@ $(LMOS_EXE):	$(LMOS_OBJ)
 
 idispatch:	$(BUILD_DIR)/idispatch.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^
-$(BUILD_DIR)/idispatch.exe:	$(SRC_DIR)/lmos/idispatch_test.c
+$(BUILD_DIR)/idispatch.exe:	$(SRC_DIR)/lmos/idispatch_discover_methods.c
 		zig cc -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 -MJ compile_commands.json
 
 invoke:		$(BUILD_DIR)/invoke.exe
