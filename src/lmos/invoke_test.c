@@ -22,6 +22,7 @@ struct activexctrl
 	IDispatch*  pDispatch;
 	ITypeInfo*  pTypeInfo;
 	ITypeLib*   pTypeLib;
+    HWND hwnd;
 };
 
 
@@ -64,52 +65,6 @@ GetDispId( IDispatch *pDispatch, const wchar_t *method, DISPID *dispid )
 
 
 // Methods exposed by the ActiveX control
-int
-ShowAboutBox( IDispatch* pDispatch )
-{
-	// Display the About Box
-
-	// Obtain the DISPID for the "AboutBox" method
-	/* BSTR   bstrMethodName = SysAllocString( L"ClearLayout" ); */
-	/* BSTR   bstrMethodName = SysAllocString( L"CancelJob" ); */
-	BSTR	bstrMethodName = SysAllocString( L"AboutBox" );
-	DISPID	dispidAboutBoxMethod;
-	HRESULT hr = pDispatch->lpVtbl->GetIDsOfNames(
-		pDispatch, &IID_NULL, &bstrMethodName, 1, LOCALE_USER_DEFAULT, &dispidAboutBoxMethod );
-	SysFreeString( bstrMethodName );
-	if ( !CheckHR( hr, TEXT( "Failed to get DISPID for AboutBox method" ) ) ) {
-		return 1;
-	}
-
-	// Prepare and invoke the "AboutBox" method
-	DISPPARAMS params = { NULL, NULL, 0, 0 };
-	VARIANT	   retVal;
-	VariantInit( &retVal );
-	EXCEPINFO excepinfo;
-	memset( &excepinfo, 0, sizeof( excepinfo ) );
-	REFIID riid   = &IID_NULL;
-	LCID   lcid   = LOCALE_USER_DEFAULT;
-	WORD   wFlags = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
-
-	// Call the method
-	hr = pDispatch->lpVtbl->Invoke(
-		pDispatch, dispidAboutBoxMethod, riid, lcid, wFlags, &params, &retVal, &excepinfo, NULL );
-
-	if ( !CheckHR( hr, TEXT( "Failed to invoke AboutBox method" ) ) ) {
-		DWORD dwError = HRESULT_FROM_WIN32( GetLastError() );
-		fprintf( stderr,
-			 TEXT( "Failed to invoke AboutBox method: HRESULT=0x%08lX, Win32Error=0x%08lX\n" ),
-			 hr,
-			 dwError );
-		return 1;
-	}
-
-	// Release resources and clean up
-	VariantClear( &retVal );
-
-	return 0;
-}
-
 int
 LoadFile( IDispatch* pDispatch, const unsigned short *filename )
 {
@@ -162,8 +117,14 @@ LoadFile( IDispatch* pDispatch, const unsigned short *filename )
 }
 
 int
-GetMarkingFilesPath(IDispatch *pDispatch)
+MethodStringNoargs(IDispatch *pDispatch)
 {
+    /** Calls an ActiveX control's method by name
+    * The method takes no arguments and returns a string
+    *
+    * @param retval Pointer to VARIANT to hold result 
+    * @return HRESULT of method call
+    */
 
     printf("getting marking files path\n");
     DISPID dispid;
@@ -182,24 +143,26 @@ GetMarkingFilesPath(IDispatch *pDispatch)
     HRESULT hr = pDispatch->lpVtbl->Invoke(
         pDispatch, dispid, riid, lcid, wFlags, &params, &retVal, &excepinfo, NULL );
 
-    if ( !CheckHR( hr, TEXT( "Failed to invoke GetMarkingFilesPath method" ) ) ) {
-        DWORD dwError = HRESULT_FROM_WIN32( GetLastError() );
-        fprintf( stderr,
-             TEXT( "Failed to invoke VLMVersion method: HRESULT=0x%08lX, Win32Error=0x%08lX\n" ),
-             hr,
-             dwError );
-        return 1;
-    }
+    return hr;
 
-    if ( retVal.vt == VT_BSTR ) {
-        wprintf( L"Marking Files Path: %s\n", retVal.bstrVal );
-    } else {
-        fprintf( stderr, TEXT( "Failed to invoke GetMarkingFilesPath method: wrong return type\n" ) );
-        return 1;
-    }
-
-    VariantClear( &retVal );
-    return 0;
+    /* if ( !CheckHR( hr, TEXT( "Failed to invoke GetMarkingFilesPath method" ) ) ) { */
+    /*     DWORD dwError = HRESULT_FROM_WIN32( GetLastError() ); */
+    /*     fprintf( stderr, */
+    /*          TEXT( "Failed to invoke VLMVersion method: HRESULT=0x%08lX, Win32Error=0x%08lX\n" ), */
+    /*          hr, */
+    /*          dwError ); */
+    /*     return 1; */
+    /* } */
+    /**/
+    /* if ( retVal.vt == VT_BSTR ) { */
+    /*     wprintf( L"Marking Files Path: %s\n", retVal.bstrVal ); */
+    /* } else { */
+    /*     fprintf( stderr, TEXT( "Failed to invoke GetMarkingFilesPath method: wrong return type\n" ) ); */
+    /*     return 1; */
+    /* } */
+    /**/
+    /* VariantClear( &retVal ); */
+    /* return 0; */
 }
 
 int
@@ -261,7 +224,6 @@ InitializeActiveXControl(struct activexctrl *control)
 		return 1;
 	}
 
-    /* return 0; */
 	// Instantiate the ActiveX control
 	control->pActiveXControl = NULL;
 	const CLSID clsid = { 0x18213698, 0xA9C9, 0x11D1, { 0xA2, 0x20, 0x00, 0x60, 0x97, 0x30, 0x58, 0xF6 } };
@@ -307,6 +269,31 @@ ReleaseActiveXControl(struct activexctrl *control)
 	CoUninitialize();
 }
 
+void
+ResizeActiveXControl(struct activexctrl *control, int width, int height)
+{
+    if (!control->hwnd) {
+        fprintf(stderr, "HWND not set for ActiveX control\n");
+        return;
+    }
+
+    RECT rect;
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = width;
+    rect.bottom = height;
+
+    control->hr = SetWindowPos(control->hwnd, 
+                               HWND_TOP,
+                               0, 0,
+                               width, height,
+                               SWP_NOMOVE | SWP_NOZORDER);
+    if (!CheckHR( control->hr, TEXT( "Failed to resize ActiveX control window" ) ) ) {
+        fprintf(stderr, "Failed to resize ActiveX control window\n");
+    }
+}
+
+
 int
 main()
 {
@@ -319,24 +306,65 @@ main()
         return -1;
     }
     
+    MethodBoolNoargs(lmos.pDispatch, L"ShowMarkingArea");
+
+    // Resize window here
+    ResizeActiveXControl(&lmos, 800, 600);
+
+    IOleWindow* pOleWindow;
+    HRESULT hr = lmos.pActiveXControl->lpVtbl->QueryInterface(lmos.pActiveXControl, &IID_IOleWindow, (LPVOID*)&pOleWindow);
+    if (SUCCEEDED(hr)) {
+        HWND hwnd;
+        hr = pOleWindow->lpVtbl->GetWindow(pOleWindow, &hwnd);
+        if (SUCCEEDED(hr) && hwnd != NULL) {
+            // Set the new size
+            RECT rect = {0, 0, 800, 600}; // Desired width and height
+            AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_APPWINDOW); // Optional: Adjust for window styles
+            MoveWindow(hwnd, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, TRUE);
+        }
+        pOleWindow->lpVtbl->Release(pOleWindow);
+    } else {
+        printf("Could not get window handle\n");
+    }
+
 	// Show window
-	HRESULT hr = lmos.pActiveXControl->lpVtbl->DoVerb(
+	hr = lmos.pActiveXControl->lpVtbl->DoVerb(
 		lmos.pActiveXControl, OLEIVERB_SHOW, NULL, (IOleClientSite*)lmos.pActiveXControl, 0, NULL, NULL );
-	if ( !CheckHR( hr, TEXT( "Failed to call DoVerb" ) ) ) {
+	if ( !CheckHR( hr, TEXT( "Failed to display window" ) ) ) {
 		return 1;
 	}
 
-    // Resize window here
-
     // Run tests
-    GetMarkingFilesPath(lmos.pDispatch);
-    MethodBoolNoargs(lmos.pDispatch, L"CancelJob");
-    MethodBoolNoargs(lmos.pDispatch, L"ClearLayout");
-    LoadFile(lmos.pDispatch, L"V_cut_leaf_locket.VLM");
-    MethodBoolNoargs(lmos.pDispatch, L"ShowMarkingArea");
-    MethodBoolNoargs(lmos.pDispatch, L"AboutBox");
 
-    /* while(1) { Sleep(1); } */
+    // No arguments, returns string
+    GetMarkingFilesPath(lmos.pDispatch);
+
+    // No arguments, returns bool
+    /* MethodBoolNoargs(lmos.pDispatch, L"CancelJob"); */
+    /* MethodBoolNoargs(lmos.pDispatch, L"ClearLayout"); */
+
+    // String argument, returns bool
+    printf("Loading locket\n");
+    LoadFile(lmos.pDispatch, L"V_cut_leaf_locket.VLM");
+    /* RemoveGlobalQPSet(lmos.pDispatch, L"qpsetname"); */
+
+    // No arguments, returns bool
+    /* MethodBoolNoargs(lmos.pDispatch, L"AboutBox"); */
+
+    // No arguments, returns bool
+    /* MethodBoolNoargs(lmos.pDispatch, L"InitMachine"); */
+    /* MethodBoolNoargs(lmos.pDispatch, L"SaveGlobalQPSets"); */
+
+    // String argument, returns bool
+    /* MethodBoolString(lmos.pDispatch, L"Save", L"savefile.VLM"); */
+    /* MethodBoolString(lmos.pDispatch, L"LoadVLM", L"file.VLM"); */
+    /* MethodBoolString(lmos.pDispatch, L"LoadXML", L"file.XML"); */
+
+    // More complex: No arguments, returns string list
+    /* MethodBoolStringlist(lmos.pDispatch, L"GetGlobalQPSetNames"); */
+
+    printf("Sleeping\n");
+    while(1) { Sleep(100); }
 
     // Clean up
     printf("Releasing control...\n");
@@ -344,67 +372,3 @@ main()
 
 	return 0;
 }
-
-
-/*
-
-These are the functions exposed by LMOS
-
-
-Required
---------
-
-InitMachine()
-Save(filename)
-FileName2(filename) (load VLM file)
-LoadXML(xml)
-GetGlobalQPSetNames()
-RemoveGlobalQPSet(qpnameslist)
-CancelJob()
-ClearLayout()
-LoadXML(xml)
-ImportXMLFile2(file)
-StartPosHelp(object)
-StopPosHelp()
-TermMachine()
-StartMarking()
-LoadJob()
-StopMarking()
-SaveGlobalQPSets
-Layers()
-layer.SetHeightZAxis
-AddGlobalQPSet
-SetDimension
-SetQualityParam
-GetMONames
-GetPosValues
-GetDimension
-
-
-Optional
---------
-show()
-hide()
-grab()
-ShowMarkingArea()
-ActivateZoomWindow(bool)
-item.SetVisible
-item.SetExportable
-axis.MoveAxes();
-axis.GetPos
-axis.ReferenceAxes
-axis.NewReference
-Axis()
-ReadByte
-ReadIOBit
-SetMOLayer
-WriteByte
-WriteIOBit
-ShowZoomWindow
-ShowMarkingAreaZoom
-SetLaserable
-RedrawLayout
-SetSuppressAutoRedraw
-*/
-
-
