@@ -29,11 +29,12 @@ EOF
 
 # Run in privileged mode to prevent Gentoo sandbox warnings
 # RUN --security=insecure USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw" emerge -pv virtual/wine app-emulation/qemu
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge --fetchonly app-emulation/wine-vanilla clang:18 xorg-server xvfb-run xdotool
 RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge --onlydeps app-emulation/wine-vanilla
 RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32" emerge virtual/wine
 RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge -1 clang:18 
 RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge xorg-server
-RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge xvfb-run
+RUN MAKEOPTS="-j12" USE="X text -clang -gstreamer -alsa -sdl -unwind -vulkan -fontconfig -gecko -mono -mingw abi_x86_32 -elogind -xorg -udev xvfb" emerge xvfb-run xdotool
 
 # RUN emerge app-shells/yash
 
