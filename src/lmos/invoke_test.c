@@ -11,7 +11,6 @@
 #include <string.h>
 #include <windows.h>
 
-
 // Structs
 struct activexctrl
 {
@@ -25,7 +24,6 @@ struct activexctrl
 	HWND	    hwnd;  // Handle to the control's window
 };
 
-
 // Debug helper functions
 BOOL
 CheckHR( HRESULT hr, LPCTSTR szMessage )
@@ -38,7 +36,6 @@ CheckHR( HRESULT hr, LPCTSTR szMessage )
 	}
 	return TRUE;
 }
-
 
 // Utility functions
 BSTR
@@ -61,70 +58,6 @@ GetDispId( IDispatch* pDispatch, const wchar_t* method, DISPID* dispid )
 		    pDispatch, &IID_NULL, &bstrMethodName, 1, LOCALE_USER_DEFAULT, dispid );
 	SysFreeString( bstrMethodName );
 	return hr;
-}
-
-
-// Custom functions to call the ActiveX control's methods by name
-int
-StringActiveXHr( IDispatch* pDispatch, const unsigned short* methodname, VARIANT* retval )
-{
-	/** Calls an ActiveX control's method by name
-	 * The method takes no arguments and returns a string
-	 *
-	 * @param retval Pointer to VARIANT to hold result
-	 * @return HRESULT of method call
-	 */
-
-	printf( "getting marking files path\n" );
-	DISPID dispid;
-	GetDispId( pDispatch, L"GetMarkingFilesPath", &dispid );
-
-	DISPPARAMS params = { NULL, NULL, 0, 0 };
-	VariantInit( retval );
-	EXCEPINFO excepinfo;
-	memset( &excepinfo, 0, sizeof( excepinfo ) );
-	REFIID riid   = &IID_NULL;
-	LCID   lcid   = LOCALE_USER_DEFAULT;
-	WORD   wFlags = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
-
-	// Call the method
-	HRESULT hr =
-		pDispatch->lpVtbl->Invoke( pDispatch, dispid, riid, lcid, wFlags, &params, retval, &excepinfo, NULL );
-
-	return hr;
-}
-
-int
-BoolAXVoid( IDispatch* pDispatch, const unsigned short* methodname )
-{
-	// Calls a method that takes no arguments and returns bool
-	DISPID	dispid;
-	HRESULT hr = GetDispId( pDispatch, methodname, &dispid );
-	if ( !CheckHR( hr, TEXT( "Error getting DISPID for BoolAXVoid" ) ) ) {
-		return FALSE;
-	}
-
-	// Prepare and invoke the "AboutBox" method
-	DISPPARAMS params = { NULL, NULL, 0, 0 };
-	VARIANT	   retval;
-	VariantInit( &retval );
-	EXCEPINFO excepinfo;
-	memset( &excepinfo, 0, sizeof( excepinfo ) );
-	REFIID riid   = &IID_NULL;
-	LCID   lcid   = LOCALE_USER_DEFAULT;
-	WORD   wFlags = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
-
-	// Call the method
-	hr = pDispatch->lpVtbl->Invoke( pDispatch, dispid, riid, lcid, wFlags, &params, &retval, &excepinfo, NULL );
-
-	if ( !CheckHR( hr, TEXT( "Failed to invoke BoolAXVoid method" ) ) ) {
-		return 1;
-	}
-
-	// Release resources and clean up
-	VariantClear( &retval );
-
-	return 0;
 }
 
 int
@@ -207,21 +140,72 @@ ReleaseActiveXControl( struct activexctrl* control )
 	CoUninitialize();
 }
 
-void
-ResizeActiveXControl( IOleObject* pActiveXControl, LONG widthHimetric, LONG heightHimetric )
+
+int
+call_activex( IDispatch* pDispatch, const unsigned short* methodname, VARIANT* retval )
 {
-	// Set the size of the ActiveX control
-	HRESULT hr = pActiveXControl->lpVtbl->SetExtent(
-		pActiveXControl,
-		DVASPECT_CONTENT,			   // Aspect to be resized (content aspect in this case)
-		&(SIZEL){ widthHimetric, heightHimetric }  // New size in HIMETRIC units
-	);
+	/** Calls an ActiveX control's method by name
+	 * The method takes no arguments and returns a variant result
+	 *
+	 * @param retval Pointer to VARIANT to hold result
+	 * @return HRESULT of method call
+	 */
 
-	if ( !CheckHR( hr, TEXT( "SetExtent failed" ) ) ) {
-		return;
-	}
+	DISPPARAMS params = { NULL, NULL, 0, 0 };
+	VariantInit( retval );
+	EXCEPINFO excepinfo;
+	memset( &excepinfo, 0, sizeof( excepinfo ) );
+	REFIID riid   = &IID_NULL;
+	LCID   lcid   = LOCALE_USER_DEFAULT;
+	WORD   wFlags = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
 
-	printf( "ActiveX control resized to %ldx%ld HIMETRIC units.\n", widthHimetric, heightHimetric );
+    // Call the method
+    DISPID dispid;
+    HRESULT hr = GetDispId(pDispatch, methodname, &dispid);
+    if (FAILED(hr)) {
+        return hr;
+    }
+	hr =
+		pDispatch->lpVtbl->Invoke( pDispatch, dispid, riid, lcid, wFlags, &params, retval, &excepinfo, NULL );
+
+	return hr;
+}
+
+int call_activex_string(IDispatch* pDispatch, const wchar_t* methodName, BSTR argString, VARIANT* retval)
+{
+    /** Calls an ActiveX control's method by name and passes a wide string as an argument
+     * The method takes one wide string argument and returns a variant result
+     *
+     * @param methodName Wide string representing the method name to call
+     * @param argString  Wide string argument to pass to the method
+     * @param retval     Pointer to VARIANT to hold result
+     * @return HRESULT of method call
+     */
+
+    DISPPARAMS params = { NULL, NULL, 0, 0 };
+    VariantInit(retval);
+    EXCEPINFO excepinfo;
+    memset(&excepinfo, 0, sizeof(excepinfo));
+    REFIID riid   = &IID_NULL;
+    LCID   lcid   = LOCALE_USER_DEFAULT;
+    WORD   wFlags = DISPATCH_METHOD;
+
+    // Call the method
+    DISPID dispid;
+    HRESULT hr = GetDispId(pDispatch, methodName, &dispid);
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    VARIANTARG arg[1];
+    arg[0].vt = VT_BSTR;
+    arg[0].bstrVal = argString;
+
+    params.rgvarg  = arg;
+    params.cArgs   = 1;
+    hr = pDispatch->lpVtbl->Invoke(pDispatch, dispid, riid, lcid, wFlags, &params, retval, &excepinfo, NULL);
+
+    return hr;
 }
 
 int
@@ -229,53 +213,33 @@ main()
 {
 	struct activexctrl lmos;
 
+    const char *xml = "<?xml version=\"1.0\"?><DRAWING UNIT=\"MM\"><ROOT ID=\"Blastpit\" WIDTH=\"120.0\" HEIGHT=\"120.0\"><LAYER NAME=\"bp_edd400\" HEIGHT_Z_AXIS=\"120.0\" COLOR=\"237,212,0\" /><GROUP ID=\"grect1\" USE_BOX=\"Y\" LAYER=\"bp_edd400\" LP=\"bp_edd400\" REF_POINT=\"CC\" HATCH=\"Y\" HP=\"bp_0_01\"><POLYLINE ID=\"rect1#edd400\" LAYER=\"bp_edd400\" LP=\"bp_edd400\"><POLYPOINT TYPE=\"LINE\">44.900517 69.601463</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">55.018406 69.601463</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">65.136292 69.601463</POLYPOINT><POLYPOINT TYPE=\"LINE\">75.254181 69.601463</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">75.254181 62.347126</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">75.254181 55.092788999999996</POLYPOINT><POLYPOINT TYPE=\"LINE\">75.254181 47.838454999999996</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">65.136292 47.838454999999996</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">55.018406 47.838454999999996</POLYPOINT><POLYPOINT TYPE=\"LINE\">44.900517 47.838454999999996</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">44.900517 55.092788999999996</POLYPOINT><POLYPOINT TYPE=\"BEZIER\">44.900517 62.347126</POLYPOINT><POLYPOINT TYPE=\"LINE\">44.900517 69.601463</POLYPOINT><POLYPOINT TYPE=\"LINE\">44.900517 69.601463</POLYPOINT></POLYLINE></GROUP></ROOT></DRAWING>";
+
 	printf( "Initializing control...\n" );
 	int result = InitializeActiveXControl( &lmos );
 	if ( result ) {
 		fprintf( stderr, "Could not initialize Lmos control.\n" );
-		return -1;
-	}
-
-	// Resize window here
-	LONG widthHimetric  = 30000;  // Example width
-	LONG heightHimetric = 30000;  // Example height
-
-
-	// Show window
-	BoolAXVoid( lmos.pDispatch, L"ShowMarkingArea" );  // Displays the control
-
-	HRESULT hr = lmos.pActiveXControl->lpVtbl->DoVerb(
-		lmos.pActiveXControl, OLEIVERB_SHOW, NULL, (IOleClientSite*)lmos.pActiveXControl, 0, NULL, NULL );
-	if ( !CheckHR( hr, TEXT( "Failed to display window" ) ) ) {
 		return 1;
 	}
 
-	ResizeActiveXControl( lmos.pActiveXControl, widthHimetric, heightHimetric );
-
-	// Run tests
+	// Clear any existing drawing
 	VARIANT varResult;
-	StringActiveXHr( lmos.pDispatch, L"GetMarkingFilesPath", &varResult );
-	if ( varResult.vt == VT_BSTR ) {
-		wprintf( L"Marking Files Path: %s\n", varResult.bstrVal );
-	} else {
-		fprintf( stderr, TEXT( "Failed to invoke GetMarkingFilesPath method: wrong return type\n" ) );
-		return 1;
-	}
-	VariantClear( &varResult );
+	call_activex( lmos.pDispatch, L"CancelJob", &varResult );
+	call_activex( lmos.pDispatch, L"ClearLayout", &varResult );
 
-	// String argument, returns bool
+    // Load the XML drawing from the const string
 	printf( "Loading locket\n" );
-	BoolAXVoid( lmos.pDispatch, L"CancelJob" );
-	BoolAXVoid( lmos.pDispatch, L"ClearLayout" );
-	/* BoolAXString(lmos.pDispatch, L"FileName2", L"V_cut_leaf_locket.VLM"); */
+	call_activex_string(lmos.pDispatch, L"FileName2", L"V_cut_leaf_locket.VLM", &varResult);
+    if (varResult.vt == VT_BOOL) {
+        printf("FileName2 method returned: %s\n", varResult.boolVal ? "True" : "False");
+    } else {
+        fprintf(stderr, TEXT("Failed to invoke FileName2 method: wrong return type\n"));
+        return 1;
+    }
+    VariantClear(&varResult);
 
 	// Display the About Box
-	BoolAXVoid( lmos.pDispatch, L"AboutBox" );
-
-	printf( "Sleeping\n" );
-	while ( 1 ) {
-		Sleep( 100 );
-	}
+	call_activex( lmos.pDispatch, L"AboutBox", &varResult );
 
 	// Clean up
 	printf( "Releasing control...\n" );

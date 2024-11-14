@@ -124,7 +124,7 @@ $(LMOS_OBJ):	$(LMOS_SRC) | $(BUILD_DIR)
 $(LMOS_EXE):	$(LMOS_OBJ)
 		zig cc -target $(PLATFORM) $(FLAGS) -o $@ $^ $(LMOS_LIBS)
 
-.PHONY:		idispatch invoke
+.PHONY:		idispatch invoke invokec
 
 idispatch:	$(BUILD_DIR)/idispatch.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^

@@ -22,9 +22,9 @@ import binascii
 import math
 import socket
 import struct
+import sys
 import time
 import xml.etree.ElementTree as ET
-import sys
 
 
 class BpHIDEvent:
@@ -230,13 +230,13 @@ class BpXML:
         pt = ET.SubElement(p, "POLYPOINT")
         pt.set("TYPE", "LINE")
         pt.text = (
-            str(polyline.points[:1][0][0])
+            str("{:.4f}").format(polyline.points[:1][0][0])
             + " "
-            + str(polyline.points[:1][0][1])
+            + str("{:.4f}").format(polyline.points[:1][0][1])
         )
         for point in polyline.points[1:]:
             pt = ET.SubElement(p, "POLYPOINT")
-            pt.text = str(point[0]) + " " + str(point[1])
+            pt.text = str("{:.4f}").format(point[0]) + " " + str("{:.4f}").format(point[1])
             if point[2] is BpPolypoint.kVertex:
                 pt.set("TYPE", "LINE")
             if point[2] == BpPolypoint.kArc:
