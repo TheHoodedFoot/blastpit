@@ -23,6 +23,11 @@ SUBMODULES_DIR  := $(SRC_DIR)/submodules
 REDIST_DIR      := $(DOTGIT_DIR)/untracked/redist
 GIT_HOOKS       := ${PROJECT_ROOT}/$(shell git config --get core.hooksPath)
 
+# Ensure BUILD_DIR is set to prevent accidental deletion with make clean
+ifeq ($(origin BUILD_DIR), undefined)
+$(error BUILD_DIR is not defined)
+endif
+
 # User defines
 
 CPPFLAGS        += $(addprefix -D, $(USER_DEFINES))
@@ -161,7 +166,7 @@ BLASTPY_FILES  = $(BUILD_DIR)/blastpy_wrap.o
 DEBUG_COMMAND ?= $(shell head -n1 .debugcmd)
 DEBUG_TARGET  ?= $(shell tail -n1 .debugcmd)
 
-FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp} src/imgui/*.c src/scaffolding/*.c src/inkscape/*.{c,h} src/windows/*.c src/include/*.h src/include/*/*.h src/database/*.c src/lvgl/*.{c,h} src/scaps/*.{c,cpp,h}
+FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/lmos.c src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp} src/imgui/*.c src/scaffolding/*.c src/inkscape/*.{c,h} src/windows/*.c src/include/*.h src/include/*/*.h src/database/*.c src/lvgl/*.{c,h} src/scaps/*.{c,cpp,h}
 FORMAT_FILES_PYTHON = src/libblastpit/*.py src/inkscape/*.py src/scaffolding/*.py
 FORMAT_FILES_XML    = src/inkscape/*.inx
 FORMAT_FILES_HTML   = doc/reference_manuals/lmos.html
@@ -312,7 +317,7 @@ test:	targets
 # ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
 clean:
-		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x,o.json} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
+		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x,o.json,.exe,.pdb} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
 		@rm -rf $(PROJECT_ROOT)/.{cache,ccls-cache,pytest_cache} 2>/dev/null || /bin/true
 		@rm -f $(PROJECT_ROOT)/{.tags,compile_command*.json} >/dev/null 2>/dev/null || /bin/true
 

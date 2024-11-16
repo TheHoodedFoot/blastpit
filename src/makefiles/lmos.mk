@@ -136,10 +136,10 @@ invoke:		$(BUILD_DIR)/invoke.exe
 $(BUILD_DIR)/invoke.exe:	$(SRC_DIR)/lmos/invoke_test.cpp | $(BUILD_DIR)
 		zig c++ -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 
 
-invokec:	$(BUILD_DIR)/invokec.exe 
-invokecx:		$(BUILD_DIR)/invokec.exe
+lmosc:	$(BUILD_DIR)/lmosc.exe 
+lmoscx:		$(BUILD_DIR)/lmosc.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^
-$(BUILD_DIR)/invokec.exe:	$(SRC_DIR)/lmos/invoke_test.c | $(BUILD_DIR)
+$(BUILD_DIR)/lmosc.exe:	$(SRC_DIR)/lmos/lmos.c | $(BUILD_DIR)
 		zig cc -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 
 
 iexplore:	$(BUILD_DIR)/iexplore.exe
