@@ -214,7 +214,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 	sds id_message = NULL;
 
 	if ( XmlGetMessageCount( message ) < 1 ) {
-		return ( IdAck ){ kInvalid, kBadXml, NULL };
+		return (IdAck){ kInvalid, kBadXml, NULL };
 	}
 
 	if ( XmlGetMessageCount( message ) == 1 ) {
@@ -237,7 +237,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 		}
 
 		if ( !id_message ) {
-			return ( IdAck ){ kInvalid, kSetterFailure, NULL };
+			return (IdAck){ kInvalid, kSetterFailure, NULL };
 		}
 	} else {
 		id	   = kMultipleCommands;
@@ -249,7 +249,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 	} else {
 		if ( !bp_isConnected( self ) ) {
 			sdsfree( id_message );
-			return ( IdAck ){ id, kConnectionFailure, NULL };
+			return (IdAck){ id, kConnectionFailure, NULL };
 			// return result;
 		}
 		sendClientMessage( self, id_message );
@@ -259,7 +259,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 	sdsfree( id_message );
 
 	// BPLOG(kLvlDebug, "%s: end\n", __func__);
-	return ( IdAck ){ id, kSuccess, NULL };
+	return (IdAck){ id, kSuccess, NULL };
 }
 
 IdAck
@@ -306,7 +306,7 @@ BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 	struct timeval current_time;
 	if ( gettimeofday( &start_time, NULL ) == -1 ) {
 		BPLOG( kLvlError, "%s: Cannot access system time\n", __func__ );
-		return ( IdAck ){ id, kFailure, NULL };
+		return (IdAck){ id, kFailure, NULL };
 	}
 
 	for ( int i = 0; i < timeout; i++ ) {
@@ -350,7 +350,7 @@ BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 						       "BpWaitForReplyOrTimeout: Message had payload %p\n",
 						       msg_data );
 					}
-					return ( IdAck ){ id, retval, (char*)msg_data };
+					return (IdAck){ id, retval, (char*)msg_data };
 				}
 			}
 		}
@@ -358,7 +358,7 @@ BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 
 
 	BPLOG( kLvlDebug, "%s: Reply timeout\n", __func__ );
-	return ( IdAck ){ id, kReplyTimeout, NULL };
+	return (IdAck){ id, kReplyTimeout, NULL };
 }
 
 IdAck
@@ -376,7 +376,7 @@ BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 	struct timeval current_time;
 	if ( gettimeofday( &start_time, NULL ) == -1 ) {
 		BPLOG( kLvlError, "%s: Cannot access system time\n", __func__ );
-		return ( IdAck ){ 0, kFailure, NULL };
+		return (IdAck){ 0, kFailure, NULL };
 	}
 
 	for ( int i = 0; i < timeout; i++ ) {
@@ -419,7 +419,7 @@ BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 					BPLOG( kLvlDebug,
 					       "BpWaitForSignalOrTimeout: msg_sigtype is %d\n",
 					       msg_sigtype );
-					return ( IdAck ){ msg_sigtype, kSuccess, (char*)sig_data };
+					return (IdAck){ msg_sigtype, kSuccess, (char*)sig_data };
 				}
 			}
 		}
@@ -427,7 +427,7 @@ BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 
 
 	BPLOG( kLvlDebug, "%s: Reply timeout\n", __func__ );
-	return ( IdAck ){ 0, kReplyTimeout, NULL };
+	return (IdAck){ 0, kReplyTimeout, NULL };
 }
 
 char*
@@ -749,7 +749,7 @@ IdAck
 BpQueueCommand( t_Blastpit* self, int command )
 {
 	if ( !self ) {
-		return ( IdAck ){ kInvalid, kFailure, NULL };
+		return (IdAck){ kInvalid, kFailure, NULL };
 	}
 
 	sds command_str = sdscatprintf( sdsempty(), "%d", command );
@@ -836,7 +836,7 @@ BpQueueMessage( t_Blastpit* self, ... )
 
 	self->message_queue = xml;
 
-	return ( IdAck ){ id, kSuccess, NULL };
+	return (IdAck){ id, kSuccess, NULL };
 }
 
 IdAck
@@ -844,7 +844,7 @@ BpUploadQueuedMessages( t_Blastpit* self )
 {  // Uploads the queued message and frees the sds string
 
 	if ( !self->message_queue ) {
-		return ( IdAck ){ kInvalid, kFailure, NULL };
+		return (IdAck){ kInvalid, kFailure, NULL };
 	}
 
 	BPLOG( kLvlEverything, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue );
@@ -860,16 +860,16 @@ BpQueueQpSet( t_Blastpit* self, char* name, int current, int speed, int frequenc
 {  // Queue a qp set for upload
 
 	if ( !self ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 	if ( current < LMOS_CURRENT_MIN || current > LMOS_CURRENT_MAX ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 	if ( speed < LMOS_SPEED_MIN || speed > LMOS_SPEED_MAX ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 	if ( frequency < LMOS_FREQUENCY_MIN || frequency > LMOS_FREQUENCY_MAX ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 
 	sds command_str	  = sdscatprintf( sdsempty(), "%d", kAddQpSet );
@@ -917,7 +917,7 @@ BpQueueCommandArgs( t_Blastpit* self,
 	// Supply dummy command/value pairs for unneeded values or payload
 
 	if ( !self ) {
-		return ( IdAck ){ kInvalid, kFailure, NULL };
+		return (IdAck){ kInvalid, kFailure, NULL };
 	}
 
 	sds command_str = sdscatprintf( sdsempty(), "%d", command );

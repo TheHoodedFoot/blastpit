@@ -203,7 +203,7 @@ Parser::ackReturn( int id, int retval )
 
 	QString message = QString::number( retval );
 	log( "[ackReturn] (" + QString::number( id ) + ") " + QString( bpRetvalName( retval ) ) );
-	BpAddRetvalToDb( this->blast, ( IdAck ){ id, retval, NULL } );
+	BpAddRetvalToDb( this->blast, (IdAck){ id, retval, NULL } );
 	QueueAckRetval( blast, id, retval );
 	BpUploadQueuedMessages( blast );
 }
