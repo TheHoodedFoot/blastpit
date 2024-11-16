@@ -129,23 +129,23 @@ $(LMOS_EXE):	$(LMOS_OBJ)
 idispatch:	$(BUILD_DIR)/idispatch.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^
 $(BUILD_DIR)/idispatch.exe:	$(SRC_DIR)/lmos/idispatch_discover_methods.c
-		zig cc -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 -MJ compile_commands.json
+		zig cc -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 
 
 invoke:		$(BUILD_DIR)/invoke.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^
 $(BUILD_DIR)/invoke.exe:	$(SRC_DIR)/lmos/invoke_test.cpp | $(BUILD_DIR)
-		zig c++ -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 -MJ compile_commands.json
+		zig c++ -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 
 
 invokec:	$(BUILD_DIR)/invokec.exe 
 invokecx:		$(BUILD_DIR)/invokec.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^
 $(BUILD_DIR)/invokec.exe:	$(SRC_DIR)/lmos/invoke_test.c | $(BUILD_DIR)
-		zig cc -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 -MJ compile_commands.json
+		zig cc -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 
 
 iexplore:	$(BUILD_DIR)/iexplore.exe
 		WINEARCH="win32" WINEPREFIX="$(WINEPRE)" WINEDEBUG="fixme-all" wine $^
 $(BUILD_DIR)/iexplore.exe:	$(SRC_DIR)/lmos/iexplore.cpp
-		zig c++ -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 -MJ compile_commands.json
+		zig c++ -target x86-windows-gnu -fno-stack-protector -o $@ -I/home/thf/projects/blastpit/src/lmos $^ -lole32 -loleaut32 -luuid -lwsock32 
 
 
 

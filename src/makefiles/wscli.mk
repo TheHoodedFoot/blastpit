@@ -8,7 +8,7 @@ $(BUILD_DIR)/wscli:	$(BUILD_DIR)/wscli.o $(BUILD_DIR)/libblastpit.a $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(SANFLAGS) -o $@ $^ $(WIN32FLAGS)
 
 $(BUILD_DIR)/wscli.o:	$(LIBBLASTPIT_OBJS) $(LIBBLASTPIT_DIR)/wscli.c
-	$(CC) -MJ $@.json $(CPPFLAGS) $(SANFLAGS) -c -I $(LIBBLASTPIT_DIR)/libblastpit -I $(SUBMODULES_DIR)/mongoose -o $@ $(LIBBLASTPIT_DIR)/wscli.c
+	$(CC) $(COMPILE_DATABASE) $(CPPFLAGS) $(SANFLAGS) -c -I $(LIBBLASTPIT_DIR)/libblastpit -I $(SUBMODULES_DIR)/mongoose -o $@ $(LIBBLASTPIT_DIR)/wscli.c
 
 
 wscli_server:	$(BUILD_DIR)/wscli
