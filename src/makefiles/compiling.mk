@@ -1,8 +1,6 @@
 # Only create compilation database files when using clang
 ifeq ($(CC), clang)
 	DATABASE_CMD = -MJ $@.json
-else
-	DATABASE_CMD = ""
 endif
 
 $(BUILD_DIR)/sds.o:	$(SUBMODULES_DIR)/sds/sds.c | $(BUILD_DIR)
