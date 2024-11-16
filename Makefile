@@ -192,6 +192,7 @@ all: 		debug
 libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/libblastpit.a #$(BUILD_DIR)/imgui_libs.a 
 debug:		.tags
 		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) CC="$(DEBUG_CC)" CXX="$(DEBUG_CXX)" libs targets python_targets wscli #imgui
+		sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(BUILD_DIR)/*.json > $(PROJECT_ROOT)/compile_commands.json
 
 # debug:	.tags targets wscli python_targets imgui lvgl
 # 		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
@@ -311,7 +312,7 @@ test:	targets
 # ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
 clean:
-		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
+		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x,o.json} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
 		@rm -rf $(PROJECT_ROOT)/.{cache,ccls-cache,pytest_cache} 2>/dev/null || /bin/true
 		@rm -f $(PROJECT_ROOT)/{.tags,compile_command*.json} >/dev/null 2>/dev/null || /bin/true
 
