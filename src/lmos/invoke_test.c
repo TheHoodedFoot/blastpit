@@ -171,7 +171,7 @@ call_activex( IDispatch* pDispatch, const unsigned short* methodname, VARIANT* r
 	return hr;
 }
 
-int call_activex_string(IDispatch* pDispatch, const wchar_t* methodName, BSTR argString, VARIANT* retval)
+int call_activex_bstring(IDispatch* pDispatch, const wchar_t* methodName, BSTR argString, VARIANT* retval)
 {
     /** Calls an ActiveX control's method by name and passes a wide string as an argument
      * The method takes one wide string argument and returns a variant result
@@ -208,6 +208,24 @@ int call_activex_string(IDispatch* pDispatch, const wchar_t* methodName, BSTR ar
     return hr;
 }
 
+int call_activex_string(IDispatch* pDispatch, const wchar_t* methodName, const char *argString, VARIANT* retval)
+{
+    /** Calls an ActiveX control's method by name and passes a narrow string as an argument
+     * The method takes one narrow string argument and returns a variant result
+     *
+     * @param methodName Wide string representing the method name to call
+     * @param argString  Narrow string argument to pass to the method
+     * @param retval     Pointer to VARIANT to hold result
+     * @return HRESULT of method call
+     */
+
+    BSTR bstr = StringToBSTR(argString);
+    HRESULT hr = call_activex_bstring(pDispatch, methodName, bstr, retval);
+    SysFreeString(bstr);
+
+    return hr;
+}
+
 int
 main()
 {
@@ -229,20 +247,29 @@ main()
 
     // Load the XML drawing from the const string
 	printf( "Loading locket\n" );
-	call_activex_string(lmos.pDispatch, L"FileName2", L"V_cut_leaf_locket.VLM", &varResult);
+	call_activex_string(lmos.pDispatch, L"LoadXML", xml, &varResult);
     if (varResult.vt == VT_BOOL) {
-        printf("FileName2 method returned: %s\n", varResult.boolVal ? "True" : "False");
+        printf("LoadXML method returned: %s\n", varResult.boolVal ? "True" : "False");
     } else {
-        fprintf(stderr, TEXT("Failed to invoke FileName2 method: wrong return type\n"));
+        fprintf(stderr, TEXT("Failed to invoke LoadXML method: wrong return type\n"));
         return 1;
     }
-    VariantClear(&varResult);
+
+    // Display the ActiveX control
+	call_activex( lmos.pDispatch, L"ShowMarkingArea", &varResult );
+	lmos.hr = lmos.pActiveXControl->lpVtbl->DoVerb(
+		lmos.pActiveXControl, OLEIVERB_SHOW, NULL, (IOleClientSite*)lmos.pActiveXControl, 0, NULL, NULL );
+	if ( !CheckHR( lmos.hr, TEXT( "Failed to show the window with DoVerb" ) ) ) {
+		return 1;
+	}
+
 
 	// Display the About Box
 	call_activex( lmos.pDispatch, L"AboutBox", &varResult );
 
 	// Clean up
 	printf( "Releasing control...\n" );
+    VariantClear(&varResult);
 	ReleaseActiveXControl( &lmos );
 
 	return 0;
