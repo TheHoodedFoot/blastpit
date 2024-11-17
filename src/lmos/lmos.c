@@ -264,7 +264,7 @@ main()
 
 	printf( "Initializing control...\n" );
 	int result = InitializeActiveXControl( &lmos );
-	if ( result ) {
+	if ( !result ) {
 		fprintf( stderr, "Could not initialize Lmos control.\n" );
 		return EXIT_FAILURE;
 	}
@@ -292,9 +292,13 @@ main()
 		return EXIT_FAILURE;
 	}
 
-
-	// Display the About Box
-	call_activex( lmos.pDispatch, L"AboutBox", &varResult );
+	// Message loop
+	MSG msg;
+	while ( GetMessage( &msg, NULL, 0, 0 ) ) {
+		TranslateMessage( &msg );
+		DispatchMessage( &msg );
+		Sleep( 10 );
+	}
 
 	// Clean up
 	printf( "Releasing control...\n" );
