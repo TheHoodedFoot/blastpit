@@ -1,5 +1,19 @@
+diff --git a/cmake/vendor.cmake b/cmake/vendor.cmake
+index cbdcfb47..78df374e 100644
+--- a/cmake/vendor.cmake
++++ b/cmake/vendor.cmake
+@@ -171,9 +171,6 @@ CPMAddPackage(
+     GITHUB_REPOSITORY ocornut/imgui
+     GIT_TAG v1.91.5-docking
+     DOWNLOAD_ONLY TRUE
+-    PATCHES
+-        "${CMAKE_CURRENT_LIST_DIR}/imgui-emscripten.patch"
+-        "${CMAKE_CURRENT_LIST_DIR}/imgui-loader.patch"
+ )
+ 
+ set(IMGUI_SOURCES
 diff --git a/server/TracyWorker.cpp b/server/TracyWorker.cpp
-index b22c7443..ecc93fd7 100644
+index 382f2281..07b6e3ba 100644
 --- a/server/TracyWorker.cpp
 +++ b/server/TracyWorker.cpp
 @@ -3846,7 +3846,7 @@ void Worker::AddSymbolCode( uint64_t ptr, const char* data, size_t sz )

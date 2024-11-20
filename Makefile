@@ -197,7 +197,7 @@ all: 		debug
 libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/libblastpit.a #$(BUILD_DIR)/imgui_libs.a 
 debug:		.tags
 		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) CC="$(DEBUG_CC)" CXX="$(DEBUG_CXX)" libs targets python_targets wscli #imgui
-		sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(BUILD_DIR)/*.json > $(PROJECT_ROOT)/compile_commands.json
+		sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(BUILD_DIR)/*.json > $(PROJECT_ROOT)/compile_commands.json || /bin/true
 
 # debug:	.tags targets wscli python_targets imgui lvgl
 # 		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
