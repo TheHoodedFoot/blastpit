@@ -26,8 +26,7 @@
 #define NANOSVGRAST_IMPLEMENTATION
 #include "nanosvgrast.h"
 
-int
-main()
+int main()
 {
 	NSVGimage*	image = NULL;
 	NSVGrasterizer* rast  = NULL;

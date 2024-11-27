@@ -25,8 +25,7 @@ struct activexctrl
 };
 
 // Debug helper functions
-BOOL
-CheckHR( HRESULT hr, LPCTSTR szMessage )
+BOOL CheckHR( HRESULT hr, LPCTSTR szMessage )
 {
 	// Check if the given HRESULT indicates success or failure, print error message on failure
 	// Return bool to calling function to indicate error
@@ -39,8 +38,7 @@ CheckHR( HRESULT hr, LPCTSTR szMessage )
 }
 
 // Utility functions
-BSTR
-StringToBSTR( const char* string )
+BSTR StringToBSTR( const char* string )
 {
 	// Allocates a BSTR from a char string (must be freed with SysFreeString)
 
@@ -73,8 +71,7 @@ GetDispId( IDispatch* pDispatch, const wchar_t* method, DISPID* dispid )
 	return hr;
 }
 
-int
-InitializeActiveXControl( struct activexctrl* control )
+int InitializeActiveXControl( struct activexctrl* control )
 {
 	// Initialize COM libraries
 	control->hr = CoInitialize( NULL );
@@ -141,8 +138,7 @@ InitializeActiveXControl( struct activexctrl* control )
 	return TRUE;
 }
 
-void
-ReleaseActiveXControl( struct activexctrl* control )
+void ReleaseActiveXControl( struct activexctrl* control )
 {
 	// Release resources
 	control->pTypeLib->lpVtbl->Release( control->pTypeLib );
@@ -154,8 +150,7 @@ ReleaseActiveXControl( struct activexctrl* control )
 }
 
 
-int
-call_activex( IDispatch* pDispatch, const unsigned short* methodname, VARIANT* retval )
+int call_activex( IDispatch* pDispatch, const unsigned short* methodname, VARIANT* retval )
 {
 	/** Calls an ActiveX control's method by name
 	 * The method takes no arguments and returns a variant result
@@ -183,8 +178,7 @@ call_activex( IDispatch* pDispatch, const unsigned short* methodname, VARIANT* r
 	return hr;
 }
 
-int
-call_activex_bstring( IDispatch* pDispatch, const wchar_t* methodName, BSTR argString, VARIANT* retval )
+int call_activex_bstring( IDispatch* pDispatch, const wchar_t* methodName, BSTR argString, VARIANT* retval )
 {
 	/** Calls an ActiveX control's method by name and passes a wide string as an argument
 	 * The method takes one wide string argument and returns a variant result
@@ -221,8 +215,7 @@ call_activex_bstring( IDispatch* pDispatch, const wchar_t* methodName, BSTR argS
 	return hr;
 }
 
-int
-call_activex_string( IDispatch* pDispatch, const wchar_t* methodName, const char* argString, VARIANT* retval )
+int call_activex_string( IDispatch* pDispatch, const wchar_t* methodName, const char* argString, VARIANT* retval )
 {
 	/** Calls an ActiveX control's method by name and passes a narrow string as an argument
 	 * The method takes one narrow string argument and returns a variant result
@@ -240,8 +233,7 @@ call_activex_string( IDispatch* pDispatch, const wchar_t* methodName, const char
 	return hr;
 }
 
-int
-main()
+int main()
 {
 	struct activexctrl lmos;
 

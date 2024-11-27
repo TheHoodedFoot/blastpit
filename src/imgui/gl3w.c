@@ -13,20 +13,17 @@
 
 static HMODULE libgl;
 
-static void
-open_libgl( void )
+static void open_libgl( void )
 {
 	libgl = LoadLibraryA( "opengl32.dll" );
 }
 
-static void
-close_libgl( void )
+static void close_libgl( void )
 {
 	FreeLibrary( libgl );
 }
 
-static void*
-get_proc( const char* proc )
+static void* get_proc( const char* proc )
 {
 	void* res;
 
@@ -42,8 +39,7 @@ get_proc( const char* proc )
 CFBundleRef bundle;
 CFURLRef    bundleURL;
 
-static void
-open_libgl( void )
+static void open_libgl( void )
 {
 	bundleURL = CFURLCreateWithFileSystemPath( kCFAllocatorDefault,
 						   CFSTR( "/System/Library/Frameworks/OpenGL.framework" ),
@@ -54,15 +50,13 @@ open_libgl( void )
 	assert( bundle != NULL );
 }
 
-static void
-close_libgl( void )
+static void close_libgl( void )
 {
 	CFRelease( bundle );
 	CFRelease( bundleURL );
 }
 
-static void*
-get_proc( const char* proc )
+static void* get_proc( const char* proc )
 {
 	void* res;
 
@@ -77,20 +71,17 @@ get_proc( const char* proc )
 
 static void* libgl;
 
-static void
-open_libgl( void )
+static void open_libgl( void )
 {
 	libgl = dlopen( "libGL.so.1", RTLD_LAZY | RTLD_GLOBAL );
 }
 
-static void
-close_libgl( void )
+static void close_libgl( void )
 {
 	dlclose( libgl );
 }
 
-static void*
-get_proc( const char* proc )
+static void* get_proc( const char* proc )
 {
 	void* res;
 
@@ -110,8 +101,7 @@ static struct
 	int major, minor;
 } version;
 
-static int
-parse_version( void )
+static int parse_version( void )
 {
 	if ( !glGetIntegerv ) {
 		return -1;
@@ -128,8 +118,7 @@ parse_version( void )
 
 static void load_procs( void );
 
-int
-gl3wInit( void )
+int gl3wInit( void )
 {
 	open_libgl();
 	load_procs();
@@ -137,8 +126,7 @@ gl3wInit( void )
 	return parse_version();
 }
 
-int
-gl3wIsSupported( int major, int minor )
+int gl3wIsSupported( int major, int minor )
 {
 	if ( major < 3 ) {
 		return 0;
@@ -149,8 +137,7 @@ gl3wIsSupported( int major, int minor )
 	return version.major >= major;
 }
 
-void*
-gl3wGetProcAddress( const char* proc )
+void* gl3wGetProcAddress( const char* proc )
 {
 	return get_proc( proc );
 }
@@ -760,8 +747,7 @@ PFNGLTEXSTORAGE3DMULTISAMPLEPROC		     gl3wTexStorage3DMultisample;
 PFNGLTEXTURESTORAGE2DMULTISAMPLEEXTPROC		     gl3wTextureStorage2DMultisampleEXT;
 PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC		     gl3wTextureStorage3DMultisampleEXT;
 
-static void
-load_procs( void )
+static void load_procs( void )
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"

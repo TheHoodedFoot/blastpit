@@ -14,8 +14,7 @@
 
 t_Blastpit* server;
 
-void
-testSetup( void )
+void testSetup( void )
 {
 	BPLOG( kLvlDebug, "%s: Creating server\n", __func__ );
 	server	   = blastpitNew();
@@ -26,8 +25,7 @@ testSetup( void )
 	BPLOG( kLvlDebug, "Server nc: %p\n", (void*)( (t_Websocket*)server->ws )->connection );
 }
 
-void
-testTeardown( void )
+void testTeardown( void )
 {
 	BPLOG( kLvlDebug, "%s: Destroying server\n", __func__ );
 	serverDestroy( server );
@@ -37,8 +35,7 @@ testTeardown( void )
 
 int testval;
 
-void
-testcallback( void* cb1, void* cb2 )
+void testcallback( void* cb1, void* cb2 )
 {
 	(void)cb1;
 	(void)cb2;
@@ -60,8 +57,7 @@ testcallback( void* cb1, void* cb2 )
     This is the long text
 */
 
-void
-simpleServerTest( void )
+void simpleServerTest( void )
 {
 	/* What are the requirements to test 'x'? */
 	/* 	What does the object do? */
@@ -120,8 +116,7 @@ simpleServerTest( void )
 	blastpitDelete( simpleserver );
 }
 
-void
-SendAndWaitTest( void )
+void SendAndWaitTest( void )
 {
 	// Create a client
 	t_Blastpit* client = blastpitNew();
@@ -144,8 +139,7 @@ SendAndWaitTest( void )
 	blastpitDelete( client );
 }
 
-void
-MessageTest( void )
+void MessageTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -212,8 +206,7 @@ MessageTest( void )
 	blastpitDelete( simpleserver );
 }
 
-void
-SignalTest( void )
+void SignalTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -268,8 +261,7 @@ SignalTest( void )
 	blastpitDelete( simpleserver );
 }
 
-void
-AutoGenId( void )
+void AutoGenId( void )
 {
 	// The first auto-generated id should be 1
 	t_Blastpit* bp = blastpitNew();
@@ -283,8 +275,7 @@ AutoGenId( void )
 	blastpitDelete( bp );
 }
 
-void
-SendCommand( void )
+void SendCommand( void )
 {
 	t_Blastpit* bp1 = blastpitNew();
 	t_Blastpit* bp2 = blastpitNew();
@@ -358,8 +349,7 @@ SendCommand( void )
 	blastpitDelete( bp2 );
 }
 
-void
-QueueQpsetTest( void )
+void QueueQpsetTest( void )
 {
 	t_Blastpit* bp = blastpitNew();
 
@@ -396,8 +386,7 @@ QueueQpsetTest( void )
 	blastpitDelete( bp );
 }
 
-void
-DependentChildTest( void )
+void DependentChildTest( void )
 {  // Checks that queued messages rely on parent
 
 	// Queued messages should have 'depends' attribute added
@@ -430,8 +419,7 @@ DependentChildTest( void )
 	blastpitDelete( bp );
 }
 
-void
-RetvalDbTest( void )
+void RetvalDbTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -462,8 +450,7 @@ RetvalDbTest( void )
 	blastpitDelete( bp );
 }
 
-void
-ConnectivityTest( void )
+void ConnectivityTest( void )
 {
 	// What are the requirements to test 'x'?
 	// 	What does the object do?
@@ -490,8 +477,7 @@ ConnectivityTest( void )
 	blastpitDelete( client );
 }
 
-static void
-unityShortTests( void )
+static void unityShortTests( void )
 {  // These tests must pass or fail within microseconds. No network tests.
 
 	RUN_TEST( RetvalDbTest );
@@ -500,8 +486,7 @@ unityShortTests( void )
 	RUN_TEST( DependentChildTest );
 }
 
-static void
-unityLongTests( void )
+static void unityLongTests( void )
 {  // Long-running tests, meant to be run under Buildbot.
 
 	testSetup();
@@ -529,8 +514,7 @@ unityLongTests( void )
 	testTeardown();
 }
 
-int
-StdinTest( int argc, const char* argv[] )
+int StdinTest( int argc, const char* argv[] )
 {  // Run tests using stdin as input, mostly used with afl fuzzing
 
 	(void)argc;
@@ -540,8 +524,7 @@ StdinTest( int argc, const char* argv[] )
 }
 
 
-int
-main( int argc, const char* argv[] )
+int main( int argc, const char* argv[] )
 {
 	while ( 1 ) {
 		static struct option long_options[] = { { "stdin", no_argument, 0, 't' },

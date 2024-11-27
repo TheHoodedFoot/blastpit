@@ -7,8 +7,7 @@ static t_Websocket* server;
 int countServerMessagesReceived;
 int countClientMessagesReceived;
 
-void
-serverMessageReceivedCallback( void* cb1, void* cb2 )
+void serverMessageReceivedCallback( void* cb1, void* cb2 )
 {
 	(void)cb1;
 	(void)cb2;
@@ -17,8 +16,7 @@ serverMessageReceivedCallback( void* cb1, void* cb2 )
 	countServerMessagesReceived++;
 }
 
-void
-clientMessageReceivedCallback( void* cb1, void* cb2 )
+void clientMessageReceivedCallback( void* cb1, void* cb2 )
 {
 	(void)cb1;
 	(void)cb2;
@@ -197,8 +195,7 @@ TEST( WebsocketGroup, StackTest )
 	websocketDelete( ws );
 }
 
-void
-updateHash( void* ev_data, void* object )
+void updateHash( void* ev_data, void* object )
 {  // Add the message data to the existing hash
 
 	(void)object;
@@ -279,14 +276,12 @@ TEST_GROUP_RUNNER( WebsocketGroup )
 	RUN_TEST_CASE( WebsocketGroup, PortInUse );
 }
 
-static void
-runAllTests( void )
+static void runAllTests( void )
 {
 	RUN_TEST_GROUP( WebsocketGroup );
 }
 
-int
-main( int argc, const char* argv[] )
+int main( int argc, const char* argv[] )
 {
 	return UnityMain( argc, argv, runAllTests );
 }

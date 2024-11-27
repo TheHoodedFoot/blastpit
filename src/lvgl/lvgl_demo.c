@@ -56,8 +56,7 @@ static lv_obj_t*   t2;
  *   GLOBAL FUNCTIONS
  **********************/
 
-void
-lv_demo_keypad_encoder( void )
+void lv_demo_keypad_encoder( void )
 {
 	g = lv_group_create();
 	lv_group_set_default( g );
@@ -96,8 +95,7 @@ lv_demo_keypad_encoder( void )
 
 static lv_obj_t* spinbox;
 
-static void
-lv_spinbox_increment_event_cb( lv_event_t* e )
+static void lv_spinbox_increment_event_cb( lv_event_t* e )
 {
 	lv_event_code_t code = lv_event_get_code( e );
 	if ( code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT ) {
@@ -105,8 +103,7 @@ lv_spinbox_increment_event_cb( lv_event_t* e )
 	}
 }
 
-static void
-lv_spinbox_decrement_event_cb( lv_event_t* e )
+static void lv_spinbox_decrement_event_cb( lv_event_t* e )
 {
 	lv_event_code_t code = lv_event_get_code( e );
 	if ( code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT ) {
@@ -146,8 +143,7 @@ lv_spinbox_decrement_event_cb( lv_event_t* e )
 // 	lv_obj_add_flag( obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS );
 // }
 
-static void
-ta_event_cb( lv_event_t* e )
+static void ta_event_cb( lv_event_t* e )
 {
 	lv_indev_t* indev = lv_indev_get_act();
 	if ( indev == NULL ) {
@@ -176,8 +172,7 @@ ta_event_cb( lv_event_t* e )
 	}
 }
 
-static void
-text_input_create( lv_obj_t* parent )
+static void text_input_create( lv_obj_t* parent )
 {
 	lv_obj_set_flex_flow( parent, LV_FLEX_FLOW_COLUMN );
 
@@ -198,14 +193,12 @@ text_input_create( lv_obj_t* parent )
 	lv_obj_add_event_cb( ta2, ta_event_cb, LV_EVENT_ALL, kb );
 }
 
-static void
-set_value( void* bar, int32_t v )
+static void set_value( void* bar, int32_t v )
 {
 	lv_bar_set_value( bar, v, LV_ANIM_OFF );
 }
 
-static void
-event_cb( lv_event_t* e )
+static void event_cb( lv_event_t* e )
 {
 	lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc( e );
 	if ( dsc->part != LV_PART_INDICATOR ) {
@@ -253,8 +246,7 @@ event_cb( lv_event_t* e )
 /**
  * Custom drawer on the bar to display the current value
  */
-void
-lv_example_bar_6( void )
+void lv_example_bar_6( void )
 {
 	lv_obj_t* bar = lv_bar_create( lv_scr_act() );
 	lv_obj_add_event_cb( bar, event_cb, LV_EVENT_DRAW_PART_END, NULL );
@@ -263,8 +255,7 @@ lv_example_bar_6( void )
 	set_value( bar, 75 );
 }
 
-int
-main( void )
+int main( void )
 {
 	lv_init();
 	hal_setup();
@@ -277,8 +268,7 @@ main( void )
 	}
 }
 
-static void
-event_handler( lv_event_t* e )
+static void event_handler( lv_event_t* e )
 {
 	lv_event_code_t code = lv_event_get_code( e );
 	lv_obj_t*	obj  = lv_event_get_target( e );
@@ -289,8 +279,7 @@ event_handler( lv_event_t* e )
 	}
 }
 
-static void
-mpCreateWidgets( lv_obj_t* parent )
+static void mpCreateWidgets( lv_obj_t* parent )
 {
 	lv_obj_t *obj, *label;
 

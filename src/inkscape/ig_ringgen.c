@@ -33,8 +33,7 @@
 // ░░█░░█░█░█░█░█░█░░█░░░░█▀▄░░█░░█░█░█░█░█░█░█▀▀░█░█
 // ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
 
-void
-rgCreateWidgets( t_ringgen_data* self )
+void rgCreateWidgets( t_ringgen_data* self )
 {
 	(void)self;
 
@@ -140,8 +139,7 @@ rgCreateWidgets( t_ringgen_data* self )
 // ░█▀▀░▀▄▀░█▀▀░█░█░░█░░░░█░░░█░█░█░█░█▀▀
 // ░▀▀▀░░▀░░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀░░
 
-bool
-rgImGuiLoop( void* rg_data )
+bool rgImGuiLoop( void* rg_data )
 {
 	t_ringgen_data* self = (t_ringgen_data*)rg_data;
 
@@ -154,8 +152,7 @@ rgImGuiLoop( void* rg_data )
 }
 
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	// We avoid globals by having a struct passed to the event loop
 	t_ringgen_data self = {

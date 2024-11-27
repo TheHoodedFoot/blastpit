@@ -106,8 +106,7 @@ LmosTray::~LmosTray()
 	delete ui;
 }
 
-void
-LmosTray::createActions()
+void LmosTray::createActions()
 {
 	minimizeAction = new QAction( tr( "Mi&nimize" ), this );
 	connect( minimizeAction, SIGNAL( triggered() ), this, SLOT( hide() ) );
@@ -124,8 +123,7 @@ LmosTray::createActions()
 	clearLogAction = new QAction( tr( "&Clear log" ), this );
 	connect( clearLogAction, SIGNAL( triggered() ), this, SLOT( clearLog() ) );
 }
-void
-LmosTray::initTray()
+void LmosTray::initTray()
 {
 	trayIconMenu = new QMenu( this );
 	// QAction* clearLogAction = new QAction( "&Clear log", this );
@@ -141,8 +139,7 @@ LmosTray::initTray()
 	trayIcon->setContextMenu( trayIconMenu );
 }
 
-void
-LmosTray::showSettings()
+void LmosTray::showSettings()
 {
 	/* Show the settings window */
 	traysettings* ts = new traysettings;
@@ -153,8 +150,7 @@ LmosTray::showSettings()
 	ts->show();
 }
 
-void
-LmosTray::setIcon( QString png )
+void LmosTray::setIcon( QString png )
 {
 	QIcon icon( ":///" + png + ".png" );
 	// QIcon icon(":///lmos-tray.png");
@@ -162,21 +158,18 @@ LmosTray::setIcon( QString png )
 	trayIcon->setIcon( icon );
 	setWindowIcon( icon );
 }
-void
-LmosTray::closeEvent( QCloseEvent* event )
+void LmosTray::closeEvent( QCloseEvent* event )
 {
 	if ( trayIcon->isVisible() ) {
 		hide();
 		event->ignore();
 	}
 }
-void
-LmosTray::setTrayBalloon( QString text )
+void LmosTray::setTrayBalloon( QString text )
 {
 	trayIcon->showMessage( "Lmos", text );
 }
-void
-LmosTray::iconActivated( QSystemTrayIcon::ActivationReason reason )
+void LmosTray::iconActivated( QSystemTrayIcon::ActivationReason reason )
 {
 	switch ( reason ) {
 		case QSystemTrayIcon::Trigger:
@@ -190,8 +183,7 @@ LmosTray::iconActivated( QSystemTrayIcon::ActivationReason reason )
 	}
 }
 
-void
-LmosTray::listen()
+void LmosTray::listen()
 {
 	parser = new Parser( nullptr );
 	connect( parser, SIGNAL( finished() ), qApp, SLOT( quit() ) );
@@ -201,20 +193,17 @@ LmosTray::listen()
 	connect( parser, SIGNAL( ClearLog() ), this, SLOT( clearLog() ) );
 }
 
-void
-LmosTray::clearLog()
+void LmosTray::clearLog()
 {
 	ui->teLog->clear();
 }
 
-void
-LmosTray::log( QString entry )
+void LmosTray::log( QString entry )
 {
 	ui->teLog->append( entry );
 }
 
-void
-LmosTray::alert( const QString& name, int argc, void* argv )
+void LmosTray::alert( const QString& name, int argc, void* argv )
 {
 	(void)argc;
 	(void)argv;
@@ -222,24 +211,21 @@ LmosTray::alert( const QString& name, int argc, void* argv )
 	ui->teLog->append( "Alert: " + name );
 }
 
-void
-LmosTray::log( int level, const char* function, QString entry )
+void LmosTray::log( int level, const char* function, QString entry )
 {
 	QString log	= QString::number( level );
 	QString logFunc = QString( function );
 	ui->teLog->append( log + ": (" + logFunc + ") " + entry );
 }
 
-void
-LmosTray::retval( const char* function, bool value )
+void LmosTray::retval( const char* function, bool value )
 {
 	QString logFunc = QString( function );
 	QString retbool = value ? "True" : "False";
 	ui->teLog->append( "retval (" + logFunc + "): " + retbool );
 }
 
-void
-LmosTray::retval( const char* function, int value )
+void LmosTray::retval( const char* function, int value )
 {
 	QString logFunc = QString( function );
 	ui->teLog->append( "retval (" + logFunc + "): " + QString::number( value ) );

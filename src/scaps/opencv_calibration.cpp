@@ -43,8 +43,7 @@ const char* liveCaptureHelp = "When the live video from camera is used as "
 			      "  'g' - start capturing images\n"
 			      "  'u' - switch undistortion on/off\n";
 
-static void
-help( char** argv )
+static void help( char** argv )
 {
 	printf( "This is a camera calibration sample.\n"
 		"Usage: %s\n"
@@ -132,14 +131,13 @@ enum Pattern
 	ASYMMETRIC_CIRCLES_GRID
 };
 
-static double
-computeReprojectionErrors( const vector<vector<Point3f>>& objectPoints,
-			   const vector<vector<Point2f>>& imagePoints,
-			   const vector<Mat>&		  rvecs,
-			   const vector<Mat>&		  tvecs,
-			   const Mat&			  cameraMatrix,
-			   const Mat&			  distCoeffs,
-			   vector<float>&		  perViewErrors )
+static double computeReprojectionErrors( const vector<vector<Point3f>>& objectPoints,
+					 const vector<vector<Point2f>>& imagePoints,
+					 const vector<Mat>&		rvecs,
+					 const vector<Mat>&		tvecs,
+					 const Mat&			cameraMatrix,
+					 const Mat&			distCoeffs,
+					 vector<float>&			perViewErrors )
 {
 	vector<Point2f> imagePoints2;
 	int		i, totalPoints = 0;
@@ -158,8 +156,10 @@ computeReprojectionErrors( const vector<vector<Point3f>>& objectPoints,
 	return std::sqrt( totalErr / totalPoints );
 }
 
-static void
-calcChessboardCorners( Size boardSize, float squareSize, vector<Point3f>& corners, Pattern patternType = CHESSBOARD )
+static void calcChessboardCorners( Size		    boardSize,
+				   float	    squareSize,
+				   vector<Point3f>& corners,
+				   Pattern	    patternType = CHESSBOARD )
 {
 	corners.resize( 0 );
 
@@ -188,23 +188,22 @@ calcChessboardCorners( Size boardSize, float squareSize, vector<Point3f>& corner
 	}
 }
 
-static bool
-runCalibration( vector<vector<Point2f>> imagePoints,
-		Size			imageSize,
-		Size			boardSize,
-		Pattern			patternType,
-		float			squareSize,
-		float			aspectRatio,
-		float			grid_width,
-		bool			release_object,
-		int			flags,
-		Mat&			cameraMatrix,
-		Mat&			distCoeffs,
-		vector<Mat>&		rvecs,
-		vector<Mat>&		tvecs,
-		vector<float>&		reprojErrs,
-		vector<Point3f>&	newObjPoints,
-		double&			totalAvgErr )
+static bool runCalibration( vector<vector<Point2f>> imagePoints,
+			    Size		    imageSize,
+			    Size		    boardSize,
+			    Pattern		    patternType,
+			    float		    squareSize,
+			    float		    aspectRatio,
+			    float		    grid_width,
+			    bool		    release_object,
+			    int			    flags,
+			    Mat&		    cameraMatrix,
+			    Mat&		    distCoeffs,
+			    vector<Mat>&	    rvecs,
+			    vector<Mat>&	    tvecs,
+			    vector<float>&	    reprojErrs,
+			    vector<Point3f>&	    newObjPoints,
+			    double&		    totalAvgErr )
 {
 	if ( flags & CALIB_FIX_ASPECT_RATIO ) {
 		cameraMatrix.at<double>( 0, 0 ) = aspectRatio;
@@ -254,21 +253,20 @@ runCalibration( vector<vector<Point2f>> imagePoints,
 	return ok;
 }
 
-static void
-saveCameraParams( const string&			 filename,
-		  Size				 imageSize,
-		  Size				 boardSize,
-		  float				 squareSize,
-		  float				 aspectRatio,
-		  int				 flags,
-		  const Mat&			 cameraMatrix,
-		  const Mat&			 distCoeffs,
-		  const vector<Mat>&		 rvecs,
-		  const vector<Mat>&		 tvecs,
-		  const vector<float>&		 reprojErrs,
-		  const vector<vector<Point2f>>& imagePoints,
-		  const vector<Point3f>&	 newObjPoints,
-		  double			 totalAvgErr )
+static void saveCameraParams( const string&		     filename,
+			      Size			     imageSize,
+			      Size			     boardSize,
+			      float			     squareSize,
+			      float			     aspectRatio,
+			      int			     flags,
+			      const Mat&		     cameraMatrix,
+			      const Mat&		     distCoeffs,
+			      const vector<Mat>&	     rvecs,
+			      const vector<Mat>&	     tvecs,
+			      const vector<float>&	     reprojErrs,
+			      const vector<vector<Point2f>>& imagePoints,
+			      const vector<Point3f>&	     newObjPoints,
+			      double			     totalAvgErr )
 {
 	FileStorage fs( filename, FileStorage::WRITE );
 
@@ -347,8 +345,7 @@ saveCameraParams( const string&			 filename,
 	}
 }
 
-static bool
-readStringList( const string& filename, vector<string>& l )
+static bool readStringList( const string& filename, vector<string>& l )
 {
 	l.resize( 0 );
 	FileStorage fs( filename, FileStorage::READ );
@@ -380,22 +377,21 @@ readStringList( const string& filename, vector<string>& l )
 	return true;
 }
 
-static bool
-runAndSave( const string&		   outputFilename,
-	    const vector<vector<Point2f>>& imagePoints,
-	    Size			   imageSize,
-	    Size			   boardSize,
-	    Pattern			   patternType,
-	    float			   squareSize,
-	    float			   grid_width,
-	    bool			   release_object,
-	    float			   aspectRatio,
-	    int				   flags,
-	    Mat&			   cameraMatrix,
-	    Mat&			   distCoeffs,
-	    bool			   writeExtrinsics,
-	    bool			   writePoints,
-	    bool			   writeGrid )
+static bool runAndSave( const string&		       outputFilename,
+			const vector<vector<Point2f>>& imagePoints,
+			Size			       imageSize,
+			Size			       boardSize,
+			Pattern			       patternType,
+			float			       squareSize,
+			float			       grid_width,
+			bool			       release_object,
+			float			       aspectRatio,
+			int			       flags,
+			Mat&			       cameraMatrix,
+			Mat&			       distCoeffs,
+			bool			       writeExtrinsics,
+			bool			       writePoints,
+			bool			       writeGrid )
 {
 	vector<Mat>	rvecs, tvecs;
 	vector<float>	reprojErrs;
@@ -441,8 +437,7 @@ runAndSave( const string&		   outputFilename,
 	return ok;
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	Size   boardSize, imageSize;
 	float  squareSize, aspectRatio = 1;

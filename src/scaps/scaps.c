@@ -26,8 +26,7 @@ typedef struct
 // ░█░█░█▀▀░█▀▄░█░█░█░█░░░█▀█░█▀▀░█░░░█▀▀░█▀▀░█▀▄░▀▀█
 // ░▀▀░░▀▀▀░▀▀░░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░▀▀▀░▀░░░▀▀▀░▀░▀░▀▀▀
 
-void
-printhr( HRESULT hr )
+void printhr( HRESULT hr )
 {
 	printf( "hr = 0x%x\n", hr );
 }
@@ -37,8 +36,7 @@ printhr( HRESULT hr )
 // ░█░░░█░█░█░█
 // ░▀▀▀░▀▀▀░▀░▀
 
-int
-SetupCOM( t_scaps_struct* this )
+int SetupCOM( t_scaps_struct* this )
 {
 	HRESULT hr;
 
@@ -75,8 +73,7 @@ SetupCOM( t_scaps_struct* this )
 	return 1;
 }
 
-void
-ShutdownCOM( t_scaps_struct* this )
+void ShutdownCOM( t_scaps_struct* this )
 {
 	// Release the IExample now that we're done with it
 	this->scapsObject->lpVtbl->Release( this->scapsObject );
@@ -90,8 +87,7 @@ ShutdownCOM( t_scaps_struct* this )
 // ░█░█░░█░░░█░░█░░░░█░░░█░░░█░░█▀▀░▀▀█
 // ░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀
 
-BSTR
-StringToBSTR( const char* string )
+BSTR StringToBSTR( const char* string )
 {  // Allocates a BSTR from a char string (must be freed with SysFreeString)
 
 	char* wide_string = calloc( 1, ( strlen( string ) + 1 ) * 2 );
@@ -101,8 +97,7 @@ StringToBSTR( const char* string )
 	return ( bstr_string );
 }
 
-void
-disableViewUpdate( _Samlight_clientEx* this )
+void disableViewUpdate( _Samlight_clientEx* this )
 {  // Prevents the 2D view from updating
 
 	long currentmode;
@@ -115,8 +110,7 @@ disableViewUpdate( _Samlight_clientEx* this )
 	_Samlight_clientEx_ScSetMode( this, currentmode );
 }
 
-void
-enableViewUpdate( _Samlight_clientEx* this )
+void enableViewUpdate( _Samlight_clientEx* this )
 {  // Enables the 2D view to update
 
 	int currentmode;
@@ -127,8 +121,7 @@ enableViewUpdate( _Samlight_clientEx* this )
 	_Samlight_clientEx_ScExecCommand( this, scComSAMLightClientCtrlExecCommandUpdateViewNow );
 }
 
-void
-importSVG( _Samlight_clientEx* this, const char* filename )
+void importSVG( _Samlight_clientEx* this, const char* filename )
 {
 	BSTR bstr_filename = StringToBSTR( filename );
 	BSTR bstr_svg	   = SysAllocString( L"svg" );
@@ -138,8 +131,7 @@ importSVG( _Samlight_clientEx* this, const char* filename )
 	SysFreeString( bstr_filename );
 }
 
-int
-getPen( _Samlight_clientEx* this, const int pennumber )
+int getPen( _Samlight_clientEx* this, const int pennumber )
 {  // Retrieves the pen info. Returns >0 if error at any step
 
 	int ret;
@@ -164,14 +156,13 @@ getPen( _Samlight_clientEx* this, const int pennumber )
 	return ret;
 }
 
-void
-setPen( _Samlight_clientEx* this,
-	const int   pennumber,
-	const float power,
-	const float speed,
-	const float frequency,
-	const float ipg,
-	const char* name )
+void setPen( _Samlight_clientEx* this,
+	     const int	 pennumber,
+	     const float power,
+	     const float speed,
+	     const float frequency,
+	     const float ipg,
+	     const char* name )
 {  // Sets the values of a pen
 
 	int ret;
@@ -258,8 +249,7 @@ createRectangle( _Samlight_clientEx* this,
 	return ret;
 }
 
-t_pen_properties
-GetNextPen()
+t_pen_properties GetNextPen()
 {  // Read the next pen from the file or EOF
 
 	t_pen_properties pen;
@@ -319,8 +309,7 @@ GetNextPen()
 	return pen;
 }
 
-void
-UploadPens( t_scaps_struct* this )
+void UploadPens( t_scaps_struct* this )
 {
 	t_pen_properties pen = GetNextPen();
 	// printf( "pen.pen_number = %d\n", pen.pen_number );
@@ -344,8 +333,7 @@ UploadPens( t_scaps_struct* this )
 }
 
 // DownloadPens: Read the pens from Scaps and output them to STDOUT
-void
-DownloadPens( t_scaps_struct* this )
+void DownloadPens( t_scaps_struct* this )
 {
 	for ( int i = 1; i < 255; i++ ) {
 		getPen( this->scapsObject, i );
@@ -353,8 +341,7 @@ DownloadPens( t_scaps_struct* this )
 }
 
 // TestRectangles: Create some random rectangles to test Scaps connection
-void
-TestRectangles( t_scaps_struct* this )
+void TestRectangles( t_scaps_struct* this )
 {
 	unsigned int seed;
 	FILE*	     urandom = fopen( "/dev/urandom", "r" );
@@ -379,8 +366,7 @@ TestRectangles( t_scaps_struct* this )
 	disableViewUpdate( this->scapsObject );
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	static int verbose_flag;
 	int	   c;

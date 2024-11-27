@@ -8,8 +8,7 @@
 
 // USE localtime TO GET DATE
 
-t_db_query
-SQLQueryToStruct( PGconn* conn, const char* sql )
+t_db_query SQLQueryToStruct( PGconn* conn, const char* sql )
 {
 	// Takes a string query which returns a single column and returns a struct containing the number of records and
 	// an array of pointers to the record strings const int (*array)[]
@@ -31,8 +30,7 @@ SQLQueryToStruct( PGconn* conn, const char* sql )
 	return query;
 }
 
-PGconn*
-PSQLInit( const char* connection )
+PGconn* PSQLInit( const char* connection )
 {  // Creates the initial connection to the database
 
 	PGconn* conn = PQconnectdb( connection );
@@ -47,8 +45,7 @@ PSQLInit( const char* connection )
 	return conn;
 }
 
-PGresult*
-PSQLQuery( PGconn* conn, const char* sql_query )
+PGresult* PSQLQuery( PGconn* conn, const char* sql_query )
 {  // Sends a query and returns a result
 
 	PGresult* res = PQexec( conn, sql_query );
@@ -62,15 +59,13 @@ PSQLQuery( PGconn* conn, const char* sql_query )
 	return res;
 }
 
-void
-PSQLRelease( PGresult* result )
+void PSQLRelease( PGresult* result )
 {  // Releases the result
 
 	PQclear( result );
 }
 
-void
-PSQLExit( PGconn* connection )
+void PSQLExit( PGconn* connection )
 {  // Shuts down the connection to the database
 
 	PQfinish( connection );

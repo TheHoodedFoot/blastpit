@@ -46,8 +46,7 @@ Parser::~Parser()
 	blastpitDelete( blast );
 }
 
-void
-Parser::wsConnect()
+void Parser::wsConnect()
 {  // (Re)try connection to server
 
 	static QDateTime last_connection_attempt = QDateTime::currentDateTime().addSecs( -WS_RETRY_SECONDS );
@@ -70,8 +69,7 @@ Parser::wsConnect()
 	connectToServer( blast, c_str2, 1000 );
 }
 
-void
-Parser::messageReceivedCallback( void* ev_data, void* object )
+void Parser::messageReceivedCallback( void* ev_data, void* object )
 {
 	Parser* psr = (Parser*)object;
 
@@ -90,8 +88,7 @@ Parser::messageReceivedCallback( void* ev_data, void* object )
 	psr->mutex = 0;
 }
 
-void
-Parser::ProcessMessageBlock( const char* msg_data_string )
+void Parser::ProcessMessageBlock( const char* msg_data_string )
 {  // Extract and process individual messages from a string
 
 	char* message	= NULL;
@@ -121,8 +118,7 @@ Parser::ProcessMessageBlock( const char* msg_data_string )
 	log( "Finished Parsing Messages" );
 }
 
-void
-Parser::update()
+void Parser::update()
 {  // Poll for messages
 
 	if ( mutex ) {
@@ -174,14 +170,12 @@ Parser::update()
 	}
 }
 
-void
-Parser::log( QString string )
+void Parser::log( QString string )
 {
 	emit sendlog( string );
 }
 
-void
-Parser::log( int level, const char* function, QString entry )
+void Parser::log( int level, const char* function, QString entry )
 {
 	QString time	= QTime::currentTime().toString( "hh:mm:ss.zzz" );
 	QString log	= QString::number( level );
@@ -189,16 +183,14 @@ Parser::log( int level, const char* function, QString entry )
 	emit	sendlog( time + ": (" + log + ") [" + logFunc + "] " + entry );
 }
 
-void
-Parser::ack( QString message )
+void Parser::ack( QString message )
 { /* Send a network acknowledgment */
 
 	log( "[ack]" );
 	bp_sendMessage( blast, message.toStdString().c_str() );
 }
 
-void
-Parser::ackReturn( int id, int retval )
+void Parser::ackReturn( int id, int retval )
 {  // Send a network acknowledgment
 
 	QString message = QString::number( retval );
@@ -208,8 +200,7 @@ Parser::ackReturn( int id, int retval )
 	BpUploadQueuedMessages( blast );
 }
 
-void
-Parser::ReplyWithPayload( int id, int retval, const char* payload )
+void Parser::ReplyWithPayload( int id, int retval, const char* payload )
 {  // Reply to a commmand with a payload string
 
 	log( "[ReplyWithPayload] #" + QString::number( id ) + " : " + QString( payload ) );
@@ -217,8 +208,7 @@ Parser::ReplyWithPayload( int id, int retval, const char* payload )
 	BpUploadQueuedMessages( blast );
 }
 
-void
-Parser::SendSignal( int signal, QString message )
+void Parser::SendSignal( int signal, QString message )
 {  // Used by Lmos to send a signal
 	// Assume that message is not null terminated
 
@@ -237,8 +227,7 @@ Parser::SendSignal( int signal, QString message )
 	free( message_string );
 }
 
-void
-Parser::parseCommand( const char* xml )
+void Parser::parseCommand( const char* xml )
 {
 	char*  id_string      = BpGetMessageAttribute( xml, "id" );
 	int    id	      = atoi( id_string );

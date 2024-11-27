@@ -58,8 +58,7 @@ ImVec2 ig2Empty = { 0, 0 };
 ImVec2 vertGap	= { 0, 20 };
 
 
-void
-tmpl_RingWindow( t_template_data* self )
+void tmpl_RingWindow( t_template_data* self )
 {
 	(void)self;
 
@@ -96,8 +95,7 @@ tmpl_RingWindow( t_template_data* self )
 	igEnd();
 }
 
-void
-tmpl_TextWindow( t_template_data* self )
+void tmpl_TextWindow( t_template_data* self )
 {
 	(void)self;
 
@@ -133,8 +131,7 @@ tmpl_TextWindow( t_template_data* self )
 	igEnd();
 }
 
-void
-tmpl_SearchWindow( t_template_data* self )
+void tmpl_SearchWindow( t_template_data* self )
 {
 	(void)self;
 
@@ -150,8 +147,7 @@ tmpl_SearchWindow( t_template_data* self )
 	igEnd();
 }
 
-void
-tmpl_ImageWindow( t_template_data* self )
+void tmpl_ImageWindow( t_template_data* self )
 {
 	(void)self;
 
@@ -176,8 +172,7 @@ tmpl_ImageWindow( t_template_data* self )
 	igEnd();
 }
 
-void
-tmpl_DatabaseWindow( t_template_data* self )
+void tmpl_DatabaseWindow( t_template_data* self )
 {
 	// Main window. Create this last so that it is active.
 
@@ -241,8 +236,7 @@ tmpl_DatabaseWindow( t_template_data* self )
 	igEnd();
 }
 
-void
-tmpl_CreateWidgets( t_template_data* self )
+void tmpl_CreateWidgets( t_template_data* self )
 {
 	tmpl_DatabaseWindow( self );
 	tmpl_RingWindow( self );
@@ -256,8 +250,7 @@ tmpl_CreateWidgets( t_template_data* self )
 // ░█▀▀░▀▄▀░█▀▀░█░█░░█░░░░█░░░█░█░█░█░█▀▀
 // ░▀▀▀░░▀░░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀░░
 
-bool
-tmpl_EventLoop( void* tmpl_data )
+bool tmpl_EventLoop( void* tmpl_data )
 {
 	TracyCZone( eventloop, true )
 
@@ -278,8 +271,7 @@ tmpl_EventLoop( void* tmpl_data )
 // ░█░█░█▀█░░█░░█░█
 // ░▀░▀░▀░▀░▀▀▀░▀░▀
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	TracyCZone( main, true )
 

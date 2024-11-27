@@ -27,8 +27,7 @@ const char* window_name	     = "Edge Map";
  * @function CannyThreshold
  * @brief Trackbar callback - Canny thresholds input with a ratio 1:3
  */
-static void
-CannyThreshold( int, void* )
+static void CannyThreshold( int, void* )
 {
 	//![reduce_noise]
 	/// Reduce noise with a kernel 3x3
@@ -58,8 +57,7 @@ CannyThreshold( int, void* )
 /**
  * @function main
  */
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	//![load]
 	CommandLineParser parser( argc, argv, "{@input | fruits.jpg | input image}" );

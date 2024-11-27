@@ -51,8 +51,7 @@ static void MpLvglExecuteTab( t_lv_multipass* this, lv_obj_t* parent );
 
 // static lv_obj_t* spinbox;
 
-static void
-lv_spinbox_increment_event_cb( lv_event_t* e )
+static void lv_spinbox_increment_event_cb( lv_event_t* e )
 {
 	lv_event_code_t code = lv_event_get_code( e );
 	if ( code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT ) {
@@ -61,8 +60,7 @@ lv_spinbox_increment_event_cb( lv_event_t* e )
 	}
 }
 
-static void
-lv_spinbox_decrement_event_cb( lv_event_t* e )
+static void lv_spinbox_decrement_event_cb( lv_event_t* e )
 {
 	lv_event_code_t code = lv_event_get_code( e );
 	if ( code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT ) {
@@ -132,14 +130,12 @@ lv_spinbox_decrement_event_cb( lv_event_t* e )
 // 	}
 // }
 
-static void
-my_bar_set_value( void* bar, int32_t v )
+static void my_bar_set_value( void* bar, int32_t v )
 {
 	lv_bar_set_value( bar, v, LV_ANIM_OFF );
 }
 
-static void
-my_bar_event_cb( lv_event_t* e )
+static void my_bar_event_cb( lv_event_t* e )
 {
 	lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc( e );
 	if ( dsc->part != LV_PART_INDICATOR ) {
@@ -187,8 +183,7 @@ my_bar_event_cb( lv_event_t* e )
 /**
  * Custom drawer on the bar to display the current value
  */
-static void
-event_handler( lv_event_t* e )
+static void event_handler( lv_event_t* e )
 {
 	lv_event_code_t code = lv_event_get_code( e );
 	lv_obj_t*	obj  = lv_event_get_target( e );
@@ -199,8 +194,7 @@ event_handler( lv_event_t* e )
 	}
 }
 
-int
-main( void )
+int main( void )
 {
 	t_lv_multipass this;
 
@@ -217,8 +211,7 @@ main( void )
 	}
 }
 
-void
-MpLvglTabs( t_lv_multipass* this )
+void MpLvglTabs( t_lv_multipass* this )
 {
 	this->lvgl_input_group = lv_group_create();
 	lv_group_set_default( this->lvgl_input_group );
@@ -251,8 +244,7 @@ MpLvglTabs( t_lv_multipass* this )
 	MpLvglExecuteTab( this, this->tb_execute );
 }
 
-static void
-MpLvglInputTab( t_lv_multipass* this, lv_obj_t* parent )
+static void MpLvglInputTab( t_lv_multipass* this, lv_obj_t* parent )
 {
 	(void)this;
 
@@ -357,8 +349,7 @@ MpLvglInputTab( t_lv_multipass* this, lv_obj_t* parent )
 	// lv_example_spinbox_1( parent );
 }
 
-static void
-MpLvglGenerateTab( t_lv_multipass* this, lv_obj_t* parent )
+static void MpLvglGenerateTab( t_lv_multipass* this, lv_obj_t* parent )
 {
 	(void)this;
 
@@ -381,8 +372,7 @@ MpLvglGenerateTab( t_lv_multipass* this, lv_obj_t* parent )
 	// lv_obj_add_event_cb( ta2, ta_event_cb, LV_EVENT_ALL, kb );
 }
 
-void
-MpLvglExecuteTab( t_lv_multipass* this, lv_obj_t* parent )
+void MpLvglExecuteTab( t_lv_multipass* this, lv_obj_t* parent )
 {
 	(void)this;
 

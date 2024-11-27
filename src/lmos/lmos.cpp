@@ -19,8 +19,7 @@ Lmos::~Lmos()
 	DestroyControl();
 }
 
-void
-Lmos::CreateControl()
+void Lmos::CreateControl()
 {  // Dyamically creates the activex control
 
 #if defined( Q_OS_WIN32 )
@@ -31,8 +30,7 @@ Lmos::CreateControl()
 #endif
 }
 
-void
-Lmos::DestroyControl()
+void Lmos::DestroyControl()
 {  // Destroy the activex control
 
 #if defined( Q_OS_WIN32 )
@@ -43,8 +41,7 @@ Lmos::DestroyControl()
 #endif
 }
 
-void
-Lmos::ConnectSignals()
+void Lmos::ConnectSignals()
 {  // Connect up Qt signals and slots
 
 #if defined( Q_OS_WIN32 )
@@ -87,8 +84,7 @@ Lmos::ConnectSignals()
 #endif
 }
 
-void
-Lmos::DisconnectSignals()
+void Lmos::DisconnectSignals()
 {  // Disconnect Qt signals and slots
 
 #if defined( Q_OS_WIN32 )
@@ -100,8 +96,7 @@ Lmos::DisconnectSignals()
 #endif
 }
 
-void
-Lmos::ShowWindow()
+void Lmos::ShowWindow()
 {  // Makes the lmos window visible
 
 #if defined( Q_OS_WIN32 )
@@ -112,8 +107,7 @@ Lmos::ShowWindow()
 #endif
 }
 
-void
-Lmos::HideWindow()
+void Lmos::HideWindow()
 {  // Hides the lmos window
 
 #if defined( Q_OS_WIN32 )
@@ -124,8 +118,7 @@ Lmos::HideWindow()
 #endif
 }
 
-QPixmap
-Lmos::GrabWindow()
+QPixmap Lmos::GrabWindow()
 {
 #if defined( Q_OS_WIN32 )
 	return lmos_actx->grab();
@@ -138,8 +131,7 @@ Lmos::GrabWindow()
 #endif
 }
 
-bool
-Lmos::InitMachine()
+bool Lmos::InitMachine()
 {  // Initialise the hardware
 
 	emit log( kLvlDebug, __func__, "Initialising hardware..." );
@@ -154,8 +146,7 @@ Lmos::InitMachine()
 	return false;
 }
 
-bool
-Lmos::SaveVLM( const QString& filename )
+bool Lmos::SaveVLM( const QString& filename )
 {
 	emit log( kLvlDebug, __func__, "Saving vlm as " + filename );
 	if ( filename.length() > 0 ) {
@@ -169,8 +160,7 @@ Lmos::SaveVLM( const QString& filename )
 	return false;
 }
 
-int
-Lmos::PatchFlexibleShadows( const QString& filename )
+int Lmos::PatchFlexibleShadows( const QString& filename )
 {  // Patch binary to enable flexible shadows
 
 #define SEARCH_LEN 9
@@ -238,11 +228,10 @@ Lmos::PatchFlexibleShadows( const QString& filename )
 	return kSuccess;
 }
 
-int
-Lmos::PatchVLMFile( const QString&	 filename,
-		    int			 length,
-		    const unsigned char* findstring,
-		    const unsigned char* replacestring )
+int Lmos::PatchVLMFile( const QString&	     filename,
+			int		     length,
+			const unsigned char* findstring,
+			const unsigned char* replacestring )
 {  // Apply patches to VLM file
 
 	// Open file, patch, and save
@@ -306,8 +295,7 @@ Lmos::PatchVLMFile( const QString&	 filename,
 	return kSuccess;
 }
 
-bool
-Lmos::LoadVLM( const QString& filename )
+bool Lmos::LoadVLM( const QString& filename )
 {
 	QString vlm = QDir::toNativeSeparators( filename );
 	emit	log( kLvlDebug, __func__, "Loading " + vlm );
@@ -317,8 +305,7 @@ Lmos::LoadVLM( const QString& filename )
 	return false;
 }
 
-bool
-Lmos::LoadXML( const QString& xml )
+bool Lmos::LoadXML( const QString& xml )
 {
 #if defined( Q_OS_WIN32 )
 	/* We must force a clear here, since Lmos crashes if a previous layout
@@ -335,8 +322,7 @@ Lmos::LoadXML( const QString& xml )
 #endif
 }
 
-void
-Lmos::ClearQPSets()
+void Lmos::ClearQPSets()
 {
 	/*#ifdef QT_DEBUG
 		emit log(kLvlDebug, __func__, "Debug mode: not Clearing QP
@@ -357,8 +343,7 @@ Lmos::ClearQPSets()
 #endif
 	emit log( kLvlDebug, __func__, "Finished clearing QP Sets" );
 }
-void
-Lmos::ImportXML( QTemporaryFile* XMLFile )
+void Lmos::ImportXML( QTemporaryFile* XMLFile )
 {
 	// Qt may be happy with path separators, but LMOS isn't
 	QString winXML = QDir::toNativeSeparators( XMLFile->fileName() );
@@ -377,8 +362,7 @@ Lmos::ImportXML( QTemporaryFile* XMLFile )
 	QFile::remove( winXML );
 }
 
-void
-Lmos::ShowMarkingArea()
+void Lmos::ShowMarkingArea()
 {
 #if defined( Q_OS_WIN32 )
 	lmos_actx->ActivateZoomWindow( false );
@@ -386,8 +370,7 @@ Lmos::ShowMarkingArea()
 #endif
 }
 
-void
-Lmos::StopPosHelp()
+void Lmos::StopPosHelp()
 {
 	// stopPosHelp: Disable the positioning help
 	emit log( kLvlDebug, __func__, "Stop positioning help" );
@@ -396,8 +379,7 @@ Lmos::StopPosHelp()
 #endif
 }
 
-void
-Lmos::StartPosHelp( const QString& object )
+void Lmos::StartPosHelp( const QString& object )
 {
 	emit log( kLvlDebug, __func__, "object: " + object );
 #if defined( Q_OS_WIN32 )
@@ -405,8 +387,7 @@ Lmos::StartPosHelp( const QString& object )
 #endif
 }
 
-void
-Lmos::TermMachine()
+void Lmos::TermMachine()
 {  // Release control of hardare
 
 	emit log( kLvlDebug, __func__, "Releasing hardware..." );
@@ -415,8 +396,7 @@ Lmos::TermMachine()
 #endif
 }
 
-bool
-Lmos::StartMarking()
+bool Lmos::StartMarking()
 {
 	// startMarking: Begin the marking operation
 	emit log( kLvlDebug, __func__, "Calling lmos.StartMarking()" );
@@ -426,8 +406,7 @@ Lmos::StartMarking()
 	return false;
 }
 
-bool
-Lmos::LoadJob()
+bool Lmos::LoadJob()
 {
 	emit log( kLvlDebug, __func__, "Calling loadjob" );
 #if defined( Q_OS_WIN32 )
@@ -437,8 +416,7 @@ Lmos::LoadJob()
 #endif
 	return false;
 }
-void
-Lmos::StopMarking()
+void Lmos::StopMarking()
 {
 	// stopMarking: End the marking operation
 	emit log( kLvlDebug, __func__, "Calling lmos.StopMarking()" );
@@ -449,8 +427,7 @@ Lmos::StopMarking()
 #endif
 }
 
-void
-Lmos::MoveZ( const float z )
+void Lmos::MoveZ( const float z )
 {
 	// move: Position the Z axis
 	emit log( kLvlDebug, __func__, "Moving Z axis..." );
@@ -463,8 +440,7 @@ Lmos::MoveZ( const float z )
 #endif
 }
 
-double
-Lmos::GetW()
+double Lmos::GetW()
 {  // Returns the current value of the W axis
 
 	emit log( kLvlDebug, __func__, "Querying W..." );
@@ -476,8 +452,7 @@ Lmos::GetW()
 #endif
 }
 
-void
-Lmos::MoveW( const double w )
+void Lmos::MoveW( const double w )
 {
 	emit log( kLvlDebug, __func__, "Moving W axis to " + QString::number( w ) );
 #if defined( Q_OS_WIN32 )
@@ -488,8 +463,7 @@ Lmos::MoveW( const double w )
 	(void)w;
 #endif
 }
-void
-Lmos::Reference()
+void Lmos::Reference()
 {
 	emit log( kLvlDebug, __func__, "Referencing Z and W axes..." );
 #if defined( Q_OS_WIN32 )
@@ -501,8 +475,7 @@ Lmos::Reference()
 #endif
 }
 
-void
-Lmos::AddQPSet( const QString& name, const double current, const int speed, const int frequency )
+void Lmos::AddQPSet( const QString& name, const double current, const int speed, const int frequency )
 {
 	emit log( kLvlDebug,
 		  __func__,
@@ -513,8 +486,7 @@ Lmos::AddQPSet( const QString& name, const double current, const int speed, cons
 #endif
 }
 
-void
-Lmos::SaveQPSets()
+void Lmos::SaveQPSets()
 {
 #if defined( Q_OS_WIN32 )
 	emit log( kLvlDebug, __func__, "Saving Qp Sets" );
@@ -522,8 +494,7 @@ Lmos::SaveQPSets()
 #endif
 }
 
-void
-Lmos::LayerSetHeightZAxis( const QString& layer, const float height )
+void Lmos::LayerSetHeightZAxis( const QString& layer, const float height )
 {
 	emit log( kLvlDebug, __func__, "Setting layer " + layer + " to height " + QString::number( height ) );
 
@@ -547,8 +518,7 @@ Lmos::LayerSetHeightZAxis( const QString& layer, const float height )
 #endif
 }
 
-void
-Lmos::LayerSetLaserable( const QString& layer, const bool is_laserable )
+void Lmos::LayerSetLaserable( const QString& layer, const bool is_laserable )
 {
 #if defined( Q_OS_WIN32 )
 	if ( layer.length() ) {
@@ -570,8 +540,7 @@ Lmos::LayerSetLaserable( const QString& layer, const bool is_laserable )
 #endif
 }
 
-void
-Lmos::LayerSetVisible( const QString& layer, const bool is_visible )
+void Lmos::LayerSetVisible( const QString& layer, const bool is_visible )
 {
 	emit log( kLvlDebug, __func__, "Layer: " + layer + ", is_visible: " + QString::number( is_visible ) );
 #if defined( Q_OS_WIN32 )
@@ -591,8 +560,7 @@ Lmos::LayerSetVisible( const QString& layer, const bool is_visible )
 #endif
 }
 
-void
-Lmos::LayerSetExportable( const QString& layer, const bool is_exportable )
+void Lmos::LayerSetExportable( const QString& layer, const bool is_exportable )
 {
 	emit log( kLvlDebug, __func__, "Layer: " + layer + ", is_exportable: " + QString::number( is_exportable ) );
 #if defined( Q_OS_WIN32 )
@@ -611,8 +579,7 @@ Lmos::LayerSetExportable( const QString& layer, const bool is_exportable )
 #endif
 }
 
-int
-Lmos::ReadByte( const int port, const int mask )
+int Lmos::ReadByte( const int port, const int mask )
 {
 #if defined( Q_OS_WIN32 )
 	int  byte;
@@ -626,8 +593,7 @@ Lmos::ReadByte( const int port, const int mask )
 #endif
 }
 
-int
-Lmos::ReadIOBit( const QString& bitfunction )
+int Lmos::ReadIOBit( const QString& bitfunction )
 {
 	emit log( kLvlDebug, __func__, "Running ReadIOBit with bitfunction: " + bitfunction );
 
@@ -653,8 +619,7 @@ Lmos::ReadIOBit( const QString& bitfunction )
 #endif
 }
 
-void
-Lmos::SetDimension( const QString& object, const double width, const double height )
+void Lmos::SetDimension( const QString& object, const double width, const double height )
 {
 	emit log( kLvlDebug, __func__, "object: " + object );
 	emit log( kLvlDebug, __func__, "width: " + QString::number( width ) );
@@ -664,8 +629,7 @@ Lmos::SetDimension( const QString& object, const double width, const double heig
 #endif
 }
 
-void
-Lmos::SetMOLayer( const QString& object, const QString& layer )
+void Lmos::SetMOLayer( const QString& object, const QString& layer )
 {
 	emit log( kLvlDebug, __func__, "object: " + object );
 	emit log( kLvlDebug, __func__, "layer: " + layer );
@@ -674,8 +638,7 @@ Lmos::SetMOLayer( const QString& object, const QString& layer )
 #endif
 }
 
-void
-Lmos::SetQualityParam(
+void Lmos::SetQualityParam(
 	const QString& qpname, const int qptype, const int partype, const QVariant& value, const bool save )
 {
 #if defined( Q_OS_WIN32 )
@@ -694,8 +657,7 @@ Lmos::SetQualityParam(
 #endif
 }
 
-void
-Lmos::WriteByte( const int outport, const char mask, const char data )
+void Lmos::WriteByte( const int outport, const char mask, const char data )
 {
 #if defined( Q_OS_WIN32 )
 	emit retval( __func__,
@@ -707,8 +669,7 @@ Lmos::WriteByte( const int outport, const char mask, const char data )
 #endif
 }
 
-void
-Lmos::WriteIOBit( const QString& bitfunction, const bool value )
+void Lmos::WriteIOBit( const QString& bitfunction, const bool value )
 {
 	emit log( kLvlDebug, __func__, "bitfunction: " + bitfunction );
 	emit log( kLvlDebug, __func__, "value: " + QString::number( value ) );
@@ -720,8 +681,7 @@ Lmos::WriteIOBit( const QString& bitfunction, const bool value )
 #endif
 }
 
-void
-Lmos::SetPosValues( const QString& object, const double x, const double y, const double angle )
+void Lmos::SetPosValues( const QString& object, const double x, const double y, const double angle )
 {
 	emit log( kLvlDebug, __func__, "object: " + object );
 	emit log( kLvlDebug, __func__, "x: " + QString::number( x ) );
@@ -732,8 +692,7 @@ Lmos::SetPosValues( const QString& object, const double x, const double y, const
 #endif
 }
 
-int
-Lmos::CancelJob()
+int Lmos::CancelJob()
 {
 #if defined( Q_OS_WIN32 )
 	emit log( kLvlDebug, __func__, "Cancelling job..." );
@@ -748,8 +707,7 @@ Lmos::CancelJob()
 #endif
 }
 
-void
-Lmos::logstring( const QString& name, int argc, void* argv )
+void Lmos::logstring( const QString& name, int argc, void* argv )
 {
 	(void)argc;
 	(void)argv;
@@ -757,8 +715,7 @@ Lmos::logstring( const QString& name, int argc, void* argv )
 	emit log( QString( "(Event) " + name ) );
 }
 
-void
-Lmos::ZoomWindow( int x1, int y1, int x2, int y2 )
+void Lmos::ZoomWindow( int x1, int y1, int x2, int y2 )
 {  // topLeftX, topLeftY, bottomRightX, bottomRightY
 
 	emit log( QString( __func__ ) + QString( "Begin: " ) + QString::number( x1 ) + QString( ", " ) +
@@ -774,8 +731,7 @@ Lmos::ZoomWindow( int x1, int y1, int x2, int y2 )
 #endif
 }
 
-void
-Lmos::Test()
+void Lmos::Test()
 { /* Test function used during development */
 
 	/* Lmos::Test() is also used as an indication
@@ -835,8 +791,7 @@ Lmos::Test()
 #endif
 }
 
-QString
-Lmos::GetGeoList()
+QString Lmos::GetGeoList()
 {  // Get list of all geometries and shadows
 
 	QString csv;
@@ -862,51 +817,44 @@ Lmos::GetGeoList()
 	return csv;
 }
 
-void
-Lmos::messagemap( QString& name )
+void Lmos::messagemap( QString& name )
 {
 	emit log( kLvlDebug, __func__, name );
 	sendIdEvent( name, kMessageMap );
 }
 
-void
-Lmos::imagebegin()
+void Lmos::imagebegin()
 {
 	emit log( kLvlDebug, __func__, "" );
 	sendIdEvent( "0", kImageBegin );
 }
 
-void
-Lmos::imageend()
+void Lmos::imageend()
 {
 	emit log( kLvlDebug, __func__, "" );
 	sendIdEvent( "0", kImageEnd );
 }
 
-void
-Lmos::currentChanged( double current )
+void Lmos::currentChanged( double current )
 {
 	emit log( kLvlDebug, __func__, QString::number( current ) );
 	sendIdEvent( QString::number( current ), kCurrentChanged );
 }
 
-void
-Lmos::jobBegin()
+void Lmos::jobBegin()
 {
 	emit log( kLvlDebug, __func__, "" );
 	sendIdEvent( "0", kJobBegin );
 }
 
-void
-Lmos::jobEnd()
+void Lmos::jobEnd()
 {
 	emit log( kLvlDebug, __func__, "" );
 	sendIdEvent( "0", kJobEnd );
 }
 
 #if defined( Q_OS_WIN32 )
-void
-Lmos::imageEnd2( double time, ImageResultConstants result )
+void Lmos::imageEnd2( double time, ImageResultConstants result )
 {
 	emit	log( kLvlDebug, __func__, "signal issued" );
 	emit	sigImageEnd2( time, static_cast<int>( result ) );
@@ -915,31 +863,27 @@ Lmos::imageEnd2( double time, ImageResultConstants result )
 }
 #endif
 
-void
-Lmos::frequencyChanged( int a )
+void Lmos::frequencyChanged( int a )
 {
 	emit log( kLvlDebug, __func__, QString::number( a ) );
 	sendIdEvent( QString::number( a ), kFreqChanged );
 }
 
-void
-Lmos::mOBeginName( QString& moName )
+void Lmos::mOBeginName( QString& moName )
 { /* Return name of object before marking */
 
 	emit log( kLvlDebug, __func__, moName );
 	sendIdEvent( moName, kMoBegin );
 }
 
-void
-Lmos::mOEndName( QString& moName )
+void Lmos::mOEndName( QString& moName )
 { /* Return name of object after marking complete */
 
 	emit log( kLvlDebug, __func__, moName );
 	sendIdEvent( moName, kMoEnd );
 }
 
-void
-Lmos::plcEvent( QString& a, QString& b, QString& c )
+void Lmos::plcEvent( QString& a, QString& b, QString& c )
 {
 	emit	log( kLvlDebug, __func__, "signal issued" );
 	emit	log( kLvlDebug, __func__, "param1: " + a );
@@ -949,8 +893,7 @@ Lmos::plcEvent( QString& a, QString& b, QString& c )
 	sendIdEvent( message, kPlcEvent );
 }
 
-void
-Lmos::alarm( int alarmNum, QString description, QString moName, int moID )
+void Lmos::alarm( int alarmNum, QString description, QString moName, int moID )
 {
 	QString message = QString( "(Alarm) " + QString::number( alarmNum ) + ", " + description + ", " + moName +
 				   ", " + QString::number( moID ) );
@@ -958,8 +901,7 @@ Lmos::alarm( int alarmNum, QString description, QString moName, int moID )
 	sendIdEvent( message, kAlarm );
 }
 
-void
-Lmos::exception( int alarmNum, const QString& description, const QString& moName, const QString& moID )
+void Lmos::exception( int alarmNum, const QString& description, const QString& moName, const QString& moID )
 {
 	QString message = QString( "(exception) " + QString::number( alarmNum ) + ", " + description + ", " + moName +
 				   ", " + moID );
@@ -967,15 +909,13 @@ Lmos::exception( int alarmNum, const QString& description, const QString& moName
 	sendIdEvent( message, kException );
 }
 
-void
-Lmos::emitSig( const QString& sig )
+void Lmos::emitSig( const QString& sig )
 {
 	emit log( kLvlDebug, __func__, sig );
 	sendIdEvent( sig, kSignal );
 }
 
-void
-Lmos::sendIdEvent( QString string, int event )
+void Lmos::sendIdEvent( QString string, int event )
 {  // Helper function for sending an event
 
 	// To distinguish events from other return values,
@@ -987,8 +927,7 @@ Lmos::sendIdEvent( QString string, int event )
 	emit	sendEvent( -event, message );
 }
 
-void
-Lmos::SetLaserable( QString object, int laserable )
+void Lmos::SetLaserable( QString object, int laserable )
 { /* Sets object to laserable or non laserable */
 
 #if defined( Q_OS_WIN32 )
@@ -999,8 +938,7 @@ Lmos::SetLaserable( QString object, int laserable )
 #endif
 }
 
-void
-Lmos::UnsetLaserableAllObjects()
+void Lmos::UnsetLaserableAllObjects()
 { /* Sets all marking objects to non-laserable */
 
 #if defined( Q_OS_WIN32 )
@@ -1012,8 +950,7 @@ Lmos::UnsetLaserableAllObjects()
 #endif
 }
 
-void
-Lmos::SuppressRedraw( int redraw )
+void Lmos::SuppressRedraw( int redraw )
 { /* Enables or disables auto redraw of activex control */
 
 #if defined( Q_OS_WIN32 )
@@ -1023,8 +960,7 @@ Lmos::SuppressRedraw( int redraw )
 #endif
 }
 
-void
-Lmos::ForceRedraw()
+void Lmos::ForceRedraw()
 { /* Redraws the activex control */
 
 #if defined( Q_OS_WIN32 )

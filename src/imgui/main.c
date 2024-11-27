@@ -23,8 +23,7 @@
 #define WINDOW_WIDTH  1200
 #define WINDOW_HEIGHT 800
 
-static void
-error_callback( int e, const char* d )
+static void error_callback( int e, const char* d )
 {
 	printf( "Error %d: %s\n", e, d );
 }
@@ -35,8 +34,7 @@ struct ImGuiContext* ctx;
 struct ImGuiIO*	     io;
 
 // Simple helper function to load an image into a OpenGL texture with common settings
-bool
-LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, int* out_height )
+bool LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, int* out_height )
 {
 	// Load from file
 	int	       image_width  = 0;
@@ -73,8 +71,7 @@ LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, 
 	return true;
 }
 
-void
-gui_init()
+void gui_init()
 {
 	// IMGUI_CHECKVERSION();
 	ctx = igCreateContext( NULL );
@@ -88,23 +85,20 @@ gui_init()
 	igStyleColorsDark( NULL );
 }
 
-void
-gui_terminate()
+void gui_terminate()
 {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	igDestroyContext( ctx );
 }
 
-void
-gui_render()
+void gui_render()
 {
 	igRender();
 	ImGui_ImplOpenGL3_RenderDrawData( igGetDrawData() );
 }
 
-void
-gui_update()
+void gui_update()
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -231,8 +225,7 @@ gui_update()
 	}
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 
 	(void)argc;

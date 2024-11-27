@@ -56,8 +56,7 @@
 // ░█░░░░█░░█░█░█░█░█░█░█░█░█▀▀░▀▀█
 // ░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀░░▀▀▀░▀▀▀
 
-void
-cimCreateWidgets( t_cimnodes_data* self )
+void cimCreateWidgets( t_cimnodes_data* self )
 {
 	(void)self;
 
@@ -140,8 +139,7 @@ cimCreateWidgets( t_cimnodes_data* self )
 // ░█▀▀░▀▄▀░█▀▀░█░█░░█░░░░█░░░█░█░█░█░█▀▀
 // ░▀▀▀░░▀░░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀░░
 
-bool
-cimImGuiLoop( void* cim_data )
+bool cimImGuiLoop( void* cim_data )
 {
 	t_cimnodes_data* self = (t_cimnodes_data*)cim_data;
 
@@ -154,8 +152,7 @@ cimImGuiLoop( void* cim_data )
 }
 
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	// We avoid globals by having a struct passed to the event loop
 	t_cimnodes_data self = {

@@ -149,14 +149,12 @@ TEST_GROUP_RUNNER( XmlGroup )
 	// RUN_TEST_CASE(XmlGroup, XmlRetvalTest);
 }
 
-static void
-runAllTests( void )
+static void runAllTests( void )
 {
 	RUN_TEST_GROUP( XmlGroup );
 }
 
-int
-main( int argc, const char* argv[] )
+int main( int argc, const char* argv[] )
 {
 	return UnityMain( argc, argv, runAllTests );
 }

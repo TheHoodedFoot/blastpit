@@ -25,8 +25,7 @@ traysettings::~traysettings()
 	delete ui;
 }
 
-void
-traysettings::storesettings()
+void traysettings::storesettings()
 {
 	QSettings traySettings( "Rfbevanco", "lmos-tray" );
 

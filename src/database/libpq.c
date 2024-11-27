@@ -18,15 +18,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void
-exit_nicely( PGconn* conn )
+static void exit_nicely( PGconn* conn )
 {
 	PQfinish( conn );
 	exit( 1 );
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	const char* conninfo;
 	PGconn*	    conn;
