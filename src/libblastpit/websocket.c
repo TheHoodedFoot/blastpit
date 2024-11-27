@@ -23,8 +23,7 @@
 
 // static struct mg_http_serve_opts s_http_server_opts;
 
-t_Websocket*
-websocketNew( void )
+t_Websocket* websocketNew( void )
 {  // Constructor
 
 	t_Websocket* websock = (t_Websocket*)calloc( 1, sizeof( t_Websocket ) );
@@ -32,20 +31,17 @@ websocketNew( void )
 	return websock;
 }
 
-void
-wsSetMessageReceivedCallback( t_Websocket* self, void ( *callback )( void*, void* ) )
+void wsSetMessageReceivedCallback( t_Websocket* self, void ( *callback )( void*, void* ) )
 {
 	self->messageReceived = callback;
 }
 
-void
-wsSetMessageReceivedObject( t_Websocket* self, void* object )
+void wsSetMessageReceivedObject( t_Websocket* self, void* object )
 {
 	self->object = object;
 }
 
-void
-websocketDelete( t_Websocket* websock )
+void websocketDelete( t_Websocket* websock )
 {  // Destructor
 
 	TracyCZone( websocketDelete, true );
@@ -57,8 +53,7 @@ websocketDelete( t_Websocket* websock )
 	TracyCZoneEnd( websocketDelete );
 }
 
-void
-wsFlushMessages( t_Websocket* websock )
+void wsFlushMessages( t_Websocket* websock )
 {  // Drop all messages
 
 	if ( !websock ) {
@@ -75,8 +70,7 @@ wsFlushMessages( t_Websocket* websock )
 // 	return nc->flags & MG_F_IS_WEBSOCKET;
 // }
 
-void
-broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
+void broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
 {  // Send message to client
 
 	TracyCZone( broadcastServer, true );
@@ -99,8 +93,7 @@ broadcastServer( struct mg_connection* nconn, const struct mg_str msg )
 	TracyCZoneEnd( broadcastServer );
 }
 
-void
-broadcastClient( struct mg_connection* nconn, const struct mg_str msg )
+void broadcastClient( struct mg_connection* nconn, const struct mg_str msg )
 {  // Send message to server
 
 	TracyCZone( broadcastClient, true );
@@ -114,8 +107,7 @@ broadcastClient( struct mg_connection* nconn, const struct mg_str msg )
 	TracyCZoneEnd( broadcastClient );
 }
 
-static void
-server_event_handler( struct mg_connection* nconn, int event, void* ev_data )
+static void server_event_handler( struct mg_connection* nconn, int event, void* ev_data )
 {  // Callback when listening server receives an event
 
 	TracyCZone( server_event_handler, true );
@@ -209,8 +201,7 @@ server_event_handler( struct mg_connection* nconn, int event, void* ev_data )
 	TracyCZoneEnd( server_event_handler );
 }
 
-static void
-client_event_handler( struct mg_connection* nconn, int event, void* ev_data )
+static void client_event_handler( struct mg_connection* nconn, int event, void* ev_data )
 {
 	TracyCZone( client_event_handler, true );
 
@@ -306,8 +297,7 @@ client_event_handler( struct mg_connection* nconn, int event, void* ev_data )
 	TracyCZoneEnd( client_event_handler );
 }
 
-int
-wsServerCreate( t_Websocket* self, const char* listen_address )
+int wsServerCreate( t_Websocket* self, const char* listen_address )
 {  // Server Constructor
 
 	TracyCZone( wsServerCreate, true );
@@ -338,8 +328,7 @@ wsServerCreate( t_Websocket* self, const char* listen_address )
 	TracyCZoneEnd( wsServerCreate );
 }
 
-int
-wsServerDestroy( t_Websocket* self )
+int wsServerDestroy( t_Websocket* self )
 {  // Server Destructor
 
 	TracyCZone( wsServerDestroy, true );
@@ -362,8 +351,7 @@ wsServerDestroy( t_Websocket* self )
 	TracyCZoneEnd( wsServerDestroy );
 }
 
-int
-wsClientCreate( t_Websocket* self, const char* address )
+int wsClientCreate( t_Websocket* self, const char* address )
 {  // Client Constructor
 
 	TracyCZone( wsClientCreate, true );
@@ -386,8 +374,7 @@ wsClientCreate( t_Websocket* self, const char* address )
 	TracyCZoneEnd( wsClientCreate );
 }
 
-int
-wsClientDestroy( t_Websocket* self )
+int wsClientDestroy( t_Websocket* self )
 {  // Client Destructor
 
 	TracyCZone( wsClientDestroy, true );
@@ -410,15 +397,13 @@ wsClientDestroy( t_Websocket* self )
 	TracyCZoneEnd( wsClientDestroy );
 }
 
-void
-wsPoll( t_Websocket* self )
+void wsPoll( t_Websocket* self )
 {  // Poll network and trigger callback on activity
 
 	wsPollWithTimeout( self, WS_POLL_TIME_MS );
 }
 
-void
-wsPollWithTimeout( t_Websocket* self, int timeout )
+void wsPollWithTimeout( t_Websocket* self, int timeout )
 {  // Poll network and trigger callback on activity
 
 	assert( self );
@@ -426,8 +411,7 @@ wsPollWithTimeout( t_Websocket* self, int timeout )
 	mg_mgr_poll( &self->mongoose, timeout );
 }
 
-int
-wsServerSendMessage( t_Websocket* self, char* data )
+int wsServerSendMessage( t_Websocket* self, char* data )
 {  // Broadcast message to all clients
 
 	TracyCZone( wsServerSendMessage, true );
@@ -447,8 +431,7 @@ wsServerSendMessage( t_Websocket* self, char* data )
 	TracyCZoneEnd( wsServerSendMessage );
 }
 
-int
-wsClientSendMessage( t_Websocket* self, char* data )
+int wsClientSendMessage( t_Websocket* self, char* data )
 {  // Send message to the server
 
 	TracyCZone( wsClientSendMessage, true );
@@ -467,8 +450,7 @@ wsClientSendMessage( t_Websocket* self, char* data )
 	TracyCZoneEnd( wsClientSendMessage );
 }
 
-void
-wsPushMessage( t_Websocket* self, void* data )
+void wsPushMessage( t_Websocket* self, void* data )
 {  // Add a message to the start of the message stack
 
 	TracyCZone( wsPushMessage, true );
@@ -484,15 +466,13 @@ wsPushMessage( t_Websocket* self, void* data )
 	TracyCZoneEnd( wsPushMessage );
 }
 
-void*
-wsPopMessage( t_Websocket* self )
+void* wsPopMessage( t_Websocket* self )
 {  // Remove newest message from stack
 
 	return wsPopMessageAt( self, 0 );
 }
 
-int
-wsGetMessageCount( t_Websocket* self )
+int wsGetMessageCount( t_Websocket* self )
 {  // Returns the count of the message stack
 
 	int	i    = 0;  // NOLINT
@@ -503,8 +483,7 @@ wsGetMessageCount( t_Websocket* self )
 	return i;
 }
 
-void*
-wsPopMessageAt( t_Websocket* self, int index )
+void* wsPopMessageAt( t_Websocket* self, int index )
 {  // Pop the message data for a specific index
 
 	if ( !self ) {
@@ -545,8 +524,7 @@ wsPopMessageAt( t_Websocket* self, int index )
 	return retval;
 }
 
-void*
-wsReadMessageAt( t_Websocket* self, int index )
+void* wsReadMessageAt( t_Websocket* self, int index )
 {  // Get the message data for a specific index
 
 	if ( !self ) {
@@ -570,8 +548,7 @@ wsReadMessageAt( t_Websocket* self, int index )
 	return node->data;
 }
 
-WsMessage
-ExtractWsMessageData( void* ev_data )
+WsMessage ExtractWsMessageData( void* ev_data )
 {  // Helper function to extract the websocket message data
 	// Putting it here avoids requiring mongoose.h elsewhere
 

@@ -2,6 +2,7 @@
 	path = src/submodules/tracy
 	url = https://git.47or.com/thf/tracy.git
 	branch = master
+    ignore = dirty
 [submodule "src/submodules/cimgui"]
 	path = src/submodules/cimgui
 	url = https://git.47or.com/thf/cimgui.git

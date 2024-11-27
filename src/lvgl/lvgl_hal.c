@@ -13,8 +13,7 @@
  * @param data unused
  * @return never return
  */
-static int
-tick_thread( void* data )
+static int tick_thread( void* data )
 {
 	(void)data;
 
@@ -27,8 +26,7 @@ tick_thread( void* data )
 }
 
 
-void
-hal_setup( void )
+void hal_setup( void )
 {
 // Workaround for sdl2 `-m32` crash
 // https://bugs.launchpad.net/ubuntu/+source/libsdl2/+bug/1775067/comments/7
@@ -85,8 +83,7 @@ hal_setup( void )
 	SDL_CreateThread( tick_thread, "tick", NULL );
 }
 
-void
-hal_loop( void )
+void hal_loop( void )
 {
 	while ( 1 ) {
 		SDL_Delay( 5 );

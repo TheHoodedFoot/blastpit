@@ -29,8 +29,7 @@
 #include "ink_common.h"
 
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	// We avoid globals by having a struct passed to the event loop
 	t_database_data self = {

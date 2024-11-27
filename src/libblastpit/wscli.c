@@ -19,8 +19,7 @@ static int exit_client_loop = false;  // NOLINT
 
 int callbackCount = 0;	// NOLINT
 
-void
-messageReceivedCallback( void* ev_data, void* object )
+void messageReceivedCallback( void* ev_data, void* object )
 {
 	(void)object;
 
@@ -38,8 +37,7 @@ messageReceivedCallback( void* ev_data, void* object )
 //                              Signals                               //
 ////////////////////////////////////////////////////////////////////////
 
-void
-HandleSIGINT( int dummy )
+void HandleSIGINT( int dummy )
 {  // Catch ctrl-c to end the client loop
 
 	(void)dummy;
@@ -50,15 +48,13 @@ HandleSIGINT( int dummy )
 	exit_client_loop = true;
 }
 
-void
-HandleSIGPIPE( int dummy )
+void HandleSIGPIPE( int dummy )
 {  // Catch broken pipe caused by LMOS crashing during upload
 
 	(void)dummy;
 }
 
-void
-server( const char* port )
+void server( const char* port )
 {  // Start a server at localhost:8000
 
 	t_Blastpit* simpleserver = blastpitNew();
@@ -82,8 +78,7 @@ server( const char* port )
 	blastpitDelete( simpleserver );
 }
 
-void
-client( const char* server, const char* message )
+void client( const char* server, const char* message )
 {  // Connect to running server
 
 	(void)message;
@@ -124,8 +119,7 @@ client( const char* server, const char* message )
 	blastpitDelete( client );
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	int count = 0;
 

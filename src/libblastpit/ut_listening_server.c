@@ -39,14 +39,12 @@ TEST_GROUP_RUNNER( ListeningServerGroup )
 	RUN_TEST_CASE( ListeningServerGroup, CreateServer );
 }
 
-static void
-runAllTests( void )
+static void runAllTests( void )
 {
 	RUN_TEST_GROUP( ListeningServerGroup );
 }
 
-int
-main( int argc, const char* argv[] )
+int main( int argc, const char* argv[] )
 {
 	return UnityMain( argc, argv, runAllTests );
 }

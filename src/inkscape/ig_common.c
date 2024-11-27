@@ -40,8 +40,7 @@
 // ░░█░░█░█░█▀█░█░█░█▀▀░░░█░█░░█░░░█░░█░░░░█░░░█░░░█░░█▀▀░▀▀█
 // ░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░░░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀
 
-bool
-LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, int* out_height )
+bool LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, int* out_height )
 {  // Simple helper function to load an image into a OpenGL texture with common settings
 
 	int	       image_width  = 0;
@@ -83,8 +82,7 @@ LoadTextureFromFile( const char* filename, GLuint* out_texture, int* out_width, 
 // ░█░█░█░░░█▀▀░█▄█
 // ░▀▀▀░▀▀▀░▀░░░▀░▀
 
-void
-openGLSetup( t_glfw_data* glfwdata )
+void openGLSetup( t_glfw_data* glfwdata )
 {  // Our Imgui OpenGL setup routine
 
 	const int win_width  = glfwdata->width;
@@ -123,16 +121,14 @@ openGLSetup( t_glfw_data* glfwdata )
 	glViewport( 0, 0, win_width, win_height );
 }
 
-void
-openGLShutdown( t_glfw_data* glfwdata )
+void openGLShutdown( t_glfw_data* glfwdata )
 {  // Our Imgui OpenGL shutdown routine
 
 	gui_terminate( glfwdata->ctx );
 	glfwTerminate();
 }
 
-void
-glfw_error_callback( int e, const char* d )
+void glfw_error_callback( int e, const char* d )
 {
 	printf( "Error %d: %s\n", e, d );
 }
@@ -142,8 +138,7 @@ glfw_error_callback( int e, const char* d )
 // ░░█░░█░█░█░█░█░█░░█░░░░█░░░█░█░█░█░█░█░█░█░█░█
 // ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀
 
-void
-gui_init( GLFWwindow* win, struct ImGuiContext* ctx, struct ImGuiIO* io )
+void gui_init( GLFWwindow* win, struct ImGuiContext* ctx, struct ImGuiIO* io )
 {
 	// IMGUI_CHECKVERSION();
 	ctx = igCreateContext( NULL );
@@ -160,16 +155,14 @@ gui_init( GLFWwindow* win, struct ImGuiContext* ctx, struct ImGuiIO* io )
 	igStyleColorsDark( NULL );
 }
 
-void
-gui_terminate( struct ImGuiContext* ctx )
+void gui_terminate( struct ImGuiContext* ctx )
 {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	igDestroyContext( ctx );
 }
 
-void
-imgui_render( GLFWwindow** win, int* width, int* height )
+void imgui_render( GLFWwindow** win, int* width, int* height )
 {
 	/* Draw */
 	glfwGetWindowSize( *win, width, height );
@@ -188,8 +181,7 @@ imgui_render( GLFWwindow** win, int* width, int* height )
 // ░░█░░█░█░█░█░█░█░░█░░░░█▀▀░▀▄▀░█▀▀░█░█░░█░░░░█░░░█░█░█░█░█▀▀
 // ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░░▀░░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀░░
 
-void
-doEventLoop( t_glfw_data* glfwdata, void* callback_data, bool ( *headlessCallback )( void* ) )
+void doEventLoop( t_glfw_data* glfwdata, void* callback_data, bool ( *headlessCallback )( void* ) )
 {  // Warning: Ensure that the headless callback contains no ImGui functions
 
 	while ( headlessCallback || glfwdata->imguiCallback ) {

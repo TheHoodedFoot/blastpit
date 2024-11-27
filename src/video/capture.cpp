@@ -8,15 +8,13 @@
 using namespace cv;
 using namespace std;
 
-inline bool
-exists( const std::string& name )
+inline bool exists( const std::string& name )
 {
 	struct stat buffer;
 	return ( stat( name.c_str(), &buffer ) == 0 );
 }
 
-int
-main( int, char** )
+int main( int, char** )
 {
 	// TODO: CAPTURE_DEVICE needs to be the description found in
 	// /dev/v4l/by-id, which we need to convert here using

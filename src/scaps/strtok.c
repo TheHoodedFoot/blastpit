@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int
-main()
+int main()
 {
 	char  line[100];
 	char* token;

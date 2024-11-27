@@ -45,7 +45,7 @@
 
 #define IM_ARRAYSIZE( _ARR )	      ( (int)( sizeof( _ARR ) / sizeof( *_ARR ) ) )
 #define IM_UNUSED( _VAR )	      ( (void)_VAR )
-#define IM_OFFSETOF( _TYPE, _MEMBER ) ( ( size_t ) & ( ( (_TYPE*)0 )->_MEMBER ) )
+#define IM_OFFSETOF( _TYPE, _MEMBER ) ( (size_t)&( ( (_TYPE*)0 )->_MEMBER ) )
 
 #include <assert.h>
 #define IM_ASSERT( _EXPR ) assert( _EXPR )
@@ -95,20 +95,17 @@ static GLFWscrollfun	  g_PrevUserCallbackScroll	= NULL;
 static GLFWkeyfun	  g_PrevUserCallbackKey		= NULL;
 static GLFWcharfun	  g_PrevUserCallbackChar	= NULL;
 
-static const char*
-ImGui_ImplGlfw_GetClipboardText( void* user_data )
+static const char* ImGui_ImplGlfw_GetClipboardText( void* user_data )
 {
 	return glfwGetClipboardString( (GLFWwindow*)user_data );
 }
 
-static void
-ImGui_ImplGlfw_SetClipboardText( void* user_data, const char* text )
+static void ImGui_ImplGlfw_SetClipboardText( void* user_data, const char* text )
 {
 	glfwSetClipboardString( (GLFWwindow*)user_data, text );
 }
 
-void
-ImGui_ImplGlfw_MouseButtonCallback( GLFWwindow* window, int button, int action, int mods )
+void ImGui_ImplGlfw_MouseButtonCallback( GLFWwindow* window, int button, int action, int mods )
 {
 	if ( g_PrevUserCallbackMousebutton != NULL ) {
 		g_PrevUserCallbackMousebutton( window, button, action, mods );
@@ -119,8 +116,7 @@ ImGui_ImplGlfw_MouseButtonCallback( GLFWwindow* window, int button, int action, 
 	}
 }
 
-void
-ImGui_ImplGlfw_ScrollCallback( GLFWwindow* window, double xoffset, double yoffset )
+void ImGui_ImplGlfw_ScrollCallback( GLFWwindow* window, double xoffset, double yoffset )
 {
 	if ( g_PrevUserCallbackScroll != NULL ) {
 		g_PrevUserCallbackScroll( window, xoffset, yoffset );
@@ -131,8 +127,7 @@ ImGui_ImplGlfw_ScrollCallback( GLFWwindow* window, double xoffset, double yoffse
 	io->MouseWheel += (float)yoffset;
 }
 
-void
-ImGui_ImplGlfw_KeyCallback( GLFWwindow* window, int key, int scancode, int action, int mods )
+void ImGui_ImplGlfw_KeyCallback( GLFWwindow* window, int key, int scancode, int action, int mods )
 {
 	if ( g_PrevUserCallbackKey != NULL ) {
 		g_PrevUserCallbackKey( window, key, scancode, action, mods );
@@ -157,8 +152,7 @@ ImGui_ImplGlfw_KeyCallback( GLFWwindow* window, int key, int scancode, int actio
 #endif
 }
 
-void
-ImGui_ImplGlfw_CharCallback( GLFWwindow* window, unsigned int c )
+void ImGui_ImplGlfw_CharCallback( GLFWwindow* window, unsigned int c )
 {
 	if ( g_PrevUserCallbackChar != NULL ) {
 		g_PrevUserCallbackChar( window, c );
@@ -168,8 +162,7 @@ ImGui_ImplGlfw_CharCallback( GLFWwindow* window, unsigned int c )
 	ImGuiIO_AddInputCharacter( io, c );
 }
 
-static bool
-ImGui_ImplGlfw_Init( GLFWwindow* window, bool install_callbacks, GlfwClientApi client_api )
+static bool ImGui_ImplGlfw_Init( GLFWwindow* window, bool install_callbacks, GlfwClientApi client_api )
 {
 	g_Window = window;
 	g_Time	 = 0.0;
@@ -254,20 +247,17 @@ ImGui_ImplGlfw_Init( GLFWwindow* window, bool install_callbacks, GlfwClientApi c
 	return true;
 }
 
-bool
-ImGui_ImplGlfw_InitForOpenGL( GLFWwindow* window, bool install_callbacks )
+bool ImGui_ImplGlfw_InitForOpenGL( GLFWwindow* window, bool install_callbacks )
 {
 	return ImGui_ImplGlfw_Init( window, install_callbacks, GlfwClientApi_OpenGL );
 }
 
-bool
-ImGui_ImplGlfw_InitForVulkan( GLFWwindow* window, bool install_callbacks )
+bool ImGui_ImplGlfw_InitForVulkan( GLFWwindow* window, bool install_callbacks )
 {
 	return ImGui_ImplGlfw_Init( window, install_callbacks, GlfwClientApi_Vulkan );
 }
 
-void
-ImGui_ImplGlfw_Shutdown()
+void ImGui_ImplGlfw_Shutdown()
 {
 	if ( g_InstalledCallbacks ) {
 		glfwSetMouseButtonCallback( g_Window, g_PrevUserCallbackMousebutton );
@@ -284,8 +274,7 @@ ImGui_ImplGlfw_Shutdown()
 	g_ClientApi = GlfwClientApi_Unknown;
 }
 
-static void
-ImGui_ImplGlfw_UpdateMousePosAndButtons()
+static void ImGui_ImplGlfw_UpdateMousePosAndButtons()
 {
 	// Update buttons
 	ImGuiIO* io = igGetIO();
@@ -298,7 +287,7 @@ ImGui_ImplGlfw_UpdateMousePosAndButtons()
 
 	// Update mouse position
 	const ImVec2 mouse_pos_backup = io->MousePos;
-	io->MousePos		      = ( ImVec2 ){ -FLT_MAX, -FLT_MAX };
+	io->MousePos		      = (ImVec2){ -FLT_MAX, -FLT_MAX };
 #ifdef __EMSCRIPTEN__
 	const bool focused = true;  // Emscripten
 #else
@@ -310,13 +299,12 @@ ImGui_ImplGlfw_UpdateMousePosAndButtons()
 		} else {
 			double mouse_x, mouse_y;
 			glfwGetCursorPos( g_Window, &mouse_x, &mouse_y );
-			io->MousePos = ( ImVec2 ){ (float)mouse_x, (float)mouse_y };
+			io->MousePos = (ImVec2){ (float)mouse_x, (float)mouse_y };
 		}
 	}
 }
 
-static void
-ImGui_ImplGlfw_UpdateMouseCursor()
+static void ImGui_ImplGlfw_UpdateMouseCursor()
 {
 	ImGuiIO* io = igGetIO();
 	if ( ( io->ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange ) ||
@@ -340,8 +328,7 @@ ImGui_ImplGlfw_UpdateMouseCursor()
 	}
 }
 
-static void
-ImGui_ImplGlfw_UpdateGamepads()
+static void ImGui_ImplGlfw_UpdateGamepads()
 {
 	ImGuiIO* io = igGetIO();
 	memset( io->NavInputs, 0, sizeof( io->NavInputs ) );
@@ -392,8 +379,7 @@ ImGui_ImplGlfw_UpdateGamepads()
 	}
 }
 
-void
-ImGui_ImplGlfw_NewFrame()
+void ImGui_ImplGlfw_NewFrame()
 {
 	ImGuiIO* io = igGetIO();
 
@@ -406,9 +392,9 @@ ImGui_ImplGlfw_NewFrame()
 	int display_w, display_h;
 	glfwGetWindowSize( g_Window, &w, &h );
 	glfwGetFramebufferSize( g_Window, &display_w, &display_h );
-	io->DisplaySize = ( ImVec2 ){ (float)w, (float)h };
+	io->DisplaySize = (ImVec2){ (float)w, (float)h };
 	if ( w > 0 && h > 0 ) {
-		io->DisplayFramebufferScale = ( ImVec2 ){ (float)display_w / w, (float)display_h / h };
+		io->DisplayFramebufferScale = (ImVec2){ (float)display_w / w, (float)display_h / h };
 	}
 
 	// Setup time step

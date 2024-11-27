@@ -3,8 +3,7 @@
 #include "sds.h"
 #include <mxml.h>
 
-int
-XmlGetMessageCount( const char* xml )
+int XmlGetMessageCount( const char* xml )
 {  // Returns count of <message> elements or kInvalid on bad xml
 
 	if ( !xml ) {
@@ -27,8 +26,7 @@ XmlGetMessageCount( const char* xml )
 	return count;
 }
 
-sds
-XmlGetAttribute( const char* message, const char* attribute )
+sds XmlGetAttribute( const char* message, const char* attribute )
 {  // Retrieves an attribute value, or NULL
 
 	if ( !message || !attribute ) {
@@ -58,8 +56,7 @@ XmlGetAttribute( const char* message, const char* attribute )
 	return retval;
 }
 
-sds
-XmlGetChildNodeAsString( const char* message_str, const char* child )
+sds XmlGetChildNodeAsString( const char* message_str, const char* child )
 {  // Returns the child node tree as a string
 
 	if ( !message_str ) {
@@ -100,8 +97,7 @@ XmlGetChildNodeAsString( const char* message_str, const char* child )
 	return NULL;
 }
 
-sds
-XmlGetMessageByIndex( const char* xml, int index )
+sds XmlGetMessageByIndex( const char* xml, int index )
 {  // Returns a string containing a single message element
 
 	mxml_options_t* mxmlopts = mxmlOptionsNew();
@@ -131,8 +127,7 @@ XmlGetMessageByIndex( const char* xml, int index )
 	return retval;
 }
 
-sds
-XmlGetPayloadByIndex( const char* xml, int index )
+sds XmlGetPayloadByIndex( const char* xml, int index )
 {  // Returns a message payload
 
 	mxml_options_t* mxmlopts = mxmlOptionsNew();
@@ -162,8 +157,7 @@ XmlGetPayloadByIndex( const char* xml, int index )
 	return retval;
 }
 
-sds
-XmlSetAttribute( sds message, const char* attribute, const char* value )
+sds XmlSetAttribute( sds message, const char* attribute, const char* value )
 {  // Sets an attribute value. Invalidates original message.
 
 	if ( !message || !attribute || !value ) {
@@ -193,8 +187,7 @@ XmlSetAttribute( sds message, const char* attribute, const char* value )
 	return retval;
 }
 
-void
-XmlAddXmlHeader( sds* message )
+void XmlAddXmlHeader( sds* message )
 {  // Helper to add the <?xml?> header to allow mxmlLoadString to work
 
 	sds header_added = sdsnew( "<?xml?>" );
@@ -203,8 +196,7 @@ XmlAddXmlHeader( sds* message )
 	*message = header_added;
 }
 
-sds
-XmlDeleteAttribute( sds message, const char* attribute )
+sds XmlDeleteAttribute( sds message, const char* attribute )
 {  // Deletes an attribute value. Invalidates original message.
 
 	if ( !message || !attribute ) {
@@ -234,8 +226,7 @@ XmlDeleteAttribute( sds message, const char* attribute )
 	return retval;
 }
 
-sds
-XmlNewCdata( const char* message )
+sds XmlNewCdata( const char* message )
 {  // Adds a CDATA string to a <message>
 
 	if ( !message ) {
@@ -258,8 +249,7 @@ XmlNewCdata( const char* message )
 	return retval;
 }
 
-sds
-XmlDrawingToMessage( sds drawing )
+sds XmlDrawingToMessage( sds drawing )
 {  // Rewrites Xml.
 
 	if ( !drawing ) {
@@ -282,8 +272,7 @@ XmlDrawingToMessage( sds drawing )
 	return retval;
 }
 
-sds
-XmlExtractMessagePayload( const char* xml )
+sds XmlExtractMessagePayload( const char* xml )
 {  // Returns the string payload of a message, or NULL
 
 	if ( !xml ) {

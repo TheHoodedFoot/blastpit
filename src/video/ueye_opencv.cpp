@@ -14,8 +14,7 @@ using namespace cv;
 
 const char* windowName = "Ueye Capture";  // Name of the window
 
-static void
-CannyThreshold( int level, void* image )
+static void CannyThreshold( int level, void* image )
 {  //
 
 	const int ratio	      = 3;
@@ -46,8 +45,7 @@ CannyThreshold( int level, void* image )
 	imshow( windowName, displayImg );
 }
 
-int
-UeyeToOpenCV( unsigned char* bitmap, int width, int height )
+int UeyeToOpenCV( unsigned char* bitmap, int width, int height )
 {  // Create OpenCV Mat header pointing to image data
 
 	int	  lowThreshold	   = 0;
@@ -76,8 +74,7 @@ UeyeToOpenCV( unsigned char* bitmap, int width, int height )
 	return true;
 }
 
-void
-UeyeCloseWindow()
+void UeyeCloseWindow()
 {
 	destroyWindow( windowName );  // destroy the created window
 };

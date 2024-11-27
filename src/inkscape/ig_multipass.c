@@ -33,8 +33,7 @@
 // ░░█░░█░█░█░█░█░█░░█░░░░█░█░█░█░█░░░░█░░░█░░█▀▀░█▀█░▀▀█░▀▀█
 // ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░░▀░▀░▀▀▀░▀▀▀
 
-void
-mpCreateWidgets( t_multipass_data* self )
+void mpCreateWidgets( t_multipass_data* self )
 {
 	ImVec2 ig2Empty = { 0, 0 };
 	ImVec2 vertGap	= { 0, 20 };
@@ -166,8 +165,7 @@ mpCreateWidgets( t_multipass_data* self )
 // ░█░█░█░█░█░░░░█░░░█░░█▀▀░█▀█░▀▀█░▀▀█
 // ░▀░▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░░▀░▀░▀▀▀░▀▀▀
 
-int
-startMultipassScript( const char* command, t_multipass_data* self )
+int startMultipassScript( const char* command, t_multipass_data* self )
 {  // Execute the script
 
 	/* Open the command for reading. */
@@ -194,8 +192,7 @@ startMultipassScript( const char* command, t_multipass_data* self )
 	return true;
 }
 
-int
-mpParseFilename( t_multipass_data* self )
+int mpParseFilename( t_multipass_data* self )
 {  // Obtain the filename from the SVG
 
 	(void)self;
@@ -206,8 +203,7 @@ mpParseFilename( t_multipass_data* self )
 	return false;
 }
 
-int
-pollMultipass( t_multipass_data* self )
+int pollMultipass( t_multipass_data* self )
 {  // Get output from running script
 
 	if ( self->fh_script_output == NULL ) {
@@ -235,8 +231,7 @@ pollMultipass( t_multipass_data* self )
 	return true;
 }
 
-int
-endMultipassScript( t_multipass_data* self )
+int endMultipassScript( t_multipass_data* self )
 {  // Close file handle and clean up
 
 	pclose( self->fh_script_output );
@@ -251,8 +246,7 @@ endMultipassScript( t_multipass_data* self )
 // ░█▀▀░▀▄▀░█▀▀░█░█░░█░░░░█░░░█░█░█░█░█▀▀
 // ░▀▀▀░░▀░░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀░░
 
-bool
-mpEventLoop( void* multipass_data )
+bool mpEventLoop( void* multipass_data )
 {
 	t_multipass_data* self = (t_multipass_data*)multipass_data;
 
@@ -264,8 +258,7 @@ mpEventLoop( void* multipass_data )
 	return !self->exit_event_loop;
 }
 
-bool
-mpImGuiLoop( void* multipass_data )
+bool mpImGuiLoop( void* multipass_data )
 {
 	t_multipass_data* self = (t_multipass_data*)multipass_data;
 
@@ -315,8 +308,7 @@ mpImGuiLoop( void* multipass_data )
 // }
 
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	// We avoid globals by passing a struct to the event loop
 	t_multipass_data self = {

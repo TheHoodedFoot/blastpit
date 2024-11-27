@@ -29,8 +29,7 @@ NSVGimage* g_image = NULL;
 static unsigned char bgColor[4]	  = { 205, 202, 200, 255 };
 static unsigned char lineColor[4] = { 0, 160, 192, 255 };
 
-static float
-distPtSeg( float x, float y, float px, float py, float qx, float qy )
+static float distPtSeg( float x, float y, float px, float py, float qx, float qy )
 {
 	float pqx, pqy, dx, dy, d, t;
 	pqx = qx - px;
@@ -52,8 +51,8 @@ distPtSeg( float x, float y, float px, float py, float qx, float qy )
 	return dx * dx + dy * dy;
 }
 
-static void
-cubicBez( float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float tol, int level )
+static void cubicBez(
+	float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float tol, int level )
 {
 	float x12, y12, x23, y23, x34, y34, x123, y123, x234, y234, x1234, y1234;
 	float d;
@@ -84,8 +83,7 @@ cubicBez( float x1, float y1, float x2, float y2, float x3, float y3, float x4, 
 	}
 }
 
-void
-drawPath( float* pts, int npts, char closed, float tol )
+void drawPath( float* pts, int npts, char closed, float tol )
 {
 	int i;
 	glBegin( GL_LINE_STRIP );
@@ -101,8 +99,7 @@ drawPath( float* pts, int npts, char closed, float tol )
 	glEnd();
 }
 
-void
-drawControlPts( float* pts, int npts )
+void drawControlPts( float* pts, int npts )
 {
 	int i;
 
@@ -147,8 +144,7 @@ drawControlPts( float* pts, int npts )
 	glEnd();
 }
 
-void
-drawframe( GLFWwindow* window )
+void drawframe( GLFWwindow* window )
 {
 	int	   width = 0, height = 0;
 	float	   view[4], cx, cy, hw, hh, aspect, px;
@@ -217,8 +213,7 @@ drawframe( GLFWwindow* window )
 	glfwSwapBuffers( window );
 }
 
-void
-resizecb( GLFWwindow* window, int width, int height )
+void resizecb( GLFWwindow* window, int width, int height )
 {
 	// Update and render
 	NSVG_NOTUSED( width );
@@ -226,8 +221,7 @@ resizecb( GLFWwindow* window, int width, int height )
 	drawframe( window );
 }
 
-int
-main()
+int main()
 {
 	GLFWwindow*	   window;
 	const GLFWvidmode* mode;

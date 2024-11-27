@@ -62,16 +62,14 @@ struct cameraInfo
 int verbose_flag = 0;
 int test_flag	 = 0;
 
-void
-printUsage()
+void printUsage()
 {
 	printf( "Usage: ueye [-p pixelclock] [-f framerate] [-e exposure] <server>\n\n"
 		"e.g. ueye -p 7 -e 1500 ws://127.0.0.1:8000\n" );
 }
 
 // Base 64 Encoding (https://nachtimwald.com/2017/11/18/base64-encode-and-decode-in-c/)
-size_t
-b64_encoded_size( size_t inlen )
+size_t b64_encoded_size( size_t inlen )
 {
 	size_t ret;
 
@@ -86,8 +84,7 @@ b64_encoded_size( size_t inlen )
 }
 
 
-char*
-b64_encode( const unsigned char* in, size_t len )
+char* b64_encode( const unsigned char* in, size_t len )
 {
 	const char b64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -127,8 +124,7 @@ b64_encode( const unsigned char* in, size_t len )
 	return out;
 }
 
-void
-snapshot( HIDS hCam, char* bitmap )
+void snapshot( HIDS hCam, char* bitmap )
 {  // Acquires a single image from the camera
 
 	int retval = is_FreezeVideo( hCam, IS_WAIT );
@@ -143,8 +139,7 @@ snapshot( HIDS hCam, char* bitmap )
 	}
 }
 
-void
-messageReceivedCallback( void* ev_data, void* object )
+void messageReceivedCallback( void* ev_data, void* object )
 {
 	(void)object;
 
@@ -172,8 +167,7 @@ messageReceivedCallback( void* ev_data, void* object )
 	// If message = kOpenCV get photo and launch opencv processing
 }
 
-void
-InitialiseServer( char* serverip, struct cameraInfo* camera )
+void InitialiseServer( char* serverip, struct cameraInfo* camera )
 {
 	camera->client = blastpitNew();
 	registerCallback( camera->client, &messageReceivedCallback );
@@ -185,8 +179,7 @@ InitialiseServer( char* serverip, struct cameraInfo* camera )
 	}
 }
 
-int
-InitialiseCamera( struct cameraInfo* camera, unsigned int pixelclock, double framerate, double exposure )
+int InitialiseCamera( struct cameraInfo* camera, unsigned int pixelclock, double framerate, double exposure )
 {
 	// Starts the driver and establishes the connection to the camera
 	is_InitCamera( &camera->hCam, NULL );
@@ -276,8 +269,7 @@ InitialiseCamera( struct cameraInfo* camera, unsigned int pixelclock, double fra
 	return true;
 }
 
-int
-TerminateCamera( struct cameraInfo* camera )
+int TerminateCamera( struct cameraInfo* camera )
 {
 	// Releases the image memory that was allocated
 	is_FreeImageMem( camera->hCam, camera->pcImageMemory, camera->nMemoryId );
@@ -288,8 +280,7 @@ TerminateCamera( struct cameraInfo* camera )
 	return 0;
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	int c;
 

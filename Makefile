@@ -23,6 +23,11 @@ SUBMODULES_DIR  := $(SRC_DIR)/submodules
 REDIST_DIR      := $(DOTGIT_DIR)/untracked/redist
 GIT_HOOKS       := ${PROJECT_ROOT}/$(shell git config --get core.hooksPath)
 
+# Ensure BUILD_DIR is set to prevent accidental deletion with make clean
+ifeq ($(origin BUILD_DIR), undefined)
+$(error BUILD_DIR is not defined)
+endif
+
 # User defines
 
 CPPFLAGS        += $(addprefix -D, $(USER_DEFINES))
@@ -36,6 +41,8 @@ USER_DEFINES     = SPACENAV
 
 
 # Compilers (Note: using Zig with bear fails to create compile database)
+DEBUG_CC = clang
+DEBUG_CXX = clang++
 ASAN_CC = clang
 ASAN_CXX = clang++
 MSAN_CC = clang
@@ -159,7 +166,7 @@ BLASTPY_FILES  = $(BUILD_DIR)/blastpy_wrap.o
 DEBUG_COMMAND ?= $(shell head -n1 .debugcmd)
 DEBUG_TARGET  ?= $(shell tail -n1 .debugcmd)
 
-FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp} src/imgui/*.c src/scaffolding/*.c src/inkscape/*.{c,h} src/windows/*.c src/include/*.h src/include/*/*.h src/database/*.c src/lvgl/*.{c,h} src/scaps/*.{c,cpp,h}
+FORMAT_FILES        = src/libblastpit/*.{h,c} src/lmos/lmos.c src/lmos/{lmos-tray,lmos,parser}.{hpp,cpp} src/lmos/{main,traysettings}.cpp src/video/*.{h,c,cpp} src/imgui/*.c src/scaffolding/*.c src/inkscape/*.{c,h} src/windows/*.c src/include/*.h src/include/*/*.h src/database/*.c src/lvgl/*.{c,h} src/scaps/*.{c,cpp,h}
 FORMAT_FILES_PYTHON = src/libblastpit/*.py src/inkscape/*.py src/scaffolding/*.py
 FORMAT_FILES_XML    = src/inkscape/*.inx
 FORMAT_FILES_HTML   = doc/reference_manuals/lmos.html
@@ -189,7 +196,8 @@ all: 		debug
 
 libs:		 $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/libblastpit.a #$(BUILD_DIR)/imgui_libs.a 
 debug:		.tags
-		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) libs targets python_targets wscli #imgui
+		CPPFLAGS="$(DEBUG_CPPFLAGS)" $(MAKE) CC="$(DEBUG_CC)" CXX="$(DEBUG_CXX)" libs targets python_targets wscli #imgui
+		sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(BUILD_DIR)/*.json > $(PROJECT_ROOT)/compile_commands.json || /bin/true
 
 # debug:	.tags targets wscli python_targets imgui lvgl
 # 		$(MAKE) -f $(PROJECT_ROOT)/Makefile unit_tests
@@ -260,11 +268,10 @@ alltargetscheck:
 		echo wscli | $(FIGLET)
 		make wscli_portable_x86
 
-		# Temporarily removed due to arm64 Tracy failure
-		# make clean
-		# make $(BUILD_DIR)
-		# echo profile | $(FIGLET)
-		# make profile
+		make clean
+		make $(BUILD_DIR)
+		echo profile | $(FIGLET)
+		make profile
 
 # Prevent intermediate files being deleted and rebuilt every time
 # .SECONDARY: 	$(LIBBLASTPIT_OBJS) $(TEST_OBJS)
@@ -310,9 +317,10 @@ test:	targets
 # ebuild:		$(BUILD_DIR) $(LIBBLASTPIT_OBJS)
 
 clean:
-		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
+		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x,o.json,.exe,.pdb} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
 		@rm -rf $(PROJECT_ROOT)/.{cache,ccls-cache,pytest_cache} 2>/dev/null || /bin/true
 		@rm -f $(PROJECT_ROOT)/{.tags,compile_command*.json} >/dev/null 2>/dev/null || /bin/true
+		@rm -f $(BUILD_DIR)/{canny,eakins,webcam}
 
 distclean:
 		git clean -dfx || /bin/true

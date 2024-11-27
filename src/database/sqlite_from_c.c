@@ -3,8 +3,7 @@
 #include <sqlite3.h>
 #include <stdio.h>
 
-int
-callback( void* NotUsed, int argc, char** argv, char** azColName )
+int callback( void* NotUsed, int argc, char** argv, char** azColName )
 {
 
 	NotUsed = 0;
@@ -19,8 +18,7 @@ callback( void* NotUsed, int argc, char** argv, char** azColName )
 	return 0;
 }
 
-int
-main( void )
+int main( void )
 {
 
 	sqlite3*      db;

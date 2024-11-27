@@ -23,8 +23,7 @@
 // ░█░█░░█░░░█░░█░░░░█░░░█░░░█░░█▀▀░▀▀█
 // ░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀
 
-void
-convertToUppercase( sds sds_lowercase )
+void convertToUppercase( sds sds_lowercase )
 {
 	char* s = sds_lowercase;
 	while ( *s ) {
@@ -33,8 +32,7 @@ convertToUppercase( sds sds_lowercase )
 	}
 }
 
-void
-spacesToUnderscores( sds sds_with_spaces )
+void spacesToUnderscores( sds sds_with_spaces )
 {
 	char* s = sds_with_spaces;
 	while ( *s ) {
@@ -45,8 +43,7 @@ spacesToUnderscores( sds sds_with_spaces )
 	}
 }
 
-sds
-generateRemoteFilename( const char* customer, const char* filename )
+sds generateRemoteFilename( const char* customer, const char* filename )
 {  // Generates a Windows filename compatible with Blastpit
 
 	// Get the current year
@@ -83,8 +80,7 @@ generateRemoteFilename( const char* customer, const char* filename )
 // ░▄▀▄░█░█░█░░
 // ░▀░▀░▀░▀░▀▀▀
 
-void
-dumpXML( const char* filename )
+void dumpXML( const char* filename )
 {
 
 	FILE* infile;
@@ -109,8 +105,7 @@ dumpXML( const char* filename )
 	}
 }
 
-mxml_node_t*
-FileToXML( const char* filename )
+mxml_node_t* FileToXML( const char* filename )
 {  // Convert the SVG to XML
 
 	FILE* svg_in;
@@ -136,8 +131,7 @@ FileToXML( const char* filename )
 	return xml;
 }
 
-int
-findLaserdata( mxml_node_t* xml )
+int findLaserdata( mxml_node_t* xml )
 {  // Finds important metadata in the SVG file
 
 	mxml_node_t* node;
@@ -162,8 +156,7 @@ findLaserdata( mxml_node_t* xml )
 	return true;
 }
 
-int
-embedLaserdata( mxml_node_t* xml, t_laserdata* laserdata )
+int embedLaserdata( mxml_node_t* xml, t_laserdata* laserdata )
 {  // Adds or replaces the laser metadata in the SVG
 
 	(void)xml;
@@ -172,8 +165,7 @@ embedLaserdata( mxml_node_t* xml, t_laserdata* laserdata )
 	return false;
 }
 
-int
-convertLaserdata( mxml_node_t* xml, t_laserdata* laserdata )
+int convertLaserdata( mxml_node_t* xml, t_laserdata* laserdata )
 {  // Reads any existing JSON metadata and embeds as new SVG/XML
 
 	(void)xml;
@@ -203,8 +195,7 @@ convertLaserdata( mxml_node_t* xml, t_laserdata* laserdata )
 	return false;
 }
 
-int
-writeSVGToFile( mxml_node_t* xml, const char* filename )
+int writeSVGToFile( mxml_node_t* xml, const char* filename )
 {
 	FILE* svg_out;
 	if ( !( svg_out = fopen( filename, "w" ) ) ) {
@@ -217,8 +208,7 @@ writeSVGToFile( mxml_node_t* xml, const char* filename )
 	return true;
 }
 
-int
-getCurrentDirectory( void )
+int getCurrentDirectory( void )
 {
 	char cwd[PATH_MAX];
 	if ( getcwd( cwd, sizeof( cwd ) ) != NULL ) {
@@ -238,15 +228,13 @@ getCurrentDirectory( void )
 // ░█▀▀░█░█░▀▀█░░█░░█░█░█▀▄░█▀▀░▀▀█░█\█░█░░
 // ░▀░░░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░▀░▀▀▀░▀▀▀░░▀\░▀▀▀
 
-void
-pg_exit_nicely( PGconn* conn )
+void pg_exit_nicely( PGconn* conn )
 {
 	PQfinish( conn );
 	exit( 1 );
 }
 
-int
-postgresTest( void )
+int postgresTest( void )
 {
 	const char* conninfo;
 	PGconn*	    conn;

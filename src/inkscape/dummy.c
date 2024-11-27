@@ -3,8 +3,7 @@
 
 #define OUTPUT_FILE "/tmp/imgui_test.txt"
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
 	FILE* outfile;
 

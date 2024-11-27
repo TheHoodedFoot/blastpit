@@ -12,8 +12,7 @@
 #include "websocket.h"
 #include "xml.h"
 
-t_Blastpit*
-blastpitNew( void )
+t_Blastpit* blastpitNew( void )
 {  // Constructor
 
 	t_Blastpit* bp = (t_Blastpit*)calloc( 1, sizeof( t_Blastpit ) );
@@ -29,8 +28,7 @@ blastpitNew( void )
 	return bp;
 }
 
-void
-blastpitDelete( t_Blastpit* bp )
+void blastpitDelete( t_Blastpit* bp )
 {  // Destructor
 
 	if ( bp->ws ) {
@@ -45,8 +43,7 @@ blastpitDelete( t_Blastpit* bp )
 	free( bp );
 }
 
-const char*
-bpCommandName( int command )
+const char* bpCommandName( int command )
 {
 	if ( command <= BPCOMMAND_MAX ) {
 		return bpCommandString[command];
@@ -54,8 +51,7 @@ bpCommandName( int command )
 	return BP_EMPTY_STRING;
 }
 
-const char*
-bpRetvalName( int retval )
+const char* bpRetvalName( int retval )
 {
 	if ( retval <= RETVAL_MAX ) {
 		return bpRetvalString[retval];
@@ -63,8 +59,7 @@ bpRetvalName( int retval )
 	return BP_EMPTY_STRING;
 }
 
-int
-serverCreate( t_Blastpit* self, const char* port )
+int serverCreate( t_Blastpit* self, const char* port )
 {  // Start a listening server
 
 	if ( port == NULL ) {
@@ -78,15 +73,13 @@ serverCreate( t_Blastpit* self, const char* port )
 	return result;
 }
 
-void
-serverDestroy( t_Blastpit* self )
+void serverDestroy( t_Blastpit* self )
 {  // Close the WebSocket server and free any resources
 
 	wsServerDestroy( (t_Websocket*)self->ws );
 }
 
-int
-connectToServer( t_Blastpit* self, const char* server, int timeout_ms )
+int connectToServer( t_Blastpit* self, const char* server, int timeout_ms )
 {  // Connects a client to the server
 
 	// TODO(thf): timeout_ms may not be needed with WebSockets
@@ -118,8 +111,7 @@ connectToServer( t_Blastpit* self, const char* server, int timeout_ms )
 	return kSuccess;
 }
 
-int
-waitForConnection( t_Blastpit* self, int timeout )
+int waitForConnection( t_Blastpit* self, int timeout )
 {  // Repeatedly poll until we connect to server or timeout
 
 	while ( timeout > 0 ) {
@@ -135,48 +127,41 @@ waitForConnection( t_Blastpit* self, int timeout )
 	return false;
 }
 
-void
-disconnectFromServer( t_Blastpit* self )
+void disconnectFromServer( t_Blastpit* self )
 {
 	wsClientDestroy( (t_Websocket*)self->ws );
 }
 
-void
-pollMessages( t_Blastpit* self )
+void pollMessages( t_Blastpit* self )
 {  // Check for and process network activity
 
 	wsPoll( (t_Websocket*)self->ws );
 }
 
-void
-pollMessagesWithTimeout( t_Blastpit* self, int timeout )
+void pollMessagesWithTimeout( t_Blastpit* self, int timeout )
 {  // Check for and process network activity
 
 	wsPollWithTimeout( (t_Websocket*)self->ws, timeout );
 }
 
-void
-sendClientMessage( t_Blastpit* self, const char* message )
+void sendClientMessage( t_Blastpit* self, const char* message )
 {
 	BPLOG( kLvlEverything, "sendClientMessage: %s\n", message );
 	wsClientSendMessage( (t_Websocket*)self->ws, (char*)message );
 }
 
-void
-sendServerMessage( t_Blastpit* self, const char* message )
+void sendServerMessage( t_Blastpit* self, const char* message )
 {
 	wsServerSendMessage( (t_Websocket*)self->ws, (char*)message );
 }
 
-void
-registerCallback( t_Blastpit* self, void ( *callback )( void*, void* ) )
+void registerCallback( t_Blastpit* self, void ( *callback )( void*, void* ) )
 {  // Specify an additional callback upon message receipt
 
 	wsSetMessageReceivedCallback( (t_Websocket*)self->ws, callback );
 }
 
-WsMessage
-ConvertCallbackData( void* ev_data )
+WsMessage ConvertCallbackData( void* ev_data )
 {  // Gets the size and data from a websocket_message
 
 	return ExtractWsMessageData( ev_data );
@@ -187,15 +172,13 @@ ConvertCallbackData( void* ev_data )
 	// return a;
 }
 
-void
-registerObject( t_Blastpit* self, void* object )
+void registerObject( t_Blastpit* self, void* object )
 {  // Specify an instance to call the callback method
 
 	wsSetMessageReceivedObject( (t_Websocket*)self->ws, object );
 }
 
-void
-UpdateHighestId( t_Blastpit* self, int id )
+void UpdateHighestId( t_Blastpit* self, int id )
 {  // Updates the highest known id
 
 	if ( id > self->highest_id ) {
@@ -203,8 +186,7 @@ UpdateHighestId( t_Blastpit* self, int id )
 	}
 }
 
-IdAck
-bp_sendMessage( t_Blastpit* self, const char* message )
+IdAck bp_sendMessage( t_Blastpit* self, const char* message )
 {
 	assert( self );
 	assert( message );
@@ -214,7 +196,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 	sds id_message = NULL;
 
 	if ( XmlGetMessageCount( message ) < 1 ) {
-		return ( IdAck ){ kInvalid, kBadXml, NULL };
+		return (IdAck){ kInvalid, kBadXml, NULL };
 	}
 
 	if ( XmlGetMessageCount( message ) == 1 ) {
@@ -237,7 +219,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 		}
 
 		if ( !id_message ) {
-			return ( IdAck ){ kInvalid, kSetterFailure, NULL };
+			return (IdAck){ kInvalid, kSetterFailure, NULL };
 		}
 	} else {
 		id	   = kMultipleCommands;
@@ -249,7 +231,7 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 	} else {
 		if ( !bp_isConnected( self ) ) {
 			sdsfree( id_message );
-			return ( IdAck ){ id, kConnectionFailure, NULL };
+			return (IdAck){ id, kConnectionFailure, NULL };
 			// return result;
 		}
 		sendClientMessage( self, id_message );
@@ -259,11 +241,10 @@ bp_sendMessage( t_Blastpit* self, const char* message )
 	sdsfree( id_message );
 
 	// BPLOG(kLvlDebug, "%s: end\n", __func__);
-	return ( IdAck ){ id, kSuccess, NULL };
+	return (IdAck){ id, kSuccess, NULL };
 }
 
-IdAck
-bp_sendMessageAndWait( t_Blastpit* self, const char* message, int timeout )
+IdAck bp_sendMessageAndWait( t_Blastpit* self, const char* message, int timeout )
 { /* Sends messageL and waits. Returns xml of reply with matching id */
 	// Caller must free the result.string, if any
 
@@ -291,8 +272,7 @@ bp_sendMessageAndWait( t_Blastpit* self, const char* message, int timeout )
 // 	return bp_waitForString(self, result.id, timeout);
 // }
 
-IdAck
-BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
+IdAck BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 {  // Continually polls the network until reply received or timeout
 	// If the IdAck contains a string the caller must free it after use
 
@@ -306,7 +286,7 @@ BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 	struct timeval current_time;
 	if ( gettimeofday( &start_time, NULL ) == -1 ) {
 		BPLOG( kLvlError, "%s: Cannot access system time\n", __func__ );
-		return ( IdAck ){ id, kFailure, NULL };
+		return (IdAck){ id, kFailure, NULL };
 	}
 
 	for ( int i = 0; i < timeout; i++ ) {
@@ -350,7 +330,7 @@ BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 						       "BpWaitForReplyOrTimeout: Message had payload %p\n",
 						       msg_data );
 					}
-					return ( IdAck ){ id, retval, (char*)msg_data };
+					return (IdAck){ id, retval, (char*)msg_data };
 				}
 			}
 		}
@@ -358,11 +338,10 @@ BpWaitForReplyOrTimeout( t_Blastpit* self, int id, int timeout )
 
 
 	BPLOG( kLvlDebug, "%s: Reply timeout\n", __func__ );
-	return ( IdAck ){ id, kReplyTimeout, NULL };
+	return (IdAck){ id, kReplyTimeout, NULL };
 }
 
-IdAck
-BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
+IdAck BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 {  // Continually polls the network until reply received or timeout
 	// If the IdAck contains a string the caller must free it after use
 
@@ -376,7 +355,7 @@ BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 	struct timeval current_time;
 	if ( gettimeofday( &start_time, NULL ) == -1 ) {
 		BPLOG( kLvlError, "%s: Cannot access system time\n", __func__ );
-		return ( IdAck ){ 0, kFailure, NULL };
+		return (IdAck){ 0, kFailure, NULL };
 	}
 
 	for ( int i = 0; i < timeout; i++ ) {
@@ -419,7 +398,7 @@ BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 					BPLOG( kLvlDebug,
 					       "BpWaitForSignalOrTimeout: msg_sigtype is %d\n",
 					       msg_sigtype );
-					return ( IdAck ){ msg_sigtype, kSuccess, (char*)sig_data };
+					return (IdAck){ msg_sigtype, kSuccess, (char*)sig_data };
 				}
 			}
 		}
@@ -427,11 +406,10 @@ BpWaitForSignalOrTimeout( t_Blastpit* self, int sigtype, int timeout )
 
 
 	BPLOG( kLvlDebug, "%s: Reply timeout\n", __func__ );
-	return ( IdAck ){ 0, kReplyTimeout, NULL };
+	return (IdAck){ 0, kReplyTimeout, NULL };
 }
 
-char*
-BpSdsToString( sds string )
+char* BpSdsToString( sds string )
 {  // Helper function to copy an sds string to a standard char string
 
 	int   len     = sdslen( string );
@@ -485,8 +463,7 @@ BpSdsToString( sds string )
 // 	return result;
 // }
 
-IdAck
-QueueAckRetval( t_Blastpit* self, int id, int retval )
+IdAck QueueAckRetval( t_Blastpit* self, int id, int retval )
 {  // Sends a message acknowledgement with return value
 
 	sds   id_str	 = sdsfromlonglong( id );
@@ -498,8 +475,7 @@ QueueAckRetval( t_Blastpit* self, int id, int retval )
 	return result;
 }
 
-IdAck
-QueueReplyPayload( t_Blastpit* self, int id, int retval, const char* payload )
+IdAck QueueReplyPayload( t_Blastpit* self, int id, int retval, const char* payload )
 {  // Sends a reply payload
 
 	sds   id_str	 = sdsfromlonglong( id );
@@ -511,8 +487,7 @@ QueueReplyPayload( t_Blastpit* self, int id, int retval, const char* payload )
 	return result;
 }
 
-IdAck
-BpQueueSignal( t_Blastpit* self, int signal, const char* payload )
+IdAck BpQueueSignal( t_Blastpit* self, int signal, const char* payload )
 {  // Sends an lmos signal
 
 	sds   signal_str = sdsfromlonglong( signal );
@@ -579,8 +554,7 @@ BpQueueSignal( t_Blastpit* self, int signal, const char* payload )
 // 	return result;
 // }
 
-int
-AutoGenerateId( t_Blastpit* self )
+int AutoGenerateId( t_Blastpit* self )
 {  // Generates an id higher than any previous
 
 	self->highest_id++;
@@ -610,64 +584,55 @@ AutoGenerateId( t_Blastpit* self )
 // 	return result;
 // }
 
-bool
-bp_isConnected( t_Blastpit* self )
+bool bp_isConnected( t_Blastpit* self )
 {
 	return ( (t_Websocket*)self->ws )->isConnected;
 }
 
-char*
-popMessage( t_Blastpit* self )
+char* popMessage( t_Blastpit* self )
 {  // Pop a message from the stack
 	// The message must be freed by the user
 
 	return popMessageAt( self, 0 );
 }
 
-char*
-popMessageAt( t_Blastpit* self, int index )
+char* popMessageAt( t_Blastpit* self, int index )
 {  // Pop a message at a specific index
 
 	return (char*)wsPopMessageAt( (t_Websocket*)self->ws, index );
 }
 
-int
-getMessageCount( t_Blastpit* self )
+int getMessageCount( t_Blastpit* self )
 {  // Get the count of the message stack
 
 	return wsGetMessageCount( (t_Websocket*)self->ws );
 }
 
-char*
-readMessageAt( t_Blastpit* self, int index )
+char* readMessageAt( t_Blastpit* self, int index )
 {  // Get the message for a specific index without deleting
 
 	return (char*)wsReadMessageAt( (t_Websocket*)self->ws, index );
 }
 
-void
-startLMOS( t_Blastpit* self )
+void startLMOS( t_Blastpit* self )
 {  // Send a message to LMOS to unload the ActiveX control
 
 	BpQueueCommand( self, kCreateLMOS );
 }
 
-void
-stopLMOS( t_Blastpit* self )
+void stopLMOS( t_Blastpit* self )
 {  // Send a message to LMOS to unload the ActiveX control
 
 	BpQueueCommand( self, kDestroyLMOS );
 }
 
-void
-clearQPSets( t_Blastpit* self )
+void clearQPSets( t_Blastpit* self )
 {  // Tell Lmos to erase all existing QPsets
 
 	BpQueueCommand( self, kClearQpSets );
 }
 
-void
-LayerSetLaserable( t_Blastpit* self, const char* layer, bool laserable )
+void LayerSetLaserable( t_Blastpit* self, const char* layer, bool laserable )
 {
 	sds message = sdscatprintf( sdsempty(),
 				    "<command layer=\"%s\" laserable=\"%d\">%d</command>",
@@ -678,8 +643,7 @@ LayerSetLaserable( t_Blastpit* self, const char* layer, bool laserable )
 	sdsfree( message );
 }
 
-void
-LayerSetHeight( t_Blastpit* self, const char* layer, int height )
+void LayerSetHeight( t_Blastpit* self, const char* layer, int height )
 {
 	sds message = sdscatprintf(
 		sdsempty(), "<command layer=\"%s\" height=\"%d\">%d</command>", layer, height, kLayerSetHeight );
@@ -687,69 +651,60 @@ LayerSetHeight( t_Blastpit* self, const char* layer, int height )
 	sdsfree( message );
 }
 
-char*
-SdsEmpty( void )
+char* SdsEmpty( void )
 {  // Helper function to create sds string that can be called from c++
 	// Avoids c++ code needing to know anything about sds
 
 	return (char*)sdsempty();
 }
 
-char*
-SdsNew( const char* string )
+char* SdsNew( const char* string )
 {  // Helper function to create sds string that can be called from c++
 	// Avoids c++ code needing to know anything about sds
 
 	return (char*)sdsnew( string );
 }
 
-char*
-SdsFromLong( long number )
+char* SdsFromLong( long number )
 {  // Helper function to create sds string from an int
 
 	return (char*)sdsfromlonglong( number );
 }
 
-void
-SdsFree( char* string )
+void SdsFree( char* string )
 {  // Helper function to free an sds string disguised as a char string
 
 	sdsfree( (sds)string );
 }
 
-int
-BpGetMessageCount( const char* xml )
+int BpGetMessageCount( const char* xml )
 {  // C++ wrapper for XmlGetMessageCount
 
 	return XmlGetMessageCount( xml );
 }
 
-char*
-BpGetMessageByIndex( const char* xml, int index )
+char* BpGetMessageByIndex( const char* xml, int index )
 {  // Wrapper for GetMessageByIndex
 
 	return (char*)XmlGetMessageByIndex( xml, index );
 }
 
-char*
-BpGetMessageAttribute( const char* message, const char* attribute )
+char* BpGetMessageAttribute( const char* message, const char* attribute )
 {  // Wrapper for GetMessageAttribute
 
 	return (char*)XmlGetAttribute( message, attribute );
 }
 
-char*
-BpGetChildNodeAsString( const char* message, const char* child_name )
+char* BpGetChildNodeAsString( const char* message, const char* child_name )
 {  // Wrapper for XmlGetString
 
 	return (char*)XmlGetChildNodeAsString( message, child_name );
 }
 
-IdAck
-BpQueueCommand( t_Blastpit* self, int command )
+IdAck BpQueueCommand( t_Blastpit* self, int command )
 {
 	if ( !self ) {
-		return ( IdAck ){ kInvalid, kFailure, NULL };
+		return (IdAck){ kInvalid, kFailure, NULL };
 	}
 
 	sds command_str = sdscatprintf( sdsempty(), "%d", command );
@@ -761,8 +716,7 @@ BpQueueCommand( t_Blastpit* self, int command )
 	return result;
 }
 
-IdAck
-BpQueueMessage( t_Blastpit* self, ... )
+IdAck BpQueueMessage( t_Blastpit* self, ... )
 {  // REMEMBER THE NULL
 	// Append message to global queue for bulk upload
 	// If there are an odd number of optional parameters,
@@ -836,15 +790,14 @@ BpQueueMessage( t_Blastpit* self, ... )
 
 	self->message_queue = xml;
 
-	return ( IdAck ){ id, kSuccess, NULL };
+	return (IdAck){ id, kSuccess, NULL };
 }
 
-IdAck
-BpUploadQueuedMessages( t_Blastpit* self )
+IdAck BpUploadQueuedMessages( t_Blastpit* self )
 {  // Uploads the queued message and frees the sds string
 
 	if ( !self->message_queue ) {
-		return ( IdAck ){ kInvalid, kFailure, NULL };
+		return (IdAck){ kInvalid, kFailure, NULL };
 	}
 
 	BPLOG( kLvlEverything, "(BpUploadQueuedMessages) Queue: %s\n", self->message_queue );
@@ -855,21 +808,20 @@ BpUploadQueuedMessages( t_Blastpit* self )
 	return result;
 }
 
-IdAck
-BpQueueQpSet( t_Blastpit* self, char* name, int current, int speed, int frequency )
+IdAck BpQueueQpSet( t_Blastpit* self, char* name, int current, int speed, int frequency )
 {  // Queue a qp set for upload
 
 	if ( !self ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 	if ( current < LMOS_CURRENT_MIN || current > LMOS_CURRENT_MAX ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 	if ( speed < LMOS_SPEED_MIN || speed > LMOS_SPEED_MAX ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 	if ( frequency < LMOS_FREQUENCY_MIN || frequency > LMOS_FREQUENCY_MAX ) {
-		return ( IdAck ){ kInvalid, kInvalid, NULL };
+		return (IdAck){ kInvalid, kInvalid, NULL };
 	}
 
 	sds command_str	  = sdscatprintf( sdsempty(), "%d", kAddQpSet );
@@ -900,24 +852,23 @@ BpQueueQpSet( t_Blastpit* self, char* name, int current, int speed, int frequenc
 	return result;
 }
 
-IdAck
-BpQueueCommandArgs( t_Blastpit* self,
-		    int		command,
-		    const char* attr1,
-		    const char* val1,
-		    const char* attr2,
-		    const char* val2,
-		    const char* attr3,
-		    const char* val3,
-		    const char* attr4,
-		    const char* val4,
-		    const char* payload )
+IdAck BpQueueCommandArgs( t_Blastpit* self,
+			  int	      command,
+			  const char* attr1,
+			  const char* val1,
+			  const char* attr2,
+			  const char* val2,
+			  const char* attr3,
+			  const char* val3,
+			  const char* attr4,
+			  const char* val4,
+			  const char* payload )
 {  // Queue a command with four attributes and payload
 	// This is a fix for lack of swig support for variadic functions
 	// Supply dummy command/value pairs for unneeded values or payload
 
 	if ( !self ) {
-		return ( IdAck ){ kInvalid, kFailure, NULL };
+		return (IdAck){ kInvalid, kFailure, NULL };
 	}
 
 	sds command_str = sdscatprintf( sdsempty(), "%d", command );
@@ -964,14 +915,12 @@ BpQueueCommandArgs( t_Blastpit* self,
 // 	sdsfree(dirty);
 // }
 
-void
-BpPrintQueue( t_Blastpit* self )
+void BpPrintQueue( t_Blastpit* self )
 {
 	printf( "\n\nMessage Queue\n-------------\n\n%s\n\n", self->message_queue );
 }
 
-int
-BpQueryRetvalDb( t_Blastpit* self, int id )
+int BpQueryRetvalDb( t_Blastpit* self, int id )
 {  // Returns retval of completed commands or kInvalid if not found
 
 	if ( !self ) {
@@ -995,8 +944,7 @@ BpQueryRetvalDb( t_Blastpit* self, int id )
 	return kNotFound;
 }
 
-int
-BpAddRetvalToDb( t_Blastpit* self, IdAck record )
+int BpAddRetvalToDb( t_Blastpit* self, IdAck record )
 {
 	if ( !self ) {
 		return kInvalid;
@@ -1011,8 +959,7 @@ BpAddRetvalToDb( t_Blastpit* self, IdAck record )
 	return kSuccess;
 }
 
-void
-BpFreeRetvalDb( t_Blastpit* self )
+void BpFreeRetvalDb( t_Blastpit* self )
 {  // Free all memory used by the return value database
 
 	if ( !self ) {
@@ -1032,8 +979,7 @@ BpFreeRetvalDb( t_Blastpit* self )
 	self->retval_db = NULL;
 }
 
-int
-BpIsLmosUp( t_Blastpit* self )
+int BpIsLmosUp( t_Blastpit* self )
 {  // Fast dedicated check to see if lmos controller is running
    // Note that this will return false if lmos is busy.
 
@@ -1053,8 +999,7 @@ BpIsLmosUp( t_Blastpit* self )
 	return ( timeout.retval == kSuccess );
 }
 
-void
-BpSetLightState( t_Blastpit* self, bool state )
+void BpSetLightState( t_Blastpit* self, bool state )
 {  // Sets the light state
 
 	// We have no way of requesting the actual light status
@@ -1085,8 +1030,7 @@ BpSetLightState( t_Blastpit* self, bool state )
 	self->message_queue = existing_queue;
 }
 
-void
-BpFreePayload( IdAck ack )
+void BpFreePayload( IdAck ack )
 {  // Python helper to free any message payload
 
 	if ( ack.string ) {
@@ -1094,8 +1038,7 @@ BpFreePayload( IdAck ack )
 	}
 }
 
-void
-BpSetDoorState( t_Blastpit* self, bool state )
+void BpSetDoorState( t_Blastpit* self, bool state )
 {  // Toggles the door state
 	// Write to 'OpenDoor' or 'CloseDoor', hold, then clear
 
@@ -1174,8 +1117,7 @@ BpSetDoorState( t_Blastpit* self, bool state )
 	self->message_queue = existing_queue;
 }
 
-void
-BpMoveW( t_Blastpit* self, int angle )
+void BpMoveW( t_Blastpit* self, int angle )
 {  // Sets the rotary axis
 
 	sds command_str = sdsfromlonglong( kMoveW );
@@ -1186,8 +1128,7 @@ BpMoveW( t_Blastpit* self, int angle )
 	sdsfree( rotation );
 }
 
-void
-BpInitMachine( t_Blastpit* self )
+void BpInitMachine( t_Blastpit* self )
 {  // Initialise the laser hardware
 
 	sds command_str = sdsfromlonglong( kInitMachine );
@@ -1196,8 +1137,7 @@ BpInitMachine( t_Blastpit* self )
 	sdsfree( command_str );
 }
 
-void
-BpTermMachine( t_Blastpit* self )
+void BpTermMachine( t_Blastpit* self )
 {  // Release the laser hardware
 
 	sds command_str = sdsfromlonglong( kTermMachine );
@@ -1206,8 +1146,7 @@ BpTermMachine( t_Blastpit* self )
 	sdsfree( command_str );
 }
 
-void
-BpDisplayLmosWindow( t_Blastpit* self, int visibility )
+void BpDisplayLmosWindow( t_Blastpit* self, int visibility )
 {  // Show or hide the Lmos ActiveX window
 
 	sds command_str = sdsfromlonglong( visibility == 1 ? kShowLMOS : kHideLMOS );
@@ -1216,8 +1155,7 @@ BpDisplayLmosWindow( t_Blastpit* self, int visibility )
 	sdsfree( command_str );
 }
 
-void
-BpSaveQpSets( t_Blastpit* self )
+void BpSaveQpSets( t_Blastpit* self )
 {  // Save any uploaded Qp sets to disk
 
 	sds command_str = sdsfromlonglong( kSaveQpSets );

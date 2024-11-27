@@ -42,8 +42,7 @@ ImVec2 ig2Empty = { 0, 0 };
 ImVec2 vertGap	= { 0, 20 };
 
 
-void
-dbTextWindow( t_database_data* self )
+void dbTextWindow( t_database_data* self )
 {
 	(void)self;
 
@@ -79,8 +78,7 @@ dbTextWindow( t_database_data* self )
 	igEnd();
 }
 
-void
-dbSearchWindow( t_database_data* self )
+void dbSearchWindow( t_database_data* self )
 {
 	(void)self;
 
@@ -96,8 +94,7 @@ dbSearchWindow( t_database_data* self )
 	igEnd();
 }
 
-void
-dbImageWindow( t_database_data* self )
+void dbImageWindow( t_database_data* self )
 {
 	(void)self;
 
@@ -118,12 +115,11 @@ dbImageWindow( t_database_data* self )
 	ImVec2 imv2_zero  = { 0.0f, 0.0f };
 	ImVec2 imv2_unity = { 1.0f, 1.0f };
 	ImVec4 imv4_unity = { 1.0f, 1.0f, 1.0f, 1.0f };
-	igImage( (void*)(intptr_t)my_image_texture, img_dims, imv2_zero, imv2_unity, imv4_unity, imv4_unity );
+	igImage( (ImTextureID)(intptr_t)my_image_texture, img_dims, imv2_zero, imv2_unity, imv4_unity, imv4_unity );
 	igEnd();
 }
 
-void
-dbDatabaseWindow( t_database_data* self )
+void dbDatabaseWindow( t_database_data* self )
 {
 	// Main window. Create this last so that it is active.
 
@@ -187,8 +183,7 @@ dbDatabaseWindow( t_database_data* self )
 	igEnd();
 }
 
-void
-dbCreateWidgets( t_database_data* self )
+void dbCreateWidgets( t_database_data* self )
 {
 	if ( self->customers.data == NULL ) {
 		self->customers =
@@ -211,8 +206,7 @@ dbCreateWidgets( t_database_data* self )
 // ░█▀▀░▀▄▀░█▀▀░█░█░░█░░░░█░░░█░█░█░█░█▀▀
 // ░▀▀▀░░▀░░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀░░
 
-bool
-dbEventLoop( void* db_data )
+bool dbEventLoop( void* db_data )
 {
 	t_database_data* self  = (t_database_data*)db_data;
 	self->job.result       = NULL;
@@ -234,8 +228,7 @@ dbEventLoop( void* db_data )
 	return !self->exit_event_loop;
 }
 
-int
-main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	// We avoid globals by having a struct passed to the event loop
 	t_database_data self = {
