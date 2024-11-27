@@ -320,6 +320,7 @@ clean:
 		@rm -rf $(BUILD_DIR)/*{py,so,c,o,_x,o.json,.exe,.pdb} $(BUILD_DIR)/{wscli,ig*,libblastpit.a} $(BUILD_DIR)/win32/* $(BUILD_DIR)/external_libs.a $(BUILD_DIR)/imgui_libs.a 2>/dev/null || /bin/true
 		@rm -rf $(PROJECT_ROOT)/.{cache,ccls-cache,pytest_cache} 2>/dev/null || /bin/true
 		@rm -f $(PROJECT_ROOT)/{.tags,compile_command*.json} >/dev/null 2>/dev/null || /bin/true
+		@rm -f $(BUILD_DIR)/{canny,eakins,webcam}
 
 distclean:
 		git clean -dfx || /bin/true

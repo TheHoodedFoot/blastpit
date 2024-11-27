@@ -22,17 +22,17 @@
 autoshadow_module.py: Inkscape extension to modify VLM shadow positions
 """
 
+import colorsys
+import datetime
+import json
+import math
+
 # Needed until blastpy is installed system-wide
 import sys
 from os.path import expanduser
 
 import inkex
-import colorsys
-import json
-
 from lxml import etree
-import datetime
-import math
 
 sys.path.append(expanduser("~") + "/projects/blastpit/src/scaffolding")
 from autoshadow import Autoshadow
@@ -49,6 +49,8 @@ class AutoshadowModule(inkex.EffectExtension):
         self.shadows = []
         self.moved_shadows = []
         self.inputfile = None
+        self.maxwidth = 1.0
+        self.diameter = 20.0
 
     def wipeShadows(self):
         # Delete any existing data labels
@@ -285,22 +287,9 @@ class AutoshadowModule(inkex.EffectExtension):
             self.inputfile = None
 
         # Move shadows
-        # print("self.maxwidth: ", self.maxwidth, "self.diameter: ", self.diameter, file=sys.stderr)
-        # try:
-        if self.maxwidth is not None and self.diameter is not None:
-            self.main()
-        else:
-            print(
-                "No maxwidth or diameter is set. Aborting autoshadow.",
-                file=sys.stderr,
-            )
-            print(
-                "self.maxwidth:",
-                self.maxwidth,
-                "self.diameter:",
-                self.diameter,
-                file=sys.stderr,
-            )
+        self.maxwidth = getattr(self, "maxwidth", 1.0)
+        self.diameter = getattr(self, "diameter", 20.0)
+        self.main()
 
 
 if __name__ == "__main__":
